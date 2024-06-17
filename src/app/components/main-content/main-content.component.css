@@ -1,0 +1,13 @@
+.main-content-container {
+    background: linear-gradient(45deg, #dbdbf184, #ffffff61);
+    box-shadow: 0 10px 12px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    border-radius: 2px;
+    color: rgb(0, 0, 0);
+    text-align: center;
+   }
+   h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+   }
+   

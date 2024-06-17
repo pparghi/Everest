@@ -1,0 +1,28 @@
+.mat-mdc-form-field {
+    font-size: 14px;
+    width: 100%;
+  }
+  
+.table-container {
+    overflow: auto;
+}   
+
+.example-container {
+    height: 800px;
+    overflow: auto;
+  }
+
+
+.element-row {
+    cursor: pointer;
+   }
+   .detail-row {
+    height: 0;
+   }
+   .detail-row .example-element-detail {
+    padding: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+   }
+   

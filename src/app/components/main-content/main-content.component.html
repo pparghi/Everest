@@ -1,0 +1,8 @@
+<div class="main-content-container">
+    <div *ngIf="currentPath.includes('members')">
+        <app-members></app-members>
+      </div>
+      <div *ngIf="currentPath.includes('home')" >
+        <app-master-debtors></app-master-debtors>
+      </div>      
+</div>

@@ -1,0 +1,28 @@
+.app-navigation {
+    background: linear-gradient(45deg, #050643, #3a3b68);
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   }
+   .app-navigation ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+   }
+   .app-navigation li {
+    margin: 0 10px;
+   }
+   .app-navigation a {
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    padding: 10px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   }
+   .app-navigation a:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.2);
+   }

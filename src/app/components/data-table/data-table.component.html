@@ -1,0 +1,111 @@
+<table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"  class="datatable row-border hover" style="width:100%">
+    <thead>
+        <tr>
+            <th width="2px;"></th>
+            <th>Debtor</th>
+            <th>Duns</th>
+            <th>Country</th>
+            <th>State</th>
+            <th>City</th>
+            <th>CreditLimit</th>      
+            <th>AIGLimit</th>
+            <th>Terms</th>                                    
+            <th>NoBuy</th>            
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngFor="let item of data; let i = index">
+        <tr class="table-row-not-expanded" >
+            <td class="cell" (click)="item.isExpanded = !item.isExpanded" style="cursor: pointer;"><i class="fa-solid fa-plus plus"></i></td>        
+            <td (click)="openMembersWindow(item.DebtorKey)" class="rows truncate" style="color: rgb(81, 0, 255); cursor: pointer;" title="{{ item.Debtor }}">{{ item.Debtor }}</td>
+            <td class="rows">{{ item.DbDunsNo }}</td>
+            <td class="rows">{{ item.Country === 'Canada' ? 'CA' : 'US' }}</td>
+            <td class="rows">{{ item.State }}</td>
+            <td class="rows">{{ item.City }}</td>
+            <td class="rows">{{ item.TotalCreditLimit | thousands  }}</td>            
+            <td class="rows">{{ item.AIGLimit }}</td>
+            <td class="rows">{{ item.Terms }}</td>            
+            <td class="truncate rows" title="{{ item.NoBuyCode }}">{{ item.NoBuyCode }}</td>
+        </tr>
+        <tr *ngIf="item.isExpanded">
+            
+            <td colspan="11"> 
+            <div  class="expanded-panel">
+                <div class="card shadow" style="background-color: #f3e5e8;">
+                    <table class="bordered-table">
+                      <tr class="header-row">
+                        <th class="header">Total AR</th>
+                        <th class="header">0-30</th>
+                        <th class="header">31-60</th>
+                        <th class="header">61-90</th>
+                        <th class="header">91-120</th>
+                        <th class="header">121-150</th>
+                        <th class="header">151-180</th>
+                        <th class="header">181+</th>
+                        <th class="header"># of Outstanding Invoices</th>
+                        <th class="header">Past Due</th>
+                        <th class="header">Past Due as a % of oustanding AR</th>
+                        <th class="header">C/A</th>          
+                        <th class="header">C/A %</th>
+                        <th class="header">DUNS</th>
+                        <th class="header">Address</th>              
+                      </tr>
+                      <tr class="table-row">
+                        <td class="cell">{{ math.round(item.Balance) }}</td>
+                        <td class="cell"></td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>      
+                        <td class="cell">-</td>
+                        <td class="cell">{{ item.DbDunsNo ? item.DbDunsNo : '-' }}</td>
+                        <td class="cell">{{ item.Addr1 }} , {{ item.Addr2 }}</td>                  
+                      </tr>                     
+                      <tr class="header-row">                                                
+                        <th class="header">C/L</th>
+                        <th class="header">%Utilized</th>
+                        <th class="header">AIG Limit</th>                                              
+                        <th class="header">Terms</th>
+                        <th class="header">DSO30</th>
+                        <th class="header">DSO60</th>
+                        <th class="header">DSO90</th>
+                        <th class="header">DSOAll</th>  
+                        <th class="header">Documents</th>   
+                        <th class="header">Warning</th>  
+                        <th class="header">NoBuy/Ineligible</th>  
+                        <th class="header">Skipped Invoices</th>  
+                        <th class="header">FX:</th>  
+                        <th class="header">1.36</th>                       
+                        <th class="header"></th>                       
+                      </tr>
+                      <tr class="table-row">                                                
+                        <td class="cell">-</td>
+                        <td class="cell">{{ item.PctUtilized | percent: '1.0-0' }}</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>                       
+                        <td class="cell">{{ math.round(item.DSO60) }}</td>
+                        <td class="cell">{{ math.round(item.DSO90) }}</td>
+                        <td class="cell">{{ math.round(item.DSOAll) }}</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>
+                        <td class="cell">-</td>                        
+                        <td class="cell"></td>                        
+                      </tr>                      
+                    </table>
+                </div>                
+            </div>
+          </td>
+        </tr>
+    </ng-container>
+</table>
+

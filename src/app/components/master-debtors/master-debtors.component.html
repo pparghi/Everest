@@ -1,0 +1,163 @@
+
+<div class="example-container mat-elevation-z8" tabindex="0">
+    
+    <mat-form-field>
+        <mat-label>Search</mat-label>
+        <input matInput (keyup)="applyFilter($event)">
+    </mat-form-field>
+
+    <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8">
+    
+    <ng-container matColumnDef="Debtor">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor</th>
+        <td (click)="openMembersWindow(element.DebtorKey)" style="color: rgb(81, 0, 255); cursor: pointer;" mat-cell *matCellDef="let element">{{ element.Debtor }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="DbDunsNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Duns</th>
+        <td mat-cell *matCellDef="let element">{{ element.DbDunsNo }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="Country">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Country</th>
+        <td mat-cell *matCellDef="let element">{{ element.Country === 'Canada' ? 'CA' : 'US' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="State">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>State</th>
+        <td mat-cell *matCellDef="let element">{{ element.State }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="City">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>City</th>
+        <td mat-cell *matCellDef="let element">{{ element.City }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="TotalCreditLimit">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditLimit</th>
+        <td mat-cell *matCellDef="let element">{{ element.TotalCreditLimit | thousands }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="AIGLimit">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>AIGLimit</th>
+        <td mat-cell *matCellDef="let element">{{ element.AIGLimit }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="Terms">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Terms</th>
+        <td mat-cell *matCellDef="let element">{{ element.Terms }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="NoBuyCode">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>NoBuy</th>
+        <td mat-cell *matCellDef="let element">{{ element.NoBuyCode }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="expand">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
+            <td mat-cell *matCellDef="let element">
+                <button mat-icon-button (click)="toggleRow(element)">
+                <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
+            </button>
+        </td>
+    </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky:true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"></tr>
+
+        <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
+                <div *ngIf="isExpanded(element)" style="padding: 2px;">            
+                    <td colspan="11"> 
+                        <div  class="expanded-panel">
+                            
+                                <table class="bordered-table">
+                                <tr class="header-row">
+                                <th class="header">Total AR</th>
+                                <th class="header">0-30</th>
+                                <th class="header">31-60</th>
+                                <th class="header">61-90</th>
+                                <th class="header">91-120</th>
+                                <th class="header">121-150</th>
+                                <th class="header">151-180</th>
+                                <th class="header">181+</th>
+                                <th class="header"># of Outstanding Invoices</th>
+                                <th class="header">Past Due</th>
+                                <th class="header">Past Due as a % of oustanding AR</th>
+                                <th class="header">C/A</th>          
+                                <th class="header">C/A %</th>
+                                <th class="header">DUNS</th>
+                                <th class="header">Address</th>              
+                                </tr>
+                                <tr class="table-row">
+                                <td class="cell">{{ math.round(element.Balance) }}</td>
+                                <td class="cell"></td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>      
+                                <td class="cell">-</td>
+                                <td class="cell">{{ element.DbDunsNo ? element.DbDunsNo : '-' }}</td>
+                                <td class="cell">{{ element.Addr1 }} , {{ element.Addr2 }}</td>                  
+                                </tr>                     
+                                <tr class="header-row">                                                
+                                <th class="header">C/L</th>
+                                <th class="header">%Utilized</th>
+                                <th class="header">AIG Limit</th>                                              
+                                <th class="header">Terms</th>
+                                <th class="header">DSO30</th>
+                                <th class="header">DSO60</th>
+                                <th class="header">DSO90</th>
+                                <th class="header">DSOAll</th>  
+                                <th class="header">Documents</th>   
+                                <th class="header">Warning</th>  
+                                <th class="header">NoBuy/Ineligible</th>  
+                                <th class="header">Skipped Invoices</th>  
+                                <th class="header">FX:</th>  
+                                <th class="header">1.36</th>                       
+                                <th class="header"></th>                       
+                                </tr>
+                                <tr class="table-row">                                                
+                                <td class="cell">-</td>
+                                <td class="cell">{{ element.PctUtilized | percent: '1.0-0' }}</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>                       
+                                <td class="cell">{{ math.round(element.DSO60) }}</td>
+                                <td class="cell">{{ math.round(element.DSO90) }}</td>
+                                <td class="cell">{{ math.round(element.DSOAll) }}</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>
+                                <td class="cell">-</td>                        
+                                <td class="cell"></td>                        
+                                </tr>                      
+                                </table>
+                            
+                        </div>
+                    </td>
+                </div>                                      
+            </td>            
+        </ng-container>
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
+    </table>
+    
+    <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons></mat-paginator>
+    <!-- <mat-form-field> 
+        <mat-label>Go to page</mat-label> 
+            <input matInput [(ngModel)]="specificPage" type="number" min="1" [max]="totalPages"> 
+    </mat-form-field> 
+    <button mat-raised-button (click)="goToPage()">Go</button> -->
+
+    <div class="spinner-container" *ngIf="isLoading;">
+        <mat-spinner class="custom-spinner"></mat-spinner>
+    </div>
+</div>
