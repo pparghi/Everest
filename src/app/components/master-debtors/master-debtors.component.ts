@@ -25,7 +25,7 @@ interface DataItem {
 })
 
 export class MasterDebtorsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Country', 'State', 'City', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode'];
+    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Country', 'State', 'City', 'TotalCreditLimit', 'DSO' ,'AIGLimit', 'Terms', 'NoBuyCode'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -65,7 +65,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.dataService.getData(page ,pageSize, this.filter, sort, order).subscribe(response => {                
         this.isLoading = false;
         this.dataSource.data = response.data;
-        this.totalRecords = response.total['count_all'];
+        this.totalRecords = response.total;        
+        
       });
     }
 

@@ -18,11 +18,9 @@ export class DebtorsApiService {
   constructor(private http: HttpClient) { }
 
   getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    // Replace with your API endpoint
     const url = `http://127.0.0.1:8000/api/debtors?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     return this.http.get<any>(url).pipe(
       map(response => {
-        // Mock data structure
         return {
           data: response.data.map((item: any) => ({
             ...item,
@@ -32,10 +30,5 @@ export class DebtorsApiService {
         };
       })
     );
-  }
-
-  getMemberDebtors(DebtorKey: number): Observable<any> {        
-    const url = `http://127.0.0.1:8000/api/memberDebtors?DebtorKey=${DebtorKey}`;    
-    return this.http.get<any>(url);
   }
 }

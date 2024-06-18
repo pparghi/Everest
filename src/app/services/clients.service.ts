@@ -10,18 +10,18 @@ interface ApiResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class MemberDebtorsService { 
+export class ClientsService {
 
   constructor(private http: HttpClient) { }  
 
-  getMemberDebtors(DebtorKey: number): Observable<any> {        
-    const url = `http://127.0.0.1:8000/api/memberDebtors?DebtorKey=${DebtorKey}`;    
+  getClients(DebtorKey: number): Observable<any> {        
+    const url = `http://127.0.0.1:8000/api/clients?DebtorKey=${DebtorKey}`;    
     return this.http.get<any>(url).pipe(
       map(response => {        
         return {
-          data: response.memberDebtor.map((item: any) => ({
+          data: response.clients.map((item: any) => ({
             ...item,
-            expandedDetail: { detail: 'Additional details for ' + item.Debtor } 
+            expandedDetail: { detail: 'Additional details for ' + item.Client } 
           })),
         };
       })

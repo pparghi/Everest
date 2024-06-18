@@ -10,7 +10,7 @@
   
   <ng-container matColumnDef="Debtor">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor</th>
-      <td (click)="openClientsWindow()" style="color: rgb(81, 0, 255); cursor: pointer;" mat-cell *matCellDef="let element">{{ element.Debtor }}</td>
+      <td (click)="openClientsWindow(element.DebtorKey)" style="color: rgb(81, 0, 255); cursor: pointer;" mat-cell *matCellDef="let element">{{ element.Debtor }}</td>
   </ng-container>
 
   <ng-container matColumnDef="DbDunsNo">
@@ -54,7 +54,7 @@
   </ng-container>
 
   <ng-container matColumnDef="expand">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
+      <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element">
               <button mat-icon-button (click)="toggleRow(element)">
               <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
@@ -67,84 +67,139 @@
 
       <ng-container matColumnDef="expandedDetail">
           <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
-              <div *ngIf="isExpanded(element)" style="padding: 2px;">            
-                  <td colspan="11"> 
-                      <div  class="expanded-panel">
-                          
-                              <table class="bordered-table">
-                              <tr class="header-row">
-                              <th class="header">Total AR</th>
-                              <th class="header">0-30</th>
-                              <th class="header">31-60</th>
-                              <th class="header">61-90</th>
-                              <th class="header">91-120</th>
-                              <th class="header">121-150</th>
-                              <th class="header">151-180</th>
-                              <th class="header">181+</th>
-                              <th class="header"># of Outstanding Invoices</th>
-                              <th class="header">Past Due</th>
-                              <th class="header">Past Due as a % of oustanding AR</th>
-                              <th class="header">C/A</th>          
-                              <th class="header">C/A %</th>
-                              <th class="header">DUNS</th>
-                              <th class="header">Address</th>              
-                              </tr>
-                              <tr class="table-row">
-                              <td class="cell">{{ math.round(element.Balance) }}</td>
-                              <td class="cell"></td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>      
-                              <td class="cell">-</td>
-                              <td class="cell">{{ element.DbDunsNo ? element.DbDunsNo : '-' }}</td>
-                              <td class="cell">{{ element.Addr1 }} , {{ element.Addr2 }}</td>                  
-                              </tr>                     
-                              <tr class="header-row">                                                
-                              <th class="header">C/L</th>
-                              <th class="header">%Utilized</th>
-                              <th class="header">AIG Limit</th>                                              
-                              <th class="header">Terms</th>
-                              <th class="header">DSO30</th>
-                              <th class="header">DSO60</th>
-                              <th class="header">DSO90</th>
-                              <th class="header">DSOAll</th>  
-                              <th class="header">Documents</th>   
-                              <th class="header">Warning</th>  
-                              <th class="header">NoBuy/Ineligible</th>  
-                              <th class="header">Skipped Invoices</th>  
-                              <th class="header">FX:</th>  
-                              <th class="header">1.36</th>                       
-                              <th class="header"></th>                       
-                              </tr>
-                              <tr class="table-row">                                                
-                              <td class="cell">-</td>
-                              <td class="cell">{{ element.PctUtilized | percent: '1.0-0' }}</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>                       
-                              <td class="cell">{{ math.round(element.DSO60) }}</td>
-                              <td class="cell">{{ math.round(element.DSO90) }}</td>
-                              <td class="cell">{{ math.round(element.DSOAll) }}</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>
-                              <td class="cell">-</td>                        
-                              <td class="cell"></td>                        
-                              </tr>                      
-                              </table>
-                          
-                      </div>
-                  </td>
-              </div>                                      
+                <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">   
+                    <div  class="expanded-panel">                            
+                        <table class="bordered-table">
+                            <tr class="header-row">
+                    
+                                <th class="header">Total AR</th>
+                    
+                                <th class="header">0-30</th>
+                    
+                                <th class="header">31-60</th>
+                    
+                                <th class="header">61-90</th>
+                    
+                                <th class="header">91-120</th>
+                    
+                                <th class="header">121-150</th>
+                    
+                                <th class="header">151-180</th>
+                    
+                                <th class="header">181+</th>
+                    
+                                <th class="header"># of Outstanding Invoices</th>
+                    
+                                <th class="header">Past Due</th>
+                    
+                                <th class="header">Past Due as a % of outstanding AR</th>
+                    
+                                <th class="header">C/A</th>
+                    
+                                <th class="header">C/A %</th>
+                    
+                                <th class="header">DUNS</th>
+                    
+                                
+                    
+                            </tr>
+                    
+                            <tr class="table-row">
+                    
+                                <td class="cell">{{ math.round(element.Balance) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.Age0to30) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.Age31to60) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.Age61to90) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.Age91to120) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.Age121to150) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.Age151to180) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.AgeOver180) }}</td>
+                    
+                                <td class="cell">-</td>
+                    
+                                <td class="cell">-</td>
+                    
+                                <td class="cell">-</td>
+                    
+                                <td class="cell">-</td>
+                    
+                                <td class="cell">-</td>
+                    
+                                <td class="cell">{{ element.DbDunsNo ? element.DbDunsNo : '-' }}</td>
+                    
+                                
+                    
+                            </tr>
+                    
+                            <tr class="header-row">
+                    
+                                <th class="header">C/L</th>
+                    
+                                <th class="header">% Utilized</th>
+                    
+                                <th class="header">AIG Limit</th>
+                    
+                                <th class="header">Terms</th>
+                    
+                                <th class="header">DSO30</th>
+                    
+                                <th class="header">DSO60</th>
+                    
+                                <th class="header">DSO90</th>
+                    
+                                <th class="header">DSOAll</th>
+                    
+                                <th class="header">Documents</th>
+                    
+                                <th class="header">Warning</th>
+                    
+                                <th class="header">NoBuy/Ineligible</th>
+                    
+                                <th class="header">Skipped Invoices</th>                                        
+                                                    
+                                <th class="header" colspan="2">Address</th>
+                    
+                            </tr>
+                    
+                            <tr class="table-row">
+                    
+                                <td class="cell">{{ element.TotalCreditLimit | thousands }}</td>
+                    
+                                <td class="cell">{{ element.PctUtilized | percent: '1.0-0' }}</td>
+                    
+                                <td class="cell">{{ element.AIGLimit }}</td>
+                    
+                                <td class="cell">{{ element.Terms }}</td>
+                    
+                                <td class="cell">-</td>
+                    
+                                <td class="cell">{{ math.round(element.DSO60) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.DSO90) }}</td>
+                    
+                                <td class="cell">{{ math.round(element.DSOAll) }}</td>
+                    
+                                <td class="cell">{{ element.Documents}}</td>
+                    
+                                <td class="cell">{{ element.Warning }}</td>
+                    
+                                <td class="cell">{{ element.NoBuyCode }}</td>                                                    
+                    
+                                <td class="cell">-</td>             
+
+                                <td class="cell" colspan="2">{{ element.Addr1 }} , {{ element.Addr2 }}</td>                                              
+                    
+                            </tr>                    
+                        </table>                            
+                    </div>                  
+                </div>                                      
           </td>            
       </ng-container>
       <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>

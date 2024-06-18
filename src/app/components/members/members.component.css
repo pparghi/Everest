@@ -26,3 +26,38 @@
     align-items: center;
    }
    
+ .bordered-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+}
+
+.bordered-table th, .bordered-table td {
+
+  border: 1px solid #ddd;
+
+  padding: 8px;
+
+}
+
+.bordered-table th {
+
+  background-color: #f2f2f2;
+
+  text-align: left;
+
+}
+
+.header-row {
+
+  background-color: #f9f9f9;
+
+}
+
+.cell {
+
+  text-align: center;
+
+}

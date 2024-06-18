@@ -28,6 +28,8 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { ClientsComponent } from './components/clients/clients.component';
+import { ClientsInvoicesComponent } from './components/clients-invoices/clients-invoices.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +43,8 @@ import { MatIconModule } from '@angular/material/icon';
     TableOverviewExampleComponent,
     ThousandsPipe,
     MasterDebtorsComponent,
+    ClientsComponent,
+    ClientsInvoicesComponent,
   ],
   imports: [
     BrowserModule,

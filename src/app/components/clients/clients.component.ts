@@ -7,28 +7,20 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
+import { ClientsService } from '../../services/clients.service';
 
 interface DataItem {
-  Debtor: string;
-  DbDunsNo: string;
-  Country: string;
-  State: string;
-  City: string;
-  TotalCreditLimit: string;
-  AIGLimit: string;
-  Terms: string;
-  NoBuyCode: string;
-  expandedDetail: { detail: string };
+  Client: string;  
 }
 
-
 @Component({
-  selector: 'app-members',
-  templateUrl: './members.component.html',
-  styleUrl: './members.component.css'
+  selector: 'app-clients',
+  templateUrl: './clients.component.html',
+  styleUrl: './clients.component.css'
 })
-export class MembersComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Country', 'State', 'City', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode'];
+
+export class ClientsComponent implements OnInit {
+  displayedColumns: string[] = ['expand', 'Client', 'DbDunsNo', 'Country', 'State', 'City', 'CreditLimit', 'Email'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -41,25 +33,25 @@ export class MembersComponent implements OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private route: ActivatedRoute, private dataService: MemberDebtorsService, private router: Router){}
+  constructor(private route: ActivatedRoute, private dataService: ClientsService, private router: Router){}
     
     ngOnInit(): void {
       this.route.queryParams.subscribe(params => {
         const DebtorKey = +params['DebtorKey'];
         this.DebtorKey = DebtorKey
-        this.loadMemberDebtorDetails(DebtorKey);
+        this.loadClientsDetails(DebtorKey);
       });
     }
 
-    loadMemberDebtorDetails(DebtorKey: number): void {            
-      this.dataService.getMemberDebtors(DebtorKey).subscribe(response => {        
+    loadClientsDetails(DebtorKey: number): void {            
+      this.dataService.getClients(DebtorKey).subscribe(response => {        
         this.dataSource.data = response.data;
       });
     }
 
-    openClientsWindow(DebtorKey: number): void {
+    openClientsInvoicesWindow(ClientKey: number): void {
       const url = this.router.serializeUrl(
-        this.router.createUrlTree(['/clients'], { queryParams: { DebtorKey: DebtorKey } })
+        this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey } })
       );
       window.open(url, '_blank');
     }
@@ -68,7 +60,7 @@ export class MembersComponent implements OnInit {
       const filterValue = (event.target as HTMLInputElement).value;
       this.filter = filterValue.trim().toLowerCase(); 
       this.paginator.pageIndex = 0; 
-      this.loadMemberDebtorDetails(this.DebtorKey);
+      this.loadClientsDetails(this.DebtorKey);
     }
     
     get totalPages(): number { 
@@ -82,7 +74,7 @@ export class MembersComponent implements OnInit {
       } 
       if (this.paginator) {
         this.paginator.pageIndex = this.specificPage - 1;
-        this.loadMemberDebtorDetails(this.DebtorKey);
+        this.loadClientsDetails(this.DebtorKey);
       }
       
     }

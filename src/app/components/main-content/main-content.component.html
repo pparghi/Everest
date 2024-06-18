@@ -1,8 +1,15 @@
 <div class="main-content-container">
+    <div *ngIf="currentPath.includes('home')" >
+      <app-master-debtors></app-master-debtors>
+    </div>      
     <div *ngIf="currentPath.includes('members')">
         <app-members></app-members>
-      </div>
-      <div *ngIf="currentPath.includes('home')" >
-        <app-master-debtors></app-master-debtors>
-      </div>      
+    </div>
+    <div *ngIf="currentPath.includes('clients')">
+        <app-clients></app-clients>
+    </div>
+    <div *ngIf="currentPath.includes('invoices')">
+        <app-clients-invoices></app-clients-invoices>
+    </div>
+    
 </div>
