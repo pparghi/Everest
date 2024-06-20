@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MsalGuard, MsalInterceptor, MsalModule, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,7 +13,7 @@ import { MainContentComponent } from './components/main-content/main-content.com
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { NgxDatatableModule} from '@swimlane/ngx-datatable';
 import { DataTablesModule } from 'angular-datatables';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MembersComponent } from './components/members/members.component';
@@ -30,6 +31,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { ClientsComponent } from './components/clients/clients.component';
 import { ClientsInvoicesComponent } from './components/clients-invoices/clients-invoices.component';
+import { InteractionType, PublicClientApplication } from '@azure/msal-browser';
+
+const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
 
 @NgModule({
   declarations: [
@@ -49,6 +53,35 @@ import { ClientsInvoicesComponent } from './components/clients-invoices/clients-
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    MsalModule.forRoot(new PublicClientApplication(
+      {
+        auth: {
+          clientId:'6abad1c1-70c7-4eaf-a4ee-3c4827ed050f',
+          redirectUri:'http://localhost:4200',
+          authority:'https://login.microsoftonline.com/1dfa1c9f-1ea3-4b25-a811-115259596ebb'
+        },
+        cache:{
+          // cacheLocation:'localStorage',
+          // storeAuthStateInCookie: isIE
+        }
+      }
+
+    ),
+    {
+      interactionType: InteractionType.Redirect,
+      authRequest: {
+        scopes: ['user.read']
+      }
+    },
+    {
+      interactionType: InteractionType.Redirect,
+      protectedResourceMap: new Map(
+        [
+          ['https://graph.microsoft.com/v1.0/me', ['user.read']]
+        ]
+      )
+    }
+    ),
     FormsModule,
     AppRoutingModule,
     HttpClientModule,
@@ -68,9 +101,13 @@ import { ClientsInvoicesComponent } from './components/clients-invoices/clients-
     MatProgressSpinnerModule,
     MatIconModule
   ],
-  providers: [
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: MsalInterceptor,
+    multi: true
+  }, MsalGuard,
     provideAnimationsAsync()
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent, MsalRedirectComponent]
 })
 export class AppModule { }

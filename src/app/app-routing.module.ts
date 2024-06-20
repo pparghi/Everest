@@ -5,12 +5,10 @@ import { MembersComponent } from './components/members/members.component';
 import { TableOverviewExampleComponent } from './components/table-overview-example/table-overview-example.component';
 import { ClientsComponent } from './components/clients/clients.component';
 import { ClientsInvoicesComponent } from './components/clients-invoices/clients-invoices.component';
+import { MsalGuard } from '@azure/msal-angular';
 
-const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full'},
-  { path: 'home', component: MainContentComponent },
-  // { path: '**', redirectTo: '/home' }
-  
+const routes: Routes = [  
+  { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
   { path: 'members', component: MembersComponent },
   { path: 'clients', component: ClientsComponent },
   { path: 'invoices', component: ClientsInvoicesComponent },
@@ -18,7 +16,9 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+    
+  })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

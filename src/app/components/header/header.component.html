@@ -3,14 +3,13 @@
     
     <nav class="profile-menu">
         <nav class="nav-menu">
-            <ul>
-                <li>
-                    <li><a routerLink="/home">Master Debtors</a></li>
-                    <li><a routerLink="/about">Client Risk Page</a></li>
-                    <li><a routerLink="/services">Invoices</a></li>
-                    <li><i class="fas fa-user-circle"></i></li>
-                </ul>
-            </nav>
-    
+            <ul>                                
+                <li><a routerLink="master-debtors" *ngIf="isUserLoggedIn">Master Debtors</a></li>
+                <li><a routerLink="/about" *ngIf="isUserLoggedIn">Client Risk Page</a></li>
+                <li><a routerLink="/services" *ngIf="isUserLoggedIn">Invoices</a></li> 
+                <button mat-raised-button *ngIf="!isUserLoggedIn" (click)="login()">Login</button>              
+                <button mat-raised-button *ngIf="isUserLoggedIn" (click)="logout()">Logout</button>                                        
+            </ul>
+        </nav>    
     </nav>
 </header>
