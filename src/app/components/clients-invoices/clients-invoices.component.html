@@ -1,109 +1,114 @@
 
 <div class="example-container mat-elevation-z8" tabindex="0">
     
-    <mat-form-field>
-        <mat-label>Search</mat-label>
-        <input matInput (keyup)="applyFilter($event)">
-    </mat-form-field>
+    <div class="page-header">
+        <h1 class="title">Invoices </h1>
+        <mat-form-field class="search-bar">
+            <mat-label>Search</mat-label>
+            <input matInput (keyup)="applyFilter($event)">
+        </mat-form-field>
+    </div>
+    <div class="table-container">
   
-    <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8">
-    
-        <ng-container matColumnDef="InvDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-            <td mat-cell *matCellDef="let element">{{ element.InvDate  | date  }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="CloseDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>CloseDate</th>
-            <td mat-cell *matCellDef="let element">{{ element.CloseDate }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="Debtor">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor</th>
-            <td mat-cell *matCellDef="let element">{{ element.Debtor }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="InvNo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>InvNo</th>
-            <td mat-cell *matCellDef="let element">{{ element.InvNo }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="PurchOrd">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>PO</th>
-            <td mat-cell *matCellDef="let element">{{ element.PurchOrd }}</td>
-        </ng-container>
+        <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-elevation-z8">
         
-        <ng-container matColumnDef="Amt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Amt</th>
-            <td mat-cell *matCellDef="let element">{{ math.round(element.Amt) }}</td>
-        </ng-container>
+            <ng-container matColumnDef="InvDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+                <td mat-cell *matCellDef="let element">{{ element.InvDate  | date  }}</td>
+            </ng-container>
 
-        <ng-container matColumnDef="Balance">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-            <td mat-cell *matCellDef="let element">{{ math.round(element.Balance) }}</td>
-        </ng-container>
+            <ng-container matColumnDef="CloseDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>CloseDate</th>
+                <td mat-cell *matCellDef="let element">{{ element.CloseDate }}</td>
+            </ng-container>
 
-        <ng-container matColumnDef="expand">
-            <th mat-header-cell *matHeaderCellDef></th>
-                <td mat-cell *matCellDef="let element">
-                    <button mat-icon-button (click)="toggleRow(element)">
-                    <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
-                </button>
-            </td>
-        </ng-container>
-    
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"></tr>
+            <ng-container matColumnDef="Debtor">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor</th>
+                <td mat-cell *matCellDef="let element">{{ element.Debtor }}</td>
+            </ng-container>
 
-        <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
-                  <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">   
-                      <div  class="expanded-panel">                            
-                          <table class="bordered-table">
-                              <tr class="header-row">
-                      
-                                  <th class="header">BuyTransKey</th>
-                      
-                                  <th class="header">BatchNo</th>
-                      
-                                  <th class="header">PurchaseDate</th>
-                      
-                                  <th class="header">Advance</th>
-                      
-                                  <th class="header">OpenDays</th>
-                      
-                                  <th class="header">Status</th>
-                      
-                                  <th class="header">DisputeCode</th>
-                      
-                              </tr>
-                      
-                              <tr class="table-row">
-                      
-                                  <td class="cell">{{ element.BuyTransKey }}</td>
-                      
-                                  <td class="cell">{{ element.BatchNo }}</td>
-                      
-                                  <td class="cell">{{ element.PurchaseDate }}</td>
-                      
-                                  <td class="cell">{{ element.Advance }}</td>
-                      
-                                  <td class="cell">{{ element.OpenDays }}</td>
-                      
-                                  <td class="cell">{{ element.Status }}</td>
-                      
-                                  <td class="cell">{{ element.DisputeCode }}</td>
-                                                        
-                              </tr>
-                                       
-                          </table>                            
-                      </div>                  
-                  </div>                                      
-            </td>            
-        </ng-container>
-        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
+            <ng-container matColumnDef="InvNo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>InvNo</th>
+                <td mat-cell *matCellDef="let element">{{ element.InvNo }}</td>
+            </ng-container>
 
-    </table>
+            <ng-container matColumnDef="PurchOrd">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>PO</th>
+                <td mat-cell *matCellDef="let element">{{ element.PurchOrd }}</td>
+            </ng-container>
+            
+            <ng-container matColumnDef="Amt">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Amt</th>
+                <td mat-cell *matCellDef="let element">{{ math.round(element.Amt) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="Balance">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
+                <td mat-cell *matCellDef="let element">{{ math.round(element.Balance) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="expand">
+                <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let element">
+                        <button mat-icon-button (click)="toggleRow(element)">
+                        <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+        
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"></tr>
+
+            <ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
+                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">   
+                        <div  class="expanded-panel">                            
+                            <table class="bordered-table">
+                                <tr class="header-row">
+                        
+                                    <th class="header">BuyTransKey</th>
+                        
+                                    <th class="header">BatchNo</th>
+                        
+                                    <th class="header">PurchaseDate</th>
+                        
+                                    <th class="header">Advance</th>
+                        
+                                    <th class="header">OpenDays</th>
+                        
+                                    <th class="header">Status</th>
+                        
+                                    <th class="header">DisputeCode</th>
+                        
+                                </tr>
+                        
+                                <tr class="table-row">
+                        
+                                    <td class="cell">{{ element.BuyTransKey }}</td>
+                        
+                                    <td class="cell">{{ element.BatchNo }}</td>
+                        
+                                    <td class="cell">{{ element.PurchaseDate | date }}</td>
+                        
+                                    <td class="cell">{{ element.Advance }}</td>
+                        
+                                    <td class="cell">{{ element.OpenDays }}</td>
+                        
+                                    <td class="cell">{{ element.Status }}</td>
+                        
+                                    <td class="cell">{{ element.DisputeCode }}</td>
+                                                            
+                                </tr>
+                                        
+                            </table>                            
+                        </div>                  
+                    </div>                                      
+                </td>            
+            </ng-container>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
+
+        </table>
+    </div>
   
 <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons></mat-paginator>
   

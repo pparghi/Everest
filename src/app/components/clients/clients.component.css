@@ -3,9 +3,10 @@
     width: 100%;
   }
   
-.table-container {
-    overflow: auto;
-}   
+  .table-container {
+    max-height: 640px;
+      overflow-y: auto;
+  }   
 
 .example-container {
     height: 800px;
@@ -62,4 +63,32 @@
 
   text-align: center;
 
+}
+
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  padding-left: 20px;
+  color: rgb(24, 24, 65);
+}
+
+.search-bar {
+  width: 300px;
+  padding-right: 20px;
+  padding-top: 20px;
+}
+
+.mat-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
