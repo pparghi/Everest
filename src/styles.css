@@ -1,13 +1,12 @@
 body {
-    background: linear-gradient(45deg, #a0a0b6, #3a3b68);
-    font-family: 'Roboto', sans-serif;
-    color: white;
+    background: #f0f8fc;
+    font-family: 'Roboto', sans-serif;    
     margin: 0;
     padding: 0;
    }
    a {
-    color: #fff;
+    color: #000000;
     text-decoration: none;
 }
-html, body { height: 100%; }
+html, body { height: 100%; background: #f0f8fc;}
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

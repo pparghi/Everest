@@ -1,15 +1,14 @@
 <header class="app-header">
-    <img src="assets/images/Everest.jpg" alt="Logo" class="logo">
-    
-    <nav class="profile-menu">
-        <nav class="nav-menu">
-            <ul>                                
-                <li><a routerLink="master-debtors" *ngIf="isUserLoggedIn">Master Debtors</a></li>
-                <li><a routerLink="/about" *ngIf="isUserLoggedIn">Client Risk Page</a></li>
-                <li><a routerLink="/services" *ngIf="isUserLoggedIn">Invoices</a></li> 
-                <button mat-raised-button *ngIf="!isUserLoggedIn" (click)="login()">Login</button>              
-                <button mat-raised-button *ngIf="isUserLoggedIn" (click)="logout()">Logout</button>                                        
-            </ul>
-        </nav>    
-    </nav>
+    <img src="assets/images/Everest-Logo.png" alt="Logo" class="logo">    
+    <nav class="nav-menu">
+        <ul>                                                
+            <li><button mat-raised-button *ngIf="!isUserLoggedIn" (click)="login()">Login</button></li>              
+            <li>
+                <img *ngIf="isUserLoggedIn" (click)="logout()" style="height: 40px; width: 40px; cursor: pointer;" src="assets/images/gear.png" alt="Logo" class="logo">
+            </li>
+            <li>                                        
+                <img *ngIf="isUserLoggedIn" (click)="logout()" style="height: 40px; width: 40px; cursor: pointer;" src="assets/images/logout.png" alt="Logo" class="logo">
+            </li>                                        
+        </ul>
+    </nav>        
 </header>

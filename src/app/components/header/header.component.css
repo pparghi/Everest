@@ -2,24 +2,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    background: linear-gradient(45deg, #3a3b68, #e3e3eb);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px 30px;
+    background: #f0f8fc;    
    }
-   .logo {
-    height: 50px;
-    width: 90px;
-   }
-   .nav-menu ul {
+.logo {
+    height: 30px;
+    width: 200px;
+}
+.logout {
+    height: 10px;
+    width: 50px;
+}
+.nav-menu ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
     display: flex;
-   }
-   .nav-menu li {
+}
+.nav-menu li {
     margin: 0 10px;
-   }
-   .nav-menu a {
+}
+.nav-menu a {
     color: #ba0009;
     text-decoration: none;
     font-size: 15px;
@@ -29,15 +32,15 @@
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.652);
     background: linear-gradient(-20deg, #f3dde1, #f3dde1);
-   }
-   .nav-menu a:hover {
+}
+.nav-menu a:hover {
     transform: scale(1.1);
     background: rgba(255, 255, 255, 0.789);
-   }
-   .profile-menu {
+}
+.profile-menu {
     font-size: 1.5em;
     color: white;
-   }
-   .profile-menu i {
+}
+.profile-menu i {
     cursor: pointer;
-   }
+}
