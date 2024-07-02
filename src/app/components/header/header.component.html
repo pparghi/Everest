@@ -12,3 +12,22 @@
         </ul>
     </nav>        
 </header>
+<div class="container-fluid ml-4" style="width: 98%; cursor: pointer;" *ngIf="isUserLoggedIn">
+    <div class="nav-container">
+        <ul class="nav nav-tabs justify-content-end" style="border: 0;">
+            <li class="nav-item" style="border-top-left-radius: 10px; background-color: #e5e5e5;">            
+                <a class="nav-link" style="color: #808183" data-toggle="tab"  routerLink="/master-debtors" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }" >Master Debtors</a>
+            </li>
+            <li class="nav-item" style="background-color: #e5e5e5;">
+                <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/risk" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Client Risk Page</a>
+            </li>
+            <li class="nav-item" style="border-top-right-radius: 10px; background-color: #e5e5e5;">
+                <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/page" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Invoices</a>
+            </li>
+        </ul>
+    </div>
+    <div class="container-fluid w-100 shadow p-2" style="height: 750px; background-color: white; border-top-left-radius: 10px; border-top-right-radius: 0px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+        
+        <app-main-content></app-main-content>
+    </div>
+</div>

@@ -1,26 +1,32 @@
-<app-header></app-header>
-<div class="container-fluid ml-4" style="width: 98%; cursor: pointer;">
-    
-
-<div class="nav-container">
-    <ul class="nav nav-tabs justify-content-end" style="border: 0;">
-        <li class="nav-item" style="border-top-left-radius: 10px; border-bottom-right-radius: 10px; background-color: #e5e5e5;">
-            <a class="nav-link" style="color: #808183" data-toggle="tab" href="/master-debtors" onclick="page_change()">Master Debtors</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" style="background-color: #fcfefe; font-weight: bold; font-family: Arial, Helvetica, sans-serif;" data-toggle="tab" href="/" onclick="page_change()">Client Risk Page</a>
-        </li>
-        <li class="nav-item" style="border-top-right-radius: 10px; background-color: #e5e5e5;">
-            <a class="nav-link" style="color: #808183" data-toggle="tab" href="/" onclick="page_change()">Invoices</a>
-        </li>
-    </ul>
+<div *ngIf="isUserLoggedIn">
+    <app-header></app-header>
 </div>
-
-
-<div class="container-fluid w-100 shadow p-2" style="background-color: white; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-    
-    <app-main-content></app-main-content>
+<br>
+<br>
+<br>
+<br>
+<div *ngIf="!isUserLoggedIn" class="container-fluid h-50 shadow p-4" style="border-radius: 5px; width: 500px; background-color: #ffffff;">
+    <div class="row justify-content-center">
+        <form class="col">
+            <br>
+            <div class="form-group text-center pt-4">
+                <img src="assets/images/Everest-Logo.png" class="img-fluid" alt="" width="300">
+            </div>
+            <br>
+            <div class="form-group" style="text-align: left;">
+                <label for="text" style="color: #ffffff;">Login ID</label><br>
+                <input type="text" class="form-control" id="password" placeholder="Login ID" value="">
+            </div>
+            <br>            
+            <div class="form-group" style="text-align: left; ">
+                <label for="password" style="color: #ffffff;">Password</label><br>
+                <input type="password" class="form-control" id="password" placeholder="Password" value="">
+            </div>  
+            <br>          
+            <div class="form-group pt-4" style="text-align: center;">
+                <input type="button" id="logon" *ngIf="!isUserLoggedIn" (click)="login()" class="btn btn-primary" style="width: 40%; background-color: #385491; border: thin solid #385491;" value="Logon">                
+            </div>
+            <br>
+        </form>
+    </div>
 </div>
-
-</div>
-<!-- <app-footer></app-footer> -->

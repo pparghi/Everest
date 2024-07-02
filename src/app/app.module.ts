@@ -32,6 +32,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ClientsComponent } from './components/clients/clients.component';
 import { ClientsInvoicesComponent } from './components/clients-invoices/clients-invoices.component';
 import { InteractionType, PublicClientApplication } from '@azure/msal-browser';
+import { ClientRiskComponent } from './components/client-risk/client-risk.component';
+import { InvoicesComponent } from './components/invoices/invoices.component';
 
 const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
 
@@ -49,6 +51,8 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     MasterDebtorsComponent,
     ClientsComponent,
     ClientsInvoicesComponent,
+    ClientRiskComponent,
+    InvoicesComponent,
   ],
   imports: [
     BrowserModule,
