@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ClientRiskComponent } from './client-risk.component';
+import { MasterClientsComponent } from './master-clients.component';
 
-describe('ClientRiskComponent', () => {
-  let component: ClientRiskComponent;
-  let fixture: ComponentFixture<ClientRiskComponent>;
+describe('MasterClientsComponent', () => {
+  let component: MasterClientsComponent;
+  let fixture: ComponentFixture<MasterClientsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ClientRiskComponent]
+      declarations: [MasterClientsComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(ClientRiskComponent);
+    fixture = TestBed.createComponent(MasterClientsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
