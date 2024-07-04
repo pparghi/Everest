@@ -9,6 +9,7 @@
   border-radius: 5px;  
   max-height: 630px;
   overflow-y: auto;
+  background-color: #ffffff;
 }   
 
 .example-container {
