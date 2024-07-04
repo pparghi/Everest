@@ -5,24 +5,15 @@
 <br>
 <br>
 <br>
-<div *ngIf="!isUserLoggedIn" class="container-fluid h-50 shadow p-4" style="border-radius: 5px; width: 500px; background-color: #ffffff;">
+<div *ngIf="!isUserLoggedIn" class="container-fluid h-40 shadow p-4" style="border-radius: 5px; width: 500px; background-color: #ffffff;">
     <div class="row justify-content-center">
         <form class="col">
             <br>
             <div class="form-group text-center pt-4">
                 <img src="assets/images/Everest-Logo.png" class="img-fluid" alt="" width="300">
-            </div>
+            </div>   
             <br>
-            <div class="form-group" style="text-align: left;">
-                <label for="text" style="color: #ffffff;">Login ID</label><br>
-                <input type="text" class="form-control" id="password" placeholder="Login ID" value="">
-            </div>
-            <br>            
-            <div class="form-group" style="text-align: left; ">
-                <label for="password" style="color: #ffffff;">Password</label><br>
-                <input type="password" class="form-control" id="password" placeholder="Password" value="">
-            </div>  
-            <br>          
+            <br>
             <div class="form-group pt-4" style="text-align: center;">
                 <input type="button" id="logon" *ngIf="!isUserLoggedIn" (click)="login()" class="btn btn-primary" style="width: 40%; background-color: #385491; border: thin solid #385491;" value="Logon">                
             </div>
