@@ -22,42 +22,42 @@
 
         <ng-container matColumnDef="Age0to30">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>1 - 30</th>
-            <td mat-cell *matCellDef="let element">{{ element.Age0to30 }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Age0to30 | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Age31to60">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>31 - 60</th>
-            <td mat-cell *matCellDef="let element">{{ element.Age31to60 }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Age31to60 | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Age61to90">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>61 - 90</th>
-            <td mat-cell *matCellDef="let element">{{ element.Age61to90 }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Age61to90 | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Age91to120">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>91 - 120</th>
-            <td mat-cell *matCellDef="let element">{{ element.Age91to120 }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Age91to120 | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Age121to150">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>121 - 150</th>
-            <td mat-cell *matCellDef="let element">{{ element.Age121to150 }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Age121to150 | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Age151to180">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>151 - 108</th>
-            <td mat-cell *matCellDef="let element">{{ element.Age151to180 }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Age151to180 | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="AgeOver180">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>181 - up</th>
-            <td mat-cell *matCellDef="let element">{{ element.AgeOver180 }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.AgeOver180 | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Balance">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-            <td mat-cell *matCellDef="let element">{{ element.Balance }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Reserve">

@@ -42,12 +42,12 @@
 
         <ng-container matColumnDef="TotalCreditLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditLimit</th>
-            <td mat-cell *matCellDef="let element">{{ element.TotalCreditLimit | thousands }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.TotalCreditLimit | roundThousands }}</td>
         </ng-container>                          
 
         <ng-container matColumnDef="AIGLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>AIGLimit</th>
-            <td mat-cell *matCellDef="let element">{{ element.AIGLimit }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.AIGLimit | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Terms">
@@ -92,14 +92,14 @@
                                     <th class="header">Address</th>                                    
                                 </tr>                               
                                 <tr class="table-row">
-                                    <td class="cell">{{ math.round(element.Balance) }}</td>
-                                    <td class="cell">{{ math.round(element.Age0to30) }}</td>
-                                    <td class="cell">{{ math.round(element.Age31to60) }}</td>
-                                    <td class="cell">{{ math.round(element.Age61to90) }}</td>
-                                    <td class="cell">{{ math.round(element.Age91to120) }}</td>
-                                    <td class="cell">{{ math.round(element.Age121to150) }}</td>
-                                    <td class="cell">{{ math.round(element.Age151to180) }}</td>
-                                    <td class="cell">{{ math.round(element.AgeOver180) }}</td>
+                                    <td class="cell">{{ element.Balance | roundThousands }}</td>
+                                    <td class="cell">{{ element.Age0to30 | roundThousands }}</td>
+                                    <td class="cell">{{ element.Age31to60 | roundThousands }}</td>
+                                    <td class="cell">{{ element.Age61to90 | roundThousands }}</td>
+                                    <td class="cell">{{ element.Age91to120 | roundThousands }}</td>
+                                    <td class="cell">{{ element.Age121to150 | roundThousands }}</td>
+                                    <td class="cell">{{ element.Age151to180 | roundThousands }}</td>
+                                    <td class="cell">{{ element.AgeOver180 | roundThousands }}</td>
                                     <td class="cell">-</td>
                                     <td class="cell">-</td>
                                     <td class="cell">{{ element.DbDunsNo ? element.DbDunsNo : '-' }}</td>
@@ -121,9 +121,9 @@
                                     <th></th>
                                 </tr>
                                 <tr class="table-row">
-                                    <td class="cell">{{ element.TotalCreditLimit | thousands }}</td>
+                                    <td class="cell">{{ element.TotalCreditLimit | roundThousands }}</td>
                                     <td class="cell">{{ element.PctUtilized | percent: '1.0-0' }}</td>
-                                    <td class="cell">{{ element.AIGLimit }}</td>
+                                    <td class="cell">{{ element.AIGLimit | roundThousands }}</td>
                                     <td class="cell">{{ element.Terms }}</td>
                                     <td class="cell">-</td>
                                     <td class="cell">{{ math.round(element.DSO60) }}</td>
