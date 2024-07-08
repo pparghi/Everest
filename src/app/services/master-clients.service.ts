@@ -13,13 +13,13 @@ export class MasterClientsService {
   constructor(private http: HttpClient) { }
 
   getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const url = `http://127.0.0.1:8000/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    const url = `http://127.0.0.1:4201/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     return this.http.get<any>(url).pipe(
       map(response => {
         return {
           data: response.data.map((item: any) => ({
             ...item,
-            expandedDetail: { detail: 'Additional details for ' + item.Client } // Add expanded detail here
+            expandedDetail: { detail: 'Additional details for ' + item.Client } 
           })),
           total: response.total['count_all']
         };

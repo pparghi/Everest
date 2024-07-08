@@ -29,6 +29,7 @@ export class ClientsComponent implements OnInit {
     expandedElement: DataItem | null = null;
     math = Math;
     DebtorKey!: number;
+    displayDebtor: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -39,6 +40,7 @@ export class ClientsComponent implements OnInit {
       this.route.queryParams.subscribe(params => {
         const DebtorKey = +params['DebtorKey'];
         this.DebtorKey = DebtorKey
+        this.displayDebtor = params['Debtor']
         this.loadClientsDetails(DebtorKey);
       });
     }
@@ -49,9 +51,9 @@ export class ClientsComponent implements OnInit {
       });
     }
 
-    openClientsInvoicesWindow(ClientKey: number): void {
+    openClientsInvoicesWindow(ClientKey: number, Client: string): void {
       const url = this.router.serializeUrl(
-        this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey } })
+        this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, Client: Client } })
       );
       window.open(url, '_blank');
     }

@@ -37,6 +37,7 @@ export class MembersComponent implements OnInit {
     expandedElement: DataItem | null = null;
     math = Math;
     DebtorKey!: number;
+    displayDebtor: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -44,9 +45,10 @@ export class MembersComponent implements OnInit {
   constructor(private route: ActivatedRoute, private dataService: MemberDebtorsService, private router: Router){}
     
     ngOnInit(): void {
-      this.route.queryParams.subscribe(params => {
-        const DebtorKey = +params['DebtorKey'];
+      this.route.queryParams.subscribe(params => {        
+        const DebtorKey = +params['DebtorKey'];        
         this.DebtorKey = DebtorKey
+        this.displayDebtor = params['Debtor']                
         this.loadMemberDebtorDetails(DebtorKey);
       });
     }
@@ -57,9 +59,9 @@ export class MembersComponent implements OnInit {
       });
     }
 
-    openClientsWindow(DebtorKey: number): void {
+    openClientsWindow(DebtorKey: number, Debtor: string): void {
       const url = this.router.serializeUrl(
-        this.router.createUrlTree(['/clients'], { queryParams: { DebtorKey: DebtorKey } })
+        this.router.createUrlTree(['/clients'], { queryParams: { DebtorKey: DebtorKey, Debtor: Debtor } })
       );
       window.open(url, '_blank');
     }

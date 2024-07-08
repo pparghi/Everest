@@ -63,7 +63,7 @@
         </ng-container>
 
         <ng-container matColumnDef="NoBuyCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>NoBuy</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Ineligible</th>
             <td mat-cell *matCellDef="let element">{{ element.NoBuyCode }}</td>
         </ng-container>
 
@@ -92,11 +92,10 @@
                                     <th class="header">91-120</th>
                                     <th class="header">121-150</th>
                                     <th class="header">151-180</th>
-                                    <th class="header">180+</th>
-                                    <th class="header">C/A</th>
-                                    <th class="header">C/A %</th>
-                                    <th class="header">DUNS</th>
-                                    <th class="header">Address</th>                                    
+                                    <th class="header">180+</th> 
+                                    <th class="header">Past Due</th>                                        
+                                    <th class="header" colspan="3">Past Due%</th>                                   
+                                                                        
                                 </tr>                               
                                 <tr class="table-row">
                                     <td class="cell">{{ element.Balance | roundThousands }}</td>
@@ -107,17 +106,13 @@
                                     <td class="cell">{{ element.Age121to150 | roundThousands }}</td>
                                     <td class="cell">{{ element.Age151to180 | roundThousands }}</td>
                                     <td class="cell">{{ element.AgeOver180 | roundThousands }}</td>
-                                    <td class="cell">-</td>
-                                    <td class="cell">-</td>
-                                    <td class="cell">{{ element.DbDunsNo ? element.DbDunsNo : '-' }}</td>
-                                    <td class="cell">{{ element.Addr1 }} , {{ element.Addr2 }}</td>                                            
+                                    <td class="cell">{{ math.round(element.PastDue) }}</td>                                  
+                                    <td class="cell" colspan="3">{{ math.round(element.PAstDuePct) }}</td>                                                                                                                    
                                 </tr>
                                 <br>                                
                                 <tr>
                                     <th class="header">C/L</th>
-                                    <th class="header">% Utilized</th>
-                                    <th class="header">AIG Limit</th>
-                                    <th class="header">Terms</th>
+                                    <th class="header">% Utilized</th>                                    
                                     <th class="header">DSO30</th>
                                     <th class="header">DSO60</th>
                                     <th class="header">DSO90</th>
@@ -129,9 +124,7 @@
                                 </tr>
                                 <tr class="table-row">
                                     <td class="cell">{{ element.TotalCreditLimit | roundThousands }}</td>
-                                    <td class="cell">{{ element.PctUtilized | percent: '1.0-0' }}</td>
-                                    <td class="cell">{{ element.AIGLimit | roundThousands }}</td>
-                                    <td class="cell">{{ element.Terms }}</td>
+                                    <td class="cell">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
                                     <td class="cell">-</td>
                                     <td class="cell">{{ math.round(element.DSO60) }}</td>
                                     <td class="cell">{{ math.round(element.DSO90) }}</td>
@@ -144,21 +137,17 @@
                                 <br>                 
                                 <tr>                                    
                                     <th class="header">Documents</th>
-                                    <th class="header" colspan="2">Warning</th>
-                                    <th class="header">NoBuy/Ineligible</th>
+                                    <th class="header" colspan="2">Warning</th>                                    
                                     <th class="header">Skipped Invoices</th>                                        
                                     <th class="header" colspan="3"># of Outstanding Invoices</th>                                        
-                                    <th class="header">Past Due</th>                                        
-                                    <th class="header" colspan="3">Past Due as % of outstanding AR</th>                                        
+                                    <th class="header">Address</th>                                        
                                 </tr>                                
                                 <tr>                                   
                                     <td style="text-align: center;">{{ element.Documents}}</td>
                                     <td style="text-align: center;" colspan="2" class="text-truncate">{{ element.Warning }}</td>
-                                    <td style="text-align: center;">{{ element.NoBuyCode }}</td>                                                    
                                     <td style="text-align: center;">-</td>                                  
-                                    <td style="text-align: center;" colspan="3">{{ element.NoInvoices }}</td>                                  
-                                    <td style="text-align: center;">{{ math.round(element.PastDue) }}</td>                                  
-                                    <td style="text-align: center;" colspan="3">{{ math.round(element.PAstDuePct) }}</td>                                  
+                                    <td style="text-align: center;" colspan="3">{{ element.NoInvoices }}</td>
+                                    <td style="text-align: center;">{{ element.Addr1 }} , {{ element.Addr2 }}</td>                                  
                                 </tr>                    
                             </table>                            
                         </div>                    

@@ -39,6 +39,7 @@ export class ClientsInvoicesComponent implements OnInit {
     expandedElement: DataItem | null = null;
     math = Math;
     ClientKey!: number;
+    displayClient: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -49,6 +50,7 @@ export class ClientsInvoicesComponent implements OnInit {
       this.route.queryParams.subscribe(params => {
         const ClientKey = +params['ClientKey'];
         this.ClientKey = ClientKey
+        this.displayClient = params['Client']
         this.loadClientsinvoicesDetails(ClientKey);
       });
     }

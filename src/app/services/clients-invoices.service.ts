@@ -15,7 +15,7 @@ export class ClientsInvoicesService {
   constructor(private http: HttpClient) { }  
 
   getClientsInvoices(ClientKey: number): Observable<any> {        
-    const url = `http://127.0.0.1:8000/api/clientsinvoices?ClientKey=${ClientKey}`;    
+    const url = `http://127.0.0.1:4201/api/clientsinvoices?ClientKey=${ClientKey}`;    
     return this.http.get<any>(url).pipe(
       map(response => {        
         return {

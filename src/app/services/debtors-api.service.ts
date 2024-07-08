@@ -18,7 +18,7 @@ export class DebtorsApiService {
   constructor(private http: HttpClient) { }
 
   getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const url = `http://127.0.0.1:8000/api/debtors?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    const url = `http://127.0.0.1:4201/api/debtors?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     return this.http.get<any>(url).pipe(
       map(response => {
         return {
