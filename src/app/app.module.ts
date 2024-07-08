@@ -35,6 +35,7 @@ import { InteractionType, PublicClientApplication } from '@azure/msal-browser';
 import { InvoicesComponent } from './components/invoices/invoices.component';
 import { MasterClientsComponent } from './components/master-clients/master-clients.component';
 import { RoundThousandsPipe } from './round-thousands.pipe';
+import { MemberClientsComponent } from './components/member-clients/member-clients.component';
 
 const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
 
@@ -55,6 +56,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     InvoicesComponent,
     MasterClientsComponent,
     RoundThousandsPipe,
+    MemberClientsComponent,
   ],
   imports: [
     BrowserModule,

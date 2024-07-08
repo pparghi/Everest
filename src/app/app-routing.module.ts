@@ -8,13 +8,15 @@ import { ClientsInvoicesComponent } from './components/clients-invoices/clients-
 import { MsalGuard } from '@azure/msal-angular';
 import { InvoicesComponent } from './components/invoices/invoices.component';
 import { MasterClientsComponent } from './components/master-clients/master-clients.component';
+import { MemberClientsComponent } from './components/member-clients/member-clients.component';
 
 const routes: Routes = [  
   { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
   { path: 'members', component: MembersComponent },
   { path: 'clients', component: ClientsComponent },
   { path: 'invoices', component: ClientsInvoicesComponent },
-  { path: 'risk', component: MasterClientsComponent },
+  { path: 'risk-client', component: MasterClientsComponent },
+  { path: 'member-client', component: MemberClientsComponent },
   { path: 'page', component: InvoicesComponent },
 ];
 

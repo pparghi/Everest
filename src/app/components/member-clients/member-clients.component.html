@@ -17,7 +17,7 @@
         
         <ng-container matColumnDef="Client">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Client Name</th>
-            <td (click)="openMemberClientsWindow(element.ClientKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Client }}</u></td>
+            <td (click)="openClientsDebtorWindow(element.ClientKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Client }}</u></td>
         </ng-container>
 
         <ng-container matColumnDef="Age0to30">
@@ -102,9 +102,9 @@
         <mat-label>Go to page</mat-label> 
             <input matInput [(ngModel)]="specificPage" type="number" min="1" [max]="totalPages"> 
     </mat-form-field> 
-    <button mat-raised-button (click)="goToPage()">Go</button> -->
+    <button mat-raised-button (click)="goToPage()">Go</button> 
 
     <div class="spinner-container" *ngIf="isLoading;">
         <mat-spinner class="custom-spinner"></mat-spinner>
-    </div>
+    </div> -->
 </div>

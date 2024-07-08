@@ -70,9 +70,9 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       });
     }
 
-    openMembersWindow(DebtorKey: number): void {
+    openMemberClientsWindow(ClientKey: number): void {
       const url = this.router.serializeUrl(
-        this.router.createUrlTree(['/members'], { queryParams: { DebtorKey: DebtorKey } })
+        this.router.createUrlTree(['/member-client'], { queryParams: { MasterClientKey: ClientKey } })
       );
       window.open(url, '_blank');
     }
@@ -108,25 +108,6 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       return this.expandedElement === element;
     }
 
-    isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
-
-    getIcon(element: any): { icon: string, color: string } {
-      if (this.math.round(element.DSO60) != 0 && this.math.round(element.DSO90) != 0) {        
-        
-        if (this.math.round(element.DSO60) == this.math.round(element.DSO90)) {
-          return { icon: 'trending_up', color: 'green' };
-        }
-        if (this.math.round(element.DSO60) < this.math.round(element.DSO90)) {
-          return { icon: 'trending_up', color: 'green' };
-        }
-        if ((this.math.round(element.DSO60) == (this.math.round(element.DSO90) + 2)) ||  (this.math.round(element.DSO60) == (this.math.round(element.DSO90) + 1))) {
-          return { icon: 'trending_flat', color: 'orange' };
-        }
-        if (this.math.round(element.DSO60) > this.math.round(element.DSO90)) {
-          return { icon: 'trending_down', color: 'red' };
-        }
-      }
-      return { icon: '', color: 'grey' };
-    }
+    isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');    
    
 }

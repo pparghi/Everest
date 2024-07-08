@@ -11,8 +11,11 @@
     <div *ngIf="currentPath.includes('invoices')">
         <app-clients-invoices></app-clients-invoices>
     </div>
-    <div *ngIf="currentPath.includes('risk')">
+    <div *ngIf="currentPath.includes('risk-client')">
         <app-master-clients></app-master-clients>
+    </div>
+    <div *ngIf="currentPath.includes('member-client')">
+        <app-member-clients></app-member-clients>
     </div>
     <div *ngIf="currentPath.includes('page')">
         <app-invoices></app-invoices>
