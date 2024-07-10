@@ -34,6 +34,7 @@ border-top: 1px solid transparent;
 .detail-row .mat-mdc-cell {
 border-bottom: 1px solid #dee2e6;
 border-top: 1px solid transparent;
+padding-left: 7%;
 }
 
 .element-row {

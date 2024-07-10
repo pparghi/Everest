@@ -116,8 +116,9 @@
                                     <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
                                     <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>
                                     <td class="cell" style="width: 5%;">{{ math.round(element.DSOAll) }}</td>                                                        
-                                </tr>
-                                <br>                                
+                                </tr>                                
+                            </table>
+                            <table class="bordered-table">                                                       
                                 <tr>
                                     <th class="header" style="width: 10%;">C/L</th>
                                     <th class="header" style="width: 10%;">% Utilized</th>                                    
@@ -145,14 +146,15 @@
                                     <td class="cell"></td>                                    
                                     <td class="cell"></td>
                                     <td class="cell"></td>                                    
-                                </tr>   
-                                <br>                 
+                                </tr>
+                            </table>
+                            <table class="bordered-table">                                                                                
                                 <tr>                                    
-                                    <th class="header">Documents</th>
-                                    <th class="header">Warning</th>                                    
+                                    <th class="header" style="width: 10%;">Documents</th>
+                                    <th class="header" >Warning</th>                                    
                                 </tr>                                
                                 <tr>                                   
-                                    <td class="cell">{{ element.Documents}}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Documents}}</td>
                                     <td class="cell">{{ element.Warning }}</td>
                                 </tr>                    
                             </table>                            

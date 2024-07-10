@@ -66,44 +66,25 @@
                     <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
                         <div class="table-container" style="background-color: #f5fbff;">                            
                             <table class="bordered-table">
-                                <tr>
-                        
-                                    <th class="header">Total AR</th>
-                        
-                                    <th class="header">0-30</th>
-                        
-                                    <th class="header">31-60</th>
-                        
-                                    <th class="header">61-90</th>
-                        
-                                    <th class="header">91-120</th>
-                        
-                                    <th class="header">121-150</th>
-                        
-                                    <th class="header">151-180</th>
-                        
-                                    <th class="header">181+</th>                                                        
-                        
-                                </tr>
-                        
-                                <tr class="table-row">
-                        
-                                    <td class="cell">{{ math.round(element.Balance) }}</td>
-                        
-                                    <td class="cell">{{ math.round(element.Age0to30) }}</td>
-                        
-                                    <td class="cell">{{ math.round(element.Age31to60) }}</td>
-                        
-                                    <td class="cell">{{ math.round(element.Age61to90) }}</td>
-                        
-                                    <td class="cell">{{ math.round(element.Age91to120) }}</td>
-                        
-                                    <td class="cell">{{ math.round(element.Age121to150) }}</td>
-                        
-                                    <td class="cell">{{ math.round(element.Age151to180) }}</td>
-                        
-                                    <td class="cell">{{ math.round(element.AgeOver180) }}</td>                                                        
-                        
+                                <tr>                        
+                                    <th class="header">Total AR</th>                        
+                                    <th class="header">0-30</th>                        
+                                    <th class="header">31-60</th>                        
+                                    <th class="header">61-90</th>                        
+                                    <th class="header">91-120</th>                        
+                                    <th class="header">121-150</th>                        
+                                    <th class="header">151-180</th>                        
+                                    <th class="header">181+</th>                                                                                
+                                </tr>                        
+                                <tr class="table-row">                        
+                                    <td class="cell">{{ math.round(element.Balance) }}</td>                        
+                                    <td class="cell">{{ math.round(element.Age0to30) }}</td>                        
+                                    <td class="cell">{{ math.round(element.Age31to60) }}</td>                        
+                                    <td class="cell">{{ math.round(element.Age61to90) }}</td>                        
+                                    <td class="cell">{{ math.round(element.Age91to120) }}</td>                        
+                                    <td class="cell">{{ math.round(element.Age121to150) }}</td>                        
+                                    <td class="cell">{{ math.round(element.Age151to180) }}</td>                        
+                                    <td class="cell">{{ math.round(element.AgeOver180) }}</td>                                                                                
                                 </tr>                                     
                             </table>                            
                         </div>                  
