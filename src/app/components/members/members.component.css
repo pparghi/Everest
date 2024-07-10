@@ -4,10 +4,20 @@
 }
 
 .table-container {
-border: 1px solid #dee2e6;
-border-radius: 5px;  
-max-height: 630px;
-overflow-y: auto;
+  border: 1px solid #dee2e6;
+  padding: 10px;
+  border-radius: 5px;  
+  max-height: 630px;
+  overflow-y: auto;
+  background-color: #ffffff;
+}   
+
+.main-table-container {
+  border: 1px solid #dee2e6;
+  border-radius: 5px;  
+  max-height: 630px;
+  overflow-y: auto;
+  background-color: #ffffff;
 }   
 
 .example-container {
@@ -68,17 +78,9 @@ padding: 3px;
 
 }
 
-.bordered-table th {
-
-
-
-text-align: center;
-
-}
 
 .table-row .cell {
 border-bottom: 1px solid #dee2e6;
-text-align: center;
 }
 
 .page-header {

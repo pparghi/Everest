@@ -11,7 +11,7 @@
         </div>
     </div>       
     
-    <div class="table-container">    
+    <div class="main-table-container">    
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
         
         <ng-container matColumnDef="Debtor">
@@ -32,6 +32,11 @@
         <ng-container matColumnDef="State">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>State</th>
             <td mat-cell *matCellDef="let element">{{ element.State }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="Address">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+            <td mat-cell *matCellDef="let element">{{ element.Addr1 }} , {{ element.Addr2 }}</td>
         </ng-container>
 
         <ng-container matColumnDef="City">
@@ -77,69 +82,70 @@
                         <div class="table-container" style="background-color: #f5fbff;">                            
                             <table class="bordered-table">
                                 <tr>
-                                    <th class="header">Total AR</th>
-                                    <th class="header">0-30</th>
-                                    <th class="header">31-60</th>
-                                    <th class="header">61-90</th>
-                                    <th class="header">91-120</th>
-                                    <th class="header">121-150</th>
-                                    <th class="header">151-180</th>
-                                    <th class="header">180+</th> 
-                                    <th class="header">Past Due</th>                                        
-                                    <th class="header" colspan="3">Past Due%</th>                                   
-                                                                        
-                                </tr>                               
-                                <tr class="table-row">
-                                    <td class="cell">{{ element.Balance | roundThousands }}</td>
-                                    <td class="cell">{{ element.Age0to30 | roundThousands }}</td>
-                                    <td class="cell">{{ element.Age31to60 | roundThousands }}</td>
-                                    <td class="cell">{{ element.Age61to90 | roundThousands }}</td>
-                                    <td class="cell">{{ element.Age91to120 | roundThousands }}</td>
-                                    <td class="cell">{{ element.Age121to150 | roundThousands }}</td>
-                                    <td class="cell">{{ element.Age151to180 | roundThousands }}</td>
-                                    <td class="cell">{{ element.AgeOver180 | roundThousands }}</td>
-                                    <td class="cell">{{ math.round(element.PastDue) }}</td>                                  
-                                    <td class="cell" colspan="3">{{ math.round(element.PAstDuePct) }}</td>                                                                                                                    
-                                </tr>
-                                <br>                                
-                                <tr>
-                                    <th class="header">C/L</th>
-                                    <th class="header">% Utilized</th>                                    
+                                    <th class="header" style="width: 10%;">Total AR</th>
+                                    <th class="header" style="width: 10%;">0-30</th>
+                                    <th class="header" style="width: 10%;">31-60</th>
+                                    <th class="header" style="width: 10%;">61-90</th>
+                                    <th class="header" style="width: 10%;">91-120</th>
+                                    <th class="header" style="width: 10%;">121-150</th>
+                                    <th class="header" style="width: 10%;">151-180</th>
+                                    <th class="header" style="width: 10%;">180+</th>
                                     <th class="header">DSO30</th>
                                     <th class="header">DSO60</th>
                                     <th class="header">DSO90</th>
-                                    <th class="header">DSOAll</th>                                      
+                                    <th class="header">DSOAll</th>              
+                                </tr>                               
+                                <tr class="table-row">
+                                    <td class="cell" style="width: 10%;">{{ element.Balance | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age151to180 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.AgeOver180 | roundThousands }}</td>
+                                    <td class="cell">-</td>
+                                    <td class="cell">{{ math.round(element.DSO60) }}</td>
+                                    <td class="cell">{{ math.round(element.DSO90) }}</td>
+                                    <td class="cell">{{ math.round(element.DSOAll) }}</td>                                                        
+                                </tr>
+                                <br>                                
+                                <tr>
+                                    <th class="header" style="width: 10%;">C/L</th>
+                                    <th class="header" style="width: 10%;">% Utilized</th>                                    
+                                    <th class="header" style="width: 10%;">Past Due</th>                                        
+                                    <th class="header" style="width: 10%;">Past Due%</th>     
+                                    <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
+                                    <th class="header" style="width: 12%;"># of Outstanding Invoices</th>                                 
+                                    <th></th>
+                                    <th></th>
                                     <th></th>
                                     <th></th>
                                     <th></th>
                                     <th></th>
                                 </tr>
                                 <tr class="table-row">
-                                    <td class="cell">{{ element.TotalCreditLimit | roundThousands }}</td>
-                                    <td class="cell">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
-                                    <td class="cell">-</td>
-                                    <td class="cell">{{ math.round(element.DSO60) }}</td>
-                                    <td class="cell">{{ math.round(element.DSO90) }}</td>
-                                    <td class="cell">{{ math.round(element.DSOAll) }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
+                                    <td class="cell" style="width: 10%;">{{ math.round(element.PastDue) }}</td>                                  
+                                    <td class="cell" style="width: 10%;">{{ math.round(element.PAstDuePct) }}</td>
+                                    <td class="cell" style="width: 10%;">-</td>                                  
+                                    <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>
                                     <td class="cell"></td>
                                     <td class="cell"></td>
+                                    <td class="cell"></td>
+                                    <td class="cell"></td>                                    
                                     <td class="cell"></td>
                                     <td class="cell"></td>                                    
                                 </tr>   
                                 <br>                 
                                 <tr>                                    
                                     <th class="header">Documents</th>
-                                    <th class="header" colspan="2">Warning</th>                                    
-                                    <th class="header">Skipped Invoices</th>                                        
-                                    <th class="header" colspan="3"># of Outstanding Invoices</th>                                        
-                                                                            
+                                    <th class="header">Warning</th>                                    
                                 </tr>                                
                                 <tr>                                   
-                                    <td style="text-align: center;">{{ element.Documents}}</td>
-                                    <td style="text-align: center;" colspan="2" class="text-truncate">{{ element.Warning }}</td>
-                                    <td style="text-align: center;">-</td>                                  
-                                    <td style="text-align: center;" colspan="3">{{ element.NoInvoices }}</td>                                  
-                                                                      
+                                    <td class="cell">{{ element.Documents}}</td>
+                                    <td class="cell">{{ element.Warning }}</td>
                                 </tr>                    
                             </table>                            
                         </div>                    
