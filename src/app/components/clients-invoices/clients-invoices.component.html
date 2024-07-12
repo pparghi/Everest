@@ -41,12 +41,12 @@
             
             <ng-container matColumnDef="Amt">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Amt</th>
-                <td mat-cell *matCellDef="let element">{{ math.round(element.Amt) }}</td>
+                <td mat-cell *matCellDef="let element">{{element.Amt | roundThousands }}</td>
             </ng-container>
 
             <ng-container matColumnDef="Balance">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-                <td mat-cell *matCellDef="let element">{{ math.round(element.Balance) }}</td>
+                <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>
             </ng-container>
 
             <ng-container matColumnDef="expand">
@@ -92,7 +92,7 @@
                         
                                     <td class="cell">{{ element.PurchaseDate | date }}</td>
                         
-                                    <td class="cell">{{ element.Advance }}</td>
+                                    <td class="cell">{{ element.Advance | roundThousands }}</td>
                         
                                     <td class="cell">{{ element.OpenDays }}</td>
                         

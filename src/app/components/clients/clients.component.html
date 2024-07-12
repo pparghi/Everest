@@ -77,14 +77,14 @@
                                     <th class="header">181+</th>                                                                                
                                 </tr>                        
                                 <tr class="table-row">                        
-                                    <td class="cell">{{ math.round(element.Balance) }}</td>                        
-                                    <td class="cell">{{ math.round(element.Age0to30) }}</td>                        
-                                    <td class="cell">{{ math.round(element.Age31to60) }}</td>                        
-                                    <td class="cell">{{ math.round(element.Age61to90) }}</td>                        
-                                    <td class="cell">{{ math.round(element.Age91to120) }}</td>                        
-                                    <td class="cell">{{ math.round(element.Age121to150) }}</td>                        
-                                    <td class="cell">{{ math.round(element.Age151to180) }}</td>                        
-                                    <td class="cell">{{ math.round(element.AgeOver180) }}</td>                                                                                
+                                    <td class="cell">{{ element.Balance | roundThousands }}</td>                        
+                                    <td class="cell">{{ element.Age0to30 | roundThousands }}</td>                        
+                                    <td class="cell">{{ element.Age31to60 | roundThousands }}</td>                        
+                                    <td class="cell">{{ element.Age61to90 | roundThousands }}</td>                        
+                                    <td class="cell">{{ element.Age91to120 | roundThousands }}</td>                        
+                                    <td class="cell">{{ element.Age121to150 | roundThousands }}</td>                        
+                                    <td class="cell">{{ element.Age151to180 | roundThousands }}</td>                        
+                                    <td class="cell">{{ element.AgeOver180 | roundThousands }}</td>                                                                                
                                 </tr>                                     
                             </table>                            
                         </div>                  

@@ -136,7 +136,7 @@
                                 <tr class="table-row">
                                     <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
-                                    <td class="cell" style="width: 10%;">{{ math.round(element.PastDue) }}</td>                                  
+                                    <td class="cell" style="width: 10%;">{{ element.PastDue }}</td>                                  
                                     <td class="cell" style="width: 10%;">{{ math.round(element.PAstDuePct) }}</td>
                                     <td class="cell" style="width: 10%;">-</td>                                  
                                     <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>

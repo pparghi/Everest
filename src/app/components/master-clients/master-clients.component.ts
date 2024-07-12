@@ -26,6 +26,8 @@ interface DataItem {
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
     displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'AgeOver180', 'Balance', 'Reserve', 'NFE'];
+    displayedMemberColumns: string[] = ['expand', 'Credit Limit', 'Credit Utilization', '30', '60', '90', '180'];
+    memberClient: string[] = ['member1', 'member2', 'member3'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -39,6 +41,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     constructor(private dataService: MasterClientsService, private router: Router) {}
     ngOnInit(): void {
+      console.log(this.memberClient);
+      
       this.loadData();
     }
 
