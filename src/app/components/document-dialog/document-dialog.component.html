@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Documents</h2>
+<mat-dialog-content class="mat-typography">
+    <mat-list role="list">
+        <mat-list-item role="listitem">Doc 1</mat-list-item>
+        <mat-list-item role="listitem">Doc 2</mat-list-item>
+        <mat-list-item role="listitem">Doc 3</mat-list-item>
+      </mat-list>
+      <input type="file" multiple>      
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Upload</button>
+</mat-dialog-actions>

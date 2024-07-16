@@ -62,8 +62,8 @@
         </ng-container>
 
         <ng-container matColumnDef="TotalCreditLimit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditLimit</th>
-            <td mat-cell *matCellDef="let element">{{ element.TotalCreditLimit | roundThousands }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 8%;">CreditLimit</th>
+            <td mat-cell *matCellDef="let element"><input type="text" value="{{ element.TotalCreditLimit | roundThousands }}" class="dropdown" /> </td>
         </ng-container>        
          
         <ng-container matColumnDef="AIGLimit">
@@ -77,8 +77,18 @@
         </ng-container>
 
         <ng-container matColumnDef="NoBuyCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Ineligible</th>
-            <td mat-cell *matCellDef="let element">{{ element.NoBuyCode }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 8%;">Ineligible</th>            
+            <td mat-cell *matCellDef="let element">
+                <form>                                                                                
+                    <select name="food" class="dropdown">
+                        <option>{{ element.NoBuyCode }}</option>
+                    @for (food of ineligibles; track food) {
+                        <option [value]="food.value">{{ food.viewValue }}</option>
+                    }
+                    </select>                                   
+                </form>
+                <!-- <button style="background-color: #dae2f9;">Update</button> --> 
+            </td>
         </ng-container>
 
             <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
@@ -137,7 +147,7 @@
                                     <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
                                     <td class="cell" style="width: 10%;">{{ element.PastDue }}</td>                                  
-                                    <td class="cell" style="width: 10%;">{{ math.round(element.PAstDuePct) }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.PAstDuePct }}</td>
                                     <td class="cell" style="width: 10%;">-</td>                                  
                                     <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>
                                     <td class="cell"></td>
@@ -154,7 +164,7 @@
                                     <th class="header" >Warning</th>                                    
                                 </tr>                                
                                 <tr>                                   
-                                    <td class="cell" style="width: 10%;">{{ element.Documents}}</td>
+                                    <td class="cell" (click)="openDocumentsDialog()" style="width: 10%; color: #005cbb; cursor: pointer; font-weight: Medium;">{{ element.Documents ? element.Documents : 'Test Doc' }}</td>
                                     <td class="cell">{{ element.Warning }}</td>
                                 </tr>                    
                             </table>                            

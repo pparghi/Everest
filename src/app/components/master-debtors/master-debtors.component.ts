@@ -1,9 +1,11 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 
 interface DataItem {
   Debtor: string;
@@ -16,6 +18,11 @@ interface DataItem {
   Terms: string;
   NoBuyCode: string;
   expandedDetail: { detail: string };
+}
+
+interface NoBuy {
+  value: string;
+  viewValue: string;
 }
 
 @Component({
@@ -33,6 +40,12 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
     math = Math;
+    readonly dialog = inject(MatDialog);
+    ineligibles: NoBuy[] = [
+      {value: '0', viewValue: 'NOBUY1'},
+      {value: '1', viewValue: 'NOBUY2'},
+      {value: '2', viewValue: 'NOBUY3'},
+    ];
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -127,6 +140,14 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         }
       }
       return { icon: '', color: 'grey' };
+    }
+
+    openDocumentsDialog(){
+      const dialogRef = this.dialog.open(DocumentDialogComponent);
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log(`Dialog result: ${result}`);
+      });
     }
    
 }

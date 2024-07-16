@@ -4,6 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MasterClientsService } from '../../services/master-clients.service';
 import { Router } from '@angular/router';
+import { MemberClientsService } from '../../services/member-clients.service';
 
 interface DataItem {
   Client: string;
@@ -26,10 +27,12 @@ interface DataItem {
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
     displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'AgeOver180', 'Balance', 'Reserve', 'NFE'];
-    displayedMemberColumns: string[] = ['expand', 'Credit Limit', 'Credit Utilization', '30', '60', '90', '180'];
+    displayedMemberColumns: string[] = ['Client', 'CreditLimit', 'CreditUtilization','test'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
+
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
+    memberDataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
     filter: string = '';
     specificPage: number = 1;
@@ -39,10 +42,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
-    constructor(private dataService: MasterClientsService, private router: Router) {}
-    ngOnInit(): void {
-      console.log(this.memberClient);
-      
+    constructor(private dataService: MasterClientsService,private memberDataService: MemberClientsService, private router: Router) {}
+    ngOnInit(): void {            
       this.loadData();
     }
 
@@ -74,9 +75,15 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       });
     }
 
-    openMemberClientsWindow(ClientKey: number): void {
+    loadMemberClientDetails(MasterClientKey: number): void {                       
+      this.memberDataService.getMemberClients(MasterClientKey).subscribe(response => {        
+        this.memberDataSource.data = response.data;                
+      });
+    }
+
+    openDebtorsWindow(ClientKey: number): void {
       const url = this.router.serializeUrl(
-        this.router.createUrlTree(['/member-client'], { queryParams: { MasterClientKey: ClientKey } })
+        this.router.createUrlTree(['/client-debtor'], { queryParams: { MemberClientKey: ClientKey } })
       );
       window.open(url, '_blank');
     }
@@ -104,8 +111,9 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       
     }
 
-    toggleRow(element: DataItem): void {                        
-      this.expandedElement = this.expandedElement === element ? null : element;          
+    toggleRow(element: DataItem, MasterClientKey: number): void {                        
+      this.expandedElement = this.expandedElement === element ? null : element;
+      this.loadMemberClientDetails(MasterClientKey);
     }
 
     isExpanded(element: DataItem): boolean {

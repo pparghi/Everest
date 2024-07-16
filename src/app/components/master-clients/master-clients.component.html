@@ -16,7 +16,7 @@
         
         <ng-container matColumnDef="Client">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Client Name</th>
-            <td (click)="openMemberClientsWindow(element.ClientKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Client }}</u></td>
+            <td mat-cell *matCellDef="let element">{{ element.Client }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Age0to30">
@@ -45,7 +45,7 @@
         </ng-container>
 
         <ng-container matColumnDef="Age151to180">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>151 - 108</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>151 - 180</th>
             <td mat-cell *matCellDef="let element">{{ element.Age151to180 | roundThousands }}</td>
         </ng-container>
 
@@ -72,53 +72,70 @@
         <ng-container matColumnDef="expand">
             <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let element">
-                    <button mat-icon-button (click)="toggleRow(element)">
+                    <button mat-icon-button (click)="toggleRow(element, element.ClientKey)">
                         <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
                     </button>
                 </td>
         </ng-container>
 
             <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>            
 
             <ng-container matColumnDef="expandedDetail">
-                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
-                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
+                <td mat-cell *matCellDef="let memberElement" [attr.colspan]="displayedColumns.length" >            
+                    <div *ngIf="isExpanded(memberElement)" style="padding-top: 10px; padding-bottom: 10px;">                                
                         <div class="table-container" style="background-color: #f5fbff;">                            
-                            <table class="bordered-table">
-                                <tr>                        
-                                    <th class="header" style="width: 10%;">Member Clients</th>                        
-                                    <th class="header" style="width: 10%;">Credit Limit</th>                        
-                                    <th class="header" style="width: 20%;">Credit Utilization</th>                        
-                                    <th class="header" style="width: 10%;"></th>                        
-                                    <th class="header" style="width: 10%;"></th>                        
-                                    <th class="header" style="width: 10%;">30</th>                        
-                                    <th class="header" style="width: 10%;">60</th>                        
-                                    <th class="header" style="width: 10%;">90</th>                        
-                                    <th class="header" style="width: 10%;">180</th>                        
-                                </tr>                        
-                                <tr class="table-row">                        
-                                    <td class="cell" style="width: 10%;">-</td>                        
-                                    <td class="cell" style="width: 10%;">-</td>                        
-                                    <td class="cell" style="width: 20%;">-</td>                        
-                                    <td class="cell" style="width: 10%;"></td>                        
-                                    <td class="cell" style="width: 10%;">
+                            <table mat-table [dataSource]="memberDataSource" matSort multiTemplateDataRows class="mat-table">
+                                <ng-container matColumnDef="Client">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Member Clients</th>
+                                    <td (click)="openDebtorsWindow(memberElement.ClientKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let memberElement"><u>{{ memberElement.Client }}</u></td>
+                                </ng-container>
+                                <ng-container matColumnDef="CreditLimit">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditLimit</th>
+                                    <td mat-cell *matCellDef="let memberElement">{{ memberElement.CreditLimit | roundThousands }}</td>
+                                </ng-container>
+                                <ng-container matColumnDef="CreditUtilization">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditUtilization</th>
+                                    <td mat-cell *matCellDef="let memberElement"></td>
+                                </ng-container>
+                                <ng-container matColumnDef="test">                                    
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 40%;"></th>
+                                    <td mat-cell *matCellDef="let memberElement">
                                         <tr>
-                                            <td><b>Dilution</b></td>                                            
+                                            <th style="width: 20%;"></th>
+                                            <th style="width: 20%;">30</th> 
+                                            <th style="width: 20%;">60</th>                                    
+                                            <th style="width: 20%;">90</th>                                    
+                                            <th style="width: 20%;">180</th>
                                         </tr>
                                         <tr>
-                                            <td><b>Sales</b></td>                                            
+                                            <td><b>Dilution</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
                                         </tr>
+                                        <br>
                                         <tr>
-                                            <td><b>Collection</b></td>                                            
+                                            <td><b>Sales</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
                                         </tr>
-                                    </td>                        
-                                    <td class="cell" style="width: 10%;">-</td>                        
-                                    <td class="cell" style="width: 10%;">-</td>                        
-                                    <td class="cell" style="width: 10%;">-</td>                        
-                                    <td class="cell" style="width: 10%;">-</td>                        
-                                </tr>                
-                            </table>                            
+                                        <br>
+                                        <tr>
+                                            <td><b>Collection</b></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </td>                                    
+                                </ng-container>
+                                <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedMemberColumns" style="background-color: #f5fbff;"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedMemberColumns;" class="element-row" style="background-color: #f5fbff;"></tr>
+                            </table>                          
                         </div>                    
                     </div>                                      
                 </td>            

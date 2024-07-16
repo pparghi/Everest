@@ -9,6 +9,7 @@ import { MsalGuard } from '@azure/msal-angular';
 import { InvoicesComponent } from './components/invoices/invoices.component';
 import { MasterClientsComponent } from './components/master-clients/master-clients.component';
 import { MemberClientsComponent } from './components/member-clients/member-clients.component';
+import { ClientsDebtorsComponent } from './components/clients-debtors/clients-debtors.component';
 
 const routes: Routes = [  
   { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'invoices', component: ClientsInvoicesComponent },
   { path: 'risk-client', component: MasterClientsComponent },
   { path: 'member-client', component: MemberClientsComponent },
+  { path: 'client-debtor', component: ClientsDebtorsComponent },
   { path: 'page', component: InvoicesComponent },
 ];
 

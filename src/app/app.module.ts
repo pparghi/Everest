@@ -36,6 +36,10 @@ import { InvoicesComponent } from './components/invoices/invoices.component';
 import { MasterClientsComponent } from './components/master-clients/master-clients.component';
 import { RoundThousandsPipe } from './round-thousands.pipe';
 import { MemberClientsComponent } from './components/member-clients/member-clients.component';
+import { DocumentDialogComponent } from './components/document-dialog/document-dialog.component';
+import { MatListModule } from '@angular/material/list';
+import { MatSelectModule } from '@angular/material/select';
+import { ClientsDebtorsComponent } from './components/clients-debtors/clients-debtors.component';
 
 const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
 
@@ -57,6 +61,8 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     MasterClientsComponent,
     RoundThousandsPipe,
     MemberClientsComponent,
+    DocumentDialogComponent,
+    ClientsDebtorsComponent,
   ],
   imports: [
     BrowserModule,
@@ -107,7 +113,9 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     MatSort,
     MatSortHeader,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    MatListModule,
+    MatSelectModule
   ],
   providers: [{
     provide: HTTP_INTERCEPTORS,
