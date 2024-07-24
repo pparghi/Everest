@@ -34,14 +34,9 @@
             <td mat-cell *matCellDef="let element">{{ element.DbDunsNo }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="Country">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Country</th>
-            <td mat-cell *matCellDef="let element">{{ element.Country === 'Canada' ? 'CA' : 'US' }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="State">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>State</th>
-            <td mat-cell *matCellDef="let element">{{ element.State }}</td>
+        <ng-container matColumnDef="Address">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+            <td mat-cell *matCellDef="let element">{{ element.Addr1 }} , {{ element.Addr2 }}</td>
         </ng-container>
 
         <ng-container matColumnDef="City">
@@ -49,11 +44,16 @@
             <td mat-cell *matCellDef="let element">{{ element.City }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="Address">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
-            <td mat-cell *matCellDef="let element">{{ element.Addr1 }} , {{ element.Addr2 }}</td>
+        <ng-container matColumnDef="State">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>State</th>
+            <td mat-cell *matCellDef="let element">{{ element.State }}</td>
         </ng-container>
-        
+
+        <ng-container matColumnDef="Country">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Country</th>
+            <td mat-cell *matCellDef="let element">{{ element.Country === 'Canada' ? 'CA' : 'US' }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="DSO">
            <th mat-header-cell *matHeaderCellDef mat-sort-header>DSO Change in # days</th>
            <td mat-cell *matCellDef="let element">
@@ -62,13 +62,30 @@
         </ng-container>
 
         <ng-container matColumnDef="TotalCreditLimit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 8%;">CreditLimit</th>
-            <td mat-cell *matCellDef="let element"><input type="text" value="{{ element.TotalCreditLimit | roundThousands }}" class="dropdown" /> </td>
-        </ng-container>        
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 10%;">CreditLimit</th>            
+            <td mat-cell *matCellDef="let element">                
+                <ng-container *ngIf="!element.editing">
+                        {{ element.TotalCreditLimit | roundThousands }}
+                </ng-container>
+                <ng-container *ngIf="element.editing">
+                <input type="text" [(ngModel)]="element.TotalCreditLimit">
+                </ng-container>
+            </td>
+        </ng-container>
+        
+        <ng-container matColumnDef="TotalCreditLimit">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 5%;">CreditLimit</th>
+            <td mat-cell *matCellDef="let element; let i = index">
+            <ng-container *ngIf="editMode && editedRowIndex === i; else displayTotalCreditLimit">
+            <input matInput style="width: 85%;" [(ngModel)]="element.TotalCreditLimit">
+            </ng-container>
+            <ng-template #displayTotalCreditLimit>{{ element.TotalCreditLimit | roundThousands }}</ng-template>
+            </td>
+        </ng-container>
          
         <ng-container matColumnDef="AIGLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>AIGLimit</th>
-            <td mat-cell *matCellDef="let element">{{ element.AIGLimit | roundThousands}}</td>
+            <td mat-cell *matCellDef="let element">{{ element.AIGLimit | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Terms">
@@ -77,102 +94,115 @@
         </ng-container>
 
         <ng-container matColumnDef="NoBuyCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 8%;">Ineligible</th>            
-            <td mat-cell *matCellDef="let element">
-                <form>                                                                                
-                    <select name="food" class="dropdown">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 10%;">Account Status</th>            
+            <td mat-cell *matCellDef="let element; let i = index">
+                <ng-container *ngIf="editMode && editedRowIndex === i; else displayNoBuyCode">
+                    <select name="NoBuyCode" class="dropdown" [(ngModel)]="element.NoBuyCode">
                         <option>{{ element.NoBuyCode }}</option>
-                    @for (food of ineligibles; track food) {
-                        <option [value]="food.value">{{ food.viewValue }}</option>
-                    }
-                    </select>                                   
-                </form>
-                <!-- <button style="background-color: #dae2f9;">Update</button> --> 
+                        @for (disputeCode of DebtoNoBuyDisputeList; track disputeCode) {
+                            <option [value]="disputeCode.DisputeCode">{{ disputeCode.DisputeCode }}</option>
+                        }
+                    </select>
+                </ng-container>                                                                                                
+                <ng-template #displayNoBuyCode>{{ element.NoBuyCode }}</ng-template>                                                   
             </td>
         </ng-container>
 
-            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
+        <ng-container matColumnDef="Edit">
+            <th mat-header-cell *matHeaderCellDef style="width: 8%;">Action</th>
+            <td mat-cell *matCellDef="let element; let i = index">
+                <button mat-icon-button *ngIf="!editMode" (click)="startEdit(element, i)" style="color: #1473d1;" title="Edit"><mat-icon>edit</mat-icon></button>                        
+                <button mat-icon-button  style="color: #1473d1;" *ngIf="editMode && editedRowIndex === i" (click)="saveRow(element, i)" title="Save">
+                <mat-icon>save</mat-icon>
+                </button>            
+                <button mat-icon-button style="color:#bc0d0d;" *ngIf="editMode && editedRowIndex === i" (click)="cancelEdit()" title="Cancel">
+                <mat-icon>cancel</mat-icon>
+                </button>
+            </td>
+        </ng-container>
 
-            <ng-container matColumnDef="expandedDetail">
-                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
-                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
-                        <div class="table-container" style="background-color: #f5fbff;">                            
-                            <table class="bordered-table">
-                                <tr>
-                                    <th class="header" style="width: 10%;">Total AR</th>
-                                    <th class="header" style="width: 10%;">0-30</th>
-                                    <th class="header" style="width: 10%;">31-60</th>
-                                    <th class="header" style="width: 10%;">61-90</th>
-                                    <th class="header" style="width: 10%;">91-120</th>
-                                    <th class="header" style="width: 10%;">121-150</th>
-                                    <th class="header" style="width: 10%;">151-180</th>
-                                    <th class="header" style="width: 10%;">180+</th>
-                                    <th class="header" style="width: 5%;">DSO30</th>
-                                    <th class="header" style="width: 5%;">DSO60</th>
-                                    <th class="header" style="width: 5%;">DSO90</th>
-                                    <th class="header" style="width: 5%;">DSOAll</th>              
-                                </tr>                               
-                                <tr class="table-row">
-                                    <td class="cell" style="width: 10%;">{{ element.Balance | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.Age151to180 | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.AgeOver180 | roundThousands }}</td>
-                                    <td class="cell" style="width: 5%;">-</td>
-                                    <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
-                                    <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>
-                                    <td class="cell" style="width: 5%;">{{ math.round(element.DSOAll) }}</td>                                                        
-                                </tr>                                
-                            </table>
-                            <table class="bordered-table">                                                       
-                                <tr>
-                                    <th class="header" style="width: 10%;">C/L</th>
-                                    <th class="header" style="width: 10%;">% Utilized</th>                                    
-                                    <th class="header" style="width: 10%;">Past Due</th>                                        
-                                    <th class="header" style="width: 10%;">Past Due%</th>     
-                                    <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
-                                    <th class="header" style="width: 12%;"># of Outstanding Invoices</th>                                 
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
-                                <tr class="table-row">
-                                    <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
-                                    <td class="cell" style="width: 10%;">{{ element.PastDue }}</td>                                  
-                                    <td class="cell" style="width: 10%;">{{ element.PAstDuePct }}</td>
-                                    <td class="cell" style="width: 10%;">-</td>                                  
-                                    <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>
-                                    <td class="cell"></td>
-                                    <td class="cell"></td>
-                                    <td class="cell"></td>
-                                    <td class="cell"></td>                                    
-                                    <td class="cell"></td>
-                                    <td class="cell"></td>                                    
-                                </tr>
-                            </table>
-                            <table class="bordered-table">                                                                                
-                                <tr>                                    
-                                    <th class="header" style="width: 10%;">Documents</th>
-                                    <th class="header" >Warning</th>                                    
-                                </tr>                                
-                                <tr>                                   
-                                    <td class="cell" (click)="openDocumentsDialog()" style="width: 10%; color: #005cbb; cursor: pointer; font-weight: Medium;">{{ element.Documents ? element.Documents : 'Test Doc' }}</td>
-                                    <td class="cell">{{ element.Warning }}</td>
-                                </tr>                    
-                            </table>                            
-                        </div>                    
-                    </div>                                      
-                </td>            
-            </ng-container>
-            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" id="detail-row" class="detail-row"></tr>
+        <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
+
+        <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
+                <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
+                    <div class="table-container" style="background-color: #f5fbff;">                            
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 10%;">Total AR</th>
+                                <th class="header" style="width: 10%;">0-30</th>
+                                <th class="header" style="width: 10%;">31-60</th>
+                                <th class="header" style="width: 10%;">61-90</th>
+                                <th class="header" style="width: 10%;">91-120</th>
+                                <th class="header" style="width: 10%;">121-150</th>
+                                <th class="header" style="width: 10%;">151-180</th>
+                                <th class="header" style="width: 10%;">180+</th>
+                                <th class="header" style="width: 5%;">DSO30</th>
+                                <th class="header" style="width: 5%;">DSO60</th>
+                                <th class="header" style="width: 5%;">DSO90</th>
+                                <th class="header" style="width: 5%;">DSOAll</th>              
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 10%;">{{ element.Balance | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.Age151to180 | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.AgeOver180 | roundThousands }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO30) }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSOAll) }}</td>                                                        
+                            </tr>                                
+                        </table>
+                        <table class="bordered-table">                                                       
+                            <tr>
+                                <th class="header" style="width: 10%;">C/L</th>
+                                <th class="header" style="width: 10%;">% Utilized</th>                                    
+                                <th class="header" style="width: 10%;">Past Due</th>                                        
+                                <th class="header" style="width: 10%;">Past Due%</th>     
+                                <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
+                                <th class="header" style="width: 12%;"># of Outstanding Invoices</th>                                 
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
+                                <td class="cell" style="width: 10%;">{{ element.PastDue | roundThousands }}</td>                                  
+                                <td class="cell" style="width: 10%;">{{ element.PastDuePct | percent: '1.0-0' }}</td>
+                                <td class="cell" style="width: 10%;">-</td>                                  
+                                <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>
+                                <td class="cell"></td>
+                                <td class="cell"></td>
+                                <td class="cell"></td>
+                                <td class="cell"></td>                                    
+                                <td class="cell"></td>
+                                <td class="cell"></td>                                    
+                            </tr>
+                        </table>
+                        <table class="bordered-table">                                                                                
+                            <tr>                                    
+                                <th class="header" style="width: 10%;">Documents</th>
+                                <th class="header" >Warning</th>                                    
+                            </tr>                                
+                            <tr>                                   
+                                <td class="cell" (click)="openDocumentsDialog()"><i class="fa fa-file-o"></i></td>
+                                <td class="cell">{{ element.Warning }}</td>
+                            </tr>                    
+                        </table>                            
+                    </div>                    
+                </div>                                      
+            </td>            
+        </ng-container>
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" id="detail-row" class="detail-row"></tr>
         </table>
     </div>
     

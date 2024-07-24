@@ -6,6 +6,9 @@ import { DebtorsApiService } from '../../services/debtors-api.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { HttpClient } from '@angular/common/http';
+
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
   Debtor: string;
@@ -20,11 +23,6 @@ interface DataItem {
   expandedDetail: { detail: string };
 }
 
-interface NoBuy {
-  value: string;
-  viewValue: string;
-}
-
 @Component({
   selector: 'app-master-debtors',
   templateUrl: './master-debtors.component.html',
@@ -32,7 +30,7 @@ interface NoBuy {
 })
 
 export class MasterDebtorsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Country', 'State', 'City', 'Address', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode'];
+    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State','Country', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode', 'Edit'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -40,19 +38,21 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
     math = Math;
-    readonly dialog = inject(MatDialog);
-    ineligibles: NoBuy[] = [
-      {value: '0', viewValue: 'NOBUY1'},
-      {value: '1', viewValue: 'NOBUY2'},
-      {value: '2', viewValue: 'NOBUY3'},
-    ];
+    readonly dialog = inject(MatDialog);    
+
+    profile: any;
+    user: any;
+    editMode = false;
+    editedRowIndex: number | null = null;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
-    constructor(private dataService: DebtorsApiService, private router: Router) {}
+    DebtoNoBuyDisputeList: any;
+
+    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient) {}
     ngOnInit(): void {
-      this.loadData();
+      this.loadData();      
     }
 
     ngAfterViewInit(): void {      
@@ -78,8 +78,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.dataService.getData(page ,pageSize, this.filter, sort, order).subscribe(response => {                
         this.isLoading = false;
         this.dataSource.data = response.data;
-        this.totalRecords = response.total;        
-        
+        this.totalRecords = response.total;
+        this.DebtoNoBuyDisputeList = response.noBuyDisputeList;                
       });
     }
 
@@ -148,6 +148,49 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       dialogRef.afterClosed().subscribe(result => {
         console.log(`Dialog result: ${result}`);
       });
+    }
+
+    update(){
+      this.http.get(GRAPH_ENDPOINT)
+        .subscribe(profile => {
+          this.profile = profile;          
+          var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+          this.user = userId                     
+        });
+        console.log("userId =" + this.user);        
+        var creditlimit = ((document.getElementById("creditlimit") as HTMLInputElement).value);
+        console.log("credit limit value = " + creditlimit);
+        var debtorKey = ((document.getElementById("DebtorKey") as HTMLInputElement).value);
+        console.log("DebtorKey = " + debtorKey);        
+    }  
+    
+    startEdit(row: DataItem, index: number) {
+      this.editMode = true;
+      this.editedRowIndex = index;            
+    }
+
+    cancelEdit() {
+      this.editMode = false;
+      this.editedRowIndex = null;
+    }
+
+    saveRow(row: DataItem, index: number) {
+      // Call APIs to update fields
+      // const editedRow = this.dataSource[this.editedRowIndex!];
+      // Call API for field1 update
+      // Call API for field2 update
+      this.http.get(GRAPH_ENDPOINT)
+        .subscribe(profile => {
+          this.profile = profile;          
+          var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+          this.user = userId                     
+          console.log("userId =" + this.user);                
+        });
+
+      console.log('CreditLimit: ' + row.TotalCreditLimit,'NoBuy: ' +  row.NoBuyCode);
+      
+      this.editMode = false;
+      this.editedRowIndex = null;
     }
    
 }

@@ -26,7 +26,8 @@ export class DebtorsApiService {
             ...item,
             expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
           })),
-          total: response.total['count_all']
+          total: response.total['count_all'],
+          noBuyDisputeList: response.DebtoNoBuyDisputeList
         };
       })
     );
