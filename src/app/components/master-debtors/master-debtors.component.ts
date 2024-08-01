@@ -7,19 +7,22 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { HttpClient } from '@angular/common/http';
+import { error } from 'jquery';
+import Swal from 'sweetalert2';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
   Debtor: string;
+  DebtorKey: number;
   DbDunsNo: string;
   Country: string;
   State: string;
   City: string;
-  TotalCreditLimit: string;
+  TotalCreditLimit: number;
   AIGLimit: string;
   Terms: string;
-  NoBuyCode: string;
+  NoBuyCode: number;  
   expandedDetail: { detail: string };
 }
 
@@ -42,13 +45,14 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
     profile: any;
     user: any;
-    editMode = false;
-    editedRowIndex: number | null = null;
+    DebtoNoBuyDisputeList: any;
+    oldTotalCreditLimit: any;
+    oldNoBuyCode: any;
+    editedElement: DataItem | null = null;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
-    DebtoNoBuyDisputeList: any;
 
     constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient) {}
     ngOnInit(): void {
@@ -69,7 +73,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       }                     
     }
 
-    loadData(): void {      
+    loadData(): void {
+      this.isLoading = true;      
       const sort = this.sort ? this.sort.active : '';
       const order = this.sort ? this.sort.direction : '';
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
@@ -121,6 +126,10 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       return this.expandedElement === element;
     }
 
+    isEditModeOn(element: DataItem): boolean {
+      return this.editedElement === element;
+    }
+
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
 
     getIcon(element: any): { icon: string, color: string } {
@@ -149,48 +158,62 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         console.log(`Dialog result: ${result}`);
       });
     }
-
-    update(){
-      this.http.get(GRAPH_ENDPOINT)
-        .subscribe(profile => {
-          this.profile = profile;          
-          var userId = this.profile.mail.match(/^([^@]*)@/)[1];
-          this.user = userId                     
-        });
-        console.log("userId =" + this.user);        
-        var creditlimit = ((document.getElementById("creditlimit") as HTMLInputElement).value);
-        console.log("credit limit value = " + creditlimit);
-        var debtorKey = ((document.getElementById("DebtorKey") as HTMLInputElement).value);
-        console.log("DebtorKey = " + debtorKey);        
-    }  
     
     startEdit(row: DataItem, index: number) {
-      this.editMode = true;
-      this.editedRowIndex = index;            
+      console.log(row);
+      console.log(index);
+      
+      this.oldTotalCreditLimit = row.TotalCreditLimit;
+      this.oldNoBuyCode = row.NoBuyCode;
+      this.editedElement = row;         
     }
 
-    cancelEdit() {
-      this.editMode = false;
-      this.editedRowIndex = null;
+    cancelEdit(row: DataItem) {
+      row.NoBuyCode = this.oldNoBuyCode;
+      this.editedElement = null;
     }
 
     saveRow(row: DataItem, index: number) {
-      // Call APIs to update fields
-      // const editedRow = this.dataSource[this.editedRowIndex!];
-      // Call API for field1 update
-      // Call API for field2 update
+      console.log(row);
+      console.log(index);
       this.http.get(GRAPH_ENDPOINT)
         .subscribe(profile => {
           this.profile = profile;          
           var userId = this.profile.mail.match(/^([^@]*)@/)[1];
-          this.user = userId                     
-          console.log("userId =" + this.user);                
-        });
+          this.user = userId
 
-      console.log('CreditLimit: ' + row.TotalCreditLimit,'NoBuy: ' +  row.NoBuyCode);
-      
-      this.editMode = false;
-      this.editedRowIndex = null;
+          if (this.oldTotalCreditLimit != row.TotalCreditLimit) {
+            const DebtorKey = row.DebtorKey;
+            const TotalCreditLimit = row.TotalCreditLimit;
+            const CredAppBy = this.user;            
+
+            this.dataService.updateCreditLimit(DebtorKey, TotalCreditLimit, CredAppBy).subscribe(
+              response => { 
+                Swal.fire('Thank you!','Credit Limit Updated succesfully!', 'success');
+                this.loadData();
+              },
+              error => {
+                Swal.fire('Oops!','Credit Limit Update Failed!', 'error');
+                this.loadData();             
+              }              
+            )}
+
+          if (this.oldNoBuyCode != row.NoBuyCode) {
+            const DebtorKey = row.DebtorKey;
+            const NoBuyDisputeKey = row.NoBuyCode;
+            const CredAppBy = this.user;                      
+            
+            this.dataService.updateNobuyCode(DebtorKey, NoBuyDisputeKey, CredAppBy).subscribe(
+              response => { 
+                Swal.fire('Thank you!','Account Status Updated succesfully!', 'success');
+                this.loadData();
+              },
+              error => {
+                Swal.fire('Oops!','Account Status Update Failed!', 'error');
+                this.loadData();                                
+              });
+          }         
+        });
     }
    
 }

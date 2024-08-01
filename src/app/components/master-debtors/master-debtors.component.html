@@ -76,7 +76,7 @@
         <ng-container matColumnDef="TotalCreditLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 5%;">CreditLimit</th>
             <td mat-cell *matCellDef="let element; let i = index">
-            <ng-container *ngIf="editMode && editedRowIndex === i; else displayTotalCreditLimit">
+            <ng-container *ngIf="isEditModeOn(element); else displayTotalCreditLimit">
             <input matInput style="width: 85%;" [(ngModel)]="element.TotalCreditLimit">
             </ng-container>
             <ng-template #displayTotalCreditLimit>{{ element.TotalCreditLimit | roundThousands }}</ng-template>
@@ -96,14 +96,11 @@
         <ng-container matColumnDef="NoBuyCode">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 10%;">Account Status</th>            
             <td mat-cell *matCellDef="let element; let i = index">
-                <ng-container *ngIf="editMode && editedRowIndex === i; else displayNoBuyCode">
+                <ng-container *ngIf="isEditModeOn(element); else displayNoBuyCode">
                     <select name="NoBuyCode" class="dropdown" [(ngModel)]="element.NoBuyCode">
-                        <option>{{ element.NoBuyCode }}</option>
-                        @for (disputeCode of DebtoNoBuyDisputeList; track disputeCode) {
-                            <option [value]="disputeCode.DisputeCode">{{ disputeCode.DisputeCode }}</option>
-                        }
+                        <option *ngFor="let disputeCode of DebtoNoBuyDisputeList" [value]="disputeCode.DisputeCodeKey" [selected]="disputeCode.DisputeCode">{{ disputeCode.DisputeCode }}</option>
                     </select>
-                </ng-container>                                                                                                
+                </ng-container>                                                             
                 <ng-template #displayNoBuyCode>{{ element.NoBuyCode }}</ng-template>                                                   
             </td>
         </ng-container>
@@ -111,11 +108,11 @@
         <ng-container matColumnDef="Edit">
             <th mat-header-cell *matHeaderCellDef style="width: 8%;">Action</th>
             <td mat-cell *matCellDef="let element; let i = index">
-                <button mat-icon-button *ngIf="!editMode" (click)="startEdit(element, i)" style="color: #1473d1;" title="Edit"><mat-icon>edit</mat-icon></button>                        
-                <button mat-icon-button  style="color: #1473d1;" *ngIf="editMode && editedRowIndex === i" (click)="saveRow(element, i)" title="Save">
+                <button mat-icon-button *ngIf="!isEditModeOn(element)" (click)="startEdit(element, i)" style="color: #1473d1;" title="Edit"><mat-icon>edit</mat-icon></button>                        
+                <button mat-icon-button  style="color: #1473d1;" *ngIf="isEditModeOn(element)" (click)="saveRow(element, i)" title="Save">
                 <mat-icon>save</mat-icon>
                 </button>            
-                <button mat-icon-button style="color:#bc0d0d;" *ngIf="editMode && editedRowIndex === i" (click)="cancelEdit()" title="Cancel">
+                <button mat-icon-button style="color:#bc0d0d;" *ngIf="isEditModeOn(element)" (click)="cancelEdit(element)" title="Cancel">
                 <mat-icon>cancel</mat-icon>
                 </button>
             </td>
@@ -194,7 +191,7 @@
                                 <th class="header" >Warning</th>                                    
                             </tr>                                
                             <tr>                                   
-                                <td class="cell" (click)="openDocumentsDialog()"><i class="fa fa-file-o"></i></td>
+                                <td class="cell" (click)="openDocumentsDialog()"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
                                 <td class="cell">{{ element.Warning }}</td>
                             </tr>                    
                         </table>                            

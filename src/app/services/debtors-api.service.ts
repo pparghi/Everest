@@ -18,7 +18,7 @@ export class DebtorsApiService {
   constructor(private http: HttpClient) { }
 
   getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const url = `http://127.0.0.1:4201/api/debtors?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    const url = `http://127.0.0.1:4201/api/debtors?page=${page}&TotalCreditLimit=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     return this.http.get<any>(url).pipe(
       map(response => {
         return {
@@ -31,5 +31,25 @@ export class DebtorsApiService {
         };
       })
     );
+  }
+
+  updateCreditLimit(DebtorKey: number, TotalCreditLimit: number, CredAppBy: string): Observable<any> {
+    const url = `http://127.0.0.1:4201/api/updateDebtorCreditLimit?DebtorKey=${DebtorKey}&TotalCreditLimit=${TotalCreditLimit}&CredAppBy=${CredAppBy}`;
+    const body = {
+      DebtorKey: DebtorKey,
+      TotalCreditLimit: TotalCreditLimit,
+      CredAppBy: CredAppBy
+    };
+    return this.http.post<any>(url, body);
+  }
+
+  updateNobuyCode(DebtorKey: number, NoBuyDisputeKey: number, CredAppBy: string){
+    const url = `http://127.0.0.1:4201/api/updateDebtorAccountStatus?DebtorKey=${DebtorKey}&NoBuyDisputeKey=${NoBuyDisputeKey}&CredAppBy=${CredAppBy}`;    
+    const body = {
+      DebtorKey: DebtorKey,
+      NoBuyDisputeKey: NoBuyDisputeKey,
+      CredAppBy: CredAppBy
+    };        
+    return this.http.post<any>(url, body);
   }
 }
