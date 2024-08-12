@@ -46,6 +46,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     profile: any;
     user: any;
     DebtoNoBuyDisputeList: any;
+    DocumentsList: any;
+    DocumentsCat: any;
     oldTotalCreditLimit: any;
     oldNoBuyCode: any;
     editedElement: DataItem | null = null;
@@ -151,18 +153,28 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       return { icon: '', color: 'grey' };
     }
 
-    openDocumentsDialog(){
-      const dialogRef = this.dialog.open(DocumentDialogComponent);
-
-      dialogRef.afterClosed().subscribe(result => {
-        console.log(`Dialog result: ${result}`);
-      });
+    openDocumentsDialog(DebtorKey: number){
+      
+      this.dataService.getDebtorsDocuments(DebtorKey).subscribe(response => {                        
+        this.DocumentsList = response.documentsList;
+        this.DocumentsCat = response.DocumentsCat;
+        
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+           data: {
+            DebtorKey: DebtorKey, 
+            documentsList: this.DocumentsList,
+            documentCategory: this.DocumentsCat
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            console.log(result);
+                 
+        });
+      });      
     }
     
-    startEdit(row: DataItem, index: number) {
-      console.log(row);
-      console.log(index);
-      
+    startEdit(row: DataItem, index: number) {      
       this.oldTotalCreditLimit = row.TotalCreditLimit;
       this.oldNoBuyCode = row.NoBuyCode;
       this.editedElement = row;         
@@ -173,9 +185,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.editedElement = null;
     }
 
-    saveRow(row: DataItem, index: number) {
-      console.log(row);
-      console.log(index);
+    saveRow(row: DataItem, index: number) {      
       this.http.get(GRAPH_ENDPOINT)
         .subscribe(profile => {
           this.profile = profile;          

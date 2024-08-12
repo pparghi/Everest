@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 
 interface ApiResponse {
   data: any[];
+  debtorDocuments: any[];
   total: number;
 }
 
@@ -33,6 +34,21 @@ export class DebtorsApiService {
     );
   }
 
+  getDebtorsDocuments(DebtorKey: number): Observable<any> {
+    const url = `http://127.0.0.1:4201/api/documentsList?DebtorKey=${DebtorKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          documentsList: response.documentsList.map((item: any) => ({
+            ...item,
+         // Add expanded detail here
+          })),
+          DocumentsCat: response.documentsCat                    
+        };
+      })
+    );
+  }
+
   updateCreditLimit(DebtorKey: number, TotalCreditLimit: number, CredAppBy: string): Observable<any> {
     const url = `http://127.0.0.1:4201/api/updateDebtorCreditLimit?DebtorKey=${DebtorKey}&TotalCreditLimit=${TotalCreditLimit}&CredAppBy=${CredAppBy}`;
     const body = {
@@ -49,6 +65,17 @@ export class DebtorsApiService {
       DebtorKey: DebtorKey,
       NoBuyDisputeKey: NoBuyDisputeKey,
       CredAppBy: CredAppBy
+    };        
+    return this.http.post<any>(url, body);
+  }
+
+  uploadDocument(DebtorKey: number, Descr: String, FileName: String, DocCatKey: number){
+    const url = `http://127.0.0.1:4201/api/debtorMasterAddDocument?DebtorKey=${DebtorKey}&Descr=${Descr}&FileName=${FileName}&DocCatKey=${DocCatKey}`;    
+    const body = {
+      DebtorKey: DebtorKey,
+      Descr: Descr,
+      FileName: FileName,
+      DocCatKey: DocCatKey
     };        
     return this.http.post<any>(url, body);
   }

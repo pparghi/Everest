@@ -1,0 +1,28 @@
+  .custom-file-button {
+	input[type="file"] {
+		margin-left: -2px !important;
+
+		&::-webkit-file-upload-button {
+			display: none;
+		}
+		&::file-selector-button {
+			display: none;
+		}
+	}
+
+	&:hover {
+		label {
+			background-color: #dde0e3;
+			cursor: pointer;
+		}
+	}
+}
+
+.dropdown {  
+    height: calc(1.5em + 0.5rem + 2px);
+    padding: 0.25rem 0.5rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    border-color: #BCBDBF;
+    width: 80%;
+  }

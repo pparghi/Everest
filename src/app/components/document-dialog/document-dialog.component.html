@@ -1,13 +1,25 @@
 <h2 mat-dialog-title>Documents</h2>
 <mat-dialog-content class="mat-typography">
-    <mat-list role="list">
-        <mat-list-item role="listitem">Doc 1</mat-list-item>
-        <mat-list-item role="listitem">Doc 2</mat-list-item>
-        <mat-list-item role="listitem">Doc 3</mat-list-item>
-      </mat-list>
-      <input type="file" multiple>      
+  <ul *ngFor="let item of data.documentsList">
+    <li (click)="openFile(item.DocHdrKey)">{{ item.FileName }}</li>
+  </ul>
+
+  <hr>
+
+    <label for="documentCategory"> <b>Category</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+    <select class="dropdown" [(ngModel)]="documentCategory" id="documentCategory">
+      <option *ngFor="let category of data.documentCategory" value="{{ category.DocCatKey }}">{{ category.Descr }}</option>
+    </select><br><br>
+
+    <label for="documentDescr"> <b>Description</b> &nbsp;</label> 
+    <input type="text" class="dropdown" [(ngModel)]="documentDescr" id="documentDescr"><br><br>  
+           
+    <div class="input-group custom-file-button">
+      <label class="input-group-text" for="inputGroupFile">Browse</label>
+      <input type="file" class="form-control" id="inputGroupFile" (change)="this.onFilechange($event)">
+    </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button [mat-dialog-close]="true" cdkFocusInitial>Upload</button>
+  <button mat-button [mat-dialog-close]="true" (click)="onSubmit()" cdkFocusInitial>Upload</button>
 </mat-dialog-actions>
