@@ -48,6 +48,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     DebtoNoBuyDisputeList: any;
     DocumentsList: any;
     DocumentsCat: any;
+    documentsFolder: any;
     oldTotalCreditLimit: any;
     oldNoBuyCode: any;
     editedElement: DataItem | null = null;
@@ -155,21 +156,22 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
     openDocumentsDialog(DebtorKey: number){
       
-      this.dataService.getDebtorsDocuments(DebtorKey).subscribe(response => {                        
+      this.dataService.getDebtorsDocuments(DebtorKey).subscribe(response => {                                
         this.DocumentsList = response.documentsList;
         this.DocumentsCat = response.DocumentsCat;
+        this.documentsFolder = response.DocumentsFolder;
         
         const dialogRef = this.dialog.open(DocumentDialogComponent, {                
            data: {
             DebtorKey: DebtorKey, 
             documentsList: this.DocumentsList,
-            documentCategory: this.DocumentsCat
+            documentCategory: this.DocumentsCat,
+            documentsFolder: this.documentsFolder
           }
         });
         
         dialogRef.afterClosed().subscribe(result => {
-            console.log(result);
-                 
+            
         });
       });      
     }

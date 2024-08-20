@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Documents</h2>
 <mat-dialog-content class="mat-typography">
   <ul *ngFor="let item of data.documentsList">
-    <li (click)="openFile(item.DocHdrKey)">{{ item.FileName }}</li>
+    <li (click)="openFile()" style="cursor: pointer;">{{ item.FileName }}</li>
   </ul>
 
   <hr>

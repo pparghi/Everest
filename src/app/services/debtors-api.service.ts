@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 interface ApiResponse {
   data: any[];
   debtorDocuments: any[];
+  DocumentsFolder: any[];
   total: number;
 }
 
@@ -19,7 +20,7 @@ export class DebtorsApiService {
   constructor(private http: HttpClient) { }
 
   getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const url = `http://127.0.0.1:4201/api/debtors?page=${page}&TotalCreditLimit=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    const url = `http://127.0.0.1:4201/api/debtors?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     return this.http.get<any>(url).pipe(
       map(response => {
         return {
@@ -43,7 +44,8 @@ export class DebtorsApiService {
             ...item,
          // Add expanded detail here
           })),
-          DocumentsCat: response.documentsCat                    
+          DocumentsCat: response.documentsCat,                    
+          DocumentsFolder: response.documentsFolder                    
         };
       })
     );
@@ -69,13 +71,14 @@ export class DebtorsApiService {
     return this.http.post<any>(url, body);
   }
 
-  uploadDocument(DebtorKey: number, Descr: String, FileName: String, DocCatKey: number){
-    const url = `http://127.0.0.1:4201/api/debtorMasterAddDocument?DebtorKey=${DebtorKey}&Descr=${Descr}&FileName=${FileName}&DocCatKey=${DocCatKey}`;    
+  uploadDocument(DebtorKey: number, Descr: String, FileName: File, DocCatKey: number, DocFolderPath: string){
+    const url = `http://127.0.0.1:4201/api/debtorMasterAddDocument`;    
     const body = {
       DebtorKey: DebtorKey,
       Descr: Descr,
       FileName: FileName,
-      DocCatKey: DocCatKey
+      DocCatKey: DocCatKey,
+      DocFolderPath: DocFolderPath
     };        
     return this.http.post<any>(url, body);
   }

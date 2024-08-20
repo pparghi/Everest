@@ -10,32 +10,55 @@ import Swal from 'sweetalert2';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentDialogComponent {
-
+  link: any;
   documentDescr: any;
   documentCategory: any;
-  file!: FileList;
+  documentFolder: any;
+  file!: File;
+  path: any;
 
-  constructor(private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {    
+  constructor(private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {   
+    this.data.documentsList.forEach((document: { FileName: string; Path: any; DocHdrKey: { toString: () => string; }; Link: string; }, index: any) => {
+      const filename = document.FileName.split('.');
+      const x = filename.length - 1;
+      const link = `${document.Path}\\${document.DocHdrKey.toString().padStart(6, '0')}.${filename[x]}`;
+      document.Link = btoa(link);
+      this.link = document.Link
+    }); 
+   
+    this.data.documentsFolder.forEach((docFolder: any) => {
+      this.path = docFolder.Path
+    });
   }
 
-  openFile(DocHdrKey: any){
-    window.open();
+  openFile(){
+    let url = 'https://login.baron.finance/iris/public/common/show_pdf.php?pdf=' + this.link;
+    window.open(url);
+    return false;
   }
 
-  onFilechange(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-      if (inputElement?.files && inputElement.files.length > 0) {
-    	  this.file = inputElement.files;        
-      }      
-    }
+  onFilechange(event: any) {
+    console.log(event.target.files[0])
+    this.file = event.target.files[0]
+  }
+ 
     
   onSubmit() { 
     const DebtorKey = this.data.DebtorKey;
     const Descr = this.documentDescr;
-    const FileName = 'test.pdf';
     const DocCatKey = this.documentCategory;
+    const DocFolderPath = this.path;
+    const file = this.file;
+    console.log(file);
     
-    this.dataService.uploadDocument(DebtorKey, Descr, FileName, DocCatKey).subscribe(
+    const formData = new FormData();
+    formData.append('DebtorKey', DebtorKey);
+    formData.append('Descr', Descr);
+    formData.append('DocCatKey', DocCatKey);
+    formData.append('DocFolderPath', DocFolderPath);
+    formData.append('file', this.file);
+    
+    this.dataService.uploadDocument(DebtorKey, Descr, file, DocCatKey, DocFolderPath).subscribe(
       response => { 
         Swal.fire('Thank you!','Document Uploaded succesfully!', 'success');       
       },

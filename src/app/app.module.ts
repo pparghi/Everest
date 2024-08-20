@@ -40,6 +40,9 @@ import { DocumentDialogComponent } from './components/document-dialog/document-d
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { ClientsDebtorsComponent } from './components/clients-debtors/clients-debtors.component';
+import { CacheService } from './services/cache.service';
+import { CacheInterceptor } from './http-interceptors/http-interceptors';
+import { TestComponent } from './components/test/test.component';
 
 const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
 
@@ -63,6 +66,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     MemberClientsComponent,
     DocumentDialogComponent,
     ClientsDebtorsComponent,
+    TestComponent,
   ],
   imports: [
     BrowserModule,
@@ -117,7 +121,9 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     MatListModule,
     MatSelectModule
   ],
-  providers: [{
+  providers: [
+    CacheService,
+    {
     provide: HTTP_INTERCEPTORS,
     useClass: MsalInterceptor,
     multi: true

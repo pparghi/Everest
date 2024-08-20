@@ -19,19 +19,19 @@
         </ng-container>
         <ng-container matColumnDef="Currency">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
-            <td mat-cell *matCellDef="let element"></td>
+            <td mat-cell *matCellDef="let element">{{ element.Currencytype }}</td>
         </ng-container>
         <ng-container matColumnDef="Balance">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-            <td mat-cell *matCellDef="let element"></td>
+            <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>
         </ng-container>
         <ng-container matColumnDef="CreditLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditLimit</th>
-            <td mat-cell *matCellDef="let element"></td>
+            <td mat-cell *matCellDef="let element">{{ element.CreditLimit | roundThousands }}</td>
         </ng-container>
         <ng-container matColumnDef="AIG Coverage">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>AIG Coverage</th>
-            <td mat-cell *matCellDef="let element"></td>
+            <td mat-cell *matCellDef="let element">{{ element.AIGLimit | roundThousands }}</td>
         </ng-container>
         <ng-container matColumnDef="Utilization of AIG Coverage">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Utilization of AIG Coverage</th>
@@ -39,7 +39,7 @@
         </ng-container>
         <ng-container matColumnDef="NOA">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>NOA</th>
-            <td mat-cell *matCellDef="let element"></td>
+            <td mat-cell *matCellDef="let element">{{ element.NOA }}</td>
         </ng-container>
         <ng-container matColumnDef="%% Verified">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>%% Verified</th>

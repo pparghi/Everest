@@ -10,6 +10,7 @@ import { InvoicesComponent } from './components/invoices/invoices.component';
 import { MasterClientsComponent } from './components/master-clients/master-clients.component';
 import { MemberClientsComponent } from './components/member-clients/member-clients.component';
 import { ClientsDebtorsComponent } from './components/clients-debtors/clients-debtors.component';
+import { TestComponent } from './components/test/test.component';
 
 const routes: Routes = [  
   { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'member-client', component: MemberClientsComponent },
   { path: 'client-debtor', component: ClientsDebtorsComponent },
   { path: 'page', component: InvoicesComponent },
+  { path: 'test', component: TestComponent },
 ];
 
 @NgModule({
