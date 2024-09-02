@@ -10,7 +10,7 @@ export class ClientsDebtorsService {
   constructor(private http: HttpClient) { }  
 
   getClientsDebtors(ClientKey: number): Observable<any> {        
-    const url = `http://127.0.0.1:4201/api/ClientsDebtors?ClientKey=${ClientKey}`;    
+    const url = `https://everest.revinc.com:4202/api/ClientsDebtors?ClientKey=${ClientKey}`;    
     return this.http.get<any>(url).pipe(
       map(response => {        
         return {

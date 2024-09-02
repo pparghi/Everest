@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -15,28 +15,40 @@ interface ApiResponse {
 })
 export class DebtorsApiService {
 
-  private debtorsApiUrl = 'http://127.0.0.1:8000/api/debtors';
-
   constructor(private http: HttpClient) { }
+  getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
+      return this.http.get<any>(`https://everest.revinc.com:4202/api/debtors?token=${mail}&page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`).pipe(
+        map(response => {
+          return {
+            data: response.data.map((item: any) => ({
+              ...item,
+              expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
+            })),
+            total: response.total['count_all'],
+            noBuyDisputeList: response.DebtoNoBuyDisputeList
+          };
+        })
+      );
+    };
 
-  getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const url = `http://127.0.0.1:4201/api/debtors?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
-    return this.http.get<any>(url).pipe(
-      map(response => {
-        return {
-          data: response.data.map((item: any) => ({
-            ...item,
-            expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
-          })),
-          total: response.total['count_all'],
-          noBuyDisputeList: response.DebtoNoBuyDisputeList
-        };
-      })
-    );
-  }
+  // getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
+  //   const url = `https://everest.revinc.com:4202/api/debtors?mail=${mail}&page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+  //   return this.http.get<any>(url).pipe(
+  //     map(response => {
+  //       return {
+  //         data: response.data.map((item: any) => ({
+  //           ...item,
+  //           expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
+  //         })),
+  //         total: response.total['count_all'],
+  //         noBuyDisputeList: response.DebtoNoBuyDisputeList
+  //       };
+  //     })
+  //   );
+  // }
 
   getDebtorsDocuments(DebtorKey: number): Observable<any> {
-    const url = `http://127.0.0.1:4201/api/documentsList?DebtorKey=${DebtorKey}`;
+    const url = `https://everest.revinc.com:4202/api/documentsList?DebtorKey=${DebtorKey}`;
     return this.http.get<any>(url).pipe(
       map(response => {
         return {
@@ -51,8 +63,22 @@ export class DebtorsApiService {
     );
   }
 
+  getDebtorsContacts(DebtorKey: number): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/debtorContactsData?DebtorKey=${DebtorKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          debtorContactsData: response.debtorContactsData.map((item: any) => ({
+            ...item,
+         // Add expanded detail here
+          })),              
+        };
+      })
+    );
+  }
+
   updateCreditLimit(DebtorKey: number, TotalCreditLimit: number, CredAppBy: string): Observable<any> {
-    const url = `http://127.0.0.1:4201/api/updateDebtorCreditLimit?DebtorKey=${DebtorKey}&TotalCreditLimit=${TotalCreditLimit}&CredAppBy=${CredAppBy}`;
+    const url = `https://everest.revinc.com:4202/api/updateDebtorCreditLimit?DebtorKey=${DebtorKey}&TotalCreditLimit=${TotalCreditLimit}&CredAppBy=${CredAppBy}`;
     const body = {
       DebtorKey: DebtorKey,
       TotalCreditLimit: TotalCreditLimit,
@@ -62,7 +88,7 @@ export class DebtorsApiService {
   }
 
   updateNobuyCode(DebtorKey: number, NoBuyDisputeKey: number, CredAppBy: string){
-    const url = `http://127.0.0.1:4201/api/updateDebtorAccountStatus?DebtorKey=${DebtorKey}&NoBuyDisputeKey=${NoBuyDisputeKey}&CredAppBy=${CredAppBy}`;    
+    const url = `https://everest.revinc.com:4202/api/updateDebtorAccountStatus?DebtorKey=${DebtorKey}&NoBuyDisputeKey=${NoBuyDisputeKey}&CredAppBy=${CredAppBy}`;    
     const body = {
       DebtorKey: DebtorKey,
       NoBuyDisputeKey: NoBuyDisputeKey,
@@ -71,14 +97,16 @@ export class DebtorsApiService {
     return this.http.post<any>(url, body);
   }
 
-  uploadDocument(DebtorKey: number, Descr: String, FileName: File, DocCatKey: number, DocFolderPath: string){
-    const url = `http://127.0.0.1:4201/api/debtorMasterAddDocument`;    
+  uploadDocument(formData: FormData){
+    console.log(formData);
+    
+    const url = `https://everest.revinc.com:4202/api/debtorMasterAddDocument`;    
     const body = {
-      DebtorKey: DebtorKey,
-      Descr: Descr,
-      FileName: FileName,
-      DocCatKey: DocCatKey,
-      DocFolderPath: DocFolderPath
+      // DebtorKey: formData.DebtorKey,
+      // Descr: formData.Descr,
+      // FileName: formData.FileName,
+      // DocCatKey: formData.DocCatKey,
+      // DocFolderPath: formData.DocFolderPath
     };        
     return this.http.post<any>(url, body);
   }

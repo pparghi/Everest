@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -36,7 +36,7 @@ export class MembersComponent implements OnInit {
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
     math = Math;
-    DebtorKey!: number;
+    @Input() DebtorKey!: number;
     displayDebtor: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -51,6 +51,12 @@ export class MembersComponent implements OnInit {
         this.displayDebtor = params['Debtor']                
         this.loadMemberDebtorDetails(DebtorKey);
       });
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+      if (changes['DebtorKey']) {
+        this.loadMemberDebtorDetails(this.DebtorKey);
+      }
     }
 
     loadMemberDebtorDetails(DebtorKey: number): void {            

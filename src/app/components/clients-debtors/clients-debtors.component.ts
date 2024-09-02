@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -38,6 +38,7 @@ export class ClientsDebtorsComponent implements OnInit {
     expandedElement: DataItem | null = null;
     math = Math;
     MemberClientKey!: number;
+    @Input() MasterClientKey!: number;
     displayDebtor: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -52,6 +53,12 @@ export class ClientsDebtorsComponent implements OnInit {
         this.displayDebtor = params['Debtor']                
         this.loadClientDebtorsDetails(MemberClientKey);
       });
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+      if (changes['MasterClientKey']) {
+        this.loadClientDebtorsDetails(this.MasterClientKey);
+      }
     }
 
     loadClientDebtorsDetails(MemberClientKey: number): void {            

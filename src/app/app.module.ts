@@ -25,7 +25,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortHeader, MatSortModule } from '@angular/material/sort';
 import { ThousandsPipe } from './thousands.pipe';
 import { MasterDebtorsComponent } from './components/master-debtors/master-debtors.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
@@ -75,7 +75,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
       {
         auth: {
           clientId:'6abad1c1-70c7-4eaf-a4ee-3c4827ed050f',
-          redirectUri:'https://everest.revinc.com',
+          redirectUri:'https://everest.revinc.com:444',
           authority:'https://login.microsoftonline.com/1dfa1c9f-1ea3-4b25-a811-115259596ebb'
         },
         cache:{
@@ -101,6 +101,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     }
     ),
     FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
     HttpClientModule,
     NgxDatatableModule,
@@ -124,10 +125,16 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
   providers: [
     CacheService,
     {
-    provide: HTTP_INTERCEPTORS,
-    useClass: MsalInterceptor,
-    multi: true
-  }, MsalGuard,
+      provide: HTTP_INTERCEPTORS,
+      useClass: CacheInterceptor,
+      multi: true
+    },
+   MsalGuard,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: MsalInterceptor,
+      multi: true
+    }, 
     provideAnimationsAsync()
   ],
   bootstrap: [AppComponent, MsalRedirectComponent]

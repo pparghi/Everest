@@ -15,13 +15,13 @@
 .main-table-container {
   border: 1px solid #dee2e6;
   border-radius: 5px;  
-  max-height: 630px;
+  max-height: 660px;
   overflow-y: auto;
   background-color: #ffffff;
 }   
 
 .example-container {
-  height: 750px;
+  height: 800px;
   overflow: auto;
   padding: 7px;
 }
@@ -29,12 +29,16 @@
 .element-row .mat-mdc-cell {
   border-bottom: 1px solid transparent;
   border-top: 1px solid transparent;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.1%;
 }
 
 .detail-row .mat-mdc-cell {
   border-bottom: 1px solid #dee2e6;
   border-top: 1px solid transparent;
-  padding-left: 5%;
+  padding-left: 3%;
 }
 
 .element-row {
@@ -113,10 +117,15 @@
   font-family: Arial, Helvetica, sans-serif;
   color: #58595B;
   font-weight: bolder;  
+  
 }
 
 .mat-mdc-header-cell {
   border-bottom: 1px solid #dee2e6;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.1%;
 }
 
 .mat-table {

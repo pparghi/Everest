@@ -15,7 +15,7 @@ export class MemberDebtorsService {
   constructor(private http: HttpClient) { }  
 
   getMemberDebtors(DebtorKey: number): Observable<any> {        
-    const url = `http://127.0.0.1:4201/api/memberDebtors?DebtorKey=${DebtorKey}`;    
+    const url = `https://everest.revinc.com:4202/api/memberDebtors?DebtorKey=${DebtorKey}`;    
     return this.http.get<any>(url).pipe(
       map(response => {        
         return {

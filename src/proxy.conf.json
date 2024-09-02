@@ -1,0 +1,7 @@
+{
+    "/*":{
+        "target": "https://everest.revinc.com",
+        "secure": false,
+        "logLevel": "debug"
+    }
+}

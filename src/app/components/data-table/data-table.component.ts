@@ -37,6 +37,7 @@ export class DataTableComponent implements OnInit, AfterViewInit {
      },     
      ajax: (dataTablesParameters: any, callback: (arg0: { recordsTotal: any; recordsFiltered: any; data: never[]; }) => void) => {
        this.dataService.getData(
+        dataTablesParameters.mail,
         dataTablesParameters.start / dataTablesParameters.length + 1, 
         dataTablesParameters.length, dataTablesParameters.search.value,
         dataTablesParameters.columns[dataTablesParameters.order[0].column].data,

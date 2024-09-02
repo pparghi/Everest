@@ -6,7 +6,7 @@ import { DebtorsApiService } from '../../services/debtors-api.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { error } from 'jquery';
 import Swal from 'sweetalert2';
 
@@ -52,12 +52,15 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     oldTotalCreditLimit: any;
     oldNoBuyCode: any;
     editedElement: DataItem | null = null;
+    DebtorContactsData: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
 
-    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient) {}
+    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient) {
+      
+    }
     ngOnInit(): void {
       this.loadData();      
     }
@@ -77,17 +80,22 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     }
 
     loadData(): void {
-      this.isLoading = true;      
-      const sort = this.sort ? this.sort.active : '';
-      const order = this.sort ? this.sort.direction : '';
-      const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
-      const pageSize = this.paginator ? this.paginator.pageSize : 25;
+      this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+        this.isLoading = true;      
+        const sort = this.sort ? this.sort.active : '';
+        const order = this.sort ? this.sort.direction : '';
+        const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
+        const pageSize = this.paginator ? this.paginator.pageSize : 25;
 
-      this.dataService.getData(page ,pageSize, this.filter, sort, order).subscribe(response => {                
-        this.isLoading = false;
-        this.dataSource.data = response.data;
-        this.totalRecords = response.total;
-        this.DebtoNoBuyDisputeList = response.noBuyDisputeList;                
+        this.profile = profile;
+        const mail = btoa(this.profile.mail);        
+        
+        this.dataService.getData(mail, page ,pageSize, this.filter, sort, order).subscribe(response => {                
+          this.isLoading = false;
+          this.dataSource.data = response.data;
+          this.totalRecords = response.total;
+          this.DebtoNoBuyDisputeList = response.noBuyDisputeList;                
+        });
       });
     }
 
@@ -122,7 +130,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     }
 
     toggleRow(element: DataItem): void {                        
-      this.expandedElement = this.expandedElement === element ? null : element;          
+      this.expandedElement = this.expandedElement === element ? null : element;       
     }
 
     isExpanded(element: DataItem): boolean {
@@ -182,6 +190,19 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.editedElement = row;         
     }
 
+    edit(row: DataItem){
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+        data: {
+         DebtorKey: row.DebtorKey,
+         openForm: 'editForm' 
+       }
+     });
+     
+     dialogRef.afterClosed().subscribe(result => {
+         
+     });
+    }
+
     cancelEdit(row: DataItem) {
       row.NoBuyCode = this.oldNoBuyCode;
       this.editedElement = null;
@@ -227,5 +248,22 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
           }         
         });
     }
+
+    openDebtorContactsDialog(DebtorKey: number){
+      this.dataService.getDebtorsContacts(DebtorKey).subscribe(response => {                                
+        this.DebtorContactsData = response.debtorContactsData;
+        
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+           data: {
+            DebtorKey: DebtorKey, 
+            DebtorContactsData: this.DebtorContactsData,
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+        });
+    });
+  }
    
 }

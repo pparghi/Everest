@@ -1,6 +1,6 @@
 
 <div class="example-container mat-elevation-z8" tabindex="0">                        
-    <div class="page-header">
+    <!-- <div class="page-header">
         <div>
             <p><b style="color: gray;">Master Debtor: </b> <b>{{ displayDebtor }}</b></p>
         </div>
@@ -9,13 +9,13 @@
             &nbsp;&nbsp;
             <input (keyup.enter)="applyFilter($event)" class="search-bar">
         </div>
-    </div>       
+    </div>    -->    
     
     <div class="main-table-container">    
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
         
         <ng-container matColumnDef="Debtor">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor Name</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Member Debtors</th>
             <td (click)="openClientsWindow(element.DebtorKey, element.Debtor)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Debtor }}</u></td>
         </ng-container>
 

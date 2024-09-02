@@ -18,10 +18,10 @@ export class TestComponent {
  onSubmit(): void {
    if (this.selectedFile) {
      const formData = new FormData();
-     formData.append('file','test');
-     console.log(formData);
+     formData.append('file',this.selectedFile);
+     console.log(formData.get('file'));
      
-     this.http.post('http://127.0.0.1:4201/api/debtorMasterAddDocument', formData,  { headers: { 'Content-Type': 'multipart/form-data' } })
+     this.http.post('https://everest.revinc.com:4202/api/debtorMasterAddDocument', formData)
      .subscribe(response => {
        console.log('file uploaded',response);       
      }, error => {

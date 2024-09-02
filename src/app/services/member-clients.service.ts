@@ -16,7 +16,7 @@ export class MemberClientsService {
 
   getMemberClients(MasterClientKey: number): Observable<any> {    
             
-    const url = `http://127.0.0.1:4201/api/memberClients?MasterClientKey=${MasterClientKey}`;    
+    const url = `https://everest.revinc.com:4202/api/memberClients?MasterClientKey=${MasterClientKey}`;    
     return this.http.get<any>(url).pipe(
       map(response => {        
         return {

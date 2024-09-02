@@ -21,20 +21,22 @@
 }   
 
 .example-container {
-height: 750px;
-overflow: auto;
-padding: 7px;
+  overflow: auto;
 }
 
 .element-row .mat-mdc-cell {
 border-bottom: 1px solid transparent;
 border-top: 1px solid transparent;
+white-space: nowrap; 
+overflow: hidden;
+text-overflow: ellipsis;
+padding: 0.1%;
 }
 
 .detail-row .mat-mdc-cell {
 border-bottom: 1px solid #dee2e6;
 border-top: 1px solid transparent;
-padding-left: 5%;
+padding-left: 3%;
 }
 
 .element-row {
@@ -109,7 +111,7 @@ border-radius: 2px;
 position: sticky;
 top: 0;
 z-index: 1;
-background-color: white;
+background-color: #f9f9f9;;
 font-family: Arial, Helvetica, sans-serif;
 color: #58595B;
 font-weight: bolder;  
@@ -117,10 +119,14 @@ font-weight: bolder;
 
 .mat-mdc-header-cell {
 border-bottom: 1px solid #dee2e6;
+white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.1%;
 }
 
 .mat-table {
-background-color: white;  
+background-color: #f9f9f9;  
 border-collapse: collapse;
 }
 

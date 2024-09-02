@@ -17,6 +17,7 @@ interface DataItem {
   AgeOver180: string;  
   Balance: string;  
   expandedDetail: { detail: string };
+  DebtorexpandedDetail: { detail: string };
 }
 
 @Component({
@@ -26,8 +27,8 @@ interface DataItem {
 })
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'AgeOver180', 'Balance', 'Reserve', 'NFE'];
-    displayedMemberColumns: string[] = ['Client', 'CreditLimit', 'CreditUtilization','test'];
+    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'AgeOver180', 'Balance', 'Escrow', 'Reserve', 'NFE'];
+    displayedMemberColumns: string[] = ['Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 
     isLoading = true;
@@ -38,6 +39,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
     math = Math;
+    MasterClientKey!: number;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -77,7 +79,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     loadMemberClientDetails(MasterClientKey: number): void {                       
       this.memberDataService.getMemberClients(MasterClientKey).subscribe(response => {        
-        this.memberDataSource.data = response.data;                
+        this.memberDataSource.data = response.data;       
+        this.MasterClientKey = MasterClientKey         
       });
     }
 
@@ -120,6 +123,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       return this.expandedElement === element;
     }
 
+    isDebtorExpanded(element: DataItem): boolean {
+      return this.expandedElement === element;
+    }
+
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');    
+    isDebtorExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('DebtorexpandedDetail');    
    
 }

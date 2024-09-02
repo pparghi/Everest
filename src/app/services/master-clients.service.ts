@@ -8,12 +8,10 @@ import { Observable } from 'rxjs';
 })
 export class MasterClientsService {
 
-  private masterClientsApiUrl = 'http://127.0.0.1:8000/api/masterClients';
-
   constructor(private http: HttpClient) { }
 
   getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const url = `http://127.0.0.1:4201/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    const url = `https://everest.revinc.com:4202/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     return this.http.get<any>(url).pipe(
       map(response => {
         return {

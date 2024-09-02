@@ -2,12 +2,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 50px 40px 10px 40px;
+    padding: 20px 40px 10px 40px;
     background: #f0f8fc;    
 }
 .logo {        
-    height: 40px;
-    width: 250px;
+    height: 35px;
+    width: 220px;
 }
 .logout {
     height: 10px;

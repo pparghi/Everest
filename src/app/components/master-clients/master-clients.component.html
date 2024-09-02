@@ -59,14 +59,19 @@
             <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="Escrow">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Escrow</th>
+            <td mat-cell *matCellDef="let element">{{ element.Escrow | roundThousands }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="Reserve">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Reserve</th>
-            <td mat-cell *matCellDef="let element">{{ element.Reserve }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.Reserve | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="NFE">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>NFE</th>
-            <td mat-cell *matCellDef="let element">{{ element.NFE }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.NFE | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="expand">
@@ -82,13 +87,13 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>            
 
             <ng-container matColumnDef="expandedDetail">
-                <td mat-cell *matCellDef="let memberElement" [attr.colspan]="displayedColumns.length" >            
-                    <div *ngIf="isExpanded(memberElement)" style="padding-top: 10px; padding-bottom: 10px;">                                
+                <td mat-cell *matCellDef="let memberElement" [attr.colspan]="displayedColumns.length" style="padding-left: 10%;">            
+                    <div *ngIf="isExpanded(memberElement)">                                
                         <div class="table-container" style="background-color: #f5fbff;">                            
-                            <table mat-table [dataSource]="memberDataSource" matSort multiTemplateDataRows class="mat-table">
+                            <mat-table [dataSource]="memberDataSource" matSort multiTemplateDataRows class="mat-table">
                                 <ng-container matColumnDef="Client">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header>Member Clients</th>
-                                    <td (click)="openDebtorsWindow(memberElement.ClientKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let memberElement"><u>{{ memberElement.Client }}</u></td>
+                                    <td mat-cell *matCellDef="let memberElement">{{ memberElement.Client }}</td>
                                 </ng-container>
                                 <ng-container matColumnDef="CreditLimit">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditLimit</th>
@@ -96,51 +101,64 @@
                                 </ng-container>
                                 <ng-container matColumnDef="CreditUtilization">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditUtilization</th>
-                                    <td mat-cell *matCellDef="let memberElement"></td>
+                                    <td mat-cell *matCellDef="let memberElement">0</td>
                                 </ng-container>
-                                <ng-container matColumnDef="test">                                    
+                                <ng-container matColumnDef="dsc">                                    
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 40%;"></th>
                                     <td mat-cell *matCellDef="let memberElement">
-                                        <tr>
-                                            <th style="width: 20%;"></th>
-                                            <th style="width: 20%;">30</th> 
-                                            <th style="width: 20%;">60</th>                                    
-                                            <th style="width: 20%;">90</th>                                    
-                                            <th style="width: 20%;">180</th>
-                                        </tr>
-                                        <tr>
-                                            <td><b>Dilution</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <br>
-                                        <tr>
-                                            <td><b>Sales</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <br>
-                                        <tr>
-                                            <td><b>Collection</b></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                    </td>                                    
-                                </ng-container>
+                                        <table class="fixed-table">
+                                            <tr>
+                                                <th></th>
+                                                <th>30</th> 
+                                                <th>60</th>                                    
+                                                <th>90</th>                                    
+                                                <th>180</th>
+                                            </tr>
+                                            <tr>
+                                                <td><b>Dilution</b></td>
+                                                <td>{{ memberElement.Dillution30 | roundThousands }}</td>
+                                                <td>{{ memberElement.Dillution60 | roundThousands }}</td>
+                                                <td>{{ memberElement.Dillution90 | roundThousands }}</td>
+                                                <td>{{ memberElement.Dillution180 | roundThousands }}</td>
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td><b>Sales</b></td>
+                                                <td>{{ memberElement.Sales30 | roundThousands }}</td>
+                                                <td>{{ memberElement.Sales60 | roundThousands }}</td>
+                                                <td>{{ memberElement.Sales90 | roundThousands }}</td>
+                                                <td>{{ memberElement.Sales180 | roundThousands }}</td>
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td><b>Collection</b></td>
+                                                <td>{{ memberElement.Collections30 | roundThousands }}</td>
+                                                <td>{{ memberElement.Collections60 | roundThousands }}</td>
+                                                <td>{{ memberElement.Collections90 | roundThousands }}</td>
+                                                <td>{{ memberElement.Collections180 | roundThousands }}</td>
+                                            </tr>
+                                        </table>
+                                    </td>                                                     
+                                </ng-container><hr>
                                 <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedMemberColumns" style="background-color: #f5fbff;"></tr>
-                                <tr mat-row *matRowDef="let row; columns: displayedMemberColumns;" class="element-row" style="background-color: #f5fbff;"></tr>
-                            </table>                          
-                        </div>                    
+                                <tr mat-row *matRowDef="let row; columns: displayedMemberColumns;" style="background-color: #f5fbff;"></tr>
+                            </mat-table>                          
+                        </div>                                            
                     </div>                                      
                 </td>            
             </ng-container>
+            <ng-container matColumnDef="DebtorexpandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" style="padding-left: 1%;">            
+                    <div *ngIf="isExpanded(element)">                                
+                        <div class="table-container" style="background-color: #f5fbff;">                                                          
+                            <app-clients-debtors [MasterClientKey]="3095"></app-clients-debtors>
+                        </div>                    
+                    </div>                                      
+                </td>            
+            </ng-container>            
+
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" id="detail-row" class="detail-row"></tr>            
+            <tr mat-row *matRowDef="let row; columns: ['DebtorexpandedDetail']; when: isExpansionDetailRow" id="debtor-detail-row" class="debtor-detail-row"></tr>            
         </table>
     </div>
     

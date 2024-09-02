@@ -12,7 +12,7 @@
 }   
 
 .example-container {
-  height: 750px;
+  height: 800px;
   overflow: auto;
   padding: 7px;
 }
@@ -20,10 +20,14 @@
 .element-row .mat-mdc-cell {
   border-bottom: 1px solid transparent;
   border-top: 1px solid transparent;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.1%;
 }
 
 .detail-row .mat-mdc-cell {
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid transparent;
   border-top: 1px solid transparent;
 }
 
@@ -36,6 +40,21 @@
   height: 0;
 }
 .detail-row .example-element-detail {
+  padding: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.debtor-detail-row .mat-mdc-cell {
+  border-bottom: 1px solid #dee2e6;
+  border-top: 1px solid transparent;
+}
+
+.debtor-detail-row {
+  height: 0;
+}
+.debtor-detail-row .example-element-detail {
   padding: 16px;
   overflow: hidden;
   display: flex;
@@ -77,6 +96,32 @@
   
 }
 
+.fixed-table {
+  width: 600px; /* Set the fixed width for the entire table */
+  height: 100px; /* Set the fixed height for the entire table */
+  overflow: auto; /* Enable scrolling if content overflows */
+  border: 1px solid #ddd;
+ }
+ .fixed-table th, .fixed-table td {
+  width: 150px; /* Set fixed width for each column */
+  white-space: nowrap; /* Prevent text wrapping */
+ }
+ .fixed-table th {
+  text-align: left;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  background-color: #f1f1f1; /* Optional: Add a background color for headers */
+ }
+ .fixed-table td {
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+   /* Add a border to cells */
+ }
+
 .table-row .cell {
   border-bottom: 1px solid #dee2e6;
   text-align: center;
@@ -115,6 +160,10 @@
 
 .mat-mdc-header-cell {
   border-bottom: 1px solid #dee2e6;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.1%;
 }
 
 .mat-table {
