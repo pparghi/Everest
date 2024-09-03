@@ -55,6 +55,11 @@
             <td mat-cell *matCellDef="let element">{{ element.Country === 'Canada' ? 'CA' : 'US' }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="%Utilized">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>% Utilized</th>
+            <td mat-cell *matCellDef="let element">{{  element.PctUtilized | percent: '1.0-0' }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="DSO">
            <th mat-header-cell *matHeaderCellDef mat-sort-header>DSO</th>
            <td mat-cell *matCellDef="let element">
@@ -165,8 +170,7 @@
                         </table>
                         <table class="bordered-table">                                                       
                             <tr>
-                                <th class="header" style="width: 10%;">C/L</th>
-                                <th class="header" style="width: 10%;">% Utilized</th>                                    
+                                <th class="header" style="width: 10%;">C/L</th>                                                                    
                                 <th class="header" style="width: 10%;">Past Due</th>                                        
                                 <th class="header" style="width: 10%;">Past Due%</th>     
                                 <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
@@ -180,7 +184,6 @@
                             </tr>
                             <tr class="table-row">
                                 <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
                                 <td class="cell" style="width: 10%;">{{ element.PastDue | roundThousands }}</td>                                  
                                 <td class="cell" style="width: 10%;">{{ element.PastDuePct | percent: '1.0-0' }}</td>
                                 <td class="cell" style="width: 10%;">-</td>                                  
