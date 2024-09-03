@@ -8,8 +8,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
 
-const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
-
 interface DataItem {
   Debtor: string;
   DbDunsNo: string;
@@ -43,9 +41,8 @@ export class MembersComponent implements OnInit {
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
-  profile: any;
 
-  constructor(private route: ActivatedRoute, private dataService: MemberDebtorsService, private router: Router, private http: HttpClient){}
+  constructor(private route: ActivatedRoute, private dataService: MemberDebtorsService, private router: Router){}
     
     ngOnInit(): void {
       this.route.queryParams.subscribe(params => {        
@@ -62,14 +59,9 @@ export class MembersComponent implements OnInit {
       }
     }
 
-    loadMemberDebtorDetails(DebtorKey: number): void {  
-      this.http.get(GRAPH_ENDPOINT).subscribe(profile => {  
-        this.profile = profile;
-        const mail = btoa(this.profile.mail);       
-
-        this.dataService.getMemberDebtors(mail, DebtorKey).subscribe(response => {        
-          this.dataSource.data = response.data;
-        });
+    loadMemberDebtorDetails(DebtorKey: number): void {            
+      this.dataService.getMemberDebtors(DebtorKey).subscribe(response => {        
+        this.dataSource.data = response.data;
       });
     }
 

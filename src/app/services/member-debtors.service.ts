@@ -14,12 +14,9 @@ export class MemberDebtorsService {
 
   constructor(private http: HttpClient) { }  
 
-  getMemberDebtors(mail: string, DebtorKey: number): Observable<any> {        
-    const url = `https://everest.revinc.com:4202/api/memberDebtors?DebtorKey=${DebtorKey}`;
-    const body = {
-      "token" : mail
-    }    
-    return this.http.post<any>(url, body).pipe(
+  getMemberDebtors(DebtorKey: number): Observable<any> {        
+    const url = `https://everest.revinc.com:4202/api/memberDebtors?DebtorKey=${DebtorKey}`;    
+    return this.http.get<any>(url).pipe(
       map(response => {        
         return {
           data: response.memberDebtor.map((item: any) => ({
