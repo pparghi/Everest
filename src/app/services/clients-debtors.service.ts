@@ -22,4 +22,18 @@ export class ClientsDebtorsService {
       })
     );
   }
+
+  getDebtorsPayments(DebtorKey: number, ClientKey: number){    
+    const url = `https://everest.revinc.com:4202/api/debtorPaymentsData?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          debtorPaymentsData: response.debtorPaymentsData.map((item: any) => ({
+            ...item,
+         // Add expanded detail here
+          })),              
+        };
+      })
+    );
+  }
 }

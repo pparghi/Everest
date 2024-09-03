@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -8,6 +8,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MemberClientsService } from '../../services/member-clients.service';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 
 interface DataItem {
   Client: string;
@@ -43,6 +45,9 @@ export class ClientsDebtorsComponent implements OnInit {
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+    
+  DebtorPaymentsData: any;
+  readonly dialog = inject(MatDialog);
 
   constructor(private route: ActivatedRoute, private dataService: ClientsDebtorsService , private router: Router){}
     
@@ -51,7 +56,7 @@ export class ClientsDebtorsComponent implements OnInit {
         const MemberClientKey = +params['MemberClientKey'];        
         this.MemberClientKey = MemberClientKey
         this.displayDebtor = params['Debtor']                
-        this.loadClientDebtorsDetails(MemberClientKey);
+        this.loadClientDebtorsDetails(this.MasterClientKey);
       });
     }
 
@@ -61,8 +66,8 @@ export class ClientsDebtorsComponent implements OnInit {
       }
     }
 
-    loadClientDebtorsDetails(MemberClientKey: number): void {            
-      this.dataService.getClientsDebtors(MemberClientKey).subscribe(response => {        
+    loadClientDebtorsDetails(MasterClientKey: number): void {            
+      this.dataService.getClientsDebtors(MasterClientKey).subscribe(response => {                      
         this.dataSource.data = response.data;
       });
     }
@@ -106,6 +111,23 @@ export class ClientsDebtorsComponent implements OnInit {
     }
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
+
+    payments(DebtorKey: any){
+      this.dataService.getDebtorsPayments(DebtorKey, this.MasterClientKey).subscribe(response => {                                
+        this.DebtorPaymentsData = response.debtorPaymentsData;
+        
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+           data: {
+            DebtorKey: DebtorKey, 
+            ClientKey: this.MasterClientKey,
+            DebtorPaymentsData: this.DebtorPaymentsData,
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+        });
+    });
+  }
+
 }
-
-

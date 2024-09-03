@@ -167,3 +167,9 @@
   font-weight: bold;
   }
   
+  .no-data-cell{
+    text-align: center;
+    color: #58595B;
+    padding: 16px;
+    font-size: 16px;
+  }

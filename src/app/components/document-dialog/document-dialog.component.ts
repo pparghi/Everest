@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 
 @Component({
   selector: 'app-document-dialog',
@@ -24,11 +25,13 @@ export class DocumentDialogComponent {
   ContactNo: any;
 
   contactColumns: string[] = ['name', 'email', 'contact_no'];
+  paymentColumns: string[] = ['date', 'check#', 'amount'];
   contactDataSource = new MatTableDataSource<any>([]);
+  paymentDataSource = new MatTableDataSource<any>([]);
 
   editForm: FormGroup;
 
-  constructor(private fb: FormBuilder,private http: HttpClient, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {  
+  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {  
     this.editForm = this.fb.group({
       name: [data.name || '', Validators.required],
       description: [data.description || '']
@@ -46,9 +49,15 @@ export class DocumentDialogComponent {
       this.data.documentsFolder.forEach((docFolder: any) => {
         this.path = docFolder.Path
       });
+    } else if(data.DebtorPaymentsData) {
+      this.clientService.getDebtorsPayments(data.DebtorKey, data.ClientKey).subscribe(response => {                                
+        this.paymentDataSource.data = response.debtorPaymentsData;      
+      });
     } else {
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
         this.contactDataSource.data = response.debtorContactsData;
+        console.log(this.contactDataSource.data);
+        
       });
     }
   }
