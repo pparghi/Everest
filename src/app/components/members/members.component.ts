@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -7,6 +7,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
+import { DebtorsApiService } from '../../services/debtors-api.service';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 interface DataItem {
   Debtor: string;
@@ -28,7 +31,7 @@ interface DataItem {
   styleUrl: './members.component.css'
 })
 export class MembersComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', 'Country', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode'];
+  displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', 'Country', '%Utilized', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -39,10 +42,17 @@ export class MembersComponent implements OnInit {
     @Input() DebtorKey!: number;
     displayDebtor: any;
 
+    DocumentsList: any;
+    DocumentsCat: any;
+    documentsFolder: any;
+
+    readonly dialog = inject(MatDialog);    
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+  DebtorContactsData: any;
 
-  constructor(private route: ActivatedRoute, private dataService: MemberDebtorsService, private router: Router){}
+  constructor(private route: ActivatedRoute, private masterDebtorService: DebtorsApiService,  private dataService: MemberDebtorsService, private router: Router){}
     
     ngOnInit(): void {
       this.route.queryParams.subscribe(params => {        
@@ -63,6 +73,25 @@ export class MembersComponent implements OnInit {
       this.dataService.getMemberDebtors(DebtorKey).subscribe(response => {        
         this.dataSource.data = response.data;
       });
+    }
+
+    openDocumentsDialog(DebtorKey: number){      
+      this.masterDebtorService.getDebtorsDocuments(DebtorKey).subscribe(response => {                                
+        this.DocumentsList = response.documentsList;
+        this.DocumentsCat = response.DocumentsCat;
+        this.documentsFolder = response.DocumentsFolder;
+        
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+           data: {
+            DebtorKey: DebtorKey, 
+            documentsList: this.DocumentsList,
+            documentCategory: this.DocumentsCat,
+            documentsFolder: this.documentsFolder
+          }
+        });        
+        dialogRef.afterClosed().subscribe(result => {            
+        });
+      });      
     }
 
     openClientsWindow(DebtorKey: number, Debtor: string): void {
@@ -104,4 +133,21 @@ export class MembersComponent implements OnInit {
     }
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
+
+    openDebtorContactsDialog(DebtorKey: number){
+      this.masterDebtorService.getDebtorsContacts(DebtorKey).subscribe(response => {                                
+        this.DebtorContactsData = response.debtorContactsData;
+        
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+           data: {
+            DebtorKey: DebtorKey, 
+            DebtorContactsData: this.DebtorContactsData,
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+        });
+    });
+  }
 }

@@ -212,10 +212,11 @@
 
                                 <td class="cell" (click)="openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
                                 <td class="cell">{{ element.Warning }}</td>
-                                <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)"style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts...</td>
+                                <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)"style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>
                             </tr>                               
                         </table>                            
                     </div> 
+                    <br>
                     <app-members [DebtorKey]="element.DebtorKey"></app-members>                   
                 </div>                                      
             </td>            

@@ -47,7 +47,12 @@
         <ng-container matColumnDef="TotalCreditLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>CreditLimit</th>
             <td mat-cell *matCellDef="let element">{{ element.TotalCreditLimit | roundThousands }}</td>
-        </ng-container>                          
+        </ng-container>  
+        
+        <ng-container matColumnDef="%Utilized">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>% Utilized</th>
+            <td mat-cell *matCellDef="let element">{{  element.PctUtilized | percent: '1.0-0' }}</td>
+        </ng-container>
 
         <ng-container matColumnDef="AIGLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>AIGLimit</th>
@@ -112,8 +117,7 @@
                             </table>
                             <table class="bordered-table">                                                       
                                 <tr>
-                                    <th class="header" style="width: 10%;">C/L</th>
-                                    <th class="header" style="width: 10%;">% Utilized</th>                                    
+                                    <th class="header" style="width: 10%;">C/L</th>                                                               
                                     <th class="header" style="width: 10%;">Past Due</th>                                        
                                     <th class="header" style="width: 10%;">Past Due%</th>     
                                     <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
@@ -126,8 +130,7 @@
                                     <th></th>
                                 </tr>
                                 <tr class="table-row">
-                                    <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.PctUtilized | percent: '1.0-0' }}</td>                                    
+                                    <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>                                                                        
                                     <td class="cell" style="width: 10%;">{{ element.PastDue | roundThousands }}</td>                                  
                                     <td class="cell" style="width: 10%;">{{ element.PastDuePct | percent: '1.0-0' }}</td>
                                     <td class="cell" style="width: 10%;">-</td>                                  
@@ -142,12 +145,20 @@
                             </table>
                             <table class="bordered-table">                                                                                
                                 <tr>                                    
+                                    <th class="header" style="width: 20%;">Email</th>
+                                    <th class="header" style="width: 10%;">Phone1</th>
+                                    <th class="header" style="width: 10%;">Phone2</th>
                                     <th class="header" style="width: 10%;">Documents</th>
-                                    <th class="header" >Warning</th>                                    
+                                    <th class="header" style="width: 20%;">Warning</th>
+                                    <th class="header" style="width: 30%;"></th>                                                                                                            
                                 </tr>                                
-                                <tr>                                   
-                                    <td class="cell" style="width: 10%;">{{ element.Documents }}</td>
-                                    <td class="cell">{{ element.Warning }}</td>
+                                <tr>
+                                    <td>{{ element.Email }}</td>                                  
+                                    <td>{{  element.Phone1 }}</td>                                    
+                                    <td>{{ element.Phone2 }}</td>                                    
+                                    <td class="cell" (click)="openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
+                                    <td class="cell">{{ element.Warning }}</td>    
+                                    <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)"style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>                                                                   
                                 </tr>                    
                             </table>                            
                         </div>                    
