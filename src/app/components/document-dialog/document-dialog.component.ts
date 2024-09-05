@@ -82,7 +82,6 @@ export class DocumentDialogComponent {
     const DocCatKey = this.documentCategory;
     const DocFolderPath = this.path;
     const file = this.file;
-    console.log(file);
     
     const formData = new FormData();
     formData.append('DebtorKey', DebtorKey);

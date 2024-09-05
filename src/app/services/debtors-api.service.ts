@@ -15,9 +15,19 @@ interface ApiResponse {
 })
 export class DebtorsApiService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }  
+
   getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-      return this.http.get<any>(`https://everest.revinc.com:4202/api/debtors?token=${mail}&page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`).pipe(
+    const formData = new FormData();
+
+    formData.append('token', mail);
+    formData.append('page', page.toString());
+    formData.append('per_page', perPage.toString());
+    formData.append('search', search);
+    formData.append('sortBy', sortBy);
+    formData.append('sortOrder', sortOrder);
+  
+      return this.http.post<any>(`https://everest.revinc.com:4202/api/debtors`, formData).pipe(
         map(response => {
           return {
             data: response.data.map((item: any) => ({
