@@ -75,7 +75,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
       {
         auth: {
           clientId:'6abad1c1-70c7-4eaf-a4ee-3c4827ed050f',
-          redirectUri:'https://everest.revinc.com:444',
+          redirectUri:'https://everest.revinc.com',
           authority:'https://login.microsoftonline.com/1dfa1c9f-1ea3-4b25-a811-115259596ebb'
         },
         cache:{
