@@ -153,3 +153,57 @@
         </mat-dialog-actions>
   </form>
 </div>
+<div *ngIf="data.noa">
+  <h2 mat-dialog-title>NOA</h2>
+  <mat-dialog-content class="mat-typography">
+<hr>
+    <label for="noaStatus"> <b>Status</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+    <select class="dropdown" (change)="onChange($event)" id="noaStatus">
+      <option *ngFor="let status of noaStatus" [value]="status.value">{{ status.label }}</option>
+    </select>
+<br><br>
+  <div *ngIf="changedNoaStatus == 'Received'">
+    <h3 mat-dialog-title>Upload Document</h3>
+     <label for="documentCategory"> <b>Category</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+      <select class="dropdown" [(ngModel)]="documentCategory" id="documentCategory">
+        <option *ngFor="let category of data.documentCategory" value="{{ category.DocCatKey }}">{{ category.Descr }}</option>
+      </select><br><br>
+  
+      <label for="documentDescr"> <b>Description</b> &nbsp;</label> 
+      <input type="text" class="dropdown" [(ngModel)]="documentDescr" id="documentDescr"><br><br>  
+             
+      <div class="input-group custom-file-button">
+        <label class="input-group-text" for="inputGroupFile">Browse</label>
+        <input type="file" class="form-control" id="inputGroupFile" (change)="this.onFilechange($event)">
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button [mat-dialog-close]="true" (click)="onSubmit()" cdkFocusInitial>Update</button>
+  </mat-dialog-actions>
+</div>
+
+<div *ngIf="data.MiscDataList">
+  <h2 mat-dialog-title>Misc. Data</h2>
+  <mat-dialog-content class="mat-typography">
+      <table mat-table [dataSource]="MiscDataListDataSource" class="mat-elevation-z8">
+        
+        <ng-container matColumnDef="element">
+            <th mat-header-cell *matHeaderCellDef>Element</th>
+            <td mat-cell *matCellDef="let element">{{ element.DataElementName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef>Value</th>
+            <td mat-cell *matCellDef="let element">{{ element.FldValue }}</td>
+        </ng-container>
+
+          <tr mat-header-row class="mat-header-row" *matHeaderRowDef="miscDataColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: miscDataColumns;"></tr>
+      </table>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,210 @@
+.mat-mdc-form-field {
+    font-size: 10px;
+    width: 100%;
+  }
+  
+  .table-container {
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    border-radius: 5px;  
+    max-height: 630px;
+    overflow-y: auto;
+    background-color: #ffffff;
+  }   
+  
+  .main-table-container {
+    border: 1px solid #f5fbff;
+    border-radius: 5px;  
+    max-height: 630px;
+    overflow-y: auto;
+    background-color: #ffffff;
+  }   
+  
+  .example-container {
+    overflow: auto;
+  }
+  
+  .element-row .mat-mdc-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.1%;
+  }
+  
+  .detail-row .mat-mdc-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  padding-left: 3%;
+  }
+  
+  .element-row {
+  border: 0;
+  height: 42px;
+  }
+  
+  .detail-row {
+  height: 0;
+  }
+  .detail-row .example-element-detail {
+  padding: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  }
+  
+  .custom-spinner ::ng-deep .mat-spinner circle, .mat-progress-spinner circle {
+  stroke: #b3e5fc; /* Change this to your desired color */
+  }
+  .spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px; /* Adjust based on your table height */
+  background-color: #f5f5f5; /* Soft background color */
+  }
+  
+  .bordered-table {
+   
+   width: 100%;
+   
+   border-collapse: collapse;
+   
+  }
+  
+  .bordered-table th, .bordered-table td {
+  
+  border: 0;
+  
+  padding: 3px;
+  
+  }
+  .bordered-table-dilution th, .bordered-table-dilution td {
+  
+    border: 1px solid black;
+    
+    padding: 3px;
+    
+}
+.bordered-table-terms {
+    
+    width: 80%;
+    
+    border-collapse: collapse;
+    
+}
+
+.bordered-table-terms th, .bordered-table-terms td {
+
+border: 1px solid black;
+
+padding: 3px;
+
+}
+  
+  .table-row .cell {
+  border-bottom: 1px solid #dee2e6;
+  }
+  
+  .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  }
+  
+  .title {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  padding-left: 20px;
+  color: rgb(24, 24, 65);
+  }
+  
+  .search-bar {
+  width: 300px;  
+  border: 1px solid #dee2e6;
+  border-radius: 2px;
+  }
+  
+  .mat-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #f5fbff;;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #58595B;
+  font-weight: bolder;  
+  }
+  
+  .mat-mdc-header-cell {
+  border-bottom: 1px solid #dee2e6;
+  white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.1%;
+  }
+  
+  .mat-table {
+  background-color: #f5fbff;  
+  border-collapse: collapse;
+  }
+  
+  .nav-link .active {
+  color: black;
+  font-weight: bold;
+  }
+
+  .fixed-table-dilution {
+    width: 600px; /* Set the fixed width for the entire table */
+    height: 100px; /* Set the fixed height for the entire table */
+    overflow: auto; /* Enable scrolling if content overflows */
+    border: 1px solid #ddd;
+   }
+   .fixed-table-dilution th, .fixed-table-dilution td {
+    width: 150px; /* Set fixed width for each column */
+    white-space: nowrap; /* Prevent text wrapping */
+   }
+   .fixed-table-dilution th {
+    text-align: left;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    background-color: #f1f1f1; /* Optional: Add a background color for headers */
+   }
+   .fixed-table-dilution td {
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+     border: 1px solid #ddd;
+   }
+
+  .fixed-table-terms {
+    width: 700px; /* Set the fixed width for the entire table */
+    height: 100px; /* Set the fixed height for the entire table */
+    overflow: auto; /* Enable scrolling if content overflows */
+    border: 1px solid #ddd;
+   }
+   .fixed-table-terms th, .fixed-table-terms td {
+    width: 150px; /* Set fixed width for each column */
+    white-space: nowrap; /* Prevent text wrapping */
+   }
+   .fixed-table-terms th {
+    text-align: left;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    background-color: #f1f1f1; /* Optional: Add a background color for headers */
+   }
+   .fixed-table-terms td {
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border: 1px solid #ddd;
+   }
+  

@@ -32,6 +32,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     memberClient: string[] = ['member1', 'member2', 'member3'];
 
     isLoading = true;
+    isLoadingMember = false;
     dataSource = new MatTableDataSource<any>([]);
     memberDataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -78,7 +79,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     }
 
     loadMemberClientDetails(MasterClientKey: number): void {                       
-      this.memberDataService.getMemberClients(MasterClientKey).subscribe(response => {        
+      this.memberDataService.getMemberClients(MasterClientKey).subscribe(response => {    
+        this.isLoadingMember = false;
         this.memberDataSource.data = response.data;       
         this.MasterClientKey = MasterClientKey         
       });
@@ -116,6 +118,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     toggleRow(element: DataItem, MasterClientKey: number): void {                        
       this.expandedElement = this.expandedElement === element ? null : element;
+      this.isLoadingMember = true;
       this.loadMemberClientDetails(MasterClientKey);
     }
 

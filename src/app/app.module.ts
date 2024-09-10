@@ -43,6 +43,7 @@ import { ClientsDebtorsComponent } from './components/clients-debtors/clients-de
 import { CacheService } from './services/cache.service';
 import { CacheInterceptor } from './http-interceptors/http-interceptors';
 import { TestComponent } from './components/test/test.component';
+import { MemberMasterDebtorComponent } from './components/member-master-debtor/member-master-debtor.component';
 
 const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
 
@@ -67,6 +68,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     DocumentDialogComponent,
     ClientsDebtorsComponent,
     TestComponent,
+    MemberMasterDebtorComponent,
   ],
   imports: [
     BrowserModule,

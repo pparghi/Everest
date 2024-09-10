@@ -39,7 +39,7 @@
         </ng-container>
         <ng-container matColumnDef="NOA">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>NOA</th>
-            <td mat-cell *matCellDef="let element">{{ element.NOA }}</td>
+            <td mat-cell *matCellDef="let element" (click)="noa(element.DebtorKey)" style="color: #1473d1;">{{ element.NOA }}</td>
         </ng-container>
         <ng-container matColumnDef="%% Verified">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>%% Verified</th>
@@ -47,7 +47,7 @@
         </ng-container>
         <ng-container matColumnDef="Payments">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Payments</th>
-            <td mat-cell *matCellDef="let element" (click)="payments(element.DebtorKey)" style="color: #1473d1;">Payments</td>
+            <td mat-cell *matCellDef="let element" (click)="payments(element.DebtorKey)" style="color: #1473d1;"><i class="fa fa-receipt" style="color: #3a8ada;"></i></td>
         </ng-container>
 
         <ng-container matColumnDef="expand">
@@ -65,79 +65,8 @@
             <ng-container matColumnDef="expandedDetail">
                 <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
                     <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
-                        <div class="table-container" style="background-color: #f5fbff;">                            
-                            <table class="bordered-table">
-                                <tr>
-                                    <th>Master Debtor</th>
-                                    <th>Duns</th>
-                                    <th>Currency</th>
-                                    <th>Balance</th>
-                                    <th>CreditLimit</th>
-                                    <th>AIG Coverage</th>
-                                    <th>Utilization of AIG Coverage</th>
-                                    <th>NOA</th>
-                                    <th>%% Verified</th>
-                                    <th>Payments</th>
-                                </tr>
-                                <tr>
-                                    <td>ABCOR FILTERS INC.</td>
-                                    <td>453,545</td>
-                                    <td>CAD</td>
-                                    <td>219,372</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>No Sent</td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </table>   <br>                         
-                            <table class="bordered-table-dilution" align="center">
-                                <tr>
-                                    <th>Dilution</th>
-                                    <th>30</th>
-                                    <th>60</th>
-                                    <th>90</th>
-                                    <th>All</th>                                    
-                                </tr>
-                                <tr>
-                                    <td>Clients</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>                                    
-                                    <td></td>                                    
-                                </tr>
-                                <tr>
-                                    <td>All Clients</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>                                    
-                                    <td></td>                                    
-                                </tr>
-                            </table>                            
-                            <br>                         
-                            <table class="bordered-table-terms" align="center">
-                                <tr>
-                                    <th>Terms</th>
-                                    <th>1-30</th>
-                                    <th>31-60</th>
-                                    <th>61-90</th>
-                                    <th>91-120</th>
-                                    <th>121-up</th>                                    
-                                    <th>Portal</th>                                    
-                                    <th>Documents</th>                                    
-                                </tr>
-                                <tr>
-                                    <td>120</td>
-                                    <td>565,444</td>
-                                    <td>454,877</td>
-                                    <td>854,457</td>                                    
-                                    <td></td>                                    
-                                    <td></td>                                    
-                                    <td></td>                                    
-                                    <td></td>                                    
-                                </tr>                                
-                            </table>                            
+                        <div class="table-container" style="background-color: #f5fbff;"> 
+                            <app-member-master-debtor [DebtorKey]="element.DebtorKey" [MasterClientKey]="MasterClientKey"></app-member-master-debtor>                                                                              
                         </div>                    
                     </div>                                      
                 </td>            

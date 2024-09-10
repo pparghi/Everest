@@ -119,7 +119,7 @@
   padding-right: 8px;
   padding-top: 0px;
   padding-bottom: 0px;
-   /* Add a border to cells */
+  border: 1px solid #ddd;
  }
 
 .table-row .cell {

@@ -130,4 +130,17 @@ export class ClientsDebtorsComponent implements OnInit {
     });
   }
 
+  noa(DebtorKey: any){
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+      data: {
+       DebtorKey: DebtorKey, 
+       noa: 'noa',
+     }
+   });
+   
+   dialogRef.afterClosed().subscribe(result => {
+       
+   });
+  }
+
 }

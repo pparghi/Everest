@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
+import { event } from 'jquery';
 
 @Component({
   selector: 'app-document-dialog',
@@ -26,12 +27,21 @@ export class DocumentDialogComponent {
 
   contactColumns: string[] = ['name', 'email', 'contact_no'];
   paymentColumns: string[] = ['date', 'check#', 'amount'];
+  miscDataColumns: string[] = ['element', 'value'];
   contactDataSource = new MatTableDataSource<any>([]);
   paymentDataSource = new MatTableDataSource<any>([]);
+  MiscDataListDataSource = new MatTableDataSource<any>([]);
+
+  noaStatus = [
+    { value: 'Not Sent', label: 'Not Sent' },
+    { value: 'Sent', label: 'Sent' },
+    { value: 'Received', label: 'Received' }
+  ]
 
   editForm: FormGroup;
+  changedNoaStatus!: string;
 
-  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {  
+  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {      
     this.editForm = this.fb.group({
       name: [data.name || '', Validators.required],
       description: [data.description || '']
@@ -53,11 +63,13 @@ export class DocumentDialogComponent {
       this.clientService.getDebtorsPayments(data.DebtorKey, data.ClientKey).subscribe(response => {                                
         this.paymentDataSource.data = response.debtorPaymentsData;      
       });
+    } else if(data.MiscDataList) {
+      this.clientService.getMiscData(data.DebtorKey, data.ClientKey).subscribe(response => {                                
+        this.MiscDataListDataSource.data = response.MiscDataList;      
+      });
     } else {
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
         this.contactDataSource.data = response.debtorContactsData;
-        console.log(this.contactDataSource.data);
-        
       });
     }
   }
@@ -101,4 +113,10 @@ export class DocumentDialogComponent {
     onEdit(){
 
     }
+
+    onChange(event: Event) {
+      const selectElement = event.target as HTMLSelectElement;
+        this.changedNoaStatus = selectElement.value
+    }
+  
 }

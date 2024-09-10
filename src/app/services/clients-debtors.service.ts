@@ -36,4 +36,18 @@ export class ClientsDebtorsService {
       })
     );
   }
+
+  getMiscData(DebtorKey: number, ClientKey: number){    
+    const url = `https://everest.revinc.com:4202/api/MiscDataList?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          MiscDataList: response.MiscDataList.map((item: any) => ({
+            ...item,
+         // Add expanded detail here
+          })),              
+        };
+      })
+    );
+  }
 }
