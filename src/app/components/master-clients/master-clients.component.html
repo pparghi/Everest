@@ -49,11 +49,6 @@
             <td mat-cell *matCellDef="let element">{{ element.Age151to180 | roundThousands }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="AgeOver180">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>181 - up</th>
-            <td mat-cell *matCellDef="let element">{{ element.AgeOver180 | roundThousands }}</td>
-        </ng-container>
-
         <ng-container matColumnDef="Balance">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
             <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>

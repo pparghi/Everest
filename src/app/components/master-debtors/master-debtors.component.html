@@ -48,12 +48,7 @@
         <ng-container matColumnDef="State">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>State</th>
             <td mat-cell *matCellDef="let element">{{ element.State }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="Country">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Country</th>
-            <td mat-cell *matCellDef="let element">{{ element.Country === 'Canada' ? 'CA' : 'US' }}</td>
-        </ng-container>
+        </ng-container>        
 
         <ng-container matColumnDef="%Utilized">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>% Utilized</th>
@@ -176,7 +171,6 @@
                         <table class="bordered-table">                                                       
                             <tr>
                                 <th class="header" style="width: 10%;">C/L</th>                                                                    
-                                <th class="header" style="width: 10%;">Past Due</th>                                        
                                 <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
                                 <th class="header" style="width: 12%;"># of Outstanding Invoices</th>                                 
                                 <th></th>
@@ -188,7 +182,6 @@
                             </tr>
                             <tr class="table-row">
                                 <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>                                                                    
-                                <td class="cell" style="width: 10%;">{{ element.PastDue | roundThousands }}</td>                                  
                                 <td class="cell" style="width: 10%;">-</td>                                  
                                 <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>
                                 <td class="cell"></td>

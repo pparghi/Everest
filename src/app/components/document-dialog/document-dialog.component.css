@@ -26,3 +26,13 @@
     border-color: #BCBDBF;
     width: 80%;
   }
+
+  .mat-mdc-dialog-container {	
+	width: max-content;
+	  overflow: visible;
+  }
+
+  .mat-mdc-dialog-content {
+	width: max-content;
+	overflow: visible;
+  }

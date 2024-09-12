@@ -13,8 +13,7 @@ interface DataItem {
   Age61to90: string;  
   Age91to120: string;  
   Age121to150: string;  
-  Age151to180: string;  
-  AgeOver180: string;  
+  Age151to180: string;   
   Balance: string;  
   expandedDetail: { detail: string };
   DebtorexpandedDetail: { detail: string };
@@ -27,7 +26,7 @@ interface DataItem {
 })
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'AgeOver180', 'Balance', 'Escrow', 'Reserve', 'NFE'];
+    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'Balance', 'Escrow', 'Reserve', 'NFE'];
     displayedMemberColumns: string[] = ['Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 

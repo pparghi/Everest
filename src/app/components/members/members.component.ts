@@ -31,7 +31,7 @@ interface DataItem {
   styleUrl: './members.component.css'
 })
 export class MembersComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', 'Country', '%Utilized', 'PastDue%', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode'];
+  displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'TotalCreditLimit', 'Terms', 'NoBuyCode'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;

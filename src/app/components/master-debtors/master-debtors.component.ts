@@ -33,7 +33,7 @@ interface DataItem {
 })
 
 export class MasterDebtorsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State','Country', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode', 'Edit'];
+    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode', 'Edit'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -169,7 +169,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         this.DocumentsCat = response.DocumentsCat;
         this.documentsFolder = response.DocumentsFolder;
         
-        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {                          
            data: {
             DebtorKey: DebtorKey, 
             documentsList: this.DocumentsList,
@@ -253,7 +253,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.dataService.getDebtorsContacts(DebtorKey).subscribe(response => {                                
         this.DebtorContactsData = response.debtorContactsData;
         
-        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {                          
            data: {
             DebtorKey: DebtorKey, 
             DebtorContactsData: this.DebtorContactsData,
