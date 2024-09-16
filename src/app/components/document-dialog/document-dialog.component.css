@@ -36,3 +36,31 @@
 	width: max-content;
 	overflow: visible;
   }
+
+  .mat-dialog-container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 0; /* Remove default padding */
+   }
+   .dialog-header {
+	position: sticky;
+	top: 0;
+	background-color: white; /* Ensure the background is visible while scrolling */
+	z-index: 1; /* Ensure it stays above the content */
+	padding: 5px;
+	border-bottom: 1px solid #ddd; /* Optional: to distinguish header */
+   }
+   .dialog-footer {
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+	z-index: 1;
+	padding: 5px;
+	border-top: 1px solid #ddd; /* Optional: to distinguish footer */
+   }
+   .dialog-content {
+	flex: 1 1 auto;
+	overflow-y: auto; /* Enable scrolling for the content area */
+	padding: 5px;
+   }

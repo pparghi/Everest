@@ -253,7 +253,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.dataService.getDebtorsContacts(DebtorKey).subscribe(response => {                                
         this.DebtorContactsData = response.debtorContactsData;
         
-        const dialogRef = this.dialog.open(DocumentDialogComponent, {                          
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+          width: 'auto',       // Let it size as per content
+          maxWidth: 'none',    // Disable default maxWidth
+          height: 'auto',      // Optional if you want to control height
+          panelClass: 'custom-dialog-container',                    
            data: {
             DebtorKey: DebtorKey, 
             DebtorContactsData: this.DebtorContactsData,

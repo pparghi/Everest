@@ -27,32 +27,38 @@
 </div>
 
 <div *ngIf="data.DebtorContactsData">
-  <h2 mat-dialog-title>Debtor Contacts</h2>
-  <mat-dialog-content class="mat-typography">
-      <table mat-table [dataSource]="contactDataSource" class="mat-elevation-z8">
-        
-        <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
-            <td mat-cell *matCellDef="let element">{{ element.FirstName }}</td>
-        </ng-container>
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Debtor Contacts</h2>
+  </div>
+  <div class="dialog-content"> 
+    <mat-dialog-content class="mat-typography">
+        <table mat-table [dataSource]="contactDataSource" class="mat-elevation-z8">
+          
+          <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let element">{{ element.FirstName }}</td>
+          </ng-container>
 
-        <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef>Email</th>
-            <td mat-cell *matCellDef="let element">{{ element.Email }}</td>
-        </ng-container>
+          <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let element"><a href="mailto:{{ element.Email }}">{{ element.Email }}</a></td>
+          </ng-container>
 
-        <ng-container matColumnDef="contact_no">
-            <th mat-header-cell *matHeaderCellDef>Contact No</th>
-            <td mat-cell *matCellDef="let element">{{ element.Phone }}</td>
-        </ng-container>
+          <ng-container matColumnDef="contact_no">
+              <th mat-header-cell *matHeaderCellDef>Contact No</th>
+              <td mat-cell *matCellDef="let element"><a href="tel:{{ element.Phone }}">{{ element.Phone }}</a></td>
+          </ng-container>
 
-          <tr mat-header-row class="mat-header-row" *matHeaderRowDef="contactColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: contactColumns;"></tr>
-      </table>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cancel</button>
-  </mat-dialog-actions>
+            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="contactColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: contactColumns;"></tr>
+        </table>
+    </mat-dialog-content>
+  </div>
+  <div class="dialog-footer">
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+    </mat-dialog-actions>
+  </div>
 </div>
 
 <div *ngIf="data.DebtorPaymentsData">
@@ -100,24 +106,34 @@
         <br>
         <div class="row">
           <div class="col-md-6">
-            <label for="name" class="form-label">Address</label>
+            <label for="name" class="form-label">Address 1</label>
             <input type="text" id="name" class="form-control" formControlName="name" required>
           </div>
           <div class="col-md-6">
-            <label for="email" class="form-label">City</label>
+            <label for="email" class="form-label">Address 2</label>
             <input type="email" id="email" class="form-control" formControlName="email" required>
           </div>
         </div>
         <br>
         <div class="row">
           <div class="col-md-6">
-            <label for="email" class="form-label">State</label>
+            <label for="name" class="form-label">Phone 1</label>
+            <input type="text" id="name" class="form-control" formControlName="name" required>
+          </div>
+          <div class="col-md-6">
+            <label for="email" class="form-label">Phone 2</label>
             <input type="email" id="email" class="form-control" formControlName="email" required>
           </div>
-
+        </div>
+        <br>
+        <div class="row">          
           <div class="col-md-6">
-            <label for="password" class="form-label">Country</label>
-            <input type="password" id="password" class="form-control" formControlName="password" required>
+            <label for="email" class="form-label">City</label>
+            <input type="email" id="email" class="form-control" formControlName="email" required>
+          </div>        
+          <div class="col-md-6">
+            <label for="email" class="form-label">State</label>
+            <input type="email" id="email" class="form-control" formControlName="email" required>
           </div>
         </div>
         <br>
