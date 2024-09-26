@@ -151,6 +151,6 @@
 .custom-dialog-container .mat-dialog-container {
   display: block;
   width: auto;
-  max-width: none;  /* Disable Material's default max-width */
-  padding: 10px;    /* Optional padding */
+  max-width: none;  
+  padding: 10px;   
  }

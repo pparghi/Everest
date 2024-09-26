@@ -13,7 +13,7 @@
   }   
   
   .main-table-container {
-    border: 1px solid #dee2e6;
+    
     border-radius: 5px;  
     max-height: 630px;
     overflow-y: auto;
@@ -173,3 +173,10 @@
     padding: 16px;
     font-size: 16px;
   }
+
+  .custom-dialog-container .mat-dialog-container {
+    display: block;
+    width: auto;
+    max-width: none;  
+    padding: 10px;   
+   }

@@ -134,3 +134,10 @@ border-collapse: collapse;
 color: black;
 font-weight: bold;
 }
+
+.custom-dialog-container .mat-dialog-container {
+  display: block;
+  width: auto;
+  max-width: none;  
+  padding: 10px;   
+ }

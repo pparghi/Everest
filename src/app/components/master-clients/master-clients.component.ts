@@ -26,7 +26,7 @@ interface DataItem {
 })
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'Balance', 'Escrow', 'Reserve', 'NFE'];
+    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'Balance', 'Reserve', 'NFE'];
     displayedMemberColumns: string[] = ['Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 
@@ -43,6 +43,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+
+    memberClientKey!: number;
 
     constructor(private dataService: MasterClientsService,private memberDataService: MemberClientsService, private router: Router) {}
     ngOnInit(): void {            
@@ -80,7 +82,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     loadMemberClientDetails(MasterClientKey: number): void {                       
       this.memberDataService.getMemberClients(MasterClientKey).subscribe(response => {    
         this.isLoadingMember = false;
-        this.memberDataSource.data = response.data;       
+        this.memberDataSource.data = response.data;           
+        response.data.forEach((element: any) => {
+          console.log(element.ClientKey);
+          this.memberClientKey = element.ClientKey;          
+        });              
         this.MasterClientKey = MasterClientKey         
       });
     }

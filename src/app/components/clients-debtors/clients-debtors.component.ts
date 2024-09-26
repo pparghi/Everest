@@ -31,7 +31,7 @@ interface DataItem {
   styleUrl: './clients-debtors.component.css'
 })
 export class ClientsDebtorsComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Debtor', 'Currency', 'Balance', 'CreditLimit', 'AIG Coverage', 'Utilization of AIG Coverage', 'NOA','%% Verified', 'Payments'];
+  displayedColumns: string[] = ['expand', 'Debtor', 'Currency', 'Balance', 'DebtorLimit', 'RelationshipLimit', 'AIG Coverage', 'Dilution', 'Ineligible', 'Term', 'NOA','%% Verified', 'Payments'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -116,7 +116,11 @@ export class ClientsDebtorsComponent implements OnInit {
       this.dataService.getDebtorsPayments(DebtorKey, this.MasterClientKey).subscribe(response => {                                
         this.DebtorPaymentsData = response.debtorPaymentsData;
         
-        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+        const dialogRef = this.dialog.open(DocumentDialogComponent, { 
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',               
            data: {
             DebtorKey: DebtorKey, 
             ClientKey: this.MasterClientKey,
@@ -131,7 +135,11 @@ export class ClientsDebtorsComponent implements OnInit {
   }
 
   noa(DebtorKey: any){
-    const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {   
+      width: 'auto',       
+      maxWidth: 'none',   
+      height: 'auto',    
+      panelClass: 'custom-dialog-container',             
       data: {
        DebtorKey: DebtorKey, 
        noa: 'noa',

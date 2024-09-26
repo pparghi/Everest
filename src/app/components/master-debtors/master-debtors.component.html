@@ -27,7 +27,17 @@
         
         <ng-container matColumnDef="Debtor">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor Name</th>
-            <td style="font-weight: Medium;" mat-cell *matCellDef="let element">{{ element.Debtor }}</td>
+            <td style="font-weight: Medium;" mat-cell *matCellDef="let element">
+                <div *ngIf="element.NoBuyCode == ''" >
+                    <i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
+                </div>  
+                <div *ngIf="element.NoBuyCode == 'HELD -  ACCOUNT TEMPORARILY ON HOLD'">
+                    <i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
+                </div>                  
+                <div *ngIf="element.NoBuyCode != '' && element.NoBuyCode != 'HELD -  ACCOUNT TEMPORARILY ON HOLD'">
+                    <i class="fa fa-circle"  style="color: red; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
+                </div>                
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="DbDunsNo">
@@ -36,8 +46,15 @@
         </ng-container>
 
         <ng-container matColumnDef="Address">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
-            <td mat-cell *matCellDef="let element">{{ element.Addr1 }} , {{ element.Addr2 }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>            
+            <td mat-cell *matCellDef="let element">
+                <div *ngIf="element.Addr2 == ''">        
+                    {{ element.Addr1 }}
+                </div>
+                <div *ngIf="element.Addr2 != ''">        
+                    {{ element.Addr1 }} , {{ element.Addr2 }}
+                </div>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="City">
@@ -97,22 +114,7 @@
         <ng-container matColumnDef="Terms">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Terms</th>
             <td mat-cell *matCellDef="let element">{{ element.Terms }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="NoBuyCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 10%;">Account Status</th>
-            <td mat-cell *matCellDef="let element">
-                <div *ngIf="element.NoBuyCode == ''"  style="color: green; font-size: 10px;">
-                    <i class="fa fa-circle" aria-hidden="true"></i>
-                </div>  
-                <div *ngIf="element.NoBuyCode == 'HELD -  ACCOUNT TEMPORARILY ON HOLD'" style="color: orange; font-size: 10px;">
-                    <i class="fa fa-circle" aria-hidden="true"></i>
-                </div>                  
-                <div *ngIf="element.NoBuyCode != '' && element.NoBuyCode != 'HELD -  ACCOUNT TEMPORARILY ON HOLD'" style="color: red; font-size: 10px;">
-                    <i class="fa fa-circle" aria-hidden="true"></i>
-                </div>                  
-            </td>
-        </ng-container>
+        </ng-container>        
 
         <!-- <ng-container matColumnDef="NoBuyCode">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 10%;">Account Status</th>            

@@ -23,6 +23,8 @@ interface DataItem {
   AIGLimit: string;
   Terms: string;
   NoBuyCode: number;  
+  PctUtilized: number;  
+  PastDuePct: number;  
   expandedDetail: { detail: string };
 }
 
@@ -33,7 +35,7 @@ interface DataItem {
 })
 
 export class MasterDebtorsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'NoBuyCode', 'Edit'];
+    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'Edit'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -169,7 +171,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         this.DocumentsCat = response.DocumentsCat;
         this.documentsFolder = response.DocumentsFolder;
         
-        const dialogRef = this.dialog.open(DocumentDialogComponent, {                          
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {     
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',                     
            data: {
             DebtorKey: DebtorKey, 
             documentsList: this.DocumentsList,
@@ -190,10 +196,22 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.editedElement = row;         
     }
 
-    edit(row: DataItem){
-      const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+    edit(row: DataItem){      
+      console.log(row);
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {                                
         data: {
          DebtorKey: row.DebtorKey,
+         Debtor: row.Debtor,
+         Duns: row.DebtorKey,
+         Addr1: row.DebtorKey,
+         Addr2: row.DebtorKey,
+         City: row.DebtorKey,
+         State: row.DebtorKey,
+         PctUtilized: row.PctUtilized,
+         PastDuePct: row.PastDuePct,
+         TotalCreditLimit: row.TotalCreditLimit,
+         AIGLimit: row.AIGLimit,
+         Terms: row.Terms,
          openForm: 'editForm' 
        }
      });
@@ -254,9 +272,9 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         this.DebtorContactsData = response.debtorContactsData;
         
         const dialogRef = this.dialog.open(DocumentDialogComponent, {      
-          width: 'auto',       // Let it size as per content
-          maxWidth: 'none',    // Disable default maxWidth
-          height: 'auto',      // Optional if you want to control height
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
           panelClass: 'custom-dialog-container',                    
            data: {
             DebtorKey: DebtorKey, 

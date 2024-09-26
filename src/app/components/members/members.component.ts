@@ -31,7 +31,7 @@ interface DataItem {
   styleUrl: './members.component.css'
 })
 export class MembersComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'TotalCreditLimit', 'Terms', 'NoBuyCode'];
+  displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'TotalCreditLimit', 'Terms'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -81,7 +81,11 @@ export class MembersComponent implements OnInit {
         this.DocumentsCat = response.DocumentsCat;
         this.documentsFolder = response.DocumentsFolder;
         
-        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+        const dialogRef = this.dialog.open(DocumentDialogComponent, { 
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',               
            data: {
             DebtorKey: DebtorKey, 
             documentsList: this.DocumentsList,
@@ -138,7 +142,11 @@ export class MembersComponent implements OnInit {
       this.masterDebtorService.getDebtorsContacts(DebtorKey).subscribe(response => {                                
         this.DebtorContactsData = response.debtorContactsData;
         
-        const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {     
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',            
            data: {
             DebtorKey: DebtorKey, 
             DebtorContactsData: this.DebtorContactsData,
