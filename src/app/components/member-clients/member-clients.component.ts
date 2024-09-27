@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -28,7 +28,7 @@ interface DataItem {
   styleUrl: './member-clients.component.css'
 })
 export class MemberClientsComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Age151to180', 'AgeOver180', 'Balance', 'Reserve', 'NFE'];
+  displayedColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -36,8 +36,9 @@ export class MemberClientsComponent implements OnInit {
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
     math = Math;
-    MasterClientKey!: number;
     displayDebtor: any;
+
+    @Input() MasterClientKey!: number;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -47,10 +48,15 @@ export class MemberClientsComponent implements OnInit {
     ngOnInit(): void {
       this.route.queryParams.subscribe(params => {        
         const MasterClientKey = +params['MasterClientKey'];        
-        this.MasterClientKey = MasterClientKey
-        this.displayDebtor = params['Debtor']                
-        this.loadMemberClientDetails(MasterClientKey);
+        this.MasterClientKey = MasterClientKey            
+        this.loadMemberClientDetails(this.MasterClientKey);
       });
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+      if (changes['MasterClientKey']) {
+        this.loadMemberClientDetails(this.MasterClientKey);
+      }
     }
 
     loadMemberClientDetails(MasterClientKey: number): void {            

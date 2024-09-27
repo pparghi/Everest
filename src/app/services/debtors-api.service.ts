@@ -17,45 +17,45 @@ export class DebtorsApiService {
 
   constructor(private http: HttpClient) { }  
 
-  getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const formData = new FormData();
-
-    formData.append('token', mail);
-    formData.append('page', page.toString());
-    formData.append('per_page', perPage.toString());
-    formData.append('search', search);
-    formData.append('sortBy', sortBy);
-    formData.append('sortOrder', sortOrder);
-  
-      return this.http.post<any>(`https://everest.revinc.com:4202/api/debtors`, formData).pipe(
-        map(response => {
-          return {
-            data: response.data.map((item: any) => ({
-              ...item,
-              expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
-            })),
-            total: response.total['count_all'],
-            noBuyDisputeList: response.DebtoNoBuyDisputeList
-          };
-        })
-      );
-    };
-
   // getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-  //   const url = `https://everest.revinc.com:4202/api/debtors?mail=${mail}&page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
-  //   return this.http.get<any>(url).pipe(
-  //     map(response => {
-  //       return {
-  //         data: response.data.map((item: any) => ({
-  //           ...item,
-  //           expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
-  //         })),
-  //         total: response.total['count_all'],
-  //         noBuyDisputeList: response.DebtoNoBuyDisputeList
-  //       };
-  //     })
-  //   );
-  // }
+  //   const formData = new FormData();
+
+  //   formData.append('token', mail);
+  //   formData.append('page', page.toString());
+  //   formData.append('per_page', perPage.toString());
+  //   formData.append('search', search);
+  //   formData.append('sortBy', sortBy);
+  //   formData.append('sortOrder', sortOrder);
+  
+  //     return this.http.post<any>(`https://everest.revinc.com:4202/api/debtors`, formData).pipe(
+  //       map(response => {
+  //         return {
+  //           data: response.data.map((item: any) => ({
+  //             ...item,
+  //             expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
+  //           })),
+  //           total: response.total['count_all'],
+  //           noBuyDisputeList: response.DebtoNoBuyDisputeList
+  //         };
+  //       })
+  //     );
+  //   };
+
+  getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/debtors?token=${mail}&page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          data: response.data.map((item: any) => ({
+            ...item,
+            expandedDetail: { detail: 'Additional details for ' + item.Debtor } // Add expanded detail here
+          })),
+          total: response.total['count_all'],
+          noBuyDisputeList: response.DebtoNoBuyDisputeList
+        };
+      })
+    );
+  }
 
   getDebtorsDocuments(DebtorKey: number): Observable<any> {
     const url = `https://everest.revinc.com:4202/api/documentsList?DebtorKey=${DebtorKey}`;

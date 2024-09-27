@@ -16,6 +16,10 @@ interface DataItem {
   Age151to180: string;   
   Balance: string;  
   expandedDetail: { detail: string };
+}
+interface MemberDataItem {
+  Client: string;     
+  Balance: string;  
   DebtorexpandedDetail: { detail: string };
 }
 
@@ -27,7 +31,7 @@ interface DataItem {
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
     displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'Balance', 'Reserve', 'NFE'];
-    displayedMemberColumns: string[] = ['Client', 'CreditLimit', 'CreditUtilization','dsc'];
+    displayedMemberColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 
     isLoading = true;
@@ -38,6 +42,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     filter: string = '';
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
+    memberExpandedElement: MemberDataItem | null = null;
     math = Math;
     MasterClientKey!: number;
 
@@ -79,17 +84,16 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       });
     }
 
-    loadMemberClientDetails(MasterClientKey: number): void {                       
-      this.memberDataService.getMemberClients(MasterClientKey).subscribe(response => {    
-        this.isLoadingMember = false;
-        this.memberDataSource.data = response.data;           
-        response.data.forEach((element: any) => {
-          console.log(element.ClientKey);
-          this.memberClientKey = element.ClientKey;          
-        });              
-        this.MasterClientKey = MasterClientKey         
-      });
-    }
+    // loadMemberClientDetails(MasterClientKey: number): void {                       
+    //   this.memberDataService.getMemberClients(MasterClientKey).subscribe(response => {    
+    //     this.isLoadingMember = false;
+    //     this.memberDataSource.data = response.data;           
+    //     response.data.forEach((element: any) => {  
+    //       this.memberClientKey = element.ClientKey;          
+    //     });              
+    //     this.MasterClientKey = MasterClientKey         
+    //   });
+    // }
 
     openDebtorsWindow(ClientKey: number): void {
       const url = this.router.serializeUrl(
@@ -121,21 +125,22 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       
     }
 
-    toggleRow(element: DataItem, MasterClientKey: number): void {                        
+    toggleRow(element: DataItem): void {                        
       this.expandedElement = this.expandedElement === element ? null : element;
-      this.isLoadingMember = true;
-      this.loadMemberClientDetails(MasterClientKey);
+    }
+    toggleRowDebtor(memberElement: MemberDataItem): void {                        
+      this.memberExpandedElement = this.memberExpandedElement === memberElement ? null : memberElement;      
     }
 
     isExpanded(element: DataItem): boolean {
       return this.expandedElement === element;
     }
 
-    isDebtorExpanded(element: DataItem): boolean {
-      return this.expandedElement === element;
+    isDebtorExpanded(memberElement: MemberDataItem): boolean {
+      return this.memberExpandedElement === memberElement;
     }
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');    
-    isDebtorExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('DebtorexpandedDetail');    
+    isDebtorExpansionDetailRow = (index: number, row: MemberDataItem) => row.hasOwnProperty('DebtorexpandedDetail');    
    
 }

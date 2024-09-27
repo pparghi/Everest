@@ -68,29 +68,30 @@
         <ng-container matColumnDef="expand">
             <th mat-header-cell *matHeaderCellDef></th>
                 <td mat-cell *matCellDef="let element">
-                    <button mat-icon-button (click)="toggleRow(element, element.ClientKey)">
+                    <button mat-icon-button (click)="toggleRow(element)">
                         <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
                     </button>
                 </td>
-        </ng-container>
-
-        <ng-container matColumnDef="DebtorexpandedDetail">
-            <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" style="padding-left: 1%;">            
-                <div *ngIf="isExpanded(element)">                                
-                    <div class="table-container" style="background-color: #f5fbff;">                                                          
-                        <app-clients-debtors [MasterClientKey]="this.memberClientKey"></app-clients-debtors>
-                    </div>
-                    <br>                    
-                </div>                                      
-            </td>            
-        </ng-container>
-
+        </ng-container>      
+    
             <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>     
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>    
+            
+           <!--<ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
+                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
+                        
+                        <app-members [DebtorKey]="element.DebtorKey"></app-members>                   
+                    </div>                                      
+                </td>            
+            </ng-container>--> 
                             
-            <ng-container matColumnDef="expandedDetail">
-                <td mat-cell *matCellDef="let memberElement" [attr.colspan]="displayedColumns.length" style="padding-left: 3.5%;">            
-                    <div *ngIf="isExpanded(memberElement)" style="padding-bottom: 10px;">                                
+             <ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" style="padding-left: 3.5%;">  
+                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
+                        <app-member-clients [MasterClientKey]="element.ClientKey"></app-member-clients>                   
+                    </div>          
+                    <!-- <div *ngIf="isExpanded(memberElement)" style="padding-bottom: 10px;">                                
                         <div class="table-container" style="background-color: #f5fbff;">                            
                             <mat-table [dataSource]="memberDataSource" matSort multiTemplateDataRows class="mat-table">
                                 <ng-container matColumnDef="Client">
@@ -104,7 +105,7 @@
                                 <ng-container matColumnDef="CreditUtilization">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 22%;">CreditUtilization</th>
                                     <td mat-cell *matCellDef="let memberElement">0</td>
-                                </ng-container>
+                                </ng-container><br>
                                 <ng-container matColumnDef="dsc">                                    
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 50%;"></th>
                                     <td mat-cell *matCellDef="let memberElement">
@@ -141,7 +142,7 @@
                                             </tr>
 
                                             <tr>
-                                                <td><b>Average Invoice Amount</b></td>
+                                                <td><b>Avg Inv Amt</b></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -149,7 +150,7 @@
                                             </tr>
 
                                             <tr>
-                                                <td><b>Average NFE</b></td>
+                                                <td><b>Avg NFE</b></td>
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
@@ -157,18 +158,38 @@
                                             </tr>
                                         </table>
                                     </td>                                                     
-                                </ng-container><hr>
+                                </ng-container>
+                                
+                                <ng-container matColumnDef="expandDebtor">
+                                    <th mat-header-cell *matHeaderCellDef></th>
+                                        <td mat-cell *matCellDef="let memberElement">
+                                            <button mat-icon-button (click)="toggleRowDebtor(memberElement)">
+                                                <mat-icon>{{ isDebtorExpanded(memberElement) ? 'remove' : 'add' }}</mat-icon>
+                                            </button>
+                                        </td>
+                                </ng-container>
+                                
+                                <ng-container matColumnDef="DebtorexpandedDetail">
+                                    <td mat-cell *matCellDef="let memberElement" [attr.colspan]="displayedMemberColumns.length" style="padding-left: 1%;">            
+                                        <div *ngIf="isDebtorExpanded(memberElement)">                                
+                                            <div class="table-container" style="background-color: #f5fbff;">                                                          
+                                                <app-clients-debtors [MasterClientKey]="memberElement.ClientKey"></app-clients-debtors>
+                                            </div>
+                                            <br>                    
+                                        </div>                                      
+                                    </td>            
+                                </ng-container>
                                 <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedMemberColumns" style="background-color: #f5fbff;"></tr>
                                 <tr mat-row *matRowDef="let row; columns: displayedMemberColumns;" style="background-color: #f5fbff;"></tr>
+                                <tr mat-row *matRowDef="let row; columns: ['DebtorexpandedDetail']; when: isDebtorExpansionDetailRow" id="debtor-detail-row" class="debtor-detail-row"></tr>            
                             </mat-table>                          
                         </div>                                            
-                    </div>                                      
+                    </div>  -->                                    
                 </td>                            
-            </ng-container>
+            </ng-container>  
                         
 
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" id="detail-row" class="detail-row"></tr>            
-            <tr mat-row *matRowDef="let row; columns: ['DebtorexpandedDetail']; when: isExpansionDetailRow" id="debtor-detail-row" class="debtor-detail-row"></tr>            
         </table>
     </div>
     

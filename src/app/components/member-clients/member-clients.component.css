@@ -12,9 +12,7 @@
 }   
 
 .example-container {
-  height: 750px;
   overflow: auto;
-  padding: 7px;
 }
 
 .element-row .mat-mdc-cell {
@@ -23,7 +21,6 @@
 }
 
 .detail-row .mat-mdc-cell {
-  border-bottom: 1px solid #dee2e6;
   border-top: 1px solid transparent;
 }
 
@@ -125,4 +122,44 @@
 .nav-link .active {
   color: black;
   font-weight: bold;
+}
+
+.fixed-table {
+  width: 600px; /* Set the fixed width for the entire table */
+  height: 100px; /* Set the fixed height for the entire table */
+  overflow: auto; /* Enable scrolling if content overflows */
+  border: 1px solid #ddd;
+ }
+ .fixed-table th, .fixed-table td {
+  width: 150px; /* Set fixed width for each column */
+  white-space: nowrap; /* Prevent text wrapping */
+ }
+ .fixed-table th {
+  text-align: left;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+   /* Optional: Add a background color for headers */
+ }
+ .fixed-table td {
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border: 1px solid #ddd;
+ }
+
+ .debtor-detail-row .mat-mdc-cell {
+  border-top: 1px solid transparent;
+}
+
+.debtor-detail-row {
+  height: 0;
+}
+.debtor-detail-row .example-element-detail {
+  padding: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
 }

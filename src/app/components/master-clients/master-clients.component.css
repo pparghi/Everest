@@ -27,7 +27,7 @@
 }
 
 .detail-row .mat-mdc-cell {
-  border-bottom: 1px solid transparent;
+  border-bottom: 1px solid #dee2e6;
   border-top: 1px solid transparent;
 }
 
@@ -96,31 +96,6 @@
   
 }
 
-.fixed-table {
-  width: 600px; /* Set the fixed width for the entire table */
-  height: 100px; /* Set the fixed height for the entire table */
-  overflow: auto; /* Enable scrolling if content overflows */
-  border: 1px solid #ddd;
- }
- .fixed-table th, .fixed-table td {
-  width: 150px; /* Set fixed width for each column */
-  white-space: nowrap; /* Prevent text wrapping */
- }
- .fixed-table th {
-  text-align: left;
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  background-color: #f1f1f1; /* Optional: Add a background color for headers */
- }
- .fixed-table td {
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  border: 1px solid #ddd;
- }
 
 .table-row .cell {
   border-bottom: 1px solid #dee2e6;
