@@ -13,7 +13,7 @@
   }   
   
   .main-table-container {
-    border: 1px solid #f5fbff;
+    border: 1px solid #ffffff;
     border-radius: 5px;  
     max-height: 630px;
     overflow-y: auto;
@@ -132,7 +132,7 @@ padding: 3px;
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: #f5fbff;;
+  background-color: #ffffff;;
   font-family: Arial, Helvetica, sans-serif;
   color: #58595B;
   font-weight: bolder;  
@@ -147,7 +147,7 @@ padding: 3px;
   }
   
   .mat-table {
-  background-color: #f5fbff;  
+  background-color: #ffffff;  
   border-collapse: collapse;
   }
   
@@ -172,7 +172,7 @@ padding: 3px;
     padding-right: 8px;
     padding-top: 0px;
     padding-bottom: 0px;
-    background-color: #f1f1f1; /* Optional: Add a background color for headers */
+    background-color: #f9f9f9; /* Optional: Add a background color for headers */
    }
    .fixed-table-dilution td {
     padding-left: 8px;
@@ -198,7 +198,7 @@ padding: 3px;
     padding-right: 8px;
     padding-top: 0px;
     padding-bottom: 0px;
-    background-color: #f1f1f1; /* Optional: Add a background color for headers */
+    background-color: #f9f9f9; /* Optional: Add a background color for headers */
    }
    .fixed-table-terms td {
     padding-left: 8px;

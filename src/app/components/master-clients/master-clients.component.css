@@ -133,12 +133,13 @@
   font-weight: bolder;  
 }
 
+.mdc-data-table__cell, .mdc-data-table__header-cell {
+  padding: 0 0 0 0;
+}
+
 .mat-mdc-header-cell {
+  position: sticky;
   border-bottom: 1px solid #dee2e6;
-  white-space: nowrap; 
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0.1%;
 }
 
 .mat-table {

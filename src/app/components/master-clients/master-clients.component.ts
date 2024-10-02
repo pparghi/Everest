@@ -1,10 +1,12 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MasterClientsService } from '../../services/master-clients.service';
 import { Router } from '@angular/router';
 import { MemberClientsService } from '../../services/member-clients.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 
 interface DataItem {
   Client: string;
@@ -15,6 +17,9 @@ interface DataItem {
   Age121to150: string;  
   Age151to180: string;   
   Balance: string;  
+  Dillution30: number;
+  Ineligible: number;
+  Available: number;
   expandedDetail: { detail: string };
 }
 interface MemberDataItem {
@@ -49,7 +54,12 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
+    readonly dialog = inject(MatDialog); 
+
     memberClientKey!: number;
+  accountStatusDilution!: string;
+  accountStatusIneligible!: string;
+  accountStatusAvailable!: string;
 
     constructor(private dataService: MasterClientsService,private memberDataService: MemberClientsService, private router: Router) {}
     ngOnInit(): void {            
@@ -142,5 +152,84 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');    
     isDebtorExpansionDetailRow = (index: number, row: MemberDataItem) => row.hasOwnProperty('DebtorexpandedDetail');    
+
+    getDilutionIcon(element: DataItem){
+      if (element.Dillution30 <= 1.5) { 
+        return 'green';
+      } else if (element.Dillution30 >= 1.51 && element.Dillution30 <= 3) {
+        return 'yellow';
+      } else if (element.Dillution30 > 3) {
+        return 'red';
+      } else {
+        return '';
+      }  
+    }     
+
+    getIneligibleIcon(element: DataItem){
+      if (element.Ineligible <= 0.49) { 
+        return 'green';
+      } else if (element.Ineligible >= 0.50 && element.Ineligible <= 5) {
+        return 'yellow';
+      } else if (element.Ineligible > 5) {
+        return 'red';
+      } else {
+        return '';
+      }            
+    }
+
+    getAvailableIcon(element: DataItem){
+      if (element.Available <= 0.5) { 
+        return 'green';
+      } else if (element.Available >= 0.50 && element.Available <= 2) {
+        return 'yellow';
+      } else if (element.Available > 2) {
+        return 'red';
+      } else {
+        return '';
+      }            
+    }     
+    
+    getFinalColor(element: DataItem){
+      if (this.getDilutionIcon(element) == 'red') {
+        return 'DilutionRed';
+      }else if (this.getIneligibleIcon(element) == 'red') {
+        return 'IneligibleRed';
+      }else if (this.getAvailableIcon(element) == 'red') {
+        return 'AvailableRed';
+      }else if (this.getDilutionIcon(element) == 'yellow') {
+        return 'DilutionYellow';
+      }else if (this.getIneligibleIcon(element) == 'yellow') {
+        return 'IneligibleYellow';
+      }else if (this.getAvailableIcon(element) == 'yellow') {
+        return 'AvailableYellow';
+      }else if (this.getDilutionIcon(element) == 'green') {
+        return 'DilutionGreen';
+      }else if (this.getIneligibleIcon(element) == 'green') {
+        return 'IneligibleGreen';
+      }else if (this.getAvailableIcon(element) == 'green') {
+        return 'AvailableGreen';
+      } else {
+        return '';
+      }
+    }
+
+    showAccountStatusDetail(element: DataItem){    
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',                    
+            data: {              
+              ClientAccountStatus: 'ClientAccountStatus',
+              Dilution: element.Dillution30,
+              Ineligibles: element.Ineligible,
+              Availability: element.Available  
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+        });
+      }
    
 }

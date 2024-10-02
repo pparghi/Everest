@@ -6,7 +6,7 @@
 .table-container {
   border: 1px solid #dee2e6;
   border-radius: 5px;  
-  max-height: 630px;
+  max-height: 1000px;
   overflow-y: auto;
   background-color: #ffffff;
 }   
