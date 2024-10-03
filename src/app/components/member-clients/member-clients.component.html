@@ -3,16 +3,16 @@
     <div class="table-container" style="background-color: #f5fbff;">                            
         <mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
             <ng-container matColumnDef="Client">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 50%; padding-top:10px; padding-left: 15px;">Member Clients</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 50%; padding-top:10px; padding-left: 15px;" >Member Clients</th>
                 <td mat-cell *matCellDef="let memberElement">{{ memberElement.Client }}</td>
             </ng-container>
             <ng-container matColumnDef="CreditLimit">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 20%;">CreditLimit</th>
-                <td mat-cell *matCellDef="let memberElement">{{ memberElement.CreditLimit | roundThousands }}</td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 20%;" arrowPosition="before">CreditLimit</th>
+                <td mat-cell *matCellDef="let memberElement" style="text-align: right;">{{ memberElement.CreditLimit | roundThousands }}</td>
             </ng-container>
             <ng-container matColumnDef="CreditUtilization">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 22%;">CreditUtilization</th>
-                <td mat-cell *matCellDef="let memberElement">0</td>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 22%;" arrowPosition="before">CreditUtilization</th>
+                <td mat-cell *matCellDef="let memberElement" style="text-align: right;">0</td>
             </ng-container><br>
             <ng-container matColumnDef="dsc">                                    
                 <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 50%;"></th>
@@ -21,14 +21,14 @@
                         <tr>
                             <th></th>
                             <th>MTD</th> 
-                            <th>LM</th>                                    
-                            <th>Two MB</th>                                    
-                            <th>Three MB</th>
+                            <th>Last 30</th>                                    
+                            <th>Last 60</th>                                    
+                            <th>Last 90</th>
                         </tr>
                         <tr>
                             <td><b>Dilution</b></td>
-                            <td>{{ memberElement.Dillution30 }}</td>
                             <td>{{ memberElement.Dillution60 }}</td>
+                            <td>{{ memberElement.Dillution30 }}</td>
                             <td>{{ memberElement.Dillution90 }}</td>
                             <td>{{ memberElement.Dillution180 }}</td>
                         </tr>

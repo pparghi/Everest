@@ -19,11 +19,13 @@ padding: 7px;
 .element-row .mat-mdc-cell {
 border-bottom: 1px solid transparent;
 border-top: 1px solid transparent;
+font-size: 13px;
 }
 
 .detail-row .mat-mdc-cell {
 border-bottom: 1px solid #dee2e6;
 border-top: 1px solid transparent;
+font-size: 13px;
 }
 
 .element-row {

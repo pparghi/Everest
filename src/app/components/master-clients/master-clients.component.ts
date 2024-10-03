@@ -19,6 +19,7 @@ interface DataItem {
   Balance: string;  
   Dillution30: number;
   Ineligible: number;
+  IneligiblePct: number;
   Available: number;
   expandedDetail: { detail: string };
 }
@@ -166,11 +167,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     }     
 
     getIneligibleIcon(element: DataItem){
-      if (element.Ineligible <= 0.49) { 
+      if (element.IneligiblePct <= 0.49) { 
         return 'green';
-      } else if (element.Ineligible >= 0.50 && element.Ineligible <= 5) {
+      } else if (element.IneligiblePct >= 0.50 && element.IneligiblePct <= 5) {
         return 'yellow';
-      } else if (element.Ineligible > 5) {
+      } else if (element.IneligiblePct > 5) {
         return 'red';
       } else {
         return '';
@@ -222,7 +223,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
             data: {              
               ClientAccountStatus: 'ClientAccountStatus',
               Dilution: element.Dillution30,
-              Ineligibles: element.Ineligible,
+              Ineligibles: element.IneligiblePct,
               Availability: element.Available  
           }
         });

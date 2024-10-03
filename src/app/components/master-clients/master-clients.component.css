@@ -6,7 +6,7 @@
 .table-container {
   border: 1px solid #dee2e6;
   border-radius: 5px;  
-  max-height: 630px;
+  max-height: 680px;
   overflow-y: auto;
   background-color: #ffffff;
 }   
@@ -24,11 +24,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0.1%;
+  font-size: 13px;
 }
 
 .detail-row .mat-mdc-cell {
   border-bottom: 1px solid #dee2e6;
   border-top: 1px solid transparent;
+  font-size: 13px;
 }
 
 .element-row {
@@ -38,6 +40,7 @@
 
 .detail-row {
   height: 0;
+  font-size: 13px;
 }
 .detail-row .example-element-detail {
   padding: 16px;

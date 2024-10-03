@@ -18,15 +18,18 @@
 .element-row .mat-mdc-cell {
   border-bottom: 1px solid transparent;
   border-top: 1px solid transparent;
+  font-size: 13px;
 }
 
 .detail-row .mat-mdc-cell {
   border-top: 1px solid transparent;
+  font-size: 13px;
 }
 
 .element-row {
   border: 0;
   height: 42px;
+  font-size: 13px;
 }
 
 .detail-row {
@@ -128,30 +131,32 @@
   width: 600px; /* Set the fixed width for the entire table */
   height: 100px; /* Set the fixed height for the entire table */
   overflow: auto; /* Enable scrolling if content overflows */
-  border: 1px solid #ddd;
+  border: 1px solid #f1f0f0;
  }
  .fixed-table th, .fixed-table td {
+  text-align: right;
   width: 150px; /* Set fixed width for each column */
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap; /* Prevent text wrapping */  
+  font-size: 13px;
  }
  .fixed-table th {
-  text-align: left;
+  text-align: right;
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 0px;
-  padding-bottom: 0px;
-   /* Optional: Add a background color for headers */
+  padding-bottom: 0px;  
  }
  .fixed-table td {
   padding-left: 8px;
   padding-right: 8px;
   padding-top: 0px;
   padding-bottom: 0px;
-  border: 1px solid #ddd;
+  border: 1px solid #f1f0f0;
  }
 
  .debtor-detail-row .mat-mdc-cell {
   border-top: 1px solid transparent;
+  font-size: 13px;
 }
 
 .debtor-detail-row {
@@ -162,4 +167,8 @@
   overflow: hidden;
   display: flex;
   align-items: center;
+}
+
+.mat-cell {
+  font-size: 13px;
 }
