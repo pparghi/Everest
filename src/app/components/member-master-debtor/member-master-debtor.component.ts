@@ -30,7 +30,7 @@ interface DataItem {
 })
 
 export class MemberMasterDebtorComponent {
-  displayedColumns: string[] = ['Debtor', 'DbDunsNo', 'Currency', 'Balance',  'TotalCreditLimit', 'AIG Coverage', '%Utilized', 'NOA','%% Verified', 'Payments'];
+  displayedColumns: string[] = ['Debtor', 'Currency', 'DbDunsNo', 'Balance',  'TotalCreditLimit', 'AIG Coverage', '%Utilized', '%% Verified', 'NOA', 'Payments'];
   isLoading = true;
   dataSource = new MatTableDataSource<any>([]);
   totalRecords = 0;

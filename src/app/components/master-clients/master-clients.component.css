@@ -9,6 +9,7 @@
   max-height: 680px;
   overflow-y: auto;
   background-color: #ffffff;
+  position: relative;
 }   
 
 .example-container {
@@ -153,4 +154,11 @@
 .nav-link .active {
   color: black;
   font-weight: bold;
+}
+
+.mat-header-cell {  
+  position: sticky;
+  top: 0;
+  background: white; 
+  z-index: 1; 
 }

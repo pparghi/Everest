@@ -6,7 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
-import { event } from 'jquery';
+import { error, event } from 'jquery';
+import { count, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-document-dialog',
@@ -23,7 +24,7 @@ export class DocumentDialogComponent {
   path: any;
   ContactName: any;
   ContactEmail: any;
-  ContactNo: any;
+  ContactNo: any;  
 
   contactColumns: string[] = ['name', 'email', 'contact_no'];
   paymentColumns: string[] = ['date', 'check#', 'amount'];
@@ -39,8 +40,9 @@ export class DocumentDialogComponent {
   ]
 
   editForm: FormGroup;
-  changedNoaStatus!: string;
-
+  changedNoaStatus!: string;    
+  payment_images!: { fullname: string; basename: any; }[];
+  
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {      
     this.editForm = this.fb.group({
       name: [data.name || '', Validators.required],
@@ -82,8 +84,7 @@ export class DocumentDialogComponent {
     return false;
   }
 
-  onFilechange(event: any) {
-    console.log(event.target.files[0])
+  onFilechange(event: any) {    
     this.file = event.target.files[0]
   }
  
@@ -118,5 +119,13 @@ export class DocumentDialogComponent {
       const selectElement = event.target as HTMLSelectElement;
         this.changedNoaStatus = selectElement.value
     }
-  
+
+    getPaymentsImage(event: any){        
+      this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                
+        response.debtorPaymentImages.forEach((element: any) => {                          
+             window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);                       
+          });                                  
+        }
+      );                        
+    };  
 }

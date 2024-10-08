@@ -9,6 +9,7 @@
   max-height: 1000px;
   overflow-y: auto;
   background-color: #ffffff;
+  position: relative;
 }   
 
 .example-container {
@@ -103,14 +104,14 @@
   border-radius: 2px;
 }
 
-.mat-header-row {
-  position: sticky;
+.mat-header-row {  
   top: 0;
   z-index: 1;
   background-color: white;
   font-family: Arial, Helvetica, sans-serif;
   color: #58595B;
   font-weight: bolder;  
+  height: 40px;
 }
 
 .mat-mdc-header-cell {

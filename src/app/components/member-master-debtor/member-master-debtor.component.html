@@ -4,51 +4,53 @@
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
         
         <ng-container matColumnDef="Debtor">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Master Debtor</th>
-            <td mat-cell *matCellDef="let element">{{ element.Debtor }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 100px;">Master Debtor</th>
+            <td mat-cell *matCellDef="let element" title="{{ element.Debtor }}">{{ element.Debtor }}</td>
         </ng-container>
 
         <ng-container matColumnDef="DbDunsNo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Duns</th>
-            <td mat-cell *matCellDef="let element">{{ element.DbDunsNo }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Duns</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.DbDunsNo }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Currency">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
-            <td mat-cell *matCellDef="let element">{{ element.Currencytype }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Currency</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.Currencytype }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Balance">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-            <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Balance</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.Balance | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="TotalCreditLimit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Credit Limit</th>
-            <td mat-cell *matCellDef="let element">{{ element.CreditLimit | roundThousands }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Credit Limit</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.CreditLimit | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="AIG Coverage">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>AIG Coverage</th>
-            <td mat-cell *matCellDef="let element">{{ element.AIGLimit | roundThousands }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">AIG Coverage</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.AIGLimit | roundThousands }}</td>
         </ng-container>
         
         <ng-container matColumnDef="%Utilized">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>% Utilized</th>
-            <td mat-cell *matCellDef="let element">{{  element.PctUtilized | percent: '1.0-0' }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">% Utilized</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{  element.PctUtilized | percent: '1.0-0' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="%% Verified">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">%% Verified</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;"></td>
         </ng-container>
 
         <ng-container matColumnDef="NOA">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>NOA</th>
-            <td mat-cell *matCellDef="let element">{{ element.NOA }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">NOA</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.NOA }}</td>
         </ng-container>
-        <ng-container matColumnDef="%% Verified">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>%% Verified</th>
-            <td mat-cell *matCellDef="let element"></td>
-        </ng-container>
+        
         <ng-container matColumnDef="Payments">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Payments</th>
-            <td mat-cell *matCellDef="let element" (click)="payments(element.DebtorKey)" style="color: #1473d1;"><i class="fa fa-money-check" style="color: #3a8ada;"></i></td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Payments</th>
+            <td mat-cell *matCellDef="let element" (click)="payments(element.DebtorKey)" style="color: #1473d1;  text-align: right;"><i class="fa fa-money-check" style="color: #3a8ada; text-align: right;"></i></td>
         </ng-container>
 
         <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>

@@ -89,7 +89,7 @@
                 </td>            
             </ng-container>
             <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns" style="background-color: #f5fbff;"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="background-color: #f5fbff;"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row" style="background-color: #f5fbff;"></tr>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" id="debtor-detail-row" class="debtor-detail-row"></tr>            
         </mat-table>                          
     </div>

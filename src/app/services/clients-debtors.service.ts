@@ -37,6 +37,19 @@ export class ClientsDebtorsService {
     );
   }
 
+  getDebtorsPaymentsImages(PmtChecksKey: number){         
+    const url = `https://everest.revinc.com:4202/api/debtorPaymentsImages?PmtChecksKey=${PmtChecksKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          debtorPaymentImages: response.debtorPaymentImages.map((item: any) => ({
+            ...item,         
+          })),              
+        };
+      })
+    );
+  }
+
   getMiscData(DebtorKey: number, ClientKey: number){    
     const url = `https://everest.revinc.com:4202/api/MiscDataList?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}`;
     return this.http.get<any>(url).pipe(

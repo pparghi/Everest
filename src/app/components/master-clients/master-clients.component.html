@@ -135,7 +135,7 @@
                 </td>            
             </ng-container>--> 
                             
-             <ng-container matColumnDef="expandedDetail">
+             <ng-container matColumnDef="expandedDetail" style="position: sticky;" >
                 <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" style="padding-left: 3.5%;">  
                     <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
                         <app-member-clients [MasterClientKey]="element.ClientKey"></app-member-clients>                   
