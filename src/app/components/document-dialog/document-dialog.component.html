@@ -249,19 +249,21 @@
 
 <div *ngIf="data.ClientAccountStatus">  
   <div class="dialog-content">
-    <mat-dialog-content class="mat-typography">
+    <br>
+    <div style="text-align: center;">&nbsp;&nbsp;{{ data.Client }}&nbsp;&nbsp;</div>
+    <mat-dialog-content class="mat-typography" >
         <table>
           <tr>
             <td>Dilution</td>
             <td>
               <div *ngIf="data.Dilution <= 1.5">
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
               </div>
               <div *ngIf="data.Dilution >= 1.51 && data.Dilution <= 3" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
               </div>
               <div *ngIf="data.Dilution > 3" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
               </div>
             </td>
           </tr>
@@ -269,13 +271,13 @@
             <td>Ineligibles</td>
             <td>
               <div *ngIf="data.Ineligibles <= 0.49">
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
               </div>
               <div *ngIf="data.Ineligibles >= 0.50 && data.Ineligibles <= 5" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
               </div>
               <div *ngIf="data.Ineligibles > 5" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
               </div>
             </td>            
           </tr>
@@ -283,13 +285,13 @@
             <td>Availability</td>
             <td>
               <div *ngIf="data.Availability <= 0.5">
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
               </div>
               <div *ngIf="data.Availability >= 0.50 && data.Availability <= 2" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
               </div>
               <div *ngIf="data.Availability > 2" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability }}
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
               </div>
             </td>            
           </tr>

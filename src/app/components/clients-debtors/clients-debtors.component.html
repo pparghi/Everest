@@ -31,7 +31,7 @@
         </ng-container>
         <ng-container matColumnDef="RelationshipLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Relationship Limit</th>
-            <td mat-cell *matCellDef="let element" style="text-align: right;"></td>
+            <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.RelationShipLimit | roundThousands }}</td>
         </ng-container>
         <ng-container matColumnDef="AIG Coverage">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">AIG Coverage</th>

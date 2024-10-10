@@ -222,6 +222,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
           panelClass: 'custom-dialog-container',                    
             data: {              
               ClientAccountStatus: 'ClientAccountStatus',
+              Client : element.Client,
               Dilution: element.Dillution30,
               Ineligibles: element.IneligiblePct,
               Availability: element.Available  
