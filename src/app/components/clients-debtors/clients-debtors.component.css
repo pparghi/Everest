@@ -158,7 +158,12 @@
   text-overflow: ellipsis;
   padding: 0.1%;
   }
-  
+
+  .mat-mdc-header-cell.name-column, .mat-mdc-cell.name-column {
+    width: 150px !important; 
+    min-width: 150px !important;
+    max-width: 150px !important;
+} 
   .mat-table {
   background-color: #f9f9f9;  
   border-collapse: collapse;

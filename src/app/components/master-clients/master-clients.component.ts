@@ -4,9 +4,9 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MasterClientsService } from '../../services/master-clients.service';
 import { Router } from '@angular/router';
-import { MemberClientsService } from '../../services/member-clients.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+declare var Tiff: any;
 
 interface DataItem {
   Client: string;
@@ -36,7 +36,7 @@ interface MemberDataItem {
 })
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'Balance', 'Reserve', 'NFE'];
+    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'Balance', 'Reserve', 'NFE', 'extra'];
     displayedMemberColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 
@@ -62,7 +62,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   accountStatusIneligible!: string;
   accountStatusAvailable!: string;
 
-    constructor(private dataService: MasterClientsService,private memberDataService: MemberClientsService, private router: Router) {}
+    constructor(private dataService: MasterClientsService,private router: Router) {}
     ngOnInit(): void {            
       this.loadData();
     }
@@ -167,11 +167,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     }     
 
     getIneligibleIcon(element: DataItem){
-      if (element.IneligiblePct <= 0.49) { 
+      if (element.IneligiblePct <= 4.9) { 
         return 'green';
-      } else if (element.IneligiblePct >= 0.50 && element.IneligiblePct <= 5) {
+      } else if (element.IneligiblePct >= 5 && element.IneligiblePct <= 10) {
         return 'yellow';
-      } else if (element.IneligiblePct > 5) {
+      } else if (element.IneligiblePct > 10) {
         return 'red';
       } else {
         return '';
@@ -179,11 +179,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     }
 
     getAvailableIcon(element: DataItem){
-      if (element.Available <= 0.5) { 
+      if (element.Available >= 0) { 
         return 'green';
-      } else if (element.Available >= 0.50 && element.Available <= 2) {
+      } else if (element.Available < 0 && element.Available <= -2) {
         return 'yellow';
-      } else if (element.Available > 2) {
+      } else if (element.Available > -2) {
         return 'red';
       } else {
         return '';

@@ -14,8 +14,8 @@
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
         
         <ng-container matColumnDef="Debtor">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 100px;">Debtor Name</th>
-            <td mat-cell *matCellDef="let element" title="{{ element.Debtor }}">{{ element.Debtor }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="name-column">Debtor Name</th>
+            <td mat-cell *matCellDef="let element" title="{{ element.Debtor }}" class="name-column">{{ element.Debtor }}</td>
         </ng-container>
         <ng-container matColumnDef="Currency">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Currency</th>
@@ -32,6 +32,10 @@
         <ng-container matColumnDef="RelationshipLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Relationship Limit</th>
             <td mat-cell *matCellDef="let element" style="text-align: right;">{{ element.RelationShipLimit | roundThousands }}</td>
+        </ng-container>
+        <ng-container matColumnDef="Concentration">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Concentration</th>
+            <td mat-cell *matCellDef="let element" style="text-align: right;"></td>
         </ng-container>
         <ng-container matColumnDef="AIG Coverage">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">AIG Coverage</th>
@@ -60,6 +64,10 @@
         <ng-container matColumnDef="Payments">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Payments</th>
             <td mat-cell *matCellDef="let element" (click)="payments(element.DebtorKey)" style="color: #1473d1; text-align: right; "><i class="fa fa-money-check" style="color: #3a8ada;"></i></td>
+        </ng-container>
+        <ng-container matColumnDef="extra">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" style="text-align: end; color: white;">...</td>
         </ng-container>
 
         <ng-container matColumnDef="expand">

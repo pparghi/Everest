@@ -31,7 +31,7 @@ interface DataItem {
   styleUrl: './clients-debtors.component.css'
 })
 export class ClientsDebtorsComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Debtor', 'Currency', 'Balance', 'DebtorLimit', 'RelationshipLimit', 'AIG Coverage', 'Dilution', 'Ineligible', 'Term','%% Verified', 'NOA', 'Payments'];
+  displayedColumns: string[] = ['expand', 'Debtor', 'Currency', 'Balance', 'DebtorLimit', 'RelationshipLimit', 'Concentration', 'AIG Coverage', 'Dilution', 'Ineligible', 'Term','%% Verified', 'NOA', 'Payments', 'extra'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;

@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 import { error, event } from 'jquery';
 import { count, map } from 'rxjs/operators';
+import imageCompression from 'browser-image-compression';
 
 @Component({
   selector: 'app-document-dialog',
@@ -32,6 +33,8 @@ export class DocumentDialogComponent {
   contactDataSource = new MatTableDataSource<any>([]);
   paymentDataSource = new MatTableDataSource<any>([]);
   MiscDataListDataSource = new MatTableDataSource<any>([]);
+
+  jpgDataUrl: string | ArrayBuffer | null = null;
 
   noaStatus = [
     { value: 'Not Sent', label: 'Not Sent' },
@@ -122,7 +125,27 @@ export class DocumentDialogComponent {
 
     getPaymentsImage(event: any){        
       this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                
-        response.debtorPaymentImages.forEach((element: any) => {                          
+        response.debtorPaymentImages.forEach(async (element: any) => {               
+          console.log(element.FileName);
+          if (element.FileName && element.FileName.type === 'image/tiff') {
+            console.log("test");
+            try {
+                const options = {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true
+                };
+                const compressedFile = await imageCompression(element.FileName, options);
+                const reader = new FileReader();
+                reader.onload = (e: any) => {
+                    this.jpgDataUrl = e.target.result;
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (error) {
+                console.error('Error converting image:', error);
+            }
+        }
+        console.log('after ----',element.FileName);     
              window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);                       
           });                                  
         }

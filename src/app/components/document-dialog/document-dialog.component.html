@@ -31,6 +31,7 @@
   </div>
 </div>
 
+<script src="assets/js/tiff.min.js"></script>
 <div *ngIf="data.DebtorContactsData">
   <div class="dialog-header">
     <h2 mat-dialog-title>Debtor Contacts</h2>
@@ -270,13 +271,13 @@
           <tr>
             <td>Ineligibles</td>
             <td>
-              <div *ngIf="data.Ineligibles <= 0.49">
+              <div *ngIf="data.Ineligibles <= 4.9">
                 &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
               </div>
-              <div *ngIf="data.Ineligibles >= 0.50 && data.Ineligibles <= 5" >
+              <div *ngIf="data.Ineligibles >= 5 && data.Ineligibles <= 10" >
                 &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
               </div>
-              <div *ngIf="data.Ineligibles > 5" >
+              <div *ngIf="data.Ineligibles > 10" >
                 &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
               </div>
             </td>            
@@ -284,15 +285,15 @@
           <tr>
             <td>Availability</td>
             <td>
-              <div *ngIf="data.Availability <= 0.5">
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
-              </div>
-              <div *ngIf="data.Availability >= 0.50 && data.Availability <= 2" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
-              </div>
-              <div *ngIf="data.Availability > 2" >
+              <div *ngIf="data.Availability < -2" >
                 &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
               </div>
+              <div *ngIf="data.Availability < 0 && data.Availability >= -2" >
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
+              </div>
+              <div *ngIf="data.Availability >= 0">
+                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
+              </div>              
             </td>            
           </tr>
         </table>
