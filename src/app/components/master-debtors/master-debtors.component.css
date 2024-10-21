@@ -15,13 +15,13 @@
 .main-table-container {
   border: 1px solid #dee2e6;
   border-radius: 5px;  
-  max-height: 680px;
+  max-height: 740px;
   overflow-y: auto;
   background-color: #ffffff;
 }   
 
 .example-container {
-  height: 800px;
+  height: 870px;
   overflow: auto;
   padding: 7px;
 }
@@ -56,6 +56,23 @@
   overflow: hidden;
   display: flex;
   align-items: center;
+}
+
+.mat-mdc-header-cell.debtor-column, .mat-mdc-cell.debtor-column {
+  width: 400px !important; 
+  min-width: 400px !important;
+  max-width: 400px !important;
+} 
+.mat-mdc-header-cell.address-column, .mat-mdc-cell.address-column {
+  width: 250px !important; 
+  min-width: 250px !important;
+  max-width: 250px !important;
+}
+
+.mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
+  width: 55px !important; 
+  min-width: 55px !important;
+  max-width: 55px !important;
 }
 
 .custom-spinner ::ng-deep .mat-spinner circle, .mat-progress-spinner circle {

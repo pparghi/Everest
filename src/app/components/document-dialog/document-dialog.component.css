@@ -37,6 +37,10 @@
 	overflow: visible;
   }
 
+  .form-control {
+	font-size: small;
+  }
+
   .mat-dialog-container {
 	display: flex;
 	flex-direction: column;

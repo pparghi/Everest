@@ -159,7 +159,7 @@
   padding: 0.1%;
   }
 
-  .mat-mdc-header-cell.name-column, .mat-mdc-cell.name-column {
+  .mat-mdc-header-cell.debtor-column, .mat-mdc-cell.debtor-column {
     width: 150px !important; 
     min-width: 150px !important;
     max-width: 150px !important;

@@ -25,6 +25,10 @@ interface DataItem {
   NoBuyCode: number;  
   PctUtilized: number;  
   PastDuePct: number;  
+  Addr1: string;
+  Addr2: string;
+  Phone1: number;
+  Phone2: number;
   expandedDetail: { detail: string };
 }
 
@@ -35,7 +39,7 @@ interface DataItem {
 })
 
 export class MasterDebtorsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'Edit'];
+    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'Edit', 'extra'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -196,17 +200,18 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.editedElement = row;         
     }
 
-    edit(row: DataItem){      
-      console.log(row);
+    edit(row: DataItem){            
       const dialogRef = this.dialog.open(DocumentDialogComponent, {                                
         data: {
          DebtorKey: row.DebtorKey,
          Debtor: row.Debtor,
-         Duns: row.DebtorKey,
-         Addr1: row.DebtorKey,
-         Addr2: row.DebtorKey,
-         City: row.DebtorKey,
-         State: row.DebtorKey,
+         Duns: row.DbDunsNo,
+         Addr1: row.Addr1,
+         Addr2: row.Addr2,
+         City: row.City,
+         State: row.State,
+         Phone1: row.Phone1,
+         Phone2: row.Phone2,
          PctUtilized: row.PctUtilized,
          PastDuePct: row.PastDuePct,
          TotalCreditLimit: row.TotalCreditLimit,

@@ -6,14 +6,14 @@
 .table-container {
   border: 1px solid #dee2e6;
   border-radius: 5px;  
-  max-height: 680px;
+  max-height: 740px;
   overflow-y: auto;
   background-color: #ffffff;
   position: relative;
 }   
 
 .example-container {
-  height: 800px;
+  height: 870px;
   overflow: auto;
   padding: 7px;
 }
@@ -32,6 +32,12 @@
   border-bottom: 1px solid #dee2e6;
   border-top: 1px solid transparent;
   font-size: 13px;
+}
+
+.mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
+  width: 55px !important; 
+  min-width: 55px !important;
+  max-width: 55px !important;
 }
 
 .element-row {

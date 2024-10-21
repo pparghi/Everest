@@ -52,6 +52,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     math = Math;
     MasterClientKey!: number;
 
+    // filterByBalance = [
+    //   { value: 'Show All', label: 'Show All' },
+    //   { value: 'Balance Only', label: 'Balance Only' },      
+    // ]
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
@@ -61,6 +66,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   accountStatusDilution!: string;
   accountStatusIneligible!: string;
   accountStatusAvailable!: string;
+  filterByBalance!: string;
 
     constructor(private dataService: MasterClientsService,private router: Router) {}
     ngOnInit(): void {            
@@ -86,8 +92,13 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       const order = this.sort ? this.sort.direction : '';
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;
+      let filterByBalance = '';
 
-      this.dataService.getData(page ,pageSize, this.filter, sort, order).subscribe(response => {                
+      if (this.filterByBalance == 'Balance') {
+        filterByBalance = 'balance';
+      } 
+
+      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {                
         this.isLoading = false;
         this.dataSource.data = response.data;
         this.totalRecords = response.total;        
@@ -232,6 +243,12 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
         dialogRef.afterClosed().subscribe(result => {
             
         });
+      }
+
+      onChange(event: Event) {
+        const selectElement = event.target as HTMLSelectElement;
+          this.filterByBalance = selectElement.value          
+          this.loadData();
       }
    
 }

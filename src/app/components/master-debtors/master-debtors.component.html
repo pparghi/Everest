@@ -16,8 +16,8 @@
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
 
         <ng-container matColumnDef="expand">
-            <th mat-header-cell *matHeaderCellDef></th>
-                <td mat-cell *matCellDef="let element">
+            <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
+                <td mat-cell *matCellDef="let element" class="expand-column">
                     <button mat-icon-button (click)="toggleRow(element)">
                         <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
                     </button>
@@ -26,8 +26,8 @@
         </ng-container>
         
         <ng-container matColumnDef="Debtor">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor Name</th>
-            <td style="font-weight: Medium;" mat-cell *matCellDef="let element">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="debtor-column">Debtor Name</th>
+            <td style="font-weight: Medium;" mat-cell *matCellDef="let element" class="debtor-column">
                 <div *ngIf="element.NoBuyCode == ''" >
                     <i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
                 </div>  
@@ -47,7 +47,7 @@
 
         <ng-container matColumnDef="Address">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>            
-            <td mat-cell *matCellDef="let element">
+            <td mat-cell *matCellDef="let element" title="{{ element.Addr1 }} , {{ element.Addr2 }}">
                 <div *ngIf="element.Addr2 == ''">        
                     {{ element.Addr1 }}
                 </div>
@@ -68,25 +68,25 @@
         </ng-container>        
 
         <ng-container matColumnDef="%Utilized">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>% Utilized</th>
-            <td mat-cell *matCellDef="let element">{{  element.PctUtilized | percent: '1.0-0' }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">% Utilized</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{  element.PctUtilized | percent: '1.0-0' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="PastDue%">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Past Due%</th>
-            <td mat-cell *matCellDef="let element">{{ element.PastDuePct | percent: '1.0-0' }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Past Due%</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.PastDuePct | percent: '1.0-0' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="DSO">
-           <th mat-header-cell *matHeaderCellDef mat-sort-header>DSO</th>
-           <td mat-cell *matCellDef="let element">
+           <th mat-header-cell *matHeaderCellDef  mat-sort-header arrowPosition="before">DSO</th>
+           <td mat-cell *matCellDef="let element" style="text-align: end;">
                <mat-icon [ngStyle]="{'color': getIcon(element).color}">{{ getIcon(element).icon }}</mat-icon>
            </td>
         </ng-container>
 
         <ng-container matColumnDef="TotalCreditLimit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 10%;">CreditLimit</th>            
-            <td mat-cell *matCellDef="let element">                
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CreditLimit</th>            
+            <td mat-cell *matCellDef="let element" style="text-align: end;">                
                 <ng-container *ngIf="!element.editing">
                         {{ element.TotalCreditLimit | roundThousands }}
                 </ng-container>
@@ -96,7 +96,7 @@
             </td>
         </ng-container>
         
-        <ng-container matColumnDef="TotalCreditLimit">
+        <!-- <ng-container matColumnDef="TotalCreditLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 5%;">CreditLimit</th>
             <td mat-cell *matCellDef="let element; let i = index">
             <ng-container *ngIf="isEditModeOn(element); else displayTotalCreditLimit">
@@ -104,16 +104,16 @@
             </ng-container>
             <ng-template #displayTotalCreditLimit>{{ element.TotalCreditLimit | roundThousands }}</ng-template>
             </td>
-        </ng-container>
+        </ng-container> -->
          
         <ng-container matColumnDef="AIGLimit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>AIGLimit</th>
-            <td mat-cell *matCellDef="let element">{{ element.AIGLimit | roundThousands }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">AIGLimit</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.AIGLimit | roundThousands }}</td>
         </ng-container>
 
         <ng-container matColumnDef="Terms">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Terms</th>
-            <td mat-cell *matCellDef="let element">{{ element.Terms }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Terms</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Terms }}</td>
         </ng-container>        
 
         <!-- <ng-container matColumnDef="NoBuyCode">
@@ -142,10 +142,15 @@
         </ng-container> -->
 
         <ng-container matColumnDef="Edit">
-            <th mat-header-cell *matHeaderCellDef style="width: 8%;">Action</th>
-            <td mat-cell *matCellDef="let element; let i = index">
+            <th mat-header-cell *matHeaderCellDef style="text-align: end;">Action</th>
+            <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">
                 <button mat-icon-button (click)="edit(element)" style="color: #1473d1; font-size: 16px" title="Edit"><i class="fa fa-edit"></i></button>                        
             </td>
+        </ng-container>
+
+        <ng-container matColumnDef="extra">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element" style="text-align: end; color: white">...</td>
         </ng-container>
 
         <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>

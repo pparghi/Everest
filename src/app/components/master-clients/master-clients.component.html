@@ -6,7 +6,17 @@
             <br>         
         </div>
         <div>
-            
+            <!--- <label for="filterByBalance"> <b>Filter By Balance</b> &nbsp;&nbsp;</label>
+            <select class="search-bar" (change)="onChange($event)" id="filterByBalance">
+                <option *ngFor="let status of filterByBalance" [value]="status.value">{{ status.label }}</option>
+            </select> -->
+            <label>
+                <input type="radio" name="filterByBalance" value="Show All" (change)="onChange($event)" [attr.checked]="true">&nbsp; <b>Show All</b>
+              </label>&nbsp;
+              <label>
+                <input type="radio" name="filterByBalance" value="Balance" (change)="onChange($event)"> &nbsp;<b>Balance</b> 
+              </label>
+            &nbsp;&nbsp;&nbsp;&nbsp;
             <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
             &nbsp;&nbsp;
             <input (keyup.enter)="applyFilter($event)" class="search-bar">
@@ -121,8 +131,8 @@
         </ng-container>
 
         <ng-container matColumnDef="expand">
-            <th mat-header-cell *matHeaderCellDef style="width: 60px;"></th>
-                <td mat-cell *matCellDef="let element">
+            <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
+                <td mat-cell *matCellDef="let element" class="expand-column">
                     <button mat-icon-button (click)="toggleRow(element)">
                         <mat-icon>{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
                     </button>

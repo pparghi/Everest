@@ -14,8 +14,8 @@
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
         
         <ng-container matColumnDef="Debtor">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="name-column">Debtor Name</th>
-            <td mat-cell *matCellDef="let element" title="{{ element.Debtor }}" class="name-column">{{ element.Debtor }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="debtor-column">Debtor Name</th>
+            <td mat-cell *matCellDef="let element" title="{{ element.Debtor }}" class="debtor-column">{{ element.Debtor }}</td>
         </ng-container>
         <ng-container matColumnDef="Currency">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Currency</th>

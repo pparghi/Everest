@@ -26,6 +26,7 @@ export class DocumentDialogComponent {
   ContactName: any;
   ContactEmail: any;
   ContactNo: any;  
+  debtor: any;
 
   contactColumns: string[] = ['name', 'email', 'contact_no'];
   paymentColumns: string[] = ['date', 'check#', 'amount'];
@@ -48,11 +49,23 @@ export class DocumentDialogComponent {
   
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {      
     this.editForm = this.fb.group({
-      name: [data.name || '', Validators.required],
-      description: [data.description || '']
+      Debtor: [data.Debtor || '', Validators.required],
+      Duns: [data.Duns || '', Validators.required],
+      Addr1: [data.Addr1 || '', Validators.required],
+      Addr2: [data.Addr2 || '', Validators.required],
+      City: [data.City || '', Validators.required],
+      State: [data.State || '', Validators.required],      
+      Phone1: [data.Phone1 || '', Validators.required],
+      Phone2: [data.Phone2 || '', Validators.required],
+      TotalCreditLimit: [data.TotalCreditLimit || '', Validators.required],
+      AIGLimit: [data.AIGLimit || '', Validators.required],
+      Terms: [data.Terms || '', Validators.required]
     })
-     
-    if (data.documentsList) {
+
+    if(data.openForm){      
+      console.log(data);
+      this.debtor = data.Debtor
+    } else if (data.documentsList) {
       this.data.documentsList.forEach((document: { FileName: string; Path: any; DocHdrKey: { toString: () => string; }; Link: string; }, index: any) => {
         const filename = document.FileName.split('.');
         const x = filename.length - 1;
