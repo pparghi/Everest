@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 import { error, event } from 'jquery';
 import { count, map } from 'rxjs/operators';
-import imageCompression from 'browser-image-compression';
+// import imageCompression from 'browser-image-compression';
 
 @Component({
   selector: 'app-document-dialog',
@@ -141,22 +141,22 @@ export class DocumentDialogComponent {
         response.debtorPaymentImages.forEach(async (element: any) => {               
           console.log(element.FileName);
           if (element.FileName && element.FileName.type === 'image/tiff') {
-            console.log("test");
-            try {
-                const options = {
-                    maxSizeMB: 1,
-                    maxWidthOrHeight: 1920,
-                    useWebWorker: true
-                };
-                const compressedFile = await imageCompression(element.FileName, options);
-                const reader = new FileReader();
-                reader.onload = (e: any) => {
-                    this.jpgDataUrl = e.target.result;
-                };
-                reader.readAsDataURL(compressedFile);
-            } catch (error) {
-                console.error('Error converting image:', error);
-            }
+            // console.log("test");
+            // try {
+            //     const options = {
+            //         maxSizeMB: 1,
+            //         maxWidthOrHeight: 1920,
+            //         useWebWorker: true
+            //     };
+            //     const compressedFile = await imageCompression(element.FileName, options);
+            //     const reader = new FileReader();
+            //     reader.onload = (e: any) => {
+            //         this.jpgDataUrl = e.target.result;
+            //     };
+            //     reader.readAsDataURL(compressedFile);
+            // } catch (error) {
+            //     console.error('Error converting image:', error);
+            // }
         }
         console.log('after ----',element.FileName);     
              window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);                       

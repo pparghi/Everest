@@ -6,11 +6,11 @@
             <br>         
         </div>
         <div>
-            <!--- <label for="filterByBalance"> <b>Filter By Balance</b> &nbsp;&nbsp;</label>
-            <select class="search-bar" (change)="onChange($event)" id="filterByBalance">
-                <option *ngFor="let status of filterByBalance" [value]="status.value">{{ status.label }}</option>
-            </select> -->
-            <label>
+            <label for="group_level"><b>Group Level </b>&nbsp;</label>
+            <select class="dropdown" [(ngModel)]="clientGroupLevelList" id="group_level" (change)="onChangeGroup($event)">
+                <option *ngFor="let data of clientGroupLevelList" [value]="data.GroupValue">{{ data.GroupValue }}</option>
+            </select>
+            <label>&nbsp;
                 <input type="radio" name="filterByBalance" value="Show All" (change)="onChange($event)" [attr.checked]="true">&nbsp; <b>Show All</b>
               </label>&nbsp;
               <label>

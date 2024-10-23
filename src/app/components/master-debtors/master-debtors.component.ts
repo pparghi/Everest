@@ -60,6 +60,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     editedElement: DataItem | null = null;
     DebtorContactsData: any;
 
+    filterByBalance!: string;
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
@@ -95,8 +97,14 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
         this.profile = profile;
         const mail = btoa(this.profile.mail);        
+
+        let filterByBalance = '';
+
+        if (this.filterByBalance == 'Balance') {
+          filterByBalance = 'balance';
+        } 
         
-        this.dataService.getData(mail, page ,pageSize, this.filter, sort, order).subscribe(response => {                
+        this.dataService.getData(mail, page ,pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {                
           this.isLoading = false;
           this.dataSource.data = response.data;
           this.totalRecords = response.total;
@@ -291,6 +299,12 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
             
         });
     });
+  }
+
+  onChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+      this.filterByBalance = selectElement.value          
+      this.loadData();
   }
    
 }

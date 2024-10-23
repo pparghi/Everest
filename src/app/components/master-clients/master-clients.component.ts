@@ -6,7 +6,6 @@ import { MasterClientsService } from '../../services/master-clients.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
-declare var Tiff: any;
 
 interface DataItem {
   Client: string;
@@ -50,12 +49,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     expandedElement: DataItem | null = null;
     memberExpandedElement: MemberDataItem | null = null;
     math = Math;
-    MasterClientKey!: number;
-
-    // filterByBalance = [
-    //   { value: 'Show All', label: 'Show All' },
-    //   { value: 'Balance Only', label: 'Balance Only' },      
-    // ]
+    MasterClientKey!: number;    
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -67,6 +61,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   accountStatusIneligible!: string;
   accountStatusAvailable!: string;
   filterByBalance!: string;
+  clientGroupLevelList: any;
+  filterByGroup!: string;
 
     constructor(private dataService: MasterClientsService,private router: Router) {}
     ngOnInit(): void {            
@@ -93,16 +89,17 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;
       let filterByBalance = '';
+      let filterByGroup = this.filterByGroup ? this.filterByGroup : '%';
 
       if (this.filterByBalance == 'Balance') {
         filterByBalance = 'balance';
       } 
 
-      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {                
+      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup).subscribe(response => {                                
         this.isLoading = false;
         this.dataSource.data = response.data;
         this.totalRecords = response.total;        
-        
+        this.clientGroupLevelList = response.clientGroupLevelList;
       });
     }
 
@@ -248,6 +245,12 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       onChange(event: Event) {
         const selectElement = event.target as HTMLSelectElement;
           this.filterByBalance = selectElement.value          
+          this.loadData();
+      }
+
+      onChangeGroup(event: Event){
+        const selectElement = event.target as HTMLSelectElement;
+          this.filterByGroup = selectElement.value;
           this.loadData();
       }
    

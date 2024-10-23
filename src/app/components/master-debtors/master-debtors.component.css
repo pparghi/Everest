@@ -7,7 +7,7 @@
   border: 1px solid #dee2e6;
   padding: 10px;
   border-radius: 5px;  
-  max-height: 630px;
+  max-height: 700px;
   overflow-y: auto;
   background-color: #ffffff;
 }   
@@ -15,13 +15,13 @@
 .main-table-container {
   border: 1px solid #dee2e6;
   border-radius: 5px;  
-  max-height: 740px;
+  max-height: 700px;
   overflow-y: auto;
   background-color: #ffffff;
 }   
 
 .example-container {
-  height: 870px;
+  height: 810px;
   overflow: auto;
   padding: 7px;
 }

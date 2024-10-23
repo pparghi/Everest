@@ -41,8 +41,8 @@ export class DebtorsApiService {
   //     );
   //   };
 
-  getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string): Observable<any> {
-    const url = `https://everest.revinc.com:4202/api/debtors?token=${mail}&page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+  getData(mail: string, page: number, perPage: number, search: string, sortBy: string, sortOrder: string, filterByBalance: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/debtors?token=${mail}&page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&filterByBalance=${filterByBalance}`;
     return this.http.get<any>(url).pipe(
       map(response => {
         return {

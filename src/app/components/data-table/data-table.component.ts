@@ -41,7 +41,8 @@ export class DataTableComponent implements OnInit, AfterViewInit {
         dataTablesParameters.start / dataTablesParameters.length + 1, 
         dataTablesParameters.length, dataTablesParameters.search.value,
         dataTablesParameters.columns[dataTablesParameters.order[0].column].data,
-        dataTablesParameters.order[0].dir
+        dataTablesParameters.order[0].dir,
+        dataTablesParameters.filterByBalance
         ).subscribe(resp => {
            this.data = resp.data;                      
            
