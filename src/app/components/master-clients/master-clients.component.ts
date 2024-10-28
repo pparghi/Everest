@@ -6,6 +6,10 @@ import { MasterClientsService } from '../../services/master-clients.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { HttpClient } from '@angular/common/http';
+import { LoginService } from '../../services/login.service';
+
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
   Client: string;
@@ -51,6 +55,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     math = Math;
     MasterClientKey!: number;    
 
+    NavOptionMasterDebtor: any;
+    NavAccessMasterDebtor: any;
+    NavOptionClientRisk: any;
+    NavAccessClientRisk: any;
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
@@ -63,9 +72,34 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   filterByBalance!: string;
   clientGroupLevelList: any;
   filterByGroup!: string;
+  profile: any;
 
-    constructor(private dataService: MasterClientsService,private router: Router) {}
-    ngOnInit(): void {            
+    constructor(private dataService: MasterClientsService,private router: Router,private http: HttpClient, private loginService: LoginService) {}
+    ngOnInit(): void {  
+      this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      
+        this.profile = profile;     
+        this.loginService.getData(this.profile.mail).subscribe(response => {                                
+          response.data.forEach((element: any) => {
+            if (element.NavOption == 'Master Debtor') {            
+              this.NavOptionMasterDebtor = element.NavOption;          
+              this.NavAccessMasterDebtor = element.NavAccess;
+            } else if (element.NavOption == 'Client Risk Page'){
+              this.NavOptionClientRisk = element.NavOption;          
+              this.NavAccessClientRisk = element.NavAccess;
+            } else {
+              this.NavOptionMasterDebtor = '';
+              this.NavAccessMasterDebtor = '';
+              this.NavOptionClientRisk = '';
+              this.NavAccessClientRisk = '';              
+            }                                           
+                        
+          });
+        }, error => {
+          console.error('error--', error);
+        });    
+        
+      });          
       this.loadData();
       this.loadClientGroupLevelList();
     }

@@ -9,6 +9,7 @@ import { DocumentDialogComponent } from '../document-dialog/document-dialog.comp
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { error } from 'jquery';
 import Swal from 'sweetalert2';
+import { LoginService } from '../../services/login.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -62,11 +63,18 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
     filterByBalance!: string;
 
+    NavOptionMasterDebtor: any;
+    NavAccessMasterDebtor: any;
+    NavOptionClientRisk: any;
+    NavAccessClientRisk: any;
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+  NavOptionMasterDebtorUpdate: any;
+  NavAccessMasterDebtorUpdate: any;
 
 
-    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient) {
+    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {
       
     }
     ngOnInit(): void {
@@ -89,13 +97,33 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
     loadData(): void {
       this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+        this.profile = profile;
+        this.loginService.getData(this.profile.mail).subscribe(response => {                                
+          response.data.forEach((element: any) => {
+            if (element.NavOption == 'Master Debtor') {            
+              this.NavOptionMasterDebtor = element.NavOption;          
+              this.NavAccessMasterDebtor = element.NavAccess;
+            } else if (element.NavOption == 'Client Risk Page'){
+              this.NavOptionClientRisk = element.NavOption;          
+              this.NavAccessClientRisk = element.NavAccess;
+            } else {
+              this.NavOptionMasterDebtor = '';
+              this.NavAccessMasterDebtor = '';
+              this.NavOptionClientRisk = '';
+              this.NavAccessClientRisk = '';              
+            }                                           
+                        
+          });
+        }, error => {
+          console.error('error--', error);
+        });
+
         this.isLoading = true;      
         const sort = this.sort ? this.sort.active : '';
         const order = this.sort ? this.sort.direction : '';
         const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
         const pageSize = this.paginator ? this.paginator.pageSize : 25;
 
-        this.profile = profile;
         const mail = btoa(this.profile.mail);        
 
         let filterByBalance = '';
