@@ -1,4 +1,3 @@
-<script src="assets/js/tiff.min.js"></script>
 <div class="example-container mat-elevation-z8" tabindex="0">                        
     <div class="page-header">
         <div>
@@ -7,8 +6,9 @@
         </div>
         <div>
             <label for="group_level"><b>Group Level </b>&nbsp;</label>
-            <select class="dropdown" [(ngModel)]="clientGroupLevelList" id="group_level" (change)="onChangeGroup($event)">
-                <option *ngFor="let data of clientGroupLevelList" [value]="data.GroupValue">{{ data.GroupValue }}</option>
+            <select class="dropdown" id="group_level" (change)="onChangeGroup($event)" aria-placeholder="Select Group">
+                <option value="%" style="color: gray;">Select Group</option>
+                <option *ngFor="let group of clientGroupLevelList" [value]="group.GroupValue">{{ group.GroupValue }}</option>
             </select>
             <label>&nbsp;
                 <input type="radio" name="filterByBalance" value="Show All" (change)="onChange($event)" [attr.checked]="true">&nbsp; <b>Show All</b>

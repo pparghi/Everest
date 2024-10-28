@@ -3,6 +3,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MSAL_GUARD_CONFIG, MsalBroadcastConfiguration, MsalBroadcastService, MsalGuardConfiguration, MsalService } from '@azure/msal-angular';
 import { InteractionStatus, RedirectRequest } from '@azure/msal-browser';
 import { Subject, filter, takeUntil } from 'rxjs';
+import { LoginService } from '../../services/login.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -16,17 +17,44 @@ export class HeaderComponent implements OnInit, OnDestroy {
   profile: any;
   isUserLoggedIn:boolean = false;
   private readonly _destroy = new Subject<void>();
+  
+  NavOptionMasterDebtor: any;
+  NavAccessMasterDebtor: any;
+  NavOptionClientRisk: any;
+  NavAccessClientRisk: any;
 
   constructor(@Inject(MSAL_GUARD_CONFIG) 
   private msalGuardConfig: MsalGuardConfiguration, 
   private msalBroadcast: MsalBroadcastService,
   private authService: MsalService,
-  private http: HttpClient
+  private http: HttpClient,
+  private dataService: LoginService
   ) {}
 
   ngOnInit(): void {
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-      this.profile = profile;          
+      
+      this.profile = profile;     
+      this.dataService.getData(this.profile.mail).subscribe(response => {                                
+        response.data.forEach((element: any) => {
+          if (element.NavOption == 'Master Debtor') {            
+            this.NavOptionMasterDebtor = element.NavOption;          
+            this.NavAccessMasterDebtor = element.NavAccess;
+          } else if (element.NavOption == 'Client Risk Page'){
+            this.NavOptionClientRisk = element.NavOption;          
+            this.NavAccessClientRisk = element.NavAccess;
+          } else {
+            this.NavOptionMasterDebtor = '';
+            this.NavAccessMasterDebtor = '';
+            this.NavOptionClientRisk = '';
+            this.NavAccessClientRisk = '';              
+          }                                           
+                      
+        });
+      }, error => {
+        console.error('error--', error);
+      });    
+      
     });
     
     this.msalBroadcast.inProgress$.pipe(filter((interactionstatus: InteractionStatus) => interactionstatus == InteractionStatus.None),

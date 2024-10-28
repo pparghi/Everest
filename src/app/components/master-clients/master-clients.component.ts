@@ -67,6 +67,13 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     constructor(private dataService: MasterClientsService,private router: Router) {}
     ngOnInit(): void {            
       this.loadData();
+      this.loadClientGroupLevelList();
+    }
+
+    loadClientGroupLevelList() {
+      this.dataService.getClientGroupLevelList().subscribe(response => {                                         
+        this.clientGroupLevelList = response.clientGroupLevelList;
+      });
     }
 
     ngAfterViewInit(): void {      
@@ -98,8 +105,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup).subscribe(response => {                                
         this.isLoading = false;
         this.dataSource.data = response.data;
-        this.totalRecords = response.total;        
-        this.clientGroupLevelList = response.clientGroupLevelList;
+        this.totalRecords = response.total;                
       });
     }
 

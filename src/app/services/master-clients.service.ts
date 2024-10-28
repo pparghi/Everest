@@ -19,7 +19,21 @@ export class MasterClientsService {
             ...item,
             expandedDetail: { detail: 'Additional details for ' + item.Client } 
           })),
-          total: response.total[""],
+          total: response.total[""]          
+        };
+      })
+    );
+  }
+
+  getClientGroupLevelList(){
+    const url = `https://everest.revinc.com:4202/api/clientGroupLevelList`;
+    return this.http.get<any>(url).pipe(
+      map(response => {        
+        return {
+          data: response.clientGroupLevelList.map((item: any) => ({
+            ...item,
+            expandedDetail: { detail: 'Additional details for ' + item.Client } 
+          })),          
           clientGroupLevelList: response.clientGroupLevelList
         };
       })
