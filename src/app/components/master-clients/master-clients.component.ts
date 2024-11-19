@@ -73,6 +73,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   clientGroupLevelList: any;
   filterByGroup!: string;
   profile: any;
+  NavOptionUpdateMasterDebtor: any;
+  NavAccessUpdateMasterDebtor: any;
 
     constructor(private dataService: MasterClientsService,private router: Router,private http: HttpClient, private loginService: LoginService) {}
     ngOnInit(): void {  
@@ -87,12 +89,17 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
             } else if (element.NavOption == 'Client Risk Page'){
               this.NavOptionClientRisk = element.NavOption;          
               this.NavAccessClientRisk = element.NavAccess;
+            } else if (element.NavOption == 'Update Master Debtor'){
+              this.NavOptionUpdateMasterDebtor = element.NavOption;          
+              this.NavAccessUpdateMasterDebtor = element.NavAccess;
             } else {
               this.NavOptionMasterDebtor = '';
               this.NavAccessMasterDebtor = '';
               this.NavOptionClientRisk = '';
-              this.NavAccessClientRisk = '';              
-            }                                           
+              this.NavAccessClientRisk = '';       
+              this.NavOptionUpdateMasterDebtor = '';       
+              this.NavAccessUpdateMasterDebtor = '';       
+            }                                          
                         
           });
         }, error => {

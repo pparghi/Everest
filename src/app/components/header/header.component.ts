@@ -22,6 +22,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   NavAccessMasterDebtor: any;
   NavOptionClientRisk: any;
   NavAccessClientRisk: any;
+  NavOptionUpdateMasterDebtor: any;
+  NavAccessUpdateMasterDebtor: any;
 
   constructor(@Inject(MSAL_GUARD_CONFIG) 
   private msalGuardConfig: MsalGuardConfiguration, 
@@ -43,11 +45,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
           } else if (element.NavOption == 'Client Risk Page'){
             this.NavOptionClientRisk = element.NavOption;          
             this.NavAccessClientRisk = element.NavAccess;
+          } else if (element.NavOption == 'Update Master Debtor'){
+            this.NavOptionUpdateMasterDebtor = element.NavOption;          
+            this.NavAccessUpdateMasterDebtor = element.NavAccess;
           } else {
             this.NavOptionMasterDebtor = '';
             this.NavAccessMasterDebtor = '';
             this.NavOptionClientRisk = '';
-            this.NavAccessClientRisk = '';              
+            this.NavAccessClientRisk = '';       
+            this.NavOptionUpdateMasterDebtor = '';       
+            this.NavAccessUpdateMasterDebtor = '';       
           }                                           
                       
         });

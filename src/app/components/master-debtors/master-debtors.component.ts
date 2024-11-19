@@ -72,6 +72,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     @ViewChild(MatSort) sort!: MatSort;
   NavOptionMasterDebtorUpdate: any;
   NavAccessMasterDebtorUpdate: any;
+  NavOptionUpdateMasterDebtor: any;
+  NavAccessUpdateMasterDebtor: any;
 
 
     constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {
@@ -106,11 +108,16 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
             } else if (element.NavOption == 'Client Risk Page'){
               this.NavOptionClientRisk = element.NavOption;          
               this.NavAccessClientRisk = element.NavAccess;
+            } else if (element.NavOption == 'Update Master Debtor'){
+              this.NavOptionUpdateMasterDebtor = element.NavOption;          
+              this.NavAccessUpdateMasterDebtor = element.NavAccess;
             } else {
               this.NavOptionMasterDebtor = '';
               this.NavAccessMasterDebtor = '';
               this.NavOptionClientRisk = '';
-              this.NavAccessClientRisk = '';              
+              this.NavAccessClientRisk = '';       
+              this.NavOptionUpdateMasterDebtor = '';       
+              this.NavAccessUpdateMasterDebtor = '';       
             }                                           
                         
           });
