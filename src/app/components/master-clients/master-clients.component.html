@@ -5,17 +5,27 @@
             <br>         
         </div>
         <div>
-            <label for="group_level"><b>Group Level </b>&nbsp;</label>
-            <select class="dropdown" id="group_level" (change)="onChangeGroup($event)" aria-placeholder="Select Group">
+            <label for="group"><b>Group </b>&nbsp;</label>
+            <select class="dropdown" id="group" (change)="onChangeGroup($event)" aria-placeholder="Select Group">
                 <option value="%" style="color: gray;">Select Group</option>
-                <option *ngFor="let group of clientGroupLevelList" [value]="group.GroupValue">{{ group.GroupValue }}</option>
+                <option *ngFor="let group of clientGroupList" [value]="group.GroupCode">{{ group.Name }}</option>
+            </select>&nbsp;
+            <label for="group_value"><b>Group Value </b>&nbsp;</label>
+            <select class="dropdown" id="group_value" (change)="onChangeGroupValue($event)" aria-placeholder="Select Group Value">
+                <option value="%" style="color: gray;">Select Group Value</option>
+                <option *ngFor="let group of clientGroupValueList" [value]="group.GroupValue">{{ group.Name }}</option>
             </select>
+            <!-- <label for="group_level"><b>Group Level </b>&nbsp;</label>
+            <select class="dropdown" id="group_level" (change)="onChangeGroupLevel($event)" aria-placeholder="Select Group">
+                <option value="%" style="color: gray;">Select Group</option>
+                <option *ngFor="let groupLevel of clientGroupLevelList" [value]="groupLevel.GroupValue">{{ groupLevel.GroupValue }}</option>
+            </select> -->
             <label>&nbsp;
                 <input type="radio" name="filterByBalance" value="Show All" (change)="onChange($event)" [attr.checked]="true">&nbsp; <b>Show All</b>
-              </label>&nbsp;
-              <label>
+            </label>&nbsp;
+            <label>
                 <input type="radio" name="filterByBalance" value="Balance" (change)="onChange($event)"> &nbsp;<b>Balance</b> 
-              </label>
+            </label>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
             &nbsp;&nbsp;

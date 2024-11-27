@@ -142,7 +142,10 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         this.dataService.getData(mail, page ,pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {                
           this.isLoading = false;
           this.dataSource.data = response.data;
-          this.totalRecords = response.total;
+          response.data.forEach((element: any) => {
+            const total = element.total;          
+            this.totalRecords = total;                
+          });          
           this.DebtoNoBuyDisputeList = response.noBuyDisputeList;                
         });
       });
@@ -244,7 +247,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     }
 
     edit(row: DataItem){            
-      const dialogRef = this.dialog.open(DocumentDialogComponent, {                                
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {         
+        width: '850px',       
+        maxWidth: 'none',   
+        height: 'auto',    
+        panelClass: 'custom-dialog-container',                       
         data: {
          DebtorKey: row.DebtorKey,
          Debtor: row.Debtor,

@@ -10,8 +10,8 @@ export class MasterClientsService {
 
   constructor(private http: HttpClient) { }
 
-  getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string, filterByBalance: string, filterByGroup: string): Observable<any> {
-    const url = `https://everest.revinc.com:4202/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&filterByBalance=${filterByBalance}&filterByGroup=${filterByGroup}`;
+  getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string, filterByBalance: string, filterByGroup: string, filterByGroupValue: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&filterByBalance=${filterByBalance}&filterByGroup=${filterByGroup}&filterByGroupValue=${filterByGroupValue}`;
     return this.http.get<any>(url).pipe(
       map(response => {        
         return {
@@ -35,6 +35,36 @@ export class MasterClientsService {
             expandedDetail: { detail: 'Additional details for ' + item.Client } 
           })),          
           clientGroupLevelList: response.clientGroupLevelList
+        };
+      })
+    );
+  }
+
+  getClientGroupList(){
+    const url = `https://everest.revinc.com:4202/api/clientGroupList`;
+    return this.http.get<any>(url).pipe(
+      map(response => {        
+        return {
+          data: response.clientGroupList.map((item: any) => ({
+            ...item,
+            expandedDetail: { detail: 'Additional details for ' + item.Client } 
+          })),          
+          clientGroupList: response.clientGroupList
+        };
+      })
+    );
+  }
+
+  getClientGroupValueList(GroupCodeKey: number){
+    const url = `https://everest.revinc.com:4202/api/clientGroupValueList?GroupCodeKey=${GroupCodeKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {        
+        return {
+          data: response.clientGroupValueList.map((item: any) => ({
+            ...item,
+            expandedDetail: { detail: 'Additional details for ' + item.Client } 
+          })),          
+          clientGroupValueList: response.clientGroupValueList
         };
       })
     );

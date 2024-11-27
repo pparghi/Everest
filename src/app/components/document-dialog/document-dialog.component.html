@@ -110,11 +110,11 @@
     <form [formGroup]="editForm" (ngSubmit)="onEdit()">
         <mat-dialog-content>
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6" style="width: 400px;">
               <label for="Debtor" class="form-label">Debtor Name</label>
               <input type="text" id="Debtor" class="form-control" formControlName="Debtor" value="{{ this.debtor }}" required>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6" style="width: 400px;">
               <label for="Duns" class="form-label">Duns</label>
               <input type="text" id="Duns" class="form-control" formControlName="Duns" required>
             </div>
@@ -137,8 +137,8 @@
               <input type="text" id="Phone1" class="form-control" formControlName="Phone1" required>
             </div>
             <div class="col-md-6">
-              <label for="Phone1" class="form-label">Phone 2</label>
-              <input type="text" id="Phone1" class="form-control" formControlName="Phone1" required>
+              <label for="Phone2" class="form-label">Phone 2</label>
+              <input type="text" id="Phone2"  class="form-control" formControlName="Phone2" required>
             </div>
           </div>
           <br>

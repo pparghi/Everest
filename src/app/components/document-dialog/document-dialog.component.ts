@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 import { error, event } from 'jquery';
 import { count, map } from 'rxjs/operators';
+import { RoundThousandsPipe } from '../../round-thousands.pipe';
 // import imageCompression from 'browser-image-compression';
 
 @Component({
@@ -43,11 +44,24 @@ export class DocumentDialogComponent {
     { value: 'Received', label: 'Received' }
   ]
 
-  editForm: FormGroup;
+  editForm!: FormGroup;
   changedNoaStatus!: string;    
   payment_images!: { fullname: string; basename: any; }[];
   
-  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {      
+  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+    if(data.openForm){      
+
+    if(data.Phone1.length == 11 || data.Phone2.length == 11){
+      var Phone1 = data.Phone1.substring(1);
+      var Phone2 = data.Phone2.substring(1);
+    } else {
+      Phone1 = data.Phone1;
+      Phone2 = data.Phone2;
+    }
+
+    const roundThousandsPipe = new RoundThousandsPipe();
+    var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
+    
     this.editForm = this.fb.group({
       Debtor: [data.Debtor || '', Validators.required],
       Duns: [data.Duns || '', Validators.required],
@@ -55,14 +69,13 @@ export class DocumentDialogComponent {
       Addr2: [data.Addr2 || '', Validators.required],
       City: [data.City || '', Validators.required],
       State: [data.State || '', Validators.required],      
-      Phone1: [data.Phone1 || '', Validators.required],
-      Phone2: [data.Phone2 || '', Validators.required],
-      TotalCreditLimit: [data.TotalCreditLimit || '', Validators.required],
+      Phone1: [Phone1 || '', Validators.required],
+      Phone2: [Phone2 || '', Validators.required],
+      TotalCreditLimit: [creditLimit || '', Validators.required],
       AIGLimit: [data.AIGLimit || '', Validators.required],
       Terms: [data.Terms || '', Validators.required]
     })
 
-    if(data.openForm){      
       console.log(data);
       this.debtor = data.Debtor
     } else if (data.documentsList) {

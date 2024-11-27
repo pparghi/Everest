@@ -36,13 +36,13 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="debtor-column">Debtor Name</th>
             <td style="font-weight: Medium;" mat-cell *matCellDef="let element" class="debtor-column">
                 <div *ngIf="element.NoBuyCode == ''" >
-                    <i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
+                    <i class="fa fa-circle" title="empty" style="color: green; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
                 </div>  
                 <div *ngIf="element.NoBuyCode == 'HELD -  ACCOUNT TEMPORARILY ON HOLD'">
-                    <i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
+                    <i class="fa fa-circle" title="{{ element.NoBuyCode }}" style="color: orange; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
                 </div>                  
                 <div *ngIf="element.NoBuyCode != '' && element.NoBuyCode != 'HELD -  ACCOUNT TEMPORARILY ON HOLD'">
-                    <i class="fa fa-circle"  style="color: red; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
+                    <i class="fa fa-circle" title="{{ element.NoBuyCode }}" style="color: red; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Debtor }}
                 </div>                
             </td>
         </ng-container>

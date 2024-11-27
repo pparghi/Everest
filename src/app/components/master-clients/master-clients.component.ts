@@ -71,12 +71,16 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   accountStatusAvailable!: string;
   filterByBalance!: string;
   clientGroupLevelList: any;
-  filterByGroup!: string;
+  clientGroupList: any;
+  clientGroupValueList: any;
+  filterByGroupLevel!: string;
+  filterByGroup!: any;
+  filterByGroupValue!: any;
   profile: any;
   NavOptionUpdateMasterDebtor: any;
   NavAccessUpdateMasterDebtor: any;
 
-    constructor(private dataService: MasterClientsService,private router: Router,private http: HttpClient, private loginService: LoginService) {}
+    constructor(private dataService: MasterClientsService, private router: Router, private http: HttpClient, private loginService: LoginService) {}
     ngOnInit(): void {  
       this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       
@@ -109,11 +113,24 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       });          
       this.loadData();
       this.loadClientGroupLevelList();
+      this.loadClientGroupList();
     }
 
     loadClientGroupLevelList() {
       this.dataService.getClientGroupLevelList().subscribe(response => {                                         
         this.clientGroupLevelList = response.clientGroupLevelList;
+      });
+    }
+
+    loadClientGroupList() {
+      this.dataService.getClientGroupList().subscribe(response => {                      
+        this.clientGroupList = response.clientGroupList;
+      });
+    }
+
+    loadClientGroupValueList() {
+      this.dataService.getClientGroupValueList(this.filterByGroup).subscribe(response => {                      
+        this.clientGroupValueList = response.clientGroupValueList;
       });
     }
 
@@ -138,15 +155,23 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       const pageSize = this.paginator ? this.paginator.pageSize : 25;
       let filterByBalance = '';
       let filterByGroup = this.filterByGroup ? this.filterByGroup : '%';
+      let filterByGroupValue = this.filterByGroupValue ? this.filterByGroupValue : '%';
 
       if (this.filterByBalance == 'Balance') {
         filterByBalance = 'balance';
       } 
 
-      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup).subscribe(response => {                                
+      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup, filterByGroupValue).subscribe(response => {                
+        console.log(response.data);
+                                  
         this.isLoading = false;
         this.dataSource.data = response.data;
-        this.totalRecords = response.total;                
+
+        response.data.forEach((element: any) => {
+          const total = element.total;          
+          this.totalRecords = total;                
+        });
+        
       });
     }
 
@@ -295,9 +320,21 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
           this.loadData();
       }
 
-      onChangeGroup(event: Event){
+      onChangeGroupLevel(event: Event){
         const selectElement = event.target as HTMLSelectElement;
+          this.filterByGroupLevel = selectElement.value;
+          this.loadData();
+      }    
+
+      onChangeGroup(event: Event){
+        const selectElement = event.target as HTMLSelectElement;          
           this.filterByGroup = selectElement.value;
+          this.loadClientGroupValueList();
+      }
+
+      onChangeGroupValue(event: Event){
+        const selectElement = event.target as HTMLSelectElement;          
+          this.filterByGroupValue = selectElement.value;          
           this.loadData();
       }
    
