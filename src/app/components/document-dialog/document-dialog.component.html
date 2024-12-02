@@ -7,6 +7,7 @@
       <ul *ngFor="let item of data.documentsList">
         <li (click)="openFile()" style="cursor: pointer;">{{ item.FileName }}</li>
       </ul>
+      <div *ngIf="data.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && data.NavAccessUpdateMasterDebtor == 1">
       <hr>
         <label for="documentCategory"> <b>Category</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
         <select class="dropdown" [(ngModel)]="documentCategory" id="documentCategory">
@@ -21,12 +22,13 @@
           <input type="file" class="form-control" id="inputGroupFile" (change)="this.onFilechange($event)">
         </div>
         <br>
+      </div>
     </mat-dialog-content>
   </div>
   <div class="dialog-footer">
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-button [mat-dialog-close]="true" (click)="onSubmit()" cdkFocusInitial>Upload</button>
+      <button mat-button [mat-dialog-close]="true" *ngIf="data.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && data.NavAccessUpdateMasterDebtor == 1" (click)="onSubmit()" cdkFocusInitial>Upload</button>
     </mat-dialog-actions>
   </div>
 </div>

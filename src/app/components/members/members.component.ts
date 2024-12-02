@@ -10,6 +10,8 @@ import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { LoginService } from '../../services/login.service';
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
   Debtor: string;
@@ -45,14 +47,17 @@ export class MembersComponent implements OnInit {
     DocumentsList: any;
     DocumentsCat: any;
     documentsFolder: any;
+    profile: any;
 
     readonly dialog = inject(MatDialog);    
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
   DebtorContactsData: any;
+  NavOptionUpdateMasterDebtor: any;
+  NavAccessUpdateMasterDebtor: any;
 
-  constructor(private route: ActivatedRoute, private masterDebtorService: DebtorsApiService,  private dataService: MemberDebtorsService, private router: Router){}
+  constructor(private route: ActivatedRoute, private masterDebtorService: DebtorsApiService,  private http: HttpClient,  private dataService: MemberDebtorsService, private router: Router,private loginService: LoginService){}
     
     ngOnInit(): void {
       this.route.queryParams.subscribe(params => {        
@@ -69,10 +74,27 @@ export class MembersComponent implements OnInit {
       }
     }
 
-    loadMemberDebtorDetails(DebtorKey: number): void {            
-      this.dataService.getMemberDebtors(DebtorKey).subscribe(response => {        
-        this.dataSource.data = response.data;
-      });
+    loadMemberDebtorDetails(DebtorKey: number): void {        
+        this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+          this.profile = profile;
+          this.loginService.getData(this.profile.mail).subscribe(response => {                                
+            response.data.forEach((element: any) => {
+              if (element.NavOption == 'Update Master Debtor'){
+                this.NavOptionUpdateMasterDebtor = element.NavOption;          
+                this.NavAccessUpdateMasterDebtor = element.NavAccess;
+              } else {  
+                this.NavOptionUpdateMasterDebtor = '';       
+                this.NavAccessUpdateMasterDebtor = '';       
+              }                                           
+                          
+            });
+          }, error => {
+            console.error('error--', error);
+          });    
+        this.dataService.getMemberDebtors(DebtorKey).subscribe(response => {        
+          this.dataSource.data = response.data;
+        });
+      })
     }
 
     openDocumentsDialog(DebtorKey: number){      
@@ -90,7 +112,9 @@ export class MembersComponent implements OnInit {
             DebtorKey: DebtorKey, 
             documentsList: this.DocumentsList,
             documentCategory: this.DocumentsCat,
-            documentsFolder: this.documentsFolder
+            documentsFolder: this.documentsFolder,
+            NavOptionUpdateMasterDebtor: this.NavOptionUpdateMasterDebtor,
+            NavAccessUpdateMasterDebtor: this.NavAccessUpdateMasterDebtor
           }
         });        
         dialogRef.afterClosed().subscribe(result => {            

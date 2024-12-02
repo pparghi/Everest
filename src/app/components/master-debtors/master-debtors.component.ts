@@ -230,7 +230,10 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
             DebtorKey: DebtorKey, 
             documentsList: this.DocumentsList,
             documentCategory: this.DocumentsCat,
-            documentsFolder: this.documentsFolder
+            documentsFolder: this.documentsFolder,
+            NavOptionUpdateMasterDebtor: this.NavOptionUpdateMasterDebtor,
+            NavAccessUpdateMasterDebtor: this.NavAccessUpdateMasterDebtor
+
           }
         });
         
