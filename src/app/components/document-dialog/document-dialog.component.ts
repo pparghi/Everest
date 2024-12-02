@@ -9,6 +9,7 @@ import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 import { error, event } from 'jquery';
 import { count, map } from 'rxjs/operators';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
+import { LoginService } from '../../services/login.service';
 // import imageCompression from 'browser-image-compression';
 
 @Component({
@@ -35,6 +36,7 @@ export class DocumentDialogComponent {
   contactDataSource = new MatTableDataSource<any>([]);
   paymentDataSource = new MatTableDataSource<any>([]);
   MiscDataListDataSource = new MatTableDataSource<any>([]);
+  ratesDataSource = new MatTableDataSource<any>([]);
 
   jpgDataUrl: string | ArrayBuffer | null = null;
 
@@ -48,7 +50,7 @@ export class DocumentDialogComponent {
   changedNoaStatus!: string;    
   payment_images!: { fullname: string; basename: any; }[];
   
-  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     if(data.openForm){      
 
     if(data.Phone1.length == 11 || data.Phone2.length == 11){
@@ -98,6 +100,11 @@ export class DocumentDialogComponent {
       this.clientService.getMiscData(data.DebtorKey, data.ClientKey).subscribe(response => {                                
         this.MiscDataListDataSource.data = response.MiscDataList;      
       });
+    } else if (data.exchangeRatesByMonth) {
+      this.loginService.getExchangeRatesByMonth().subscribe(response => {                                
+        this.ratesDataSource.data = response.exchangeRatesByMonth;
+      });
+      
     } else {
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
         this.contactDataSource.data = response.debtorContactsData;

@@ -199,16 +199,16 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       if (this.math.round(element.DSO60) != 0 && this.math.round(element.DSO90) != 0) {        
         
         if (this.math.round(element.DSO60) == this.math.round(element.DSO90)) {
-          return { icon: 'trending_up', color: 'green' };
+          return { icon: 'trending_up', color: 'red' };
         }
         if (this.math.round(element.DSO60) < this.math.round(element.DSO90)) {
-          return { icon: 'trending_up', color: 'green' };
+          return { icon: 'trending_up', color: 'red' };
         }
         if ((this.math.round(element.DSO60) == (this.math.round(element.DSO90) + 2)) ||  (this.math.round(element.DSO60) == (this.math.round(element.DSO90) + 1))) {
           return { icon: 'trending_flat', color: 'orange' };
         }
         if (this.math.round(element.DSO60) > this.math.round(element.DSO90)) {
-          return { icon: 'trending_down', color: 'red' };
+          return { icon: 'trending_down', color: 'green' };
         }
       }
       return { icon: '', color: 'grey' };

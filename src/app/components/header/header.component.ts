@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, inject } from '@angular/core';
 import { MSAL_GUARD_CONFIG, MsalBroadcastConfiguration, MsalBroadcastService, MsalGuardConfiguration, MsalService } from '@azure/msal-angular';
 import { InteractionStatus, RedirectRequest } from '@azure/msal-browser';
 import { Subject, filter, takeUntil } from 'rxjs';
 import { LoginService } from '../../services/login.service';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -24,6 +26,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   NavAccessClientRisk: any;
   NavOptionUpdateMasterDebtor: any;
   NavAccessUpdateMasterDebtor: any;
+  todayDate: any;
+  todayRate: any;
+  todayCurrency: any;
+
+  readonly dialog = inject(MatDialog);    
 
   constructor(@Inject(MSAL_GUARD_CONFIG) 
   private msalGuardConfig: MsalGuardConfiguration, 
@@ -61,8 +68,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }, error => {
         console.error('error--', error);
       });    
+
       
     });
+    this.dataService.getExchangeRatesByMonth().subscribe(response => {                                     
+      this.todayDate = response.data[0].YearMonth;                
+      this.todayRate = response.data[0].Rate;          
+      this.todayCurrency = response.data[0].Currency;          
+      response.data.forEach((element: any) => {
+
+      });
+    }, error => {
+      console.error('error--', error);
+    });    
     
     this.msalBroadcast.inProgress$.pipe(filter((interactionstatus: InteractionStatus) => interactionstatus == InteractionStatus.None),
     takeUntil(this._destroy))
@@ -86,6 +104,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   logout(){
     this.authService.logoutRedirect()
+  }
+
+  moreInfo(){
+    this.dataService.getExchangeRatesByMonth().subscribe(response => { 
+      console.log(response.exchangeRatesByMonth)
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {                
+        data: {
+          exchangeRatesByMonth: response.exchangeRatesByMonth
+        }
+      });        
+      dialogRef.afterClosed().subscribe(result => {            
+      });                                              
+      
+    }, error => {
+      console.error('error--', error);
+    });
   }
 
 }

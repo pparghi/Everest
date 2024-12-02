@@ -300,3 +300,23 @@
     </mat-dialog-content>
   </div>  
 </div>
+
+<div *ngIf="data.exchangeRatesByMonth">
+  
+  <div class="dialog-content">
+    <mat-dialog-content class="mat-typography">
+      <table>
+        <tr>
+          <th>Rate</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <th>Currency</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <th>YearMonth</th>
+        </tr>
+        <tr *ngFor="let item of data.exchangeRatesByMonth">
+          <td>{{ item.Rate }}</td>&nbsp;&nbsp;
+          <td>{{ item.Currency }}</td>&nbsp;&nbsp;
+          <td>{{ item.YearMonth }}</td>
+        </tr>
+      </table>
+    </mat-dialog-content>
+  </div>
+</div>
