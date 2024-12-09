@@ -78,7 +78,6 @@ export class DocumentDialogComponent {
       Terms: [data.Terms || '', Validators.required]
     })
 
-      console.log(data);
       this.debtor = data.Debtor
     } else if (data.documentsList) {
       this.data.documentsList.forEach((document: { FileName: string; Path: any; DocHdrKey: { toString: () => string; }; Link: string; }, index: any) => {
@@ -157,29 +156,15 @@ export class DocumentDialogComponent {
     }
 
     getPaymentsImage(event: any){        
-      this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                
-        response.debtorPaymentImages.forEach(async (element: any) => {               
-          console.log(element.FileName);
-          if (element.FileName && element.FileName.type === 'image/tiff') {
-            // console.log("test");
-            // try {
-            //     const options = {
-            //         maxSizeMB: 1,
-            //         maxWidthOrHeight: 1920,
-            //         useWebWorker: true
-            //     };
-            //     const compressedFile = await imageCompression(element.FileName, options);
-            //     const reader = new FileReader();
-            //     reader.onload = (e: any) => {
-            //         this.jpgDataUrl = e.target.result;
-            //     };
-            //     reader.readAsDataURL(compressedFile);
-            // } catch (error) {
-            //     console.error('Error converting image:', error);
-            // }
+      this.clientService.convertDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                             
+        console.log('file called',response);       
+        }, error => {
+          console.error('file failed', error);                             
         }
-        console.log('after ----',element.FileName);     
-             window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);                       
+      );                        
+      this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                
+        response.debtorPaymentImages.forEach(async (element: any) => {           
+          window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName + '.jpg');                       
           });                                  
         }
       );                        

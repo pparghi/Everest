@@ -50,6 +50,11 @@ export class ClientsDebtorsService {
     );
   }
 
+  convertDebtorsPaymentsImages(PmtChecksKey: number){   
+    const url = `https://login.baron.finance/iris/public/test/everest_payment_images.php?PmtChecksKey=${PmtChecksKey}`;   
+    return this.http.get(url);
+  }
+
   getMiscData(DebtorKey: number, ClientKey: number){    
     const url = `https://everest.revinc.com:4202/api/MiscDataList?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}`;
     return this.http.get<any>(url).pipe(

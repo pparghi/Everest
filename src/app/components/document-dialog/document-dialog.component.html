@@ -84,7 +84,7 @@
 
           <ng-container matColumnDef="check#">
               <th mat-header-cell *matHeaderCellDef>Check#</th>
-              <td mat-cell *matCellDef="let element" (click)="getPaymentsImage(element)">{{ element.CheckNo }}</td>
+              <td mat-cell *matCellDef="let element" (click)="getPaymentsImage(element)" style="cursor: pointer;">{{ element.CheckNo }}</td>
           </ng-container>
 
           <ng-container matColumnDef="amount">

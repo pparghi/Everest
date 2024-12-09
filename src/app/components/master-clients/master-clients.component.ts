@@ -161,9 +161,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
         filterByBalance = 'balance';
       } 
 
-      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup, filterByGroupValue).subscribe(response => {                
-        console.log(response.data);
-                                  
+      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup, filterByGroupValue).subscribe(response => {                                                          
         this.isLoading = false;
         this.dataSource.data = response.data;
 

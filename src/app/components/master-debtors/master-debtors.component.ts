@@ -40,7 +40,7 @@ interface DataItem {
 })
 
 export class MasterDebtorsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Debtor', 'DbDunsNo', 'Address', 'City', 'State', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'Edit', 'extra'];
+    displayedColumns: string[] = ['expand', 'Debtor', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'CalcRateCode', 'IndivCreditLimit', 'CredExpireDate', 'RateDate', 'Edit', 'extra'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;

@@ -107,8 +107,7 @@ export class DebtorsApiService {
     return this.http.post<any>(url, body);
   }
 
-  uploadDocument(formData: FormData){
-    console.log(formData);
+  uploadDocument(formData: FormData){    
     
     const url = `https://everest.revinc.com:4202/api/debtorMasterAddDocument`;    
     const body = {

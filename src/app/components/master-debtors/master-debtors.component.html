@@ -47,10 +47,10 @@
             </td>
         </ng-container>
 
-        <ng-container matColumnDef="DbDunsNo">
+        <!-- <ng-container matColumnDef="DbDunsNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Duns</th>
             <td mat-cell *matCellDef="let element">{{ element.DbDunsNo }}</td>
-        </ng-container>
+        </ng-container> 
 
         <ng-container matColumnDef="Address">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>            
@@ -72,7 +72,7 @@
         <ng-container matColumnDef="State">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>State</th>
             <td mat-cell *matCellDef="let element">{{ element.State }}</td>
-        </ng-container>        
+        </ng-container>  -->      
 
         <ng-container matColumnDef="%Utilized">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">% Utilized</th>
@@ -121,6 +121,26 @@
         <ng-container matColumnDef="Terms">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Terms</th>
             <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Terms }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="CalcRateCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CalcRateCode</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.CalcRateCode }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="IndivCreditLimit">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">IndivCreditLimit</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.IndivCreditLimit | roundThousands }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="CredExpireDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CredExpireDate</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.CredExpireDate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="RateDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">RateDate</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.RateDate }}</td>
         </ng-container>        
 
         <!-- <ng-container matColumnDef="NoBuyCode">

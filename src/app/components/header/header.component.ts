@@ -107,8 +107,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   moreInfo(){
-    this.dataService.getExchangeRatesByMonth().subscribe(response => { 
-      console.log(response.exchangeRatesByMonth)
+    this.dataService.getExchangeRatesByMonth().subscribe(response => {       
       const dialogRef = this.dialog.open(DocumentDialogComponent, {                
         data: {
           exchangeRatesByMonth: response.exchangeRatesByMonth
