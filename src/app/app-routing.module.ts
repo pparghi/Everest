@@ -12,9 +12,11 @@ import { MemberClientsComponent } from './components/member-clients/member-clien
 import { ClientsDebtorsComponent } from './components/clients-debtors/clients-debtors.component';
 import { TestComponent } from './components/test/test.component';
 import { MemberMasterDebtorComponent } from './components/member-master-debtor/member-master-debtor.component';
+import { MasterDebtorEditComponent } from './components/master-debtor-edit/master-debtor-edit.component';
 
 const routes: Routes = [  
   { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
+  { path: 'edit-master-debtor', component: MasterDebtorEditComponent },  
   { path: 'members', component: MembersComponent },
   { path: 'clients', component: ClientsComponent },
   { path: 'invoices', component: ClientsInvoicesComponent },

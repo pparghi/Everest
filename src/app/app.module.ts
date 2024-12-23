@@ -44,7 +44,8 @@ import { CacheService } from './services/cache.service';
 import { CacheInterceptor } from './http-interceptors/http-interceptors';
 import { TestComponent } from './components/test/test.component';
 import { MemberMasterDebtorComponent } from './components/member-master-debtor/member-master-debtor.component';
-
+import { MasterDebtorEditComponent } from './components/master-debtor-edit/master-debtor-edit.component';
+import { RiskMonitoringComponent } from './components/risk-monitoring/risk-monitoring.component';
 const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
 
 @NgModule({
@@ -69,6 +70,8 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     ClientsDebtorsComponent,
     TestComponent,
     MemberMasterDebtorComponent,
+    MasterDebtorEditComponent,
+    RiskMonitoringComponent,
   ],
   imports: [
     BrowserModule,

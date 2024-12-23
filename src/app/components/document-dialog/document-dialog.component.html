@@ -1,6 +1,6 @@
 <div *ngIf="data.documentsList">
   <div class="dialog-header">
-    <h2 mat-dialog-title>Documents</h2>
+    <h3 mat-dialog-title>Documents</h3>
   </div>
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
@@ -36,7 +36,7 @@
 <script src="assets/js/tiff.min.js"></script>
 <div *ngIf="data.DebtorContactsData">
   <div class="dialog-header">
-    <h2 mat-dialog-title>Debtor Contacts</h2>
+    <h3 mat-dialog-title>Debtor Contacts</h3>
   </div>
   <div class="dialog-content"> 
     <mat-dialog-content class="mat-typography">
@@ -70,8 +70,9 @@
 </div>
 
 <div *ngIf="data.DebtorPaymentsData">
-  <div class="dialog-header">
-    <h2 mat-dialog-title>Payments</h2>
+  <div class="dialog-header"><br>
+     &nbsp;Payments - {{ data.Debtor }}
+     <br>
   </div>
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
@@ -106,7 +107,7 @@
 
 <div *ngIf="data.openForm">
   <div class="dialog-header">
-    <h2 mat-dialog-title>Edit Debtor Details</h2>
+    <h3 mat-dialog-title>Edit Debtor Details</h3>
   </div>
   <div class="dialog-content">
     <form [formGroup]="editForm" (ngSubmit)="onEdit()">
@@ -125,7 +126,7 @@
           <div class="row">
             <div class="col-md-6">
               <label for="Addr1" class="form-label">Address 1</label>
-              <input type="text" id="Addr1" class="form-control" formControlName="Addr1" required>
+              <input type="text" id="Addr1" class="form-control" name="Addr1" formControlName="Addr1" required>
             </div>
             <div class="col-md-6">
               <label for="Addr2" class="form-label">Address 2</label>
@@ -173,9 +174,14 @@
               <label for="Terms" class="form-label">Terms</label>
               <input type="text" id="Terms" class="form-control" formControlName="Terms" required>
             </div>            
+          
+            <div class="col-md-6">
+              <label for="MotorCarrNo" class="form-label">MC#</label>
+              <input type="text" id="MotorCarrNo" class="form-control" formControlName="MotorCarrNo" required>
+            </div>            
           </div>
             
-          </mat-dialog-content>
+          </mat-dialog-content><br>
           <mat-dialog-actions>
             <button mat-button mat-dialog-close>Cancel</button>
             <button mat-button type="submit" [disabled]="editForm.invalid">Save</button>
@@ -186,7 +192,7 @@
 
 <div *ngIf="data.noa">
   <div class="dialog-header">
-    <h2 mat-dialog-title>NOA</h2>
+    <h3 mat-dialog-title>NOA</h3>
   </div>
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
@@ -222,7 +228,7 @@
 
 <div *ngIf="data.MiscDataList">
   <div class="dialog-header">
-    <h2 mat-dialog-title>Misc. Data</h2>
+    <h3 mat-dialog-title>Misc. Data</h3>
   </div>
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
@@ -317,6 +323,26 @@
           <td>{{ item.Rate }}</td>&nbsp;&nbsp;
           <td>{{ item.Currency }}</td>&nbsp;&nbsp;
           <td>{{ item.YearMonth }}</td>
+        </tr>
+      </table>
+    </mat-dialog-content>
+  </div>
+</div>
+
+<div *ngIf="data.DSO_30">  
+  <div class="dialog-content">
+    <mat-dialog-content class="mat-typography">
+      <strong>{{ data.Debtor }}</strong>
+      <table>
+        <tr>
+          <th>DSO30</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          
+          <th>DSO60</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          
+          <th>DSO90</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          
+        </tr>
+        <tr>
+          <td>{{ data.DSO_30 }}</td>&nbsp;&nbsp;          
+          <td>{{ data.DSO_60 }}</td>&nbsp;&nbsp;          
+          <td>{{ data.DSO_90 }}</td>&nbsp;&nbsp;          
         </tr>
       </table>
     </mat-dialog-content>

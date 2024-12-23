@@ -68,3 +68,7 @@
 	overflow-y: auto; /* Enable scrolling for the content area */
 	padding: 5px;
    }
+
+   .loading-cursor {   
+		cursor: wait;
+	}

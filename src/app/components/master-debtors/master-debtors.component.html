@@ -74,6 +74,11 @@
             <td mat-cell *matCellDef="let element">{{ element.State }}</td>
         </ng-container>  -->      
 
+        <ng-container matColumnDef="Balance">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Total AR</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Balance | roundThousands }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="%Utilized">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">% Utilized</th>
             <td mat-cell *matCellDef="let element" style="text-align: end;">{{  element.PctUtilized | percent: '1.0-0' }}</td>
@@ -102,6 +107,11 @@
                 </ng-container>
             </td>
         </ng-container>
+
+        <ng-container matColumnDef="IndivCreditLimit">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Single Client Limit</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.IndivCreditLimit | roundThousands }}</td>
+        </ng-container>
         
         <!-- <ng-container matColumnDef="TotalCreditLimit">
             <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 5%;">CreditLimit</th>
@@ -124,23 +134,18 @@
         </ng-container>
 
         <ng-container matColumnDef="CalcRateCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CalcRateCode</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.CalcRateCode }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="IndivCreditLimit">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">IndivCreditLimit</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.IndivCreditLimit | roundThousands }}</td>
-        </ng-container>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Rating</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;" (click)="openDSODialog(element.DSO30, element.DSO60, element.DSO90, element.Debtor)">{{ element.CalcRateCode }}</td>
+        </ng-container>        
 
         <ng-container matColumnDef="CredExpireDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CredExpireDate</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.CredExpireDate }}</td>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.CredExpireDate | date:'yyyy-MM-dd' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="RateDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">RateDate</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.RateDate }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Research Date</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.RateDate | date:'yyyy-MM-dd' }}</td>
         </ng-container>        
 
         <!-- <ng-container matColumnDef="NoBuyCode">
@@ -194,7 +199,7 @@
                 <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
                     <div class="table-container" style="background-color: #f5fbff;">                            
                         <table class="bordered-table">
-                            <tr>
+                            <tr>                                
                                 <th class="header" style="width: 10%;">Total AR</th>
                                 <th class="header" style="width: 10%;">0-30</th>
                                 <th class="header" style="width: 10%;">31-60</th>
@@ -202,11 +207,8 @@
                                 <th class="header" style="width: 10%;">91-120</th>
                                 <th class="header" style="width: 10%;">121-150</th>
                                 <th class="header" style="width: 10%;">151-180</th>
-                                <th class="header" style="width: 10%;">180+</th>
-                                <th class="header" style="width: 5%;">DSO30</th>
-                                <th class="header" style="width: 5%;">DSO60</th>
-                                <th class="header" style="width: 5%;">DSO90</th>
-                                <th class="header" style="width: 5%;">DSOAll</th>              
+                                <th class="header" style="width: 10%;">180+</th>                                
+                                              
                             </tr>                               
                             <tr class="table-row">
                                 <td class="cell" style="width: 10%;">{{ element.Balance | roundThousands }}</td>
@@ -217,10 +219,7 @@
                                 <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age151to180 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.AgeOver180 | roundThousands }}</td>
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO30) }}</td>
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSOAll) }}</td>                                                        
+                                                                                        
                             </tr>                                
                         </table>
                         <table class="bordered-table">                                                       
@@ -276,14 +275,14 @@
         </table>
     </div>
     
-    <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons style="background-color: white;"></mat-paginator>
     <!-- <mat-form-field> 
         <mat-label>Go to page</mat-label> 
-            <input matInput [(ngModel)]="specificPage" type="number" min="1" [max]="totalPages"> 
+        <input matInput [(ngModel)]="specificPage" type="number" min="1" [max]="totalPages"> 
     </mat-form-field> 
     <button mat-raised-button (click)="goToPage()">Go</button> -->
-
-    <div class="spinner-container" *ngIf="isLoading;">
-        <mat-spinner class="custom-spinner"></mat-spinner>
-    </div>
+    
+    <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons style="background-color: white;"></mat-paginator>
+</div>
+<div class="spinner-container" *ngIf="isLoading;">
+    <mat-spinner class="custom-spinner"></mat-spinner>
 </div>

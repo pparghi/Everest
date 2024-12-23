@@ -134,13 +134,14 @@ export class MemberMasterDebtorComponent {
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
 
-    payments(DebtorKey: any){
+    payments(DebtorKey: any, Debtor: any){
       this.clientDebtorService.getDebtorsPayments(DebtorKey, this.MasterClientKey).subscribe(response => {                                
         this.DebtorPaymentsData = response.debtorPaymentsData;
         
         const dialogRef = this.dialog.open(DocumentDialogComponent, {                
            data: {
-            DebtorKey: DebtorKey, 
+            DebtorKey: DebtorKey,
+            Debtor: Debtor,
             ClientKey: this.MasterClientKey,
             DebtorPaymentsData: this.DebtorPaymentsData,
           }

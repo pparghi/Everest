@@ -112,7 +112,7 @@ export class ClientsDebtorsComponent implements OnInit {
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
 
-    payments(DebtorKey: any){
+    payments(DebtorKey: any, Debtor: any){
       this.dataService.getDebtorsPayments(DebtorKey, this.MasterClientKey).subscribe(response => {                                
         this.DebtorPaymentsData = response.debtorPaymentsData;
         
@@ -122,7 +122,8 @@ export class ClientsDebtorsComponent implements OnInit {
           height: 'auto',    
           panelClass: 'custom-dialog-container',               
            data: {
-            DebtorKey: DebtorKey, 
+            DebtorKey: DebtorKey,
+            Debtor: Debtor, 
             ClientKey: this.MasterClientKey,
             DebtorPaymentsData: this.DebtorPaymentsData,
           }

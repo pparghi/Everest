@@ -49,6 +49,7 @@ export class DocumentDialogComponent {
   editForm!: FormGroup;
   changedNoaStatus!: string;    
   payment_images!: { fullname: string; basename: any; }[];
+  fileExtension: any;
   
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
     if(data.openForm){      
@@ -75,7 +76,8 @@ export class DocumentDialogComponent {
       Phone2: [Phone2 || '', Validators.required],
       TotalCreditLimit: [creditLimit || '', Validators.required],
       AIGLimit: [data.AIGLimit || '', Validators.required],
-      Terms: [data.Terms || '', Validators.required]
+      Terms: [data.Terms || '', Validators.required],
+      MotorCarrNo: [data.MotorCarrNo || '', Validators.required]
     })
 
       this.debtor = data.Debtor
@@ -161,12 +163,28 @@ export class DocumentDialogComponent {
         }, error => {
           console.error('file failed', error);                             
         }
-      );                        
-      this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                
-        response.debtorPaymentImages.forEach(async (element: any) => {           
-          window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName + '.jpg');                       
-          });                                  
-        }
-      );                        
+      );               
+      this.clientService.startTimer(() => { 
+        this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                                    
+          response.debtorPaymentImages.forEach(async (element: any) => {   
+            const fileName = element.FileName;
+            this.fileExtension = this.getFileExtension(fileName);
+            console.log(this.fileExtension);
+
+            if (this.fileExtension == 'jpg' || this.fileExtension == 'jpeg' || this.fileExtension == 'png' || this.fileExtension == 'pdf'){
+              window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);
+            } else {
+              window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName + '.jpg');                       
+            }
+            
+            });                                  
+          }, error => {
+            console.error('file not converted', error);                             
+          }
+        );  
+      }, 3000); // Delay in milliseconds (3000ms = 3s) }         
+                              
     };  
+    getFileExtension(filename: string): string {     const extension = filename.split('.').pop();     return extension ? extension.toLowerCase() : '';   }
+
 }

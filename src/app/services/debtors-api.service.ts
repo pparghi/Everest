@@ -14,6 +14,9 @@ interface ApiResponse {
   providedIn: 'root'
 })
 export class DebtorsApiService {
+  private editData: any; 
+  setEditData(data: any) { this.editData = data; } 
+  getEditData(): any { return this.editData; }
 
   constructor(private http: HttpClient) { }  
 

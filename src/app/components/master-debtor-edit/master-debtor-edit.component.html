@@ -1,0 +1,73 @@
+<h5>Edit Debtor Details</h5>
+
+<form [formGroup]="editForm" (ngSubmit)="onEdit()">
+    
+      <div class="row">
+        <div class="col-md-6">
+          <label for="Debtor" class="form-label">Debtor Name</label>
+          <input type="text" id="Debtor" class="form-control" formControlName="Debtor" value="{{ this.debtor }}" required>
+        </div>
+        <div class="col-md-6">
+          <label for="Duns" class="form-label">Duns</label>
+          <input type="text" id="Duns" class="form-control" formControlName="Duns" required>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-md-6">
+          <label for="Addr1" class="form-label">Address 1</label>
+          <input type="text" id="Addr1" appCanadaPostAddressComplete class="form-control" name="Addr1" formControlName="Addr1" required>
+        </div>
+        <div class="col-md-6">
+          <label for="Addr2" class="form-label">Address 2</label>
+          <input type="text" id="Addr2" appCanadaPostAddressComplete class="form-control" formControlName="Addr2" required>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-md-6">
+          <label for="Phone1" class="form-label">Phone 1</label>
+          <input type="text" id="Phone1" class="form-control" formControlName="Phone1" required>
+        </div>
+        <div class="col-md-6">
+          <label for="Phone2" class="form-label">Phone 2</label>
+          <input type="text" id="Phone2"  class="form-control" formControlName="Phone2" required>
+        </div>
+      </div>
+      <br>
+      <div class="row">          
+        <div class="col-md-6">
+          <label for="City" class="form-label">City</label>
+          <input type="text" id="City" class="form-control" formControlName="City" required>
+        </div>        
+        <div class="col-md-6">
+          <label for="State" class="form-label">State</label>
+          <input type="text" id="State" class="form-control" formControlName="State" required>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-md-6">
+          <label for="TotalCreditLimit" class="form-label">CreditLimit</label>
+          <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="AIGLimit" class="form-label">AIGLimit</label>
+          <input type="text" id="AIGLimit" class="form-control" formControlName="AIGLimit" required>
+        </div>
+      </div>
+      <br>
+
+      <div class="row">
+        <div class="col-md-6">
+          <label for="Terms" class="form-label">Terms</label>
+          <input type="text" id="Terms" class="form-control" formControlName="Terms" required>
+        </div>            
+      </div>
+        
+      
+        <button mat-button mat-dialog-close>Cancel</button>
+        <button mat-button type="submit" [disabled]="editForm.invalid">Save</button>
+      
+</form>

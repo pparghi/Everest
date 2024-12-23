@@ -10,6 +10,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { error } from 'jquery';
 import Swal from 'sweetalert2';
 import { LoginService } from '../../services/login.service';
+import { RoundThousandsPipe } from '../../round-thousands.pipe';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -30,6 +31,7 @@ interface DataItem {
   Addr2: string;
   Phone1: number;
   Phone2: number;
+  MotorCarrNo: number;
   expandedDetail: { detail: string };
 }
 
@@ -40,9 +42,9 @@ interface DataItem {
 })
 
 export class MasterDebtorsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Debtor', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'AIGLimit', 'Terms', 'CalcRateCode', 'IndivCreditLimit', 'CredExpireDate', 'RateDate', 'Edit', 'extra'];
+    displayedColumns: string[] = ['expand', 'Debtor', 'Balance', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'IndivCreditLimit', 'AIGLimit', 'Terms', 'CalcRateCode', 'CredExpireDate', 'RateDate', 'Edit', 'extra'];
     isLoading = true;
-    dataSource = new MatTableDataSource<any>([]);
+    dataSource = new MatTableDataSource<any>();
     totalRecords = 0;
     filter: string = '';
     specificPage: number = 1;
@@ -77,13 +79,16 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
 
     constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {
-      
+      console.log("constructor Called", '---------', this.paginator, this.sort);
     }
     ngOnInit(): void {
+      console.log("ngOnInit Called", '---------', this.paginator, this.sort);
       this.loadData();      
     }
 
-    ngAfterViewInit(): void {      
+    ngAfterViewInit(): void { 
+      console.log("ngAfterViewInit Called", '---------', this.paginator, this.sort);
+           
       if(this.paginator){
         this.paginator.page.subscribe(() => this.loadData());  
       }  
@@ -126,8 +131,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         });
 
         this.isLoading = true;      
-        const sort = this.sort ? this.sort.active : '';
-        const order = this.sort ? this.sort.direction : '';
+        let sort = this.sort ? this.sort.active : 'Balance';
+        let order = this.sort ? this.sort.direction : 'DESC';
         const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
         const pageSize = this.paginator ? this.paginator.pageSize : 25;
 
@@ -249,7 +254,25 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       this.editedElement = row;         
     }
 
-    edit(row: DataItem){            
+    edit(row: DataItem){    
+      // this.dataService.setEditData({ 
+      //   DebtorKey: row.DebtorKey, 
+      //   Debtor: row.Debtor, 
+      //   Duns: row.DbDunsNo, 
+      //   Addr1: row.Addr1, 
+      //   Addr2: row.Addr2, 
+      //   City: row.City, 
+      //   State: row.State, 
+      //   Phone1: row.Phone1, 
+      //   Phone2: row.Phone2, 
+      //   PctUtilized: row.PctUtilized, 
+      //   PastDuePct: row.PastDuePct, 
+      //   TotalCreditLimit: row.TotalCreditLimit, 
+      //   AIGLimit: row.AIGLimit, 
+      //   Terms: row.Terms, 
+      //   openForm: 'editForm' 
+      // });
+      // this.router.navigate(['/edit-master-debtor']);
       const dialogRef = this.dialog.open(DocumentDialogComponent, {         
         width: '850px',       
         maxWidth: 'none',   
@@ -270,6 +293,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
          TotalCreditLimit: row.TotalCreditLimit,
          AIGLimit: row.AIGLimit,
          Terms: row.Terms,
+         MotorCarrNo: row.MotorCarrNo,
          openForm: 'editForm' 
        }
      });
@@ -277,6 +301,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
      dialogRef.afterClosed().subscribe(result => {
          
      });
+
     }
 
     cancelEdit(row: DataItem) {
@@ -323,6 +348,31 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
               });
           }         
         });
+    }
+
+    openDSODialog(DSO30: number, DSO60: number, DSO90:number, Debtor: string){
+      const roundThousandsPipe = new RoundThousandsPipe();
+      var DSO_30 = roundThousandsPipe.transform(DSO30);
+      var DSO_60 = roundThousandsPipe.transform(DSO60);
+      var DSO_90 = roundThousandsPipe.transform(DSO90);      
+
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+        width: 'auto',       
+        maxWidth: 'none',   
+        height: 'auto',    
+        panelClass: 'custom-dialog-container',                    
+         data: {
+          DSO_30: DSO_30,
+          DSO_60: DSO_60,
+          DSO_90: DSO_90,
+          Debtor: Debtor
+        }
+      });
+      
+      dialogRef.afterClosed().subscribe(result => {
+          
+      });
+      
     }
 
     openDebtorContactsDialog(DebtorKey: number){

@@ -9,6 +9,8 @@ export class ClientsDebtorsService {
 
   constructor(private http: HttpClient) { }  
 
+  startTimer(callback: () => void, delay: number) { setTimeout(() => { callback(); }, delay)};
+
   getClientsDebtors(ClientKey: number): Observable<any> {        
     const url = `https://everest.revinc.com:4202/api/ClientsDebtors?ClientKey=${ClientKey}`;    
     return this.http.get<any>(url).pipe(
