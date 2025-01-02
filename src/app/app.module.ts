@@ -46,7 +46,8 @@ import { TestComponent } from './components/test/test.component';
 import { MemberMasterDebtorComponent } from './components/member-master-debtor/member-master-debtor.component';
 import { MasterDebtorEditComponent } from './components/master-debtor-edit/master-debtor-edit.component';
 import { RiskMonitoringComponent } from './components/risk-monitoring/risk-monitoring.component';
-const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/')
+const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/');
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @NgModule({
   declarations: [
@@ -74,6 +75,7 @@ const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.
     RiskMonitoringComponent,
   ],
   imports: [
+    MatDatepickerModule,
     BrowserModule,
     BrowserAnimationsModule,
     MsalModule.forRoot(new PublicClientApplication(

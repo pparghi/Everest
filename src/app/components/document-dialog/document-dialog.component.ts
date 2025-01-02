@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import Swal from 'sweetalert2';
@@ -18,7 +18,7 @@ import { LoginService } from '../../services/login.service';
   styleUrl: './document-dialog.component.css',  
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DocumentDialogComponent {
+export class DocumentDialogComponent implements OnInit {
   link: any;
   documentDescr: any;
   documentCategory: any;
@@ -111,6 +111,20 @@ export class DocumentDialogComponent {
         this.contactDataSource.data = response.debtorContactsData;
       });
     }
+  }
+
+  ngOnInit(): void {
+    const script = document.createElement('script');
+    script.src = 'https://ws1.postescanada-canadapost.ca/js/addresscomplete-2.50.min.js';
+    script.onload = () => {
+      console.log('AddressComplete script loaded');
+      const ac = new (<any>window).pca.AddressComplete(document.getElementById('Addr2'), {
+        key: 'dy85-mj85-wx29-nn39',
+        country: 'CAN'
+      });
+    };
+    console.log(script);
+    document.body.appendChild(script);
   }
 
   openFile(){
