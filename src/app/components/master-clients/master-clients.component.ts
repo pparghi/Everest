@@ -148,9 +148,9 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       }                     
     }
 
-    loadData(): void {      
-      const sort = this.sort ? this.sort.active : '';
-      const order = this.sort ? this.sort.direction : '';
+    loadData(): void {            
+      let sort = this.sort ? this.sort.active : 'Balance';
+      let order = this.sort ? this.sort.direction : 'DESC';
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;
       let filterByBalance = '';

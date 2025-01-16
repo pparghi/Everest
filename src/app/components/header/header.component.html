@@ -25,7 +25,7 @@
             <li class="nav-item" *ngIf="this.NavOptionClientRisk == 'Client Risk Page' && this.NavAccessClientRisk == 1" style="background-color: #e5e5e5;">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/risk-client" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Client Risk</a>
             </li>
-            <li class="nav-item" style="background-color: #e5e5e5;">
+            <li class="nav-item" *ngIf="this.NavOptionRiskMonitoring == 'Risk Monitoring' && this.NavAccessRiskMonitoring == 1" style="background-color: #e5e5e5;">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/monitoring" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Risk Monitoring</a>
             </li>
             <li class="nav-item" style="border-top-right-radius: 10px; background-color: #e5e5e5;">

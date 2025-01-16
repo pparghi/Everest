@@ -126,7 +126,10 @@
           <div class="row">
             <div class="col-md-6">
               <label for="Addr1" class="form-label">Address 1</label>
-              <input type="text" id="Addr1" class="form-control" name="Addr1" formControlName="Addr1" required>
+              <input type="text" id="Addr1" (input)="onAddressInput($event)" class="form-control" name="Addr1" formControlName="Addr1" required>
+              <ul *ngIf="addressSuggestions.length">
+                <li *ngFor="let suggestion of addressSuggestions">{{ suggestion.Text }}</li>
+              </ul>
             </div>
             <div class="col-md-6">
               <label for="Addr2" class="form-label">Address 2</label>

@@ -26,6 +26,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   NavAccessClientRisk: any;
   NavOptionUpdateMasterDebtor: any;
   NavAccessUpdateMasterDebtor: any;
+  NavOptionRiskMonitoring: any;
+  NavAccessRiskMonitoring: any;
   todayDate: any;
   todayRate: any;
   todayCurrency: any;
@@ -55,13 +57,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
           } else if (element.NavOption == 'Update Master Debtor'){
             this.NavOptionUpdateMasterDebtor = element.NavOption;          
             this.NavAccessUpdateMasterDebtor = element.NavAccess;
+          } else if (element.NavOption == 'Risk Monitoring'){
+            this.NavOptionRiskMonitoring = element.NavOption;          
+            this.NavAccessRiskMonitoring = element.NavAccess;
           } else {
             this.NavOptionMasterDebtor = '';
             this.NavAccessMasterDebtor = '';
             this.NavOptionClientRisk = '';
             this.NavAccessClientRisk = '';       
             this.NavOptionUpdateMasterDebtor = '';       
-            this.NavAccessUpdateMasterDebtor = '';       
+            this.NavAccessUpdateMasterDebtor = ''; 
+            this.NavOptionRiskMonitoring = '';
+            this.NavAccessRiskMonitoring = '';
           }                                           
                       
         });

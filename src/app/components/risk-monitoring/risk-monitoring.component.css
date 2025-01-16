@@ -15,9 +15,11 @@
 .main-table-container {
   border: 1px solid #dee2e6;
   border-radius: 5px;  
-  max-height: 700px;
+  max-height: 680px;
   overflow-y: auto;
   background-color: #ffffff;
+  padding-left: 5px;
+  padding-right: 5px;
 }   
 
 .example-container {
@@ -70,9 +72,7 @@
 }
 
 .mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
-  width: 55px !important; 
-  min-width: 55px !important;
-  max-width: 55px !important;
+  width: 90px !important; 
 }
 
 .custom-spinner ::ng-deep .mat-spinner circle, .mat-progress-spinner circle {
@@ -109,7 +109,7 @@
 
 .page-header {
   display: flex;
-  
+  padding-bottom: 5px;
   align-items: center;
 }
 
@@ -123,7 +123,7 @@
 }
 
 .search-bar {
-  width: 300px;  
+  width: 200px;  
   border: 1px solid #BCBDBF;
   border-radius: 2px;
 }
@@ -173,3 +173,22 @@
   max-width: none;  
   padding: 10px;   
  }
+
+ .mat-mdc-header-cell.client-column, .mat-mdc-cell.client-column {
+  width: 500px !important;   
+}
+
+.select-button {
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  padding: 0 16px;
+  background-color: #f0f8fc;
+  border-radius: 0.25rem;
+  border: 1px solid #0075ff;
+  color: #354562;
+  font-size: 13px;
+  line-height: 25px;
+  font-weight: 500;
+  text-align: center;
+}

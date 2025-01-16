@@ -1,5 +1,5 @@
 
-<div *ngIf="this.NavOptionMasterDebtor == 'Master Debtor' && this.NavAccessMasterDebtor == 1" class="example-container mat-elevation-z8" tabindex="0">                        
+<div class="example-container mat-elevation-z8" tabindex="0">                        
     <div class="page-header">
         <div>
             <p></p>
@@ -19,7 +19,7 @@
         </div>
     </div>       
     
-    <div class="main-table-container">    
+    <div class="main-table-container" *ngIf="this.NavOptionMasterDebtor == 'Master Debtor' && this.NavAccessMasterDebtor == 1">    
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
 
         <ng-container matColumnDef="expand">
@@ -206,9 +206,11 @@
                                 <th class="header" style="width: 10%;">61-90</th>
                                 <th class="header" style="width: 10%;">91-120</th>
                                 <th class="header" style="width: 10%;">121-150</th>
-                                <th class="header" style="width: 10%;">151-180</th>
-                                <th class="header" style="width: 10%;">180+</th>                                
-                                              
+                                <th class="header" style="width: 10%;">151+</th>                                
+                                <th class="header" style="width: 5%;">DSO30</th>
+                                <th class="header" style="width: 5%;">DSO60</th>
+                                <th class="header" style="width: 5%;">DSO90</th>
+                                <th class="header" style="width: 5%;">DSOAll</th>               
                             </tr>                               
                             <tr class="table-row">
                                 <td class="cell" style="width: 10%;">{{ element.Balance | roundThousands }}</td>
@@ -218,7 +220,10 @@
                                 <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age151to180 | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.AgeOver180 | roundThousands }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO30) }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>
+                                <td class="cell" style="width: 5%;">{{ math.round(element.DSOAll) }}</td>  
                                                                                         
                             </tr>                                
                         </table>
@@ -227,7 +232,7 @@
                                 <th class="header" style="width: 10%;">C/L</th>                                                                    
                                 <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
                                 <th class="header" style="width: 12%;"># of Outstanding Invoices</th>                                 
-                                <th></th>
+                                <th>Last Payment Date</th>
                                 <th></th>
                                 <th></th>
                                 <th></th>
@@ -238,7 +243,7 @@
                                 <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>                                                                    
                                 <td class="cell" style="width: 10%;">-</td>                                  
                                 <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>
-                                <td class="cell"></td>
+                                <td class="cell">{{ element.LastPmtDate }}</td>
                                 <td class="cell"></td>
                                 <td class="cell"></td>
                                 <td class="cell"></td>                                    
@@ -282,7 +287,7 @@
     <button mat-raised-button (click)="goToPage()">Go</button> -->
     
     <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons style="background-color: white;"></mat-paginator>
-</div>
-<div class="spinner-container" *ngIf="isLoading;">
-    <mat-spinner class="custom-spinner"></mat-spinner>
+    <div class="spinner-container" *ngIf="isLoading;">
+        <mat-spinner class="custom-spinner"></mat-spinner>
+    </div>
 </div>

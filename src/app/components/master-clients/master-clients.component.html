@@ -1,4 +1,4 @@
-<div *ngIf="this.NavOptionClientRisk == 'Client Risk Page' && this.NavAccessClientRisk == 1" class="example-container mat-elevation-z8" tabindex="0">                        
+<div class="example-container mat-elevation-z8" tabindex="0">                        
     <div class="page-header">
         <div>
             <p></p>
@@ -33,7 +33,7 @@
         </div>
     </div>       
     
-    <div class="table-container">    
+    <div class="table-container" *ngIf="this.NavOptionClientRisk == 'Client Risk Page' && this.NavAccessClientRisk == 1">    
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
         
         <ng-container matColumnDef="Client">

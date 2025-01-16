@@ -100,8 +100,7 @@
                                     <th class="header" style="width: 10%;">61-90</th>
                                     <th class="header" style="width: 10%;">91-120</th>
                                     <th class="header" style="width: 10%;">121-150</th>
-                                    <th class="header" style="width: 10%;">151-180</th>
-                                    <th class="header" style="width: 10%;">180+</th>
+                                    <th class="header" style="width: 10%;">151+</th>
                                     <th class="header" style="width: 5%;">DSO30</th>
                                     <th class="header" style="width: 5%;">DSO60</th>
                                     <th class="header" style="width: 5%;">DSO90</th>
@@ -115,7 +114,6 @@
                                     <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.Age151to180 | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;">{{ element.AgeOver180 | roundThousands }}</td>
                                     <td class="cell" style="width: 5%;">{{ math.round(element.DSO30) }}</td>
                                     <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
                                     <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>

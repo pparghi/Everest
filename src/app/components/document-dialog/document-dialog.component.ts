@@ -10,7 +10,9 @@ import { error, event } from 'jquery';
 import { count, map } from 'rxjs/operators';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
 import { LoginService } from '../../services/login.service';
+import { AddressAutocompleteService } from '../../services/address-autocomplete.service';
 // import imageCompression from 'browser-image-compression';
+declare var pca: any;
 
 @Component({
   selector: 'app-document-dialog',
@@ -50,8 +52,9 @@ export class DocumentDialogComponent implements OnInit {
   changedNoaStatus!: string;    
   payment_images!: { fullname: string; basename: any; }[];
   fileExtension: any;
+  addressSuggestions: any[] = [];
   
-  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressCompleteService: AddressAutocompleteService) {
     if(data.openForm){      
 
     if(data.Phone1.length == 11 || data.Phone2.length == 11){
@@ -125,6 +128,24 @@ export class DocumentDialogComponent implements OnInit {
     };
     console.log(script);
     document.body.appendChild(script);
+  }
+
+  ngAfterViewInit() {
+    // if (typeof pca !== 'undefined') {
+    //   pca.setup({
+    //     key: 'dy85-mj85-wx29-nn39',
+    //     culture: 'en-CA'
+    //   });
+    // } else {
+    //   console.error('AddressComplete script not loaded');
+    // }
+  }
+
+  onAddressInput(event: any) {
+    const query = event.target.value;
+    this.addressCompleteService.getSuggestions(query).then((data: any) => {
+      this.addressSuggestions = data;
+    });
   }
 
   openFile(){

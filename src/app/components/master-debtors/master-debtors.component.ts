@@ -78,17 +78,13 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
   NavAccessUpdateMasterDebtor: any;
 
 
-    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {
-      console.log("constructor Called", '---------', this.paginator, this.sort);
+    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {      
     }
-    ngOnInit(): void {
-      console.log("ngOnInit Called", '---------', this.paginator, this.sort);
+    ngOnInit(): void {      
       this.loadData();      
     }
 
-    ngAfterViewInit(): void { 
-      console.log("ngAfterViewInit Called", '---------', this.paginator, this.sort);
-           
+    ngAfterViewInit(): void {            
       if(this.paginator){
         this.paginator.page.subscribe(() => this.loadData());  
       }  

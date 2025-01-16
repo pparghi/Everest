@@ -13,7 +13,8 @@ interface DataItem {
 @Component({
   selector: 'app-risk-monitoring',
   templateUrl: './risk-monitoring.component.html',
-  styleUrl: './risk-monitoring.component.css'
+  styleUrl: './risk-monitoring.component.css',
+  providers: [DatePipe]
 })
 
 export class RiskMonitoringComponent implements OnInit {
@@ -22,20 +23,55 @@ export class RiskMonitoringComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   isActive = '0';
+  isDDSelect = 'N';
   isLoading = true;
+  level = '';
+  office = '';
+  crm = '';
+  isFuel = '';
   dataSource = new MatTableDataSource<any>();
   totalRecords = 0;
   displayedColumns: string[] = ['expand', 'Client', 'Level', 'CRM','A/R', 'NFE', 'Ineligibles', 'Reserves', 'Availability'];
   expandedElement: DataItem | null = null;
-  isDDSelect!: string;
-  isDDCreatedBy!: string;
+  isDDCreatedBy = '';
+
+  clientGroupLevelList: any;
+  clientCRMList: any;
+  officeList: any;
+  DDCreatedBy: any;  
+  defaultDate!: string;
+  formattedDate: any;
+  dueDateFrom: any;
+  dueDateTo: any;
   
-  constructor(private dataService: RiskMonitoringService) { 
-    
+  constructor(private dataService: RiskMonitoringService, private datePipe: DatePipe) { 
+    let currentDate = new Date();
+    let today = new Date();
+    currentDate.setDate(currentDate.getDate() - 6);
+    this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+    this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
   }
 
   ngOnInit(): void {    
     this.loadData();      
+    this.loadClientGroupLevelList();
+    this.loadClientCRMList();
+    this.loadOfficeList();
+    this.loadDDCreatedByList(); 
+  }
+
+  ngAfterViewInit(): void {            
+    if(this.paginator){
+      this.paginator.page.subscribe(() => this.loadData());  
+    }  
+    if (this.sort) {
+      this.sort.sortChange.subscribe(() => {  
+        if(this.paginator){
+          this.paginator.pageIndex = 0;  
+        }
+        this.loadData();  
+      });  
+    }                     
   }
 
   loadData(): void {
@@ -66,11 +102,11 @@ export class RiskMonitoringComponent implements OnInit {
     //     console.error('error--', error);
     //   });
 
-    //   this.isLoading = true;      
-    //   let sort = this.sort ? this.sort.active : 'Balance';
-    //   let order = this.sort ? this.sort.direction : 'DESC';
-    //   const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
-    //   const pageSize = this.paginator ? this.paginator.pageSize : 25;
+      this.isLoading = true;      
+      let sort = this.sort ? this.sort.active : '';
+      let order = this.sort ? this.sort.direction : '';
+      const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
+      const pageSize = this.paginator ? this.paginator.pageSize : 25;
 
     //   const mail = btoa(this.profile.mail);        
 
@@ -80,7 +116,7 @@ export class RiskMonitoringComponent implements OnInit {
     //     filterByBalance = 'balance';
     //   } 
       
-      this.dataService.getData(this.isActive).subscribe(response => {                
+      this.dataService.getData(page ,pageSize, sort, order, this.isActive, this.dueDateFrom, this.dueDateTo, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {                
         this.isLoading = false;
       
         this.dataSource.data = response.data;
@@ -91,9 +127,45 @@ export class RiskMonitoringComponent implements OnInit {
       });    
   }
 
+  loadClientGroupLevelList() {
+    this.dataService.getClientGroupLevelList().subscribe(response => {                                         
+      this.clientGroupLevelList = response.clientGroupLevelList;
+    });
+  }
+
+  loadClientCRMList() {
+    this.dataService.getCRMList().subscribe(response => {                                         
+      this.clientCRMList = response.CRMList;
+    });
+  }
+
+  loadOfficeList() {
+    this.dataService.getOfficeList().subscribe(response => {                                         
+      this.officeList = response.officeList;
+    });
+  }
+
+  loadDDCreatedByList() {
+    this.dataService.getDDCreatedByList().subscribe(response => {                                         
+      this.DDCreatedBy = response.DDCreatedBy;
+    });
+  }
+
   onChangeIsActive(event: Event){
     const selectElement = event.target as HTMLSelectElement;
       this.isActive = selectElement.value   
+      this.loadData();
+  }
+  
+  onChangedueDateFrom(event: Event){
+    const selectElement = event.target as HTMLSelectElement;
+      this.dueDateFrom = selectElement.value   
+      this.loadData();
+  }
+
+  onChangedueDateTo(event: Event){
+    const selectElement = event.target as HTMLSelectElement;
+      this.dueDateTo = selectElement.value   
       this.loadData();
   }
 
@@ -111,25 +183,25 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangeLevel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isActive = selectElement.value   
+      this.level = selectElement.value   
       this.loadData();
   }
 
   onChangeOffice(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isActive = selectElement.value   
+      this.office = selectElement.value   
       this.loadData();
   }
 
   onChangeCRM(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isActive = selectElement.value   
+      this.crm = selectElement.value   
       this.loadData();
   }
 
   onChangeFuel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isActive = selectElement.value   
+      this.isFuel = selectElement.value   
       this.loadData();
   }  
 
@@ -140,7 +212,8 @@ export class RiskMonitoringComponent implements OnInit {
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.filter = filterValue.trim().toLowerCase(); 
-    this.paginator.pageIndex = 0;     
+    this.paginator.pageIndex = 0;
+    this.loadData();     
   }
 
   isExpanded(element: DataItem): boolean {
