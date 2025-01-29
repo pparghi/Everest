@@ -1,0 +1,228 @@
+<div class="example-container mat-elevation-z8" tabindex="0">     
+    <div class="row" style="justify-content: space-between;">
+        <div class="col-md-4">
+            <mat-card appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Client</mat-card-title>
+                </mat-card-header><br>
+                <mat-card-content *ngIf="client">
+                    <table>
+                        <tr>
+                            <td><b>Name</b></td>
+                            <td>{{ client.Name }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top;"><b>Signed</b></td>
+                            <td>{{ client.SignedDate | date:'MM/dd/yyyy' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top;"><b>CRM/Office</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                            <td *ngIf="this.NavAccessRiskMonitoringRestricted == 1; else elseBlockCRM" >{{ client.AcctExec }} / {{ client.Office }}</td>
+                            <ng-template #elseBlockCRM>
+                                <td>
+                                    <select style="font-size: 13px;" class="dropdown">
+                                        <option value="{{ client.AcctExec }}">{{ client.AcctExec }}</option>
+                                        <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey">{{ crm.UserKey }}</option>
+                                    </select> / {{ client.Office }}
+                                </td>
+                            </ng-template>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top;"><b>Address</b></td>
+                            <td>{{ client.Addr1 }} {{ client.Addr2 }} <br> {{ client.City }} {{ client.State }} {{ client.ZipCode }} </td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top;"><b>Phones</b></td>
+                            <td>{{ client.Phone1 }} {{ client.Phone2 }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top;"></td>
+                            <td *ngIf="client.Inactive == 0; else elseBlockStatus" style="color: green;"><b>Active</b></td>
+                            <ng-template #elseBlockStatus>
+                                <td style="color: red;"><b>Inactive</b></td>
+                            </ng-template>
+                        </tr>
+                    </table>
+                </mat-card-content>
+            </mat-card>
+        </div>
+        <div class="col-md-4">
+            <mat-card style="height: 100%;" appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Contacts</mat-card-title>
+                </mat-card-header><br>
+                <mat-card-content>
+                    <table>
+                        <tr>
+                            <td><b>Name</b></td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;<b>Phone</b></td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;<b>Email</b></td>
+                        </tr>
+                        <tr *ngFor="let contact of contacts">
+                            <td>{{ contact.LastName }} {{ contact.FirstName }} </td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Phone }} </td>
+                            <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Email }} </td>
+                        </tr>
+                    </table>
+                </mat-card-content>
+            </mat-card>
+        </div>
+        <div class="col-md-4">
+            <mat-card style="height: 100%;" appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Concern</mat-card-title>
+                </mat-card-header><br>
+                <mat-card-content *ngIf="client">
+                    <tr>
+                        <td><b>Level</b></td>                        
+                        <td *ngIf="this.NavAccessRiskMonitoringRestricted == 1; else elseBlockLevel"></td>
+                        <ng-template #elseBlockLevel>
+                            <td>
+                                <select style="font-size: 13px;" class="dropdown">
+                                    <option value=""></option>
+                                    <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey">{{ crm.UserKey }}</option>
+                                </select> 
+                            </td>
+                        </ng-template>                       
+                        
+                    </tr>
+                    <tr>
+                        <td><b>Fuel Client</b></td>
+                        <td *ngIf="this.isFuel == 'YES'; else elseBlockFuel" style="color: green;">YES</td>
+                        <ng-template #elseBlockFuel>                            
+                            <td style="color: red;">NO</td>                            
+                        </ng-template>
+                    </tr>
+                    <tr>
+                        <td><b>A/R</b></td>
+                        <td *ngIf="this.ARGrossBalance < 0; else elseBlockAR">{{ this.ARGrossBalanceNeg | number:'1.2-2' }}</td>
+                        <ng-template #elseBlockAR>                            
+                            <td>{{ this.ARGrossBalance | number:'1.2-2' }}</td>                            
+                        </ng-template>
+
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <b>NFE</b>
+                        </td>
+                        <td *ngIf="this.NFE < 0; else elseBlockNFE">{{ this.NFENeg | number:'1.2-2' }}</td>
+                        <ng-template #elseBlockNFE>                            
+                            <td>{{ this.NFE | number:'1.2-2' }}</td>                            
+                        </ng-template>
+                    </tr>
+                    <tr>
+                        <td><b>Ineligible</b></td>
+                        <td *ngIf="this.Ineligible < 0; else elseBlockIneligible">{{ this.IneligibleNeg | number:'1.2-2' }}</td>
+                        <ng-template #elseBlockIneligible>                            
+                            <td>{{ this.Ineligible | number:'1.2-2' }}</td>                            
+                        </ng-template>
+
+                        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <b>Reserve</b>
+                        </td>
+                        <td *ngIf="this.Reserve < 0; else elseBlockReserve">{{ this.ReserveNeg | number:'1.2-2' }}</td>
+                        <ng-template #elseBlockReserve>                            
+                            <td>{{ this.Reserve | number:'1.2-2' }}</td>                            
+                        </ng-template>
+                    </tr>
+                    <tr>
+                        <td><b>Availability &nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                        <td *ngIf="this.Availability < 0; else elseBlockAvailability">{{ this.AvailabilityNeg | number:'1.2-2' }}</td>
+                        <ng-template #elseBlockAvailability>                            
+                            <td>{{ this.Availability | number:'1.2-2' }}</td>                            
+                        </ng-template>
+                    </tr>                    
+                    <tr>
+                        
+                    </tr>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div><br>
+    <div class="row">
+        <div class="col">
+            <mat-card appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Add New Note</mat-card-title>
+                </mat-card-header><br>
+                <mat-card-content>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for=""><b>Category</b></label><br>
+                            <select class="form-control" style="font-size: 13px;">
+                                <option value="">Select Category</option>
+                                <option *ngFor="let category of MonitoringCategories" [value]="category">{{ category }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="due_date"><b>Due Date </b></label><br>
+                            <input type="date" class="form-control" style="font-size: 13px;" [value]="" name="" id="due_date">  
+                        </div>
+                        <div class="col-md">
+                            <label for="note"><b>Note </b></label><br>
+                            <textarea name="" id="" cols="110" class="form-control-sm w-100" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-1">
+                            <label for=""></label><br>
+                            <button mat-fab extended style="height: 40px; font-size: 13px;" (click)="addNote()">Add Note</button>
+                        </div>
+                    </div>                
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col">
+            <mat-card appearance="outlined">
+                <mat-card-header>
+                    <mat-card-title>Note History</mat-card-title>
+                </mat-card-header><br>
+                <mat-card-content>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label for=""><b>Category</b></label>&nbsp;&nbsp;
+                            <select class="dropdown" (change)="onCategoryChange($event)">
+                                <option value="">Select Category</option>
+                                <option *ngFor="let category of MonitoringCategories" [value]="category">{{ category }}</option>
+                            </select>
+                        </div>
+                        <div class='col'><strong>Due Date</strong></div>
+                        <div class='col'><strong>Completed</strong></div>
+                        <div class='col'><strong>Created By</strong></div>
+                        <div class='col'><strong>Created Date</strong></div>
+                        <div class='col'><strong></strong></div>
+                    </div>
+                    <div class="row" *ngFor="let note of MonitoringNotes">
+                        <div class="col-md-2">
+                        {{ note.Category }}
+                        </div>
+                        <div class='col' *ngIf="note.DueDate == null; else elseBlockCategory">N/A</div>
+                        <ng-template #elseBlockCategory>
+                            <div class='col'>{{ note.DueDate | date:'MM/dd/yyyy' }}</div>
+                        </ng-template>                    
+                        <div class='col' *ngIf="note.DueDate == null; else elseBlockCompleted">N/A</div>
+                        <ng-template #elseBlockCompleted>
+                            <div class="col" *ngIf="note.Completed == null; else elseBlock">
+                                <span id="completed-{{ note.ClientNoteKey }}" class="btn-sm btn-success risk_select_note_completed">Set as Completed</span>
+                            </div>
+                            
+                            <ng-template #elseBlock>
+                                <div class='col'>
+                                    {{ note.Completed | date:'MM/dd/yyyy' }}&nbsp;
+                                    <span id="notcompleted-{{ note.ClientNoteKey }}" class="btn-sm btn-danger risk_select_note_notcompleted">Not Completed</span>
+                                </div>
+                            </ng-template>
+                        </ng-template>                                        
+                        <div class='col'>{{ note.CreatedBy }}</div>
+                        <div class='col'>{{ note.CreatedDate | date:"MM/dd/yyyy HH:mm:ss" }}</div>
+                        <div class='col'>
+                            <span id="delete-{{ note.ClientNoteKey }}" class="btn-sm btn-danger risk_select_delete_note">Delete</span>
+                        </div>
+                        <div class='row text-left pl-3 pt-3 pb-3'>
+                            <div class="form-control-sm" style="height: fit-content;width: 99%;border: #000000 solid 1px;">{{ note.Notes }}</div>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

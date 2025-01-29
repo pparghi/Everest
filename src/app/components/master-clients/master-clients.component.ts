@@ -39,7 +39,7 @@ interface MemberDataItem {
 })
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'Balance', 'Reserve', 'NFE', 'extra'];
+    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'IneligiblePct', 'OverAdvancedPct', 'Balance', 'Reserve', 'NFE', 'extra'];
     displayedMemberColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 
@@ -72,6 +72,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   filterByBalance!: string;
   clientGroupLevelList: any;
   clientGroupList: any;
+  clientCRMList: any;
   clientGroupValueList: any;
   filterByGroupLevel!: string;
   filterByGroup!: any;
@@ -79,6 +80,11 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   profile: any;
   NavOptionUpdateMasterDebtor: any;
   NavAccessUpdateMasterDebtor: any;
+  NavOptionRiskMonitoring: any;
+  NavAccessRiskMonitoring: any;
+  NavOptionRiskMonitoringRestricted: any;
+  NavAccessRiskMonitoringRestricted: any;
+  filterByCRM!: any;
 
     constructor(private dataService: MasterClientsService, private router: Router, private http: HttpClient, private loginService: LoginService) {}
     ngOnInit(): void {  
@@ -96,14 +102,24 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
             } else if (element.NavOption == 'Update Master Debtor'){
               this.NavOptionUpdateMasterDebtor = element.NavOption;          
               this.NavAccessUpdateMasterDebtor = element.NavAccess;
+            } else if (element.NavOption == 'Risk Monitoring'){
+              this.NavOptionRiskMonitoring = element.NavOption;          
+              this.NavAccessRiskMonitoring = element.NavAccess;
+            } else if (element.NavOption == 'Risk Monitoring Restricted'){
+              this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+              this.NavAccessRiskMonitoringRestricted = element.NavAccess;
             } else {
               this.NavOptionMasterDebtor = '';
               this.NavAccessMasterDebtor = '';
               this.NavOptionClientRisk = '';
               this.NavAccessClientRisk = '';       
               this.NavOptionUpdateMasterDebtor = '';       
-              this.NavAccessUpdateMasterDebtor = '';       
-            }                                          
+              this.NavAccessUpdateMasterDebtor = ''; 
+              this.NavOptionRiskMonitoring = '';
+              this.NavAccessRiskMonitoring = '';
+              this.NavOptionRiskMonitoringRestricted = '';
+              this.NavAccessRiskMonitoringRestricted = '';
+            }                                  
                         
           });
         }, error => {
@@ -125,6 +141,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     loadClientGroupList() {
       this.dataService.getClientGroupList().subscribe(response => {                      
         this.clientGroupList = response.clientGroupList;
+        this.clientCRMList = response.clientCRMList;
       });
     }
 
@@ -156,18 +173,19 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       let filterByBalance = '';
       let filterByGroup = this.filterByGroup ? this.filterByGroup : '%';
       let filterByGroupValue = this.filterByGroupValue ? this.filterByGroupValue : '%';
+      let filterByCRM = this.filterByCRM ? this.filterByCRM : '%';
 
       if (this.filterByBalance == 'Balance') {
         filterByBalance = 'balance';
       } 
 
-      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup, filterByGroupValue).subscribe(response => {                                                          
+      this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup, filterByGroupValue, filterByCRM).subscribe(response => {                                                              
         this.isLoading = false;
         this.dataSource.data = response.data;
 
         response.data.forEach((element: any) => {
           const total = element.total;          
-          this.totalRecords = total;                
+          this.totalRecords = total;    
         });
         
       });
@@ -333,6 +351,12 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       onChangeGroupValue(event: Event){
         const selectElement = event.target as HTMLSelectElement;          
           this.filterByGroupValue = selectElement.value;          
+          this.loadData();
+      }
+
+      onChangeCRM(event: Event){
+        const selectElement = event.target as HTMLSelectElement;          
+          this.filterByCRM = selectElement.value;          
           this.loadData();
       }
    

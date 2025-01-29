@@ -79,4 +79,61 @@ export class RiskMonitoringService {
       })
     );
   }
+
+  getClientDetails(ClientKey: number){
+    const url = `https://everest.revinc.com:4202/api/ClientDetails?ClientKey=${ClientKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {        
+        return {
+          data: response.ClientDetails.map((item: any) => ({
+            ...item 
+          })),          
+          ClientDetails: response.ClientDetails
+        };
+      })
+    );
+  }
+
+  getClientContactsDetails(ClientKey: number){
+    const url = `https://everest.revinc.com:4202/api/ClientContactsDetails?ClientKey=${ClientKey}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {        
+        return {
+          data: response.ClientContactsDetails.map((item: any) => ({
+            ...item 
+          })),          
+          ClientContactsDetails: response.ClientContactsDetails,
+          ClientFuelOrNot: response.ClientFuelOrNot
+        };
+      })
+    );
+  }
+
+  getMonitoringCategories(){
+    const url = `https://everest.revinc.com:4202/api/MonitoringCategories`;
+    return this.http.get<any>(url).pipe(
+      map(response => {        
+        return {
+          data: response.MonitoringCategories.map((item: any) => ({
+            ...item 
+          })),          
+          MonitoringCategories: response.MonitoringCategories
+        };
+      })
+    );
+  }
+
+  getMonitoringNotes(ClientKey: number, Category: string){
+    const url = `https://everest.revinc.com:4202/api/MonitoringNotes?ClientKey=${ClientKey}&Category=${Category}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {        
+        return {
+          data: response.MonitoringNotes.map((item: any) => ({
+            ...item 
+          })),          
+          MonitoringNotes: response.MonitoringNotes
+        };
+      })
+    );
+  }
 }

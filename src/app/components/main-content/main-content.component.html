@@ -29,6 +29,9 @@
     <div *ngIf="currentPath.includes('memberMasterdebtor')">
         <app-member-master-debtor></app-member-master-debtor>
     </div>
+    <div *ngIf="currentPath.includes('detail')">
+        <app-risk-monitoring-detail></app-risk-monitoring-detail>
+    </div>
     <div *ngIf="currentPath.includes('monitoring')">
         <app-risk-monitoring></app-risk-monitoring>
     </div>

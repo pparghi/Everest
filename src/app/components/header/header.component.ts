@@ -33,6 +33,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   todayCurrency: any;
 
   readonly dialog = inject(MatDialog);    
+  NavOptionRiskMonitoringRestricted: any;
+  NavAccessRiskMonitoringRestricted: any;
 
   constructor(@Inject(MSAL_GUARD_CONFIG) 
   private msalGuardConfig: MsalGuardConfiguration, 
@@ -60,6 +62,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
           } else if (element.NavOption == 'Risk Monitoring'){
             this.NavOptionRiskMonitoring = element.NavOption;          
             this.NavAccessRiskMonitoring = element.NavAccess;
+          } else if (element.NavOption == 'Risk Monitoring Restricted'){
+            this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+            this.NavAccessRiskMonitoringRestricted = element.NavAccess;
           } else {
             this.NavOptionMasterDebtor = '';
             this.NavAccessMasterDebtor = '';
@@ -69,8 +74,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
             this.NavAccessUpdateMasterDebtor = ''; 
             this.NavOptionRiskMonitoring = '';
             this.NavAccessRiskMonitoring = '';
-          }                                           
-                      
+            this.NavOptionRiskMonitoringRestricted = '';
+            this.NavAccessRiskMonitoringRestricted = '';
+          }          
         });
       }, error => {
         console.error('error--', error);

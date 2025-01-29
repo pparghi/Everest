@@ -76,6 +76,10 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
   NavAccessMasterDebtorUpdate: any;
   NavOptionUpdateMasterDebtor: any;
   NavAccessUpdateMasterDebtor: any;
+  NavOptionRiskMonitoring: any;
+  NavAccessRiskMonitoring: any;
+  NavOptionRiskMonitoringRestricted: any;
+  NavAccessRiskMonitoringRestricted: any;
 
 
     constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {      
@@ -112,14 +116,24 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
             } else if (element.NavOption == 'Update Master Debtor'){
               this.NavOptionUpdateMasterDebtor = element.NavOption;          
               this.NavAccessUpdateMasterDebtor = element.NavAccess;
+            } else if (element.NavOption == 'Risk Monitoring'){
+              this.NavOptionRiskMonitoring = element.NavOption;          
+              this.NavAccessRiskMonitoring = element.NavAccess;
+            } else if (element.NavOption == 'Risk Monitoring Restricted'){
+              this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+              this.NavAccessRiskMonitoringRestricted = element.NavAccess;
             } else {
               this.NavOptionMasterDebtor = '';
               this.NavAccessMasterDebtor = '';
               this.NavOptionClientRisk = '';
               this.NavAccessClientRisk = '';       
               this.NavOptionUpdateMasterDebtor = '';       
-              this.NavAccessUpdateMasterDebtor = '';       
-            }                                           
+              this.NavAccessUpdateMasterDebtor = ''; 
+              this.NavOptionRiskMonitoring = '';
+              this.NavAccessRiskMonitoring = '';
+              this.NavOptionRiskMonitoringRestricted = '';
+              this.NavAccessRiskMonitoringRestricted = '';
+            }                                         
                         
           });
         }, error => {

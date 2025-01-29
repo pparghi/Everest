@@ -48,6 +48,9 @@ import { MasterDebtorEditComponent } from './components/master-debtor-edit/maste
 import { RiskMonitoringComponent } from './components/risk-monitoring/risk-monitoring.component';
 const isIE = window.navigator.userAgent.indexOf('MSIE')>-1  || window.navigator.userAgent.indexOf('Trident/');
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { RiskMonitoringDetailComponent } from './components/risk-monitoring-detail/risk-monitoring-detail.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -73,6 +76,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MemberMasterDebtorComponent,
     MasterDebtorEditComponent,
     RiskMonitoringComponent,
+    RiskMonitoringDetailComponent,
   ],
   imports: [
     MatDatepickerModule,
@@ -127,7 +131,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatProgressSpinnerModule,
     MatIconModule,
     MatListModule,
-    MatSelectModule
+    MatSelectModule,
+    MatCardModule,
+    MatCheckboxModule
   ],
   providers: [
     CacheService,

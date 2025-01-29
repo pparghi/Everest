@@ -10,14 +10,14 @@ export class MasterClientsService {
 
   constructor(private http: HttpClient) { }
 
-  getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string, filterByBalance: string, filterByGroup: string, filterByGroupValue: string): Observable<any> {
-    const url = `https://everest.revinc.com:4202/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&filterByBalance=${filterByBalance}&filterByGroup=${filterByGroup}&filterByGroupValue=${filterByGroupValue}`;
+  getData(page: number, perPage: number, search: string, sortBy: string, sortOrder: string, filterByBalance: string, filterByGroup: string, filterByGroupValue: string, filterByCRM: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/masterClients?page=${page}&per_page=${perPage}&search=${search}&sortBy=${sortBy}&sortOrder=${sortOrder}&filterByBalance=${filterByBalance}&filterByGroup=${filterByGroup}&filterByGroupValue=${filterByGroupValue}&filterByCRM=${filterByCRM}`;
     return this.http.get<any>(url).pipe(
-      map(response => {        
+      map(response => {
         return {
           data: response.data.map((item: any) => ({
             ...item,
-            expandedDetail: { detail: 'Additional details for ' + item.Client } 
+            
           })),
           total: response.total[""]          
         };
@@ -32,7 +32,7 @@ export class MasterClientsService {
         return {
           data: response.clientGroupLevelList.map((item: any) => ({
             ...item,
-            expandedDetail: { detail: 'Additional details for ' + item.Client } 
+             
           })),          
           clientGroupLevelList: response.clientGroupLevelList
         };
@@ -47,9 +47,10 @@ export class MasterClientsService {
         return {
           data: response.clientGroupList.map((item: any) => ({
             ...item,
-            expandedDetail: { detail: 'Additional details for ' + item.Client } 
+             
           })),          
-          clientGroupList: response.clientGroupList
+          clientGroupList: response.clientGroupList,
+          clientCRMList: response.clientCRMList
         };
       })
     );
@@ -62,7 +63,7 @@ export class MasterClientsService {
         return {
           data: response.clientGroupValueList.map((item: any) => ({
             ...item,
-            expandedDetail: { detail: 'Additional details for ' + item.Client } 
+            
           })),          
           clientGroupValueList: response.clientGroupValueList
         };

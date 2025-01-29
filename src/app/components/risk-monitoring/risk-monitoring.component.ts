@@ -4,6 +4,11 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
 import { MatTableDataSource } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { LoginService } from '../../services/login.service';
+import { DataService } from '../../services/data.service';
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
   Client: string,
@@ -43,8 +48,19 @@ export class RiskMonitoringComponent implements OnInit {
   formattedDate: any;
   dueDateFrom: any;
   dueDateTo: any;
+  profile: any; 
+  NavOptionMasterDebtor: any;
+  NavAccessMasterDebtor: any;
+  NavAccessClientRisk: any;
+  NavOptionClientRisk: any;
+  NavOptionUpdateMasterDebtor: any;
+  NavAccessUpdateMasterDebtor: any;
+  NavOptionRiskMonitoring: any;
+  NavAccessRiskMonitoring: any;
+  NavOptionRiskMonitoringRestricted: any;
+  NavAccessRiskMonitoringRestricted: any;
   
-  constructor(private dataService: RiskMonitoringService, private datePipe: DatePipe) { 
+  constructor(private riskService: RiskMonitoringService, private http: HttpClient, private datePipe: DatePipe, private router: Router, private loginService: LoginService, private dataService: DataService) { 
     let currentDate = new Date();
     let today = new Date();
     currentDate.setDate(currentDate.getDate() - 6);
@@ -75,32 +91,43 @@ export class RiskMonitoringComponent implements OnInit {
   }
 
   loadData(): void {
-    // this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-    //   this.profile = profile;
-    //   this.loginService.getData(this.profile.mail).subscribe(response => {                                
-    //     response.data.forEach((element: any) => {
-    //       if (element.NavOption == 'Master Debtor') {            
-    //         this.NavOptionMasterDebtor = element.NavOption;          
-    //         this.NavAccessMasterDebtor = element.NavAccess;
-    //       } else if (element.NavOption == 'Client Risk Page'){
-    //         this.NavOptionClientRisk = element.NavOption;          
-    //         this.NavAccessClientRisk = element.NavAccess;
-    //       } else if (element.NavOption == 'Update Master Debtor'){
-    //         this.NavOptionUpdateMasterDebtor = element.NavOption;          
-    //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
-    //       } else {
-    //         this.NavOptionMasterDebtor = '';
-    //         this.NavAccessMasterDebtor = '';
-    //         this.NavOptionClientRisk = '';
-    //         this.NavAccessClientRisk = '';       
-    //         this.NavOptionUpdateMasterDebtor = '';       
-    //         this.NavAccessUpdateMasterDebtor = '';       
-    //       }                                           
+    this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      this.profile = profile;
+      this.loginService.getData(this.profile.mail).subscribe(response => {                                
+        response.data.forEach((element: any) => {
+          if (element.NavOption == 'Master Debtor') {            
+            this.NavOptionMasterDebtor = element.NavOption;          
+            this.NavAccessMasterDebtor = element.NavAccess;
+          } else if (element.NavOption == 'Client Risk Page'){
+            this.NavOptionClientRisk = element.NavOption;          
+            this.NavAccessClientRisk = element.NavAccess;
+          } else if (element.NavOption == 'Update Master Debtor'){
+            this.NavOptionUpdateMasterDebtor = element.NavOption;          
+            this.NavAccessUpdateMasterDebtor = element.NavAccess;
+          } else if (element.NavOption == 'Risk Monitoring'){
+            this.NavOptionRiskMonitoring = element.NavOption;          
+            this.NavAccessRiskMonitoring = element.NavAccess;
+          } else if (element.NavOption == 'Risk Monitoring Restricted'){
+            this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+            this.NavAccessRiskMonitoringRestricted = element.NavAccess;
+            console.log(this.NavOptionRiskMonitoringRestricted, '=----=-=-', this.NavAccessRiskMonitoringRestricted);            
+          } else {
+            this.NavOptionMasterDebtor = '';
+            this.NavAccessMasterDebtor = '';
+            this.NavOptionClientRisk = '';
+            this.NavAccessClientRisk = '';       
+            this.NavOptionUpdateMasterDebtor = '';       
+            this.NavAccessUpdateMasterDebtor = ''; 
+            this.NavOptionRiskMonitoring = '';
+            this.NavAccessRiskMonitoring = '';
+            this.NavOptionRiskMonitoringRestricted = '';
+            this.NavAccessRiskMonitoringRestricted = '';
+          }                                           
                       
-    //     });
-    //   }, error => {
-    //     console.error('error--', error);
-    //   });
+        });
+      }, error => {
+        console.error('error--', error);
+      });
 
       this.isLoading = true;      
       let sort = this.sort ? this.sort.active : '';
@@ -116,37 +143,38 @@ export class RiskMonitoringComponent implements OnInit {
     //     filterByBalance = 'balance';
     //   } 
       
-      this.dataService.getData(page ,pageSize, sort, order, this.isActive, this.dueDateFrom, this.dueDateTo, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {                
+      this.riskService.getData(page ,pageSize, sort, order, this.isActive, this.dueDateFrom, this.dueDateTo, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {                
         this.isLoading = false;
       
         this.dataSource.data = response.data;
         response.data.forEach((element: any) => {
-          const total = element.total;          
+          const total = element.Total;          
           this.totalRecords = total;                
         });                             
       });    
+    });
   }
 
   loadClientGroupLevelList() {
-    this.dataService.getClientGroupLevelList().subscribe(response => {                                         
+    this.riskService.getClientGroupLevelList().subscribe(response => {                                         
       this.clientGroupLevelList = response.clientGroupLevelList;
     });
   }
 
   loadClientCRMList() {
-    this.dataService.getCRMList().subscribe(response => {                                         
+    this.riskService.getCRMList().subscribe(response => {                                         
       this.clientCRMList = response.CRMList;
     });
   }
 
   loadOfficeList() {
-    this.dataService.getOfficeList().subscribe(response => {                                         
+    this.riskService.getOfficeList().subscribe(response => {                                         
       this.officeList = response.officeList;
     });
   }
 
   loadDDCreatedByList() {
-    this.dataService.getDDCreatedByList().subscribe(response => {                                         
+    this.riskService.getDDCreatedByList().subscribe(response => {                                         
       this.DDCreatedBy = response.DDCreatedBy;
     });
   }
@@ -216,13 +244,17 @@ export class RiskMonitoringComponent implements OnInit {
     this.loadData();     
   }
 
+  openDetailWindow(ClientKey: number, ARGrossBalance: number, Ineligible: number, NFE: number, Reserve: number, Availability: number, Level: string){
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level } })
+    );
+    window.open(url, '_blank');
+  }
+
   isExpanded(element: DataItem): boolean {
     return this.expandedElement === element;
   }
 
   isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
-}
-function strtotime(arg0: string): any {
-  throw new Error('Function not implemented.');
 }
 
