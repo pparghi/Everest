@@ -17,7 +17,7 @@ export class MasterClientsService {
         return {
           data: response.data.map((item: any) => ({
             ...item,
-            
+            expandedDetail: { detail: 'Additional details for ' + item.Client }
           })),
           total: response.total[""]          
         };
@@ -32,7 +32,7 @@ export class MasterClientsService {
         return {
           data: response.clientGroupLevelList.map((item: any) => ({
             ...item,
-             
+            expandedDetail: { detail: 'Additional details for ' + item.Client }
           })),          
           clientGroupLevelList: response.clientGroupLevelList
         };
@@ -47,7 +47,7 @@ export class MasterClientsService {
         return {
           data: response.clientGroupList.map((item: any) => ({
             ...item,
-             
+            expandedDetail: { detail: 'Additional details for ' + item.Client }
           })),          
           clientGroupList: response.clientGroupList,
           clientCRMList: response.clientCRMList
@@ -63,7 +63,7 @@ export class MasterClientsService {
         return {
           data: response.clientGroupValueList.map((item: any) => ({
             ...item,
-            
+            expandedDetail: { detail: 'Additional details for ' + item.Client }
           })),          
           clientGroupValueList: response.clientGroupValueList
         };

@@ -351,3 +351,27 @@
     </mat-dialog-content>
   </div>
 </div>
+
+<div *ngIf="data.LevelHistory">
+  <div class="dialog-header">
+    <h4 mat-dialog-title>Level Change History</h4>
+  </div>
+  <div class="dialog-content">
+    <mat-dialog-content class="mat-typography">
+      <table>
+        <tr>
+          <th>Date/Time</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <th>User</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <th>Level Was</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <th>Changed To</th>
+        </tr>
+        <tr *ngFor="let item of data.LevelHistory">
+          <td>{{ item.TimeStamp| date:"MM/dd/yyyy HH:mm:ss" }}</td>&nbsp;&nbsp;
+          <td>{{ item.UserKey }}</td>&nbsp;&nbsp;
+          <td>{{ item.WasValue }}</td>&nbsp;&nbsp;
+          <td>{{ item.IsValue }}</td>
+        </tr>
+      </table>
+    </mat-dialog-content>
+  </div>
+</div>

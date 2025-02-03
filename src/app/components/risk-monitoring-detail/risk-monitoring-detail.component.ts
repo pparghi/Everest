@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LoginService } from '../../services/login.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 @Component({
@@ -43,7 +45,10 @@ export class RiskMonitoringDetailComponent {
   clientCRMList: any;
   clientGroupLevelList: any;
   Level!: any;
-  bgcolor = 'green;';
+  bgcolor = '2px solid green';
+  LevelHistory: any;
+
+  readonly dialog = inject(MatDialog);
   
   constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService) { 
     
@@ -57,8 +62,8 @@ export class RiskMonitoringDetailComponent {
       const Ineligible = +params['Ineligible'];
       const NFE = +params['NFE'];
       const Reserve = +params['Reserve'];
-      const Availability = +params['Availability'];
-      const Level = +params['Level'];
+      const Availability = +params['Availability'];      
+      const Level = params['Level'];      
       
       this.ARGrossBalance = ARGrossBalance;
       this.Ineligible = Ineligible;
@@ -78,10 +83,11 @@ export class RiskMonitoringDetailComponent {
       this.loadMonitoringCategories();
       this.loadMonitoringNotes(ClientKey);
       this.loadClientCRMList();
-      this.checkLevel();
+      this.loadClientGroupLevelList();
+      this.checkLevel();      
 
-      if (this.checkLevel()) {
-        this.bgcolor = 'red;';
+      if (this.checkLevel()) {        
+        this.bgcolor = '2px solid red';
       }
     });       
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
@@ -123,7 +129,7 @@ export class RiskMonitoringDetailComponent {
     });
   }  
 
-  checkLevel(): boolean {
+  checkLevel(): boolean {    
     return this.startsWith(this.Level, 'SPECIAL');
   }
 
@@ -144,8 +150,9 @@ export class RiskMonitoringDetailComponent {
   }
 
   loadClientDetails(ClientKey: number){
-    this.dataService.getClientDetails(ClientKey).subscribe(data => {
+    this.dataService.getClientDetails(ClientKey).subscribe(data => {            
       this.client = data.ClientDetails[0];      
+      this.LevelHistory = data.LevelHistory;                
     });
   }
 
@@ -179,5 +186,21 @@ export class RiskMonitoringDetailComponent {
 
   addNote(){
     
+  }
+
+  levelHistory(){
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+      width: 'auto',       
+      maxWidth: 'none',   
+      height: 'auto',    
+      panelClass: 'custom-dialog-container',                    
+        data: {              
+          LevelHistory: this.LevelHistory            
+      }
+    });
+    
+    dialogRef.afterClosed().subscribe(result => {
+        
+    });
   }
 }

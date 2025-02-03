@@ -109,8 +109,7 @@ export class RiskMonitoringComponent implements OnInit {
             this.NavAccessRiskMonitoring = element.NavAccess;
           } else if (element.NavOption == 'Risk Monitoring Restricted'){
             this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-            this.NavAccessRiskMonitoringRestricted = element.NavAccess;
-            console.log(this.NavOptionRiskMonitoringRestricted, '=----=-=-', this.NavAccessRiskMonitoringRestricted);            
+            this.NavAccessRiskMonitoringRestricted = element.NavAccess;                        
           } else {
             this.NavOptionMasterDebtor = '';
             this.NavAccessMasterDebtor = '';

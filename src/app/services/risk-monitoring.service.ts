@@ -88,7 +88,8 @@ export class RiskMonitoringService {
           data: response.ClientDetails.map((item: any) => ({
             ...item 
           })),          
-          ClientDetails: response.ClientDetails
+          ClientDetails: response.ClientDetails,
+          LevelHistory: response.LevelHistory
         };
       })
     );

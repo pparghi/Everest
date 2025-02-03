@@ -23,6 +23,7 @@ interface DataItem {
   Dillution30: number;
   Ineligible: number;
   IneligiblePct: number;
+  OverAdvancedPct: number;
   Available: number;
   expandedDetail: { detail: string };
 }

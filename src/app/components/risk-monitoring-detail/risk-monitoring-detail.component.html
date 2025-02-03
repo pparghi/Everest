@@ -75,22 +75,23 @@
                 <mat-card-content *ngIf="client">
                     <tr>
                         <td><b>Level</b></td>                        
-                        <td *ngIf="this.NavAccessRiskMonitoringRestricted == 1; else elseBlockLevel"></td>
+                        <td *ngIf="this.NavAccessRiskMonitoringRestricted == 0; else elseBlockLevel">                            
+                            <select [ngStyle]="{'font-size': '13px', 'border': bgcolor}" class="dropdown">                                
+                                <option *ngFor="let level of clientGroupLevelList" [value]="level.GroupValue" [selected]="level.GroupValue === this.Level">
+                                    {{ level.GroupValue }}
+                                  </option>
+                            </select>                             
+                        </td>
                         <ng-template #elseBlockLevel>
-                            <td>
-                                <select style="font-size: 13px;" class="dropdown">
-                                    <option value=""></option>
-                                    <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey">{{ crm.UserKey }}</option>
-                                </select> 
-                            </td>
+                           
                         </ng-template>                       
-                        
+                        <td><i class="fa fa-history" (click)="levelHistory()" style="font-size: 20px;" aria-hidden="true"></i></td>
                     </tr>
                     <tr>
                         <td><b>Fuel Client</b></td>
-                        <td *ngIf="this.isFuel == 'YES'; else elseBlockFuel" style="color: green;">YES</td>
+                        <td *ngIf="this.isFuel == 'YES'; else elseBlockFuel" style="color: red;"><b>YES</b></td>
                         <ng-template #elseBlockFuel>                            
-                            <td style="color: red;">NO</td>                            
+                            <td style="color: green;"><b>NO</b></td>                            
                         </ng-template>
                     </tr>
                     <tr>
@@ -202,13 +203,13 @@
                         <div class='col' *ngIf="note.DueDate == null; else elseBlockCompleted">N/A</div>
                         <ng-template #elseBlockCompleted>
                             <div class="col" *ngIf="note.Completed == null; else elseBlock">
-                                <span id="completed-{{ note.ClientNoteKey }}" class="btn-sm btn-success risk_select_note_completed">Set as Completed</span>
+                                <button id="completed-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true, 'risk_select_note_completed': 'risk_select_note_completed'}">Set as Completed</button>
                             </div>
                             
                             <ng-template #elseBlock>
                                 <div class='col'>
                                     {{ note.Completed | date:'MM/dd/yyyy' }}&nbsp;
-                                    <span id="notcompleted-{{ note.ClientNoteKey }}" class="btn-sm btn-danger risk_select_note_notcompleted">Not Completed</span>
+                                    <button id="notcompleted-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-danger': true, 'risk_select_note_notcompleted': 'risk_select_note_notcompleted'}">Not Completed</button>
                                 </div>
                             </ng-template>
                         </ng-template>                                        
