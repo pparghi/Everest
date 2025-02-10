@@ -72,3 +72,7 @@
    .loading-cursor {   
 		cursor: wait;
 	}
+
+	input::placeholder {
+		color: rgb(252, 112, 112);
+	}

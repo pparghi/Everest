@@ -33,9 +33,11 @@ export class DocumentDialogComponent implements OnInit {
   debtor: any;
 
   contactColumns: string[] = ['name', 'email', 'contact_no'];
+  auditColumns: string[] = ['TimeStamp', 'UserKey', 'Field', 'Was', 'Is'];
   paymentColumns: string[] = ['date', 'check#', 'amount'];
   miscDataColumns: string[] = ['element', 'value'];
   contactDataSource = new MatTableDataSource<any>([]);
+  auditDataSource = new MatTableDataSource<any>([]);
   paymentDataSource = new MatTableDataSource<any>([]);
   MiscDataListDataSource = new MatTableDataSource<any>([]);
   ratesDataSource = new MatTableDataSource<any>([]);
@@ -69,18 +71,21 @@ export class DocumentDialogComponent implements OnInit {
     var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
     
     this.editForm = this.fb.group({
-      Debtor: [data.Debtor || '', Validators.required],
-      Duns: [data.Duns || '', Validators.required],
-      Addr1: [data.Addr1 || '', Validators.required],
-      Addr2: [data.Addr2 || '', Validators.required],
-      City: [data.City || '', Validators.required],
-      State: [data.State || '', Validators.required],      
-      Phone1: [Phone1 || '', Validators.required],
-      Phone2: [Phone2 || '', Validators.required],
-      TotalCreditLimit: [creditLimit || '', Validators.required],
-      AIGLimit: [data.AIGLimit || '', Validators.required],
-      Terms: [data.Terms || '', Validators.required],
-      MotorCarrNo: [data.MotorCarrNo || '', Validators.required]
+      Debtor: [data.Debtor || ''],
+      Duns: [data.Duns || ''],
+      Addr1: [data.Addr1 || ''],
+      Addr2: [data.Addr2 || ''],
+      City: [data.City || ''],
+      State: [data.State || ''],      
+      Phone1: [Phone1 || ''],
+      Phone2: [Phone2 || ''],
+      TotalCreditLimit: [creditLimit || ''],
+      AIGLimit: [data.AIGLimit || ''],
+      Terms: [data.Terms || ''],
+      Email: [data.Email || ''],
+      MotorCarrNo: [data.MotorCarrNo || ''],
+      CredExpireDate: [''],
+      RateDate: [data.RateDate || '']
     })
 
       this.debtor = data.Debtor
@@ -107,7 +112,11 @@ export class DocumentDialogComponent implements OnInit {
     } else if (data.exchangeRatesByMonth) {
       this.loginService.getExchangeRatesByMonth().subscribe(response => {                                
         this.ratesDataSource.data = response.exchangeRatesByMonth;
-      });
+      });    
+    } else if (data.debtorAudit) {            
+      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
+        this.auditDataSource.data = response.debtorAudit;        
+      });      
       
     } else {
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
@@ -119,8 +128,7 @@ export class DocumentDialogComponent implements OnInit {
   ngOnInit(): void {
     const script = document.createElement('script');
     script.src = 'https://ws1.postescanada-canadapost.ca/js/addresscomplete-2.50.min.js';
-    script.onload = () => {
-      console.log('AddressComplete script loaded');
+    script.onload = () => {      
       const ac = new (<any>window).pca.AddressComplete(document.getElementById('Addr2'), {
         key: 'dy85-mj85-wx29-nn39',
         country: 'CAN'
@@ -184,7 +192,16 @@ export class DocumentDialogComponent implements OnInit {
     }
 
     onEdit(){
-
+      if (this.editForm.valid) {         
+        console.log(this.editForm.value);
+                            
+        this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, this.editForm.value)
+        .subscribe(response => {
+          console.log('Debtor data updated',response);       
+        }, error => {
+          console.error('Error', error);
+        });
+      }
     }
 
     onChange(event: Event) {

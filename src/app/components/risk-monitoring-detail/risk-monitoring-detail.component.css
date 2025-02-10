@@ -20,3 +20,8 @@ td {
     border-radius: 0.2rem;
     border-color: #BCBDBF;
   } 
+
+  .header-right-text {
+    margin-left: auto;
+    padding-left: 10px; /* Adjust padding as needed */
+  }

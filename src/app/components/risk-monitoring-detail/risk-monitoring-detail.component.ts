@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { LoginService } from '../../services/login.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { DataService } from '../../services/data.service';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 @Component({
@@ -32,6 +33,7 @@ export class RiskMonitoringDetailComponent {
   ClientFuelOrNot: any;
   isFuel = '';
   profile: any; 
+  user: any;
   NavOptionMasterDebtor: any;
   NavAccessMasterDebtor: any;
   NavOptionClientRisk: any;
@@ -47,10 +49,15 @@ export class RiskMonitoringDetailComponent {
   Level!: any;
   bgcolor = '2px solid green';
   LevelHistory: any;
+  note_category: any = '';
+  due_date: any = '';
+  note: any = '';
 
   readonly dialog = inject(MatDialog);
+  data!: string[];
+  LevelValue: any;
   
-  constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService) { 
+  constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService) { 
     
   }
 
@@ -70,7 +77,7 @@ export class RiskMonitoringDetailComponent {
       this.NFE = NFE;
       this.Reserve = Reserve;
       this.Availability = Availability;
-      this.Level = Level;
+      // this.Level = Level;
 
       this.ARGrossBalanceNeg = ARGrossBalance*-1;        
       this.IneligibleNeg = Ineligible*-1;    
@@ -90,8 +97,14 @@ export class RiskMonitoringDetailComponent {
         this.bgcolor = '2px solid red';
       }
     });       
+
+    const LevelValue = this.riskService.getData();
+    console.log('test----',LevelValue['Level']);
+    
+
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-      this.profile = profile;
+      
+      this.profile = profile;      
       this.loginService.getData(this.profile.mail).subscribe(response => {                                
         response.data.forEach((element: any) => {
           if (element.NavOption == 'Master Debtor') {            
@@ -152,7 +165,8 @@ export class RiskMonitoringDetailComponent {
   loadClientDetails(ClientKey: number){
     this.dataService.getClientDetails(ClientKey).subscribe(data => {            
       this.client = data.ClientDetails[0];      
-      this.LevelHistory = data.LevelHistory;                
+      this.LevelHistory = data.LevelHistory;      
+      this.Level = data.ClientLevelDetail[0].GroupValue;                      
     });
   }
 
@@ -185,7 +199,121 @@ export class RiskMonitoringDetailComponent {
   }
 
   addNote(){
-    
+    this.http.get(GRAPH_ENDPOINT)
+    .subscribe(profile => {
+      this.profile = profile;          
+      var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+      this.user = userId 
+    });
+
+    this.dataService.addNotesRisk(this.ClientKey, this.note_category, this.note, '', 1, this.user, this.due_date).subscribe(response => {
+      alert('Note added successfully');
+      window.location.reload();
+    }, error => {
+      alert('Failed');
+    });
+  }
+
+  onChangeCRM(event: Event, ClientKey: number){
+    const confirmed = window.confirm('Are you sure you want to update the CRM?');
+    if (confirmed) {
+      this.http.get(GRAPH_ENDPOINT)
+      .subscribe(profile => {
+        this.profile = profile;          
+        var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+        this.user = userId 
+      });
+      const selectElement = event.target as HTMLSelectElement;          
+      let crm = selectElement.value;
+      let UserKey = this.user;
+
+      this.dataService.updateCRMRisk(ClientKey, crm, UserKey).subscribe(
+        response => { 
+          alert("CRM updated successfully.");
+          window.location.reload();
+        },
+        error => {
+          alert("error");
+        }              
+      )
+    } else {      
+      window.location.reload();
+      console.log('Update cancelled');
+    }
+  };
+
+  onChangeLevel(event: Event, ClientKey: number){
+    const confirmed = window.confirm('Are you sure you want to update the Level?');
+    if (confirmed) {
+      this.http.get(GRAPH_ENDPOINT)
+      .subscribe(profile => {
+        this.profile = profile;          
+        var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+        this.user = userId 
+      });
+      const selectElement = event.target as HTMLSelectElement;          
+      let GroupValue = selectElement.value;
+      let UserKey = this.user;
+  
+      this.dataService.updateLevelRisk(ClientKey, GroupValue, UserKey).subscribe(
+        response => { 
+          alert("Level updated successfully.");
+          window.location.reload();
+        },
+        error => {
+          alert("error");
+        }              
+      )
+    } else {      
+      window.location.reload();
+      console.log('Update cancelled');
+    }    
+  };
+
+  onChangeCompleteStatus(event: Event){
+    const confirmed = window.confirm('Are you sure you want to update the Complete Status?');
+    if (confirmed) {
+      const target = event.target as HTMLElement;
+      const id = target.id;
+      this.data = id.split('-');
+      let complete = "Y";
+
+      this.dataService.updateCompleteStatusRisk(this.data[1], complete).subscribe(
+        response => { 
+          alert("Status updated successfully.");
+          window.location.reload();
+        },
+        error => {
+          alert("error");
+        }              
+      )
+    } else {      
+      window.location.reload();
+      console.log('Update cancelled');
+    }
+  }
+
+  onChangeNotCompleteStatus(event: Event){
+    const confirmed = window.confirm('Are you sure you want to update the Complete Status?');
+    if (confirmed) {
+      const target = event.target as HTMLElement;
+      const id = target.id;
+      this.data = id.split('-');
+      let complete = "N";
+
+      this.dataService.updateCompleteStatusRisk(this.data[1], complete).subscribe(
+        response => { 
+          alert("Status updated successfully.");
+          window.location.reload();
+        },
+        error => {
+          alert("error");
+        }              
+      )
+    } else {      
+      window.location.reload();
+      console.log('Update cancelled');
+    }
   }
 
   levelHistory(){

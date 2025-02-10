@@ -25,8 +25,7 @@ interface DataItem {
 export class RiskMonitoringComponent implements OnInit {
 
   filter: string = '';
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  specificPage: number = 1;
   isActive = '0';
   isDDSelect = 'N';
   isLoading = true;
@@ -36,10 +35,12 @@ export class RiskMonitoringComponent implements OnInit {
   isFuel = '';
   dataSource = new MatTableDataSource<any>();
   totalRecords = 0;
-  displayedColumns: string[] = ['expand', 'Client', 'Level', 'CRM','A/R', 'NFE', 'Ineligibles', 'Reserves', 'Availability'];
+  displayedColumns: string[] = ['expand', 'Client', 'NoteDueDate', 'Level', 'CRM','A/R', 'NFE', 'Ineligibles', 'Reserves', 'Availability'];
   expandedElement: DataItem | null = null;
   isDDCreatedBy = '';
-
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  
   clientGroupLevelList: any;
   clientCRMList: any;
   officeList: any;
@@ -59,6 +60,10 @@ export class RiskMonitoringComponent implements OnInit {
   NavAccessRiskMonitoring: any;
   NavOptionRiskMonitoringRestricted: any;
   NavAccessRiskMonitoringRestricted: any;
+  bgcolor = '';
+  NotesNoDate = false;
+  NotesFutureDate = false;
+  NotesPastDue = false
   
   constructor(private riskService: RiskMonitoringService, private http: HttpClient, private datePipe: DatePipe, private router: Router, private loginService: LoginService, private dataService: DataService) { 
     let currentDate = new Date();
@@ -73,7 +78,16 @@ export class RiskMonitoringComponent implements OnInit {
     this.loadClientGroupLevelList();
     this.loadClientCRMList();
     this.loadOfficeList();
-    this.loadDDCreatedByList(); 
+    this.loadDDCreatedByList();     
+  }
+
+  getRowClass(row: any) {
+    return {
+      'NotesDueDate': row.NotesDueDate != '0',
+      'NotesNoDate': row.NotesNoDate != '0',
+      'NotesFutureDate': row.NotesFutureDate != '0',
+      'NotesPastDue': row.NotesPastDue != '0'
+    };
   }
 
   ngAfterViewInit(): void {            
@@ -129,18 +143,12 @@ export class RiskMonitoringComponent implements OnInit {
       });
 
       this.isLoading = true;      
-      let sort = this.sort ? this.sort.active : '';
-      let order = this.sort ? this.sort.direction : '';
+      let sort = this.sort && this.sort.active ? this.sort.active : 'NoteDueDate';            
+      let order = this.sort && this.sort.direction ? this.sort.direction : 'DESC';
+      console.log(sort);
+      
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
-      const pageSize = this.paginator ? this.paginator.pageSize : 25;
-
-    //   const mail = btoa(this.profile.mail);        
-
-    //   let filterByBalance = '';
-
-    //   if (this.filterByBalance == 'Balance') {
-    //     filterByBalance = 'balance';
-    //   } 
+      const pageSize = this.paginator ? this.paginator.pageSize : 25;  
       
       this.riskService.getData(page ,pageSize, sort, order, this.isActive, this.dueDateFrom, this.dueDateTo, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {                
         this.isLoading = false;
@@ -243,10 +251,27 @@ export class RiskMonitoringComponent implements OnInit {
     this.loadData();     
   }
 
+  get totalPages(): number { 
+    const pageSize = this.paginator?.pageSize || 25;
+    return Math.ceil(this.totalRecords /  pageSize); 
+  } 
+
+  goToPage(): void { 
+    if (this.specificPage < 1 || this.specificPage > this.totalPages) { 
+      return;             
+    } 
+    if (this.paginator) {
+      this.paginator.pageIndex = this.specificPage - 1;
+      this.loadData();
+    }
+    
+  }
+
   openDetailWindow(ClientKey: number, ARGrossBalance: number, Ineligible: number, NFE: number, Reserve: number, Availability: number, Level: string){
     const url = this.router.serializeUrl(
       this.router.createUrlTree(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level } })
     );
+    this.dataService.setData('Level', Level);
     window.open(url, '_blank');
   }
 

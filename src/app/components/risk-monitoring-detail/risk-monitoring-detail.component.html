@@ -3,8 +3,13 @@
         <div class="col-md-4">
             <mat-card appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title>Client</mat-card-title>
-                </mat-card-header><br>
+                    <mat-card-title>Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <!-- <span *ngIf="client.Inactive == 0; else elseBlockStatus" style="font-size: 15px; color: green;"></span>
+                        <ng-template #elseBlockStatus>
+                            <span style="font-size: small; color: red;"><b>Inactive</b></span>
+                        </ng-template> -->
+                </mat-card-title>
+                </mat-card-header>
                 <mat-card-content *ngIf="client">
                     <table>
                         <tr>
@@ -20,7 +25,7 @@
                             <td *ngIf="this.NavAccessRiskMonitoringRestricted == 1; else elseBlockCRM" >{{ client.AcctExec }} / {{ client.Office }}</td>
                             <ng-template #elseBlockCRM>
                                 <td>
-                                    <select style="font-size: 13px;" class="dropdown">
+                                    <select (change)="onChangeCRM($event, client.ClientKey)" style="font-size: 13px;" class="dropdown">
                                         <option value="{{ client.AcctExec }}">{{ client.AcctExec }}</option>
                                         <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey">{{ crm.UserKey }}</option>
                                     </select> / {{ client.Office }}
@@ -34,7 +39,7 @@
                         <tr>
                             <td style="vertical-align: top;"><b>Phones</b></td>
                             <td>{{ client.Phone1 }} {{ client.Phone2 }}</td>
-                        </tr>
+                        </tr>                        
                         <tr>
                             <td style="vertical-align: top;"></td>
                             <td *ngIf="client.Inactive == 0; else elseBlockStatus" style="color: green;"><b>Active</b></td>
@@ -50,7 +55,7 @@
             <mat-card style="height: 100%;" appearance="outlined">
                 <mat-card-header>
                     <mat-card-title>Contacts</mat-card-title>
-                </mat-card-header><br>
+                </mat-card-header>
                 <mat-card-content>
                     <table>
                         <tr>
@@ -71,12 +76,12 @@
             <mat-card style="height: 100%;" appearance="outlined">
                 <mat-card-header>
                     <mat-card-title>Concern</mat-card-title>
-                </mat-card-header><br>
+                </mat-card-header>
                 <mat-card-content *ngIf="client">
                     <tr>
                         <td><b>Level</b></td>                        
                         <td *ngIf="this.NavAccessRiskMonitoringRestricted == 0; else elseBlockLevel">                            
-                            <select [ngStyle]="{'font-size': '13px', 'border': bgcolor}" class="dropdown">                                
+                            <select (change)="onChangeLevel($event, client.ClientKey)" [ngStyle]="{'font-size': '13px', 'border': bgcolor}" class="dropdown">                                
                                 <option *ngFor="let level of clientGroupLevelList" [value]="level.GroupValue" [selected]="level.GroupValue === this.Level">
                                     {{ level.GroupValue }}
                                   </option>
@@ -96,7 +101,7 @@
                     </tr>
                     <tr>
                         <td><b>A/R</b></td>
-                        <td *ngIf="this.ARGrossBalance < 0; else elseBlockAR">{{ this.ARGrossBalanceNeg | number:'1.2-2' }}</td>
+                        <td *ngIf="this.ARGrossBalance < 0; else elseBlockAR">({{ this.ARGrossBalanceNeg | number:'1.2-2' }})</td>
                         <ng-template #elseBlockAR>                            
                             <td>{{ this.ARGrossBalance | number:'1.2-2' }}</td>                            
                         </ng-template>
@@ -104,29 +109,29 @@
                         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <b>NFE</b>
                         </td>
-                        <td *ngIf="this.NFE < 0; else elseBlockNFE">{{ this.NFENeg | number:'1.2-2' }}</td>
+                        <td *ngIf="this.NFE < 0; else elseBlockNFE">({{ this.NFENeg | number:'1.2-2' }})</td>
                         <ng-template #elseBlockNFE>                            
                             <td>{{ this.NFE | number:'1.2-2' }}</td>                            
                         </ng-template>
                     </tr>
                     <tr>
                         <td><b>Ineligible</b></td>
-                        <td *ngIf="this.Ineligible < 0; else elseBlockIneligible">{{ this.IneligibleNeg | number:'1.2-2' }}</td>
+                        <td *ngIf="this.Ineligible < 0; else elseBlockIneligible">({{ this.IneligibleNeg | number:'1.2-2' }})</td>
                         <ng-template #elseBlockIneligible>                            
                             <td>{{ this.Ineligible | number:'1.2-2' }}</td>                            
                         </ng-template>
 
                         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <b>Reserve</b>
+                            <b>Reserve&nbsp;&nbsp;&nbsp;&nbsp;</b>
                         </td>
-                        <td *ngIf="this.Reserve < 0; else elseBlockReserve">{{ this.ReserveNeg | number:'1.2-2' }}</td>
+                        <td *ngIf="this.Reserve < 0; else elseBlockReserve">({{ this.ReserveNeg | number:'1.2-2' }})</td>
                         <ng-template #elseBlockReserve>                            
                             <td>{{ this.Reserve | number:'1.2-2' }}</td>                            
                         </ng-template>
                     </tr>
                     <tr>
                         <td><b>Availability &nbsp;&nbsp;&nbsp;&nbsp;</b></td>
-                        <td *ngIf="this.Availability < 0; else elseBlockAvailability">{{ this.AvailabilityNeg | number:'1.2-2' }}</td>
+                        <td *ngIf="this.Availability < 0; else elseBlockAvailability">({{ this.AvailabilityNeg | number:'1.2-2' }})</td>
                         <ng-template #elseBlockAvailability>                            
                             <td>{{ this.Availability | number:'1.2-2' }}</td>                            
                         </ng-template>
@@ -148,22 +153,22 @@
                     <div class="row">
                         <div class="col-md-2">
                             <label for=""><b>Category</b></label><br>
-                            <select class="form-control" style="font-size: 13px;">
+                            <select class="form-control" style="font-size: 13px;" [(ngModel)]="note_category">
                                 <option value="">Select Category</option>
                                 <option *ngFor="let category of MonitoringCategories" [value]="category">{{ category }}</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label for="due_date"><b>Due Date </b></label><br>
-                            <input type="date" class="form-control" style="font-size: 13px;" [value]="" name="" id="due_date">  
+                            <input type="date" class="form-control" style="font-size: 13px;" [(ngModel)]="due_date" [value]="" name="" id="due_date">  
                         </div>
                         <div class="col-md">
                             <label for="note"><b>Note </b></label><br>
-                            <textarea name="" id="" cols="110" class="form-control-sm w-100" rows="2"></textarea>
+                            <textarea name="" id="" cols="110" class="form-control-sm w-100" [(ngModel)]="note" rows="2"></textarea>
                         </div>
                         <div class="col-md-1">
-                            <label for=""></label><br>
-                            <button mat-fab extended style="height: 40px; font-size: 13px;" (click)="addNote()">Add Note</button>
+                            <label for=""></label><br>                            
+                            <button (click)="addNote()" style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0);" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;">Add Note</button>
                         </div>
                     </div>                
                 </mat-card-content>
@@ -175,7 +180,8 @@
         <div class="col">
             <mat-card appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title>Note History</mat-card-title>
+                    <mat-card-title>Note History</mat-card-title>     
+                    <span style="font-size: 12px; background-color: #315cf8; border: 1px solid #385491; color: rgb(255, 255, 255);" class="header-right-text" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-primary': true}">Hidden Notes</span>                           
                 </mat-card-header><br>
                 <mat-card-content>
                     <div class="row">
@@ -203,20 +209,20 @@
                         <div class='col' *ngIf="note.DueDate == null; else elseBlockCompleted">N/A</div>
                         <ng-template #elseBlockCompleted>
                             <div class="col" *ngIf="note.Completed == null; else elseBlock">
-                                <button id="completed-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true, 'risk_select_note_completed': 'risk_select_note_completed'}">Set as Completed</button>
+                                <button id="completed-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true, 'risk_select_note_completed': 'risk_select_note_completed'}" style="font-size: 12px;" (click)="onChangeCompleteStatus($event)">Set as Completed</button>
                             </div>
                             
                             <ng-template #elseBlock>
                                 <div class='col'>
                                     {{ note.Completed | date:'MM/dd/yyyy' }}&nbsp;
-                                    <button id="notcompleted-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-danger': true, 'risk_select_note_notcompleted': 'risk_select_note_notcompleted'}">Not Completed</button>
+                                    <button id="notcompleted-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-danger': true, 'risk_select_note_notcompleted': 'risk_select_note_notcompleted'}" style="font-size: 12px;" (click)="onChangeNotCompleteStatus($event)">Not Completed</button>
                                 </div>
                             </ng-template>
                         </ng-template>                                        
                         <div class='col'>{{ note.CreatedBy }}</div>
                         <div class='col'>{{ note.CreatedDate | date:"MM/dd/yyyy HH:mm:ss" }}</div>
                         <div class='col'>
-                            <span id="delete-{{ note.ClientNoteKey }}" class="btn-sm btn-danger risk_select_delete_note">Delete</span>
+                            <span id="hide-{{ note.ClientNoteKey }}" style="font-size: 12px; background-color: #f3f5fc; border: 1px solid #385491; color: black;" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-primary': true, 'risk_select_hide_note': 'risk_select_hide_note'}">Hide Note</span>
                         </div>
                         <div class='row text-left pl-3 pt-3 pb-3'>
                             <div class="form-control-sm" style="height: fit-content;width: 99%;border: #000000 solid 1px;">{{ note.Notes }}</div>

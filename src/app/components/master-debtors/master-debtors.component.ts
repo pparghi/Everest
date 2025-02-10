@@ -31,7 +31,11 @@ interface DataItem {
   Addr2: string;
   Phone1: number;
   Phone2: number;
+  Email: string;
   MotorCarrNo: number;
+  CredExpireDate: string;
+  RateDate: string;
+
   expandedDetail: { detail: string };
 }
 
@@ -80,7 +84,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
   NavAccessRiskMonitoring: any;
   NavOptionRiskMonitoringRestricted: any;
   NavAccessRiskMonitoringRestricted: any;
-
+  debtorAudit: any;
 
     constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {      
     }
@@ -304,6 +308,9 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
          AIGLimit: row.AIGLimit,
          Terms: row.Terms,
          MotorCarrNo: row.MotorCarrNo,
+         Email: row.Email,
+         RateDate: row.RateDate,
+         CredExpireDate: row.CredExpireDate,
          openForm: 'editForm' 
        }
      });
@@ -405,6 +412,23 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
         });
     });
   }
+
+    openDebtorAuditDialog(DebtorKey: number){   
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',                    
+           data: {
+            DebtorKey: DebtorKey, 
+            debtorAudit: 'debtorAudit',
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+      });    
+    }
 
   onChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;

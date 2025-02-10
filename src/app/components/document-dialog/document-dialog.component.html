@@ -112,79 +112,97 @@
   <div class="dialog-content">
     <form [formGroup]="editForm" (ngSubmit)="onEdit()">
         <mat-dialog-content>
-          <div class="row">
+          <div class="row" style="padding-top: 5px;">
             <div class="col-md-6" style="width: 400px;">
               <label for="Debtor" class="form-label">Debtor Name</label>
-              <input type="text" id="Debtor" class="form-control" formControlName="Debtor" value="{{ this.debtor }}" required>
+              <input type="text" id="Debtor" class="form-control" formControlName="Debtor" value="{{ this.debtor }}" placeholder="N/A">
             </div>
             <div class="col-md-6" style="width: 400px;">
               <label for="Duns" class="form-label">Duns</label>
-              <input type="text" id="Duns" class="form-control" formControlName="Duns" required>
+              <input type="text" id="Duns" class="form-control" formControlName="Duns" placeholder="N/A">
             </div>
           </div>
-          <br>
-          <div class="row">
+          
+          <div class="row" style="padding-top: 5px;">
             <div class="col-md-6">
               <label for="Addr1" class="form-label">Address 1</label>
-              <input type="text" id="Addr1" (input)="onAddressInput($event)" class="form-control" name="Addr1" formControlName="Addr1" required>
+              <input type="text" id="Addr1" (input)="onAddressInput($event)" class="form-control" name="Addr1" formControlName="Addr1" placeholder="N/A">
               <ul *ngIf="addressSuggestions.length">
                 <li *ngFor="let suggestion of addressSuggestions">{{ suggestion.Text }}</li>
               </ul>
             </div>
             <div class="col-md-6">
               <label for="Addr2" class="form-label">Address 2</label>
-              <input type="text" id="Addr2" class="form-control" formControlName="Addr2" required>
+              <input type="text" id="Addr2" class="form-control" formControlName="Addr2" placeholder="N/A">
             </div>
           </div>
-          <br>
-          <div class="row">
+          
+          <div class="row" style="padding-top: 5px;">
             <div class="col-md-6">
               <label for="Phone1" class="form-label">Phone 1</label>
-              <input type="text" id="Phone1" class="form-control" formControlName="Phone1" required>
+              <input type="text" id="Phone1" class="form-control" formControlName="Phone1">
             </div>
             <div class="col-md-6">
               <label for="Phone2" class="form-label">Phone 2</label>
-              <input type="text" id="Phone2"  class="form-control" formControlName="Phone2" required>
+              <input type="text" id="Phone2" class="form-control" formControlName="Phone2" placeholder="N/A">
             </div>
           </div>
-          <br>
-          <div class="row">          
+          
+          <div class="row" style="padding-top: 5px;">          
             <div class="col-md-6">
               <label for="City" class="form-label">City</label>
-              <input type="text" id="City" class="form-control" formControlName="City" required>
+              <input type="text" id="City" class="form-control" formControlName="City" placeholder="N/A">
             </div>        
             <div class="col-md-6">
               <label for="State" class="form-label">State</label>
-              <input type="text" id="State" class="form-control" formControlName="State" required>
+              <input type="text" id="State" class="form-control" formControlName="State" placeholder="N/A">
             </div>
           </div>
-          <br>
-          <div class="row">
+          
+          <div class="row" style="padding-top: 5px;">
             <div class="col-md-6">
               <label for="TotalCreditLimit" class="form-label">CreditLimit</label>
-              <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" required>
+              <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A">
             </div>
 
             <div class="col-md-6">
               <label for="AIGLimit" class="form-label">AIGLimit</label>
-              <input type="text" id="AIGLimit" class="form-control" formControlName="AIGLimit" required>
+              <input type="text" id="AIGLimit" class="form-control" formControlName="AIGLimit" placeholder="N/A">
             </div>
           </div>
-          <br>
-
-          <div class="row">
+          
+          <div class="row" style="padding-top: 5px;">
             <div class="col-md-6">
               <label for="Terms" class="form-label">Terms</label>
-              <input type="text" id="Terms" class="form-control" formControlName="Terms" required>
+              <input type="text" id="Terms" class="form-control" formControlName="Terms" placeholder="N/A">
             </div>            
           
             <div class="col-md-6">
               <label for="MotorCarrNo" class="form-label">MC#</label>
-              <input type="text" id="MotorCarrNo" class="form-control" formControlName="MotorCarrNo" required>
+              <input type="text" id="MotorCarrNo" class="form-control" formControlName="MotorCarrNo" placeholder="N/A">
+            </div>            
+          </div>
+
+          <div class="row" style="padding-top: 5px;">
+            <div class="col-md-12">
+              <label for="Email" class="form-label">Email</label>
+              <input type="text" id="Email" class="form-control" formControlName="Email" placeholder="N/A">            
+            </div>            
+          </div>
+
+          <div class="row" style="padding-top: 5px;">
+            <div class="col-md-6">
+              <label for="RateDate" class="form-label">Reasearch Date</label>
+              <input type="date" id="RateDate" class="form-control" formControlName="RateDate" placeholder="N/A">
+            </div>            
+          
+            <div class="col-md-6">
+              <label for="CredExpireDate" class="form-label">Expiry Month</label>
+              <input type="text" id="CredExpireDate" class="form-control" formControlName="CredExpireDate" placeholder="N/A">
             </div>            
           </div>
             
-          </mat-dialog-content><br>
+          </mat-dialog-content>
           <mat-dialog-actions>
             <button mat-button mat-dialog-close>Cancel</button>
             <button mat-button type="submit" [disabled]="editForm.invalid">Save</button>
@@ -373,5 +391,50 @@
         </tr>
       </table>
     </mat-dialog-content>
+  </div>
+</div>
+
+<div *ngIf="data.debtorAudit">
+  <div class="dialog-header">
+    <h3 mat-dialog-title>Debtor Audit History</h3>
+  </div>
+  <div class="dialog-content"> 
+    <mat-dialog-content class="mat-typography">
+        <table mat-table [dataSource]="auditDataSource" class="mat-elevation-z8">
+          
+          <ng-container matColumnDef="TimeStamp">
+              <th mat-header-cell *matHeaderCellDef>Time Stamp</th>
+              <td mat-cell *matCellDef="let element">{{ element.TimeStamp | date: 'MM/dd/yyyy hh:mm:ss a' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="UserKey">
+              <th mat-header-cell *matHeaderCellDef>User</th>
+              <td mat-cell *matCellDef="let element">{{ element.UserKey }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Field">
+              <th mat-header-cell *matHeaderCellDef>Field</th>
+              <td mat-cell *matCellDef="let element">{{ element.Field }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Was">
+              <th mat-header-cell *matHeaderCellDef>Was</th>
+              <td mat-cell *matCellDef="let element">{{ element.WasValue }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Is">
+              <th mat-header-cell *matHeaderCellDef>Is</th>
+              <td mat-cell *matCellDef="let element">{{ element.IsValue }}</td>
+          </ng-container>
+
+            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="auditColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: auditColumns;"></tr>
+        </table>
+    </mat-dialog-content>
+  </div>
+  <div class="dialog-footer">
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+    </mat-dialog-actions>
   </div>
 </div>

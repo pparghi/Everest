@@ -83,8 +83,9 @@ export class DebtorsApiService {
         return {
           debtorContactsData: response.debtorContactsData.map((item: any) => ({
             ...item,
-         // Add expanded detail here
+            // Add expanded detail here
           })),              
+          debtorAudit: response.debtorAudit
         };
       })
     );

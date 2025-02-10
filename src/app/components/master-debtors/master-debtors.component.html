@@ -205,8 +205,7 @@
                                 <th class="header" style="width: 10%;">31-60</th>
                                 <th class="header" style="width: 10%;">61-90</th>
                                 <th class="header" style="width: 10%;">91-120</th>
-                                <th class="header" style="width: 10%;">121-150</th>
-                                <th class="header" style="width: 10%;">151+</th>                                
+                                <th class="header" style="width: 10%;">121-150</th>                                                               
                                 <th class="header" style="width: 5%;">DSO30</th>
                                 <th class="header" style="width: 5%;">DSO60</th>
                                 <th class="header" style="width: 5%;">DSO90</th>
@@ -218,8 +217,7 @@
                                 <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.Age151to180 | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>                                
                                 <td class="cell" style="width: 5%;">{{ math.round(element.DSO30) }}</td>
                                 <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
                                 <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>
@@ -231,23 +229,23 @@
                             <tr>
                                 <th class="header" style="width: 10%;">C/L</th>                                                                    
                                 <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
-                                <th class="header" style="width: 12%;"># of Outstanding Invoices</th>                                 
-                                <th class="header" style="width: 12%;">Last Payment Date</th>
-                                <th class="header" style="width: 12%;">Dispute %</th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
+                                <th class="header" style="width: 20%;"># of Outstanding Invoices</th>                                 
+                                <th class="header" style="width: 10%;">Last Payment Date</th>
+                                <th class="header" style="width: 10%;">Dispute %</th>
+                                <th class="header" style="width: 10%;">Audit</th>
+                                <th class="header">Address</th>
+                                <th class="header">Alternate address</th>
+                                <th></th>                                
                             </tr>
                             <tr class="table-row">
                                 <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>                                                                    
                                 <td class="cell" style="width: 10%;">-</td>                                  
-                                <td class="cell" style="width: 12%;">{{ element.NoInvoices }}</td>
-                                <td class="cell">{{ element.LastPmtDate }}</td>
-                                <td class="cell">{{ element.DisputesPct | roundThousands }}</td>
-                                <td class="cell"></td>
-                                <td class="cell"></td>                                    
-                                <td class="cell"></td>
+                                <td class="cell" style="width: 20%;">{{ element.NoInvoices }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.LastPmtDate | date:"MM/dd/yyyy" }}</td>
+                                <td class="cell" style="width: 10%;">{{ element.DisputesPct | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;" (click)="openDebtorAuditDialog(element.DebtorKey)"><i class="fa-solid fa-list-check" style="color: #3a8ada;"></i></td>
+                                <td class="cell">{{ element.Addr1 }}</td>                                    
+                                <td class="cell">{{ element.Addr2 }}</td>
                                 <td class="cell"></td>                                    
                             </tr>
                         </table>
@@ -258,7 +256,9 @@
                                 <th class="header" style="width: 10%;">Phone2</th>
                                 <th class="header" style="width: 10%;">Documents</th>
                                 <th class="header" style="width: 20%;">Warning</th>                                    
-                                <th class="header" style="width: 30%;"></th>                                    
+                                <th class="header" style="width: 10%;">Duns</th>                                    
+                                <th class="header" style="width: 10%;">MC#</th>                                    
+                                <th class="header" style="width: 10%;"></th>                                    
                             </tr>                                
                             <tr> 
                                 <td>{{ element.Email }}</td>                                  
@@ -267,7 +267,9 @@
 
                                 <td class="cell" (click)="openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
                                 <td class="cell">{{ element.Warning }}</td>
-                                <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)"style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>
+                                <td class="cell">{{ element.DbDunsNo }}</td>
+                                <td class="cell">{{ element.MotorCarrNo }}</td>
+                                <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>
                             </tr>                               
                         </table>                            
                     </div> 

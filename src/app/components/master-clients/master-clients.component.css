@@ -35,14 +35,12 @@
 }
 
 .mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
-  width: 55px !important; 
-  min-width: 55px !important;
-  max-width: 55px !important;
+  width: 30px !important;  
 }
 
 .element-row {
   border: 0;
-  height: 42px;
+  height: 10px;
 }
 
 .detail-row {
@@ -141,6 +139,7 @@
   font-family: Arial, Helvetica, sans-serif;
   color: #58595B;
   font-weight: bolder;  
+  height: 40px;
 }
 
 .mdc-data-table__cell, .mdc-data-table__header-cell {

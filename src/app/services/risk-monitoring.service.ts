@@ -89,7 +89,8 @@ export class RiskMonitoringService {
             ...item 
           })),          
           ClientDetails: response.ClientDetails,
-          LevelHistory: response.LevelHistory
+          LevelHistory: response.LevelHistory,
+          ClientLevelDetail: response.ClientLevelDetail
         };
       })
     );
@@ -136,5 +137,48 @@ export class RiskMonitoringService {
         };
       })
     );
+  }
+
+  addNotesRisk(ClientKey: number, Category: string, Notes: string, Currency: string, Risk: number, CreatedBy: string, DueDate: string){
+      const url = `https://everest.revinc.com:4202/api/addNotesRisk?ClientKey=${ClientKey}&Category=${Category}&Notes=${Notes}&Currency=${Currency}&Risk=${Risk}&CreatedBy=${CreatedBy}&DueDate=${DueDate}`;
+      const body = {
+        ClientKey: ClientKey,
+        Category: Category,
+        Notes: Notes,
+        Currency: Currency,
+        Risk: Risk,
+        CreatedBy: CreatedBy,
+        DueDate: DueDate
+      };
+      return this.http.post<any>(url, body);
+  }
+
+  updateCRMRisk(ClientKey: number, CRM: string, UserKey: string){
+      const url = `https://everest.revinc.com:4202/api/updateCRMRisk?ClientKey=${ClientKey}&CRM=${CRM}&UserKey=${UserKey}`;
+      const body = {
+        ClientKey: ClientKey,
+        CRM: CRM,
+        UserKey: UserKey
+      };
+      return this.http.post<any>(url, body);
+  }
+
+  updateLevelRisk(ClientKey: number, GroupValue: string, UserKey: string){
+      const url = `https://everest.revinc.com:4202/api/updateLevelRisk?ClientKey=${ClientKey}&GroupValue=${GroupValue}&UserKey=${UserKey}`;
+      const body = {
+        ClientKey: ClientKey,
+        GroupValue: GroupValue,
+        UserKey: UserKey
+      };
+      return this.http.post<any>(url, body);
+  }
+
+  updateCompleteStatusRisk(ClientNoteKey: string, Complete: string){
+      const url = `https://everest.revinc.com:4202/api/updateCompleteStatusRisk?ClientNoteKey=${ClientNoteKey}&Complete=${Complete}`
+      const body = {
+        ClientNoteKey: ClientNoteKey,
+        Complete: Complete
+      };
+      return this.http.post<any>(url, body);
   }
 }
