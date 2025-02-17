@@ -20,7 +20,7 @@ interface DataItem {
 })
 
 export class ClientsComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Client', 'DbDunsNo', 'Country', 'State', 'City', 'CreditLimit', 'Email'];
+  displayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'Country', 'State', 'City', 'CreditLimit', 'Email'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;

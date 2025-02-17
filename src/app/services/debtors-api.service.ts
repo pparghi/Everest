@@ -85,7 +85,8 @@ export class DebtorsApiService {
             ...item,
             // Add expanded detail here
           })),              
-          debtorAudit: response.debtorAudit
+          debtorAudit: response.debtorAudit,
+          debtorStatementsDetails: response.debtorStatementsDetails
         };
       })
     );
@@ -122,5 +123,19 @@ export class DebtorsApiService {
       // DocFolderPath: formData.DocFolderPath
     };        
     return this.http.post<any>(url, body);
+  }
+
+  getDebtorsPayments(DebtorKey: number, CheckNo: string, Amt: number, PostDateStart: string, PostDateEnd: string, LastPayments: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/DebtorChecksSearch?DebtorKey=${DebtorKey}&CheckNo=${CheckNo}&Amt=${Amt}&PostDateEnd=${PostDateEnd}&PostDateStart=${PostDateStart}&LastPayments=${LastPayments}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          payments: response.payments.map((item: any) => ({
+            ...item,
+         // Add expanded detail here
+          })),                
+        };
+      })
+    );
   }
 }

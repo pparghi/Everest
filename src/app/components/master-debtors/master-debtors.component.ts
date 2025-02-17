@@ -35,7 +35,10 @@ interface DataItem {
   MotorCarrNo: number;
   CredExpireDate: string;
   RateDate: string;
-
+  IndivCreditLimit: number;
+  CredNote: string;
+  Notes: string;
+  Warning: string;
   expandedDetail: { detail: string };
 }
 
@@ -269,6 +272,12 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
     }
 
     edit(row: DataItem){    
+      this.http.get(GRAPH_ENDPOINT)
+        .subscribe(profile => {
+          this.profile = profile;          
+          var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+          this.user = userId
+        
       // this.dataService.setEditData({ 
       //   DebtorKey: row.DebtorKey, 
       //   Debtor: row.Debtor, 
@@ -288,7 +297,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
       // });
       // this.router.navigate(['/edit-master-debtor']);
       const dialogRef = this.dialog.open(DocumentDialogComponent, {         
-        width: '850px',       
+        width: '1050px',       
         maxWidth: 'none',   
         height: 'auto',    
         panelClass: 'custom-dialog-container',                       
@@ -305,20 +314,24 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
          PctUtilized: row.PctUtilized,
          PastDuePct: row.PastDuePct,
          TotalCreditLimit: row.TotalCreditLimit,
+         IndivCreditLimit: row.IndivCreditLimit,
          AIGLimit: row.AIGLimit,
          Terms: row.Terms,
          MotorCarrNo: row.MotorCarrNo,
          Email: row.Email,
          RateDate: row.RateDate,
          CredExpireDate: row.CredExpireDate,
-         openForm: 'editForm' 
+         openForm: 'editForm',
+         CredAppBy: this.user,
+         CredNote: row.CredNote,
+         Notes: row.Notes,
+         Warning: row.Warning
        }
-     });
-     
-     dialogRef.afterClosed().subscribe(result => {
-         
-     });
-
+      });
+      dialogRef.afterClosed().subscribe(result => {
+          
+      });
+    });
     }
 
     cancelEdit(row: DataItem) {
@@ -429,6 +442,40 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
             
       });    
     }
+
+    openDebtorStatementsDialog(DebtorKey: number){   
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',                    
+           data: {
+            DebtorKey: DebtorKey, 
+            debtorStatements: 'debtorStatements',
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+      });    
+    }
+
+  openChecqueSearchDialog(DebtorKey: number){
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+      width: 'auto',       
+      maxWidth: 'none',   
+      height: 'auto',    
+      panelClass: 'custom-dialog-container',                    
+       data: {
+        DebtorKey: DebtorKey, 
+        openChequeSearchForm: 'chequeSearchForm',
+      }
+    });
+    
+    dialogRef.afterClosed().subscribe(result => {
+        
+  });
+  }
 
   onChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;

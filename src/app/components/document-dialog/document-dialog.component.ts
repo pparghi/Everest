@@ -14,6 +14,10 @@ import { AddressAutocompleteService } from '../../services/address-autocomplete.
 // import imageCompression from 'browser-image-compression';
 declare var pca: any;
 
+interface Response {
+  payments: Array<any>;
+}
+
 @Component({
   selector: 'app-document-dialog',
   templateUrl: './document-dialog.component.html',
@@ -33,14 +37,18 @@ export class DocumentDialogComponent implements OnInit {
   debtor: any;
 
   contactColumns: string[] = ['name', 'email', 'contact_no'];
+  paymentsColumns: string[] = ['CheckNo', 'ClientName', 'DebtorName', 'PostDate', 'Buy', 'PayAmt'];
   auditColumns: string[] = ['TimeStamp', 'UserKey', 'Field', 'Was', 'Is'];
+  statementsColumns: string[] = ['Debtor', 'Client', 'PO/LOAD', 'Invoice#', 'InvDate', 'Age', 'Currency', 'Amt', 'Balance'];
   paymentColumns: string[] = ['date', 'check#', 'amount'];
   miscDataColumns: string[] = ['element', 'value'];
   contactDataSource = new MatTableDataSource<any>([]);
   auditDataSource = new MatTableDataSource<any>([]);
+  statementsDataSource = new MatTableDataSource<any>([]);
   paymentDataSource = new MatTableDataSource<any>([]);
   MiscDataListDataSource = new MatTableDataSource<any>([]);
   ratesDataSource = new MatTableDataSource<any>([]);
+  paymentsDataSource = new MatTableDataSource<any>([]);
 
   jpgDataUrl: string | ArrayBuffer | null = null;
 
@@ -51,13 +59,24 @@ export class DocumentDialogComponent implements OnInit {
   ]
 
   editForm!: FormGroup;
+  chequeSearchForm!: FormGroup;
   changedNoaStatus!: string;    
   payment_images!: { fullname: string; basename: any; }[];
   fileExtension: any;
   addressSuggestions: any[] = [];
+  selectedValue!: string;
   
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressCompleteService: AddressAutocompleteService) {
-    if(data.openForm){      
+    if(data.openChequeSearchForm){  
+      this.chequeSearchForm = this.fb.group({
+        CheckNo: [''],
+        Amt: [''],
+        PostDateStart: [''],
+        PostDateEnd: [''],
+        LastPayments: ['']
+      });
+      this.onChequeSearch();
+    } else if(data.openForm){      
 
     if(data.Phone1.length == 11 || data.Phone2.length == 11){
       var Phone1 = data.Phone1.substring(1);
@@ -71,6 +90,7 @@ export class DocumentDialogComponent implements OnInit {
     var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
     
     this.editForm = this.fb.group({
+      DebtorKey: [data.DebtorKey || ''],
       Debtor: [data.Debtor || ''],
       Duns: [data.Duns || ''],
       Addr1: [data.Addr1 || ''],
@@ -84,8 +104,16 @@ export class DocumentDialogComponent implements OnInit {
       Terms: [data.Terms || ''],
       Email: [data.Email || ''],
       MotorCarrNo: [data.MotorCarrNo || ''],
-      CredExpireDate: [''],
-      RateDate: [data.RateDate || '']
+      CredExpireMos: [''],
+      RateDate: [data.RateDate || ''],
+      Notes: [data.Notes || ''],
+      CredNote: [data.CredNote || ''],
+      IndivCreditLimit: [data.IndivCreditLimit || ''],
+      CredAppBy: [data.CredAppBy || ''],
+      FFNo: [data.FFNo || ''],
+      CVOR: [data.Cvor || ''],
+      USDOT: [data.USDot || ''],
+      Warning: [data.Warning || '']
     })
 
       this.debtor = data.Debtor
@@ -116,8 +144,13 @@ export class DocumentDialogComponent implements OnInit {
     } else if (data.debtorAudit) {            
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
         this.auditDataSource.data = response.debtorAudit;        
+      });                        
+    } else if (data.debtorStatements) {            
+      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
+        this.statementsDataSource.data = response.debtorStatementsDetails;        
       });      
-      
+    } else if (data.chequeSearch) {                     
+       
     } else {
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
         this.contactDataSource.data = response.debtorContactsData;
@@ -192,15 +225,16 @@ export class DocumentDialogComponent implements OnInit {
     }
 
     onEdit(){
-      if (this.editForm.valid) {         
+      if (this.editForm.valid) {  
         console.log(this.editForm.value);
-                            
-        this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, this.editForm.value)
-        .subscribe(response => {
-          console.log('Debtor data updated',response);       
-        }, error => {
-          console.error('Error', error);
-        });
+          
+        // this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, this.editForm.value)
+        // .subscribe(response => {
+        //   console.log('Debtor data updated',response);       
+        //   window.location.reload();
+        // }, error => {
+        //   console.error('Error', error);
+        // });
       }
     }
 
@@ -234,9 +268,37 @@ export class DocumentDialogComponent implements OnInit {
             console.error('file not converted', error);                             
           }
         );  
-      }, 3000); // Delay in milliseconds (3000ms = 3s) }         
+      }, 3000);     
                               
     };  
+
+    onRadioChange(value: string) {
+      this.selectedValue = value;
+    }
+
+    onChequeSearch(){      
+      if (this.chequeSearchForm.valid) {  
+        let DebtorKey = this.data.DebtorKey;
+        let CheckNo = this.chequeSearchForm.value.CheckNo;
+        let Amt = this.chequeSearchForm.value.Amt;
+        let PostDateStart = this.chequeSearchForm.value.PostDateStart;
+        let PostDateEnd = this.chequeSearchForm.value.PostDateEnd;
+        let LastPayments = '';
+        // if (this.chequeSearchForm.value.LastPayments == true) {
+          LastPayments = 'Y';
+        // } else {
+        //   LastPayments = 'N'
+        // }
+
+        this.dataService.getDebtorsPayments(DebtorKey, CheckNo, Amt, PostDateStart, PostDateEnd, LastPayments).subscribe(response => {                                
+          this.paymentsDataSource.data = response.payments;
+          console.log(this.paymentDataSource);
+          
+        });
+    
+      }
+    }
+
     getFileExtension(filename: string): string {     const extension = filename.split('.').pop();     return extension ? extension.toLowerCase() : '';   }
 
 }

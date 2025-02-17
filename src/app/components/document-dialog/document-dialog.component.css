@@ -28,13 +28,14 @@
   }
 
   .mat-mdc-dialog-container {	
-	width: max-content;
+	width: 100%;
 	  overflow: visible;
   }
 
   .mat-mdc-dialog-content {
-	width: max-content;
+	width: 100%;
 	overflow: visible;
+	padding-left: 45px;
   }
 
   .form-control {
@@ -66,7 +67,7 @@
    .dialog-content {
 	flex: 1 1 auto;
 	overflow-y: auto; /* Enable scrolling for the content area */
-	padding: 5px;
+	padding: 10px;
    }
 
    .loading-cursor {   
@@ -74,5 +75,9 @@
 	}
 
 	input::placeholder {
+		color: rgb(252, 112, 112);
+	}
+
+	textarea::placeholder {
 		color: rgb(252, 112, 112);
 	}

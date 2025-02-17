@@ -19,9 +19,9 @@
                 <td (click)="openClientsInvoicesWindow(element.ClientKey, element.Client)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Client }}</u></td>
             </ng-container>
 
-            <ng-container matColumnDef="DbDunsNo">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Duns</th>
-                <td mat-cell *matCellDef="let element">{{ element.DbDunsNo }}</td>
+            <ng-container matColumnDef="TotalAR">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Total AR</th>
+                <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>
             </ng-container>
         
             <ng-container matColumnDef="Country">

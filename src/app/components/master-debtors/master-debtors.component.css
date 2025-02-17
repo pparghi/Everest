@@ -70,9 +70,7 @@
 }
 
 .mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
-  width: 55px !important; 
-  min-width: 55px !important;
-  max-width: 55px !important;
+  width: 30px !important;  
 }
 
 .custom-spinner ::ng-deep .mat-spinner circle, .mat-progress-spinner circle {
