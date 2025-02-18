@@ -104,7 +104,7 @@ export class DocumentDialogComponent implements OnInit {
       Terms: [data.Terms || ''],
       Email: [data.Email || ''],
       MotorCarrNo: [data.MotorCarrNo || ''],
-      CredExpireMos: [''],
+      CredExpireMos: [ data.CredExpireMos || ''],
       RateDate: [data.RateDate || ''],
       Notes: [data.Notes || ''],
       CredNote: [data.CredNote || ''],
@@ -113,7 +113,8 @@ export class DocumentDialogComponent implements OnInit {
       FFNo: [data.FFNo || ''],
       CVOR: [data.Cvor || ''],
       USDOT: [data.USDot || ''],
-      Warning: [data.Warning || '']
+      Warning: [data.Warning || ''],      
+      DotNo: [data.DotNo || '']      
     })
 
       this.debtor = data.Debtor
@@ -227,14 +228,13 @@ export class DocumentDialogComponent implements OnInit {
     onEdit(){
       if (this.editForm.valid) {  
         console.log(this.editForm.value);
-          
-        // this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, this.editForm.value)
-        // .subscribe(response => {
-        //   console.log('Debtor data updated',response);       
-        //   window.location.reload();
-        // }, error => {
-        //   console.error('Error', error);
-        // });
+        this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, this.editForm.value)
+        .subscribe(response => {
+          console.log('Debtor data updated',response);       
+          window.location.reload();
+        }, error => {
+          console.error('Error', error);
+        });
       }
     }
 

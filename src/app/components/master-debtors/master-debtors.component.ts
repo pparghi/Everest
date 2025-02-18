@@ -39,6 +39,8 @@ interface DataItem {
   CredNote: string;
   Notes: string;
   Warning: string;
+  CredExpireMos: number;
+  DotNo: string;
   expandedDetail: { detail: string };
 }
 
@@ -325,7 +327,9 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
          CredAppBy: this.user,
          CredNote: row.CredNote,
          Notes: row.Notes,
-         Warning: row.Warning
+         Warning: row.Warning,
+         CredExpireMos: row.CredExpireMos,
+         DotNo: row.DotNo         
        }
       });
       dialogRef.afterClosed().subscribe(result => {

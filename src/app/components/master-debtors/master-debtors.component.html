@@ -79,8 +79,8 @@
         </ng-container>
 
         <ng-container matColumnDef="%Utilized">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">% Utilized</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{  element.PctUtilized | percent: '1.0-0' }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Avg | % Utilized</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;"> | {{  element.PctUtilized | percent: '1.0-0' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="PastDue%">
@@ -207,10 +207,10 @@
                                 <th class="header" style="width: 10%;">61-90</th>
                                 <th class="header" style="width: 10%;">91-120</th>
                                 <th class="header" style="width: 10%;">121-150</th>                                                               
-                                <th class="header" style="width: 5%;">DSO30</th>
-                                <th class="header" style="width: 5%;">DSO60</th>
-                                <th class="header" style="width: 5%;">DSO90</th>
-                                <th class="header" style="width: 5%;">DSOAll</th>               
+                                <th class="header" style="width: 10%;">DSO30</th>
+                                <th class="header" style="width: 10%;">DSO60</th>
+                                <th class="header" style="width: 10%;">DSO90</th>
+                                <th class="header" style="width: 10%;">DSOAll</th>               
                             </tr>                               
                             <tr class="table-row">
                                 <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openDebtorStatementsDialog(element.DebtorKey)">{{ element.Balance | roundThousands }}</td>
@@ -219,10 +219,10 @@
                                 <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>                                
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO30) }}</td>
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO60) }}</td>
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSO90) }}</td>
-                                <td class="cell" style="width: 5%;">{{ math.round(element.DSOAll) }}</td>  
+                                <td class="cell" style="width: 10%;">{{ math.round(element.DSO30) }}</td>
+                                <td class="cell" style="width: 10%;">{{ math.round(element.DSO60) }}</td>
+                                <td class="cell" style="width: 10%;">{{ math.round(element.DSO90) }}</td>
+                                <td class="cell" style="width: 10%;">{{ math.round(element.DSOAll) }}</td>  
                                                                                         
                             </tr>                                
                         </table>
@@ -234,9 +234,8 @@
                                 <th class="header" style="width: 10%;">Last Payment Date</th>
                                 <th class="header" style="width: 10%;">Dispute %</th>
                                 <th class="header" style="width: 10%;">Audit</th>
-                                <th class="header">Address</th>
-                                <th class="header">Alternate address</th>
-                                <th></th>                                
+                                <th class="header" style="width: 20%;">Address</th>
+                                <th class="header" style="width: 20%;">Alternate address</th>
                             </tr>
                             <tr class="table-row">
                                 <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>                                                                    
@@ -245,9 +244,8 @@
                                 <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openChecqueSearchDialog(element.DebtorKey)">{{ element.LastPmtDate | date:"MM/dd/yyyy" }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.DisputesPct | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;" (click)="openDebtorAuditDialog(element.DebtorKey)"><i class="fa-solid fa-list-check" style="color: #3a8ada;"></i></td>
-                                <td class="cell">{{ element.Addr1 }}</td>                                    
-                                <td class="cell">{{ element.Addr2 }}</td>
-                                <td class="cell"></td>                                    
+                                <td class="cell" style="width: 20%;">{{ element.Addr1 }}</td>                                    
+                                <td class="cell" style="width: 20%;">{{ element.Addr2 }}</td>                                                                    
                             </tr>
                         </table>
                         <table class="bordered-table">                                                                                

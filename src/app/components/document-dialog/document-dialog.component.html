@@ -113,7 +113,7 @@
     <form [formGroup]="editForm" (ngSubmit)="onEdit()">
         <mat-dialog-content>
           <div class="row" style="padding-top: 5px;">
-            <div class="col-md-3">
+            <div class="col-md-6">
               <label for="Debtor" class="form-label">Debtor Name</label>
               <input type="text" id="Debtor" class="form-control" formControlName="Debtor" value="{{ this.debtor }}" placeholder="N/A">
             </div>
@@ -122,6 +122,13 @@
               <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A">
             </div>
             <div class="col-md-3">
+              <label for="Terms" class="form-label">Terms</label>
+              <input type="text" id="Terms" class="form-control" formControlName="Terms" placeholder="N/A">
+            </div> 
+          </div>
+          
+          <div class="row" style="padding-top: 5px;">
+            <div class="col-md-3">
               <label for="Addr1" class="form-label">Address 1</label>
               <input type="text" id="Addr1" class="form-control" formControlName="Addr1" placeholder="N/A">            
             </div>
@@ -129,9 +136,6 @@
               <label for="Addr2" class="form-label">Address 2</label>
               <input type="text" id="Addr2" class="form-control" formControlName="Addr2" placeholder="N/A">
             </div>
-        </div>
-        
-          <div class="row" style="padding-top: 5px;">
             <div class="col-md-3">
               <label for="City" class="form-label">City</label>
               <input type="text" id="City" class="form-control" formControlName="City" placeholder="N/A">
@@ -140,6 +144,9 @@
               <label for="State" class="form-label">State</label>
               <input type="text" id="State" class="form-control" formControlName="State" placeholder="N/A">
             </div>
+          </div>
+          
+          <div class="row" style="padding-top: 5px;">          
             <div class="col-md-3">
               <label for="Phone1" class="form-label">Phone 1</label>
               <input type="text" id="Phone1" class="form-control" formControlName="Phone1">
@@ -148,13 +155,6 @@
               <label for="Phone2" class="form-label">Phone 2</label>
               <input type="text" id="Phone2" class="form-control" formControlName="Phone2" placeholder="N/A">
             </div>
-          </div>
-        
-          <div class="row" style="padding-top: 5px;">          
-            <div class="col-md-3">
-              <label for="Terms" class="form-label">Terms</label>
-              <input type="text" id="Terms" class="form-control" formControlName="Terms" placeholder="N/A">
-            </div> 
             <div class="col-md-3">
               <label for="AIGLimit" class="form-label">AIGLimit</label>
               <input type="text" id="AIGLimit" class="form-control" formControlName="AIGLimit" placeholder="N/A">
@@ -163,13 +163,14 @@
               <label for="RateDate" class="form-label">Research Date</label>
               <input type="date" id="RateDate" class="form-control" formControlName="RateDate" placeholder="N/A">
             </div>            
+            
+          </div>
+          
+          <div class="row" style="padding-top: 5px;">
             <div class="col-md-3">
               <label for="CredExpireMos" class="form-label">Expiry Month</label>
               <input type="text" id="CredExpireMos" class="form-control" formControlName="CredExpireMos" placeholder="N/A">
             </div>
-          </div>
-          
-          <div class="row" style="padding-top: 5px;">
             <div class="col-md-3">
               <label for="MotorCarrNo" class="form-label">MC#</label>
               <input type="text" id="MotorCarrNo" class="form-control" formControlName="MotorCarrNo" placeholder="N/A">
@@ -178,10 +179,10 @@
               <label for="Duns" class="form-label">Duns</label>
               <input type="text" id="Duns" class="form-control" formControlName="Duns" placeholder="N/A">
             </div>           
-            <div class="col-md-6">
-                <input type="radio" id="FF#" name="FFCVORUSDOT" value="FFNo" (change)="onRadioChange('FFNo')" />&nbsp;<label for="FFNo">FF#</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" id="CVOR" name="FFCVORUSDOT" value="CVOR" (change)="onRadioChange('CVOR')" />&nbsp;<label for="CVOR">CVOR</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" id="USDOT" name="FFCVORUSDOT" value="USDOT" (change)="onRadioChange('USDOT')" />&nbsp;<label for="USDOT">USDOT</label>
+            <div class="col-md-3">
+                <!-- <input type="radio" id="FF#" name="FFCVORUSDOT" value="FFNo" (change)="onRadioChange('FFNo')" />&nbsp;<label class="form-label" for="FFNo">FF#</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="radio" id="CVOR" name="FFCVORUSDOT" value="CVOR" (change)="onRadioChange('CVOR')" />&nbsp;<label class="form-label" for="CVOR">CVOR</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="radio" id="USDOT" name="FFCVORUSDOT" value="USDOT" (change)="onRadioChange('USDOT')" />&nbsp;<label class="form-label" for="USDOT">USDOT</label>
 
               <span *ngIf="selectedValue === 'FFNo'">
                 <input type="text" class="form-control" formControlName="FFNo">
@@ -194,8 +195,10 @@
               </span>
               <span *ngIf="!selectedValue">
                 <input type="text" class="form-control" name="">
-              </span>
-            </div>           
+              </span> -->
+              <label for="DotNo" class="form-label">USDOT</label>
+                <input type="text" id="DotNo" class="form-control" formControlName="DotNo" placeholder="N/A">           
+            </div>
           </div>
           
           <div class="row" style="padding-top: 5px;">
