@@ -228,7 +228,32 @@ export class DocumentDialogComponent implements OnInit {
     onEdit(){
       if (this.editForm.valid) {  
         console.log(this.editForm.value);
-        this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, this.editForm.value)
+
+        const formData = new FormData();
+    formData.append('DebtorKey', this.editForm.value.DebtorKey);
+    formData.append('Debtor', this.editForm.value.Debtor);
+    formData.append('Duns', this.editForm.value.Duns);
+    formData.append('Addr1', this.editForm.value.Addr1);
+    formData.append('Addr2',this.editForm.value.Addr2);
+    formData.append('Phone1',this.editForm.value.Phone1);
+    formData.append('Phone2',this.editForm.value.Phone2);
+    formData.append('City',this.editForm.value.City);
+    formData.append('State',this.editForm.value.State);
+    formData.append('TotalCreditLimit',this.editForm.value.TotalCreditLimit);
+    formData.append('IndivCreditLimit',this.editForm.value.IndivCreditLimit);
+    formData.append('AIGLimit',this.editForm.value.AIGLimit);
+    formData.append('Terms',this.editForm.value.Terms);
+    formData.append('MotorCarrNo',this.editForm.value.MotorCarrNo);
+    formData.append('CredAppBy',this.editForm.value.CredAppBy);
+    formData.append('Email',this.editForm.value.Email);
+    formData.append('RateDate',this.editForm.value.RateDate);
+    formData.append('CredExpireMos',this.editForm.value.CredExpireMos);
+    formData.append('Notes',this.editForm.value.Notes);
+    formData.append('CredNote',this.editForm.value.CredNote);
+    formData.append('Warning',this.editForm.value.Warning);
+    formData.append('DotNo',this.editForm.value.DotNo);
+
+        this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, formData)
         .subscribe(response => {
           console.log('Debtor data updated',response);       
           window.location.reload();

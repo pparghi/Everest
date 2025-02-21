@@ -19,7 +19,7 @@ export class RiskMonitoringDetailComponent {
   MonitoringCategories: any;
   MonitoringNotes: any;
   category = '';
-  ClientKey!: number;
+  ClientKey: any;
   ARGrossBalance!: number;
   ARGrossBalanceNeg!: number;
   Ineligible!: number;
@@ -206,7 +206,7 @@ export class RiskMonitoringDetailComponent {
       this.user = userId 
     });
 
-    this.dataService.addNotesRisk(this.ClientKey, this.note_category, this.note, '', 1, this.user, this.due_date).subscribe(response => {
+    this.dataService.addNotesRisk(this.ClientKey, this.note_category, this.note, '', '1', this.user, this.due_date).subscribe(response => {
       alert('Note added successfully');
       window.location.reload();
     }, error => {
@@ -214,7 +214,7 @@ export class RiskMonitoringDetailComponent {
     });
   }
 
-  onChangeCRM(event: Event, ClientKey: number){
+  onChangeCRM(event: Event, ClientKey: string){
     const confirmed = window.confirm('Are you sure you want to update the CRM?');
     if (confirmed) {
       this.http.get(GRAPH_ENDPOINT)
@@ -242,7 +242,7 @@ export class RiskMonitoringDetailComponent {
     }
   };
 
-  onChangeLevel(event: Event, ClientKey: number){
+  onChangeLevel(event: Event, ClientKey: string){
     const confirmed = window.confirm('Are you sure you want to update the Level?');
     if (confirmed) {
       this.http.get(GRAPH_ENDPOINT)

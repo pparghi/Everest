@@ -79,17 +79,17 @@
                 </mat-card-header>
                 <mat-card-content *ngIf="client">
                     <tr>
-                        <td><b>Level</b></td>                        
-                        <td *ngIf="this.NavAccessRiskMonitoringRestricted == 0; else elseBlockLevel">                            
-                            <select (change)="onChangeLevel($event, client.ClientKey)" [ngStyle]="{'font-size': '13px', 'border': bgcolor}" class="dropdown">                                
-                                <option *ngFor="let level of clientGroupLevelList" [value]="level.GroupValue" [selected]="level.GroupValue === this.Level">
-                                    {{ level.GroupValue }}
-                                  </option>
-                            </select>                             
-                        </td>
-                        <ng-template #elseBlockLevel>
-                           
-                        </ng-template>                       
+                        <td><b>Level</b></td> 
+                        <td *ngIf="this.NavAccessRiskMonitoringRestricted == 1; else elseBlockLevel" >{{ this.Level }}</td>
+                            <ng-template #elseBlockLevel>
+                                <td>                            
+                                    <select (change)="onChangeLevel($event, client.ClientKey)" [ngStyle]="{'font-size': '13px', 'border': bgcolor}" class="dropdown">                                
+                                        <option *ngFor="let level of clientGroupLevelList" [value]="level.GroupValue" [selected]="level.GroupValue === this.Level">
+                                            {{ level.GroupValue }}
+                                          </option>
+                                    </select>                             
+                                </td>
+                            </ng-template>                      
                         <td><i class="fa fa-history" (click)="levelHistory()" style="font-size: 20px;" aria-hidden="true"></i></td>
                     </tr>
                     <tr>
@@ -209,15 +209,18 @@
                         <div class='col' *ngIf="note.DueDate == null; else elseBlockCompleted">N/A</div>
                         <ng-template #elseBlockCompleted>
                             <div class="col" *ngIf="note.Completed == null; else elseBlock">
-                                <button id="completed-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true, 'risk_select_note_completed': 'risk_select_note_completed'}" style="font-size: 12px;" (click)="onChangeCompleteStatus($event)">Set as Completed</button>
-                            </div>
-                            
-                            <ng-template #elseBlock>
-                                <div class='col'>
-                                    {{ note.Completed | date:'MM/dd/yyyy' }}&nbsp;
-                                    <button id="notcompleted-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-danger': true, 'risk_select_note_notcompleted': 'risk_select_note_notcompleted'}" style="font-size: 12px;" (click)="onChangeNotCompleteStatus($event)">Not Completed</button>
+                                    <span *ngIf="this.NavAccessRiskMonitoringRestricted == 0">
+                                    <button id="completed-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true, 'risk_select_note_completed': 'risk_select_note_completed'}" style="font-size: 12px;" (click)="onChangeCompleteStatus($event)">Set as Completed</button>
+                                    </span>
                                 </div>
-                            </ng-template>
+                                    <ng-template #elseBlock>
+                                        <div class='col'>
+                                            <span *ngIf="this.NavAccessRiskMonitoringRestricted == 0">
+                                            {{ note.Completed | date:'MM/dd/yyyy' }}&nbsp;
+                                            <button id="notcompleted-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-danger': true, 'risk_select_note_notcompleted': 'risk_select_note_notcompleted'}" style="font-size: 12px;" (click)="onChangeNotCompleteStatus($event)">Not Completed</button>
+                                            </span>
+                                        </div>
+                                    </ng-template>
                         </ng-template>                                        
                         <div class='col'>{{ note.CreatedBy }}</div>
                         <div class='col'>{{ note.CreatedDate | date:"MM/dd/yyyy HH:mm:ss" }}</div>

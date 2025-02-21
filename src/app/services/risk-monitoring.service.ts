@@ -139,46 +139,61 @@ export class RiskMonitoringService {
     );
   }
 
-  addNotesRisk(ClientKey: number, Category: string, Notes: string, Currency: string, Risk: number, CreatedBy: string, DueDate: string){
-      const url = `https://everest.revinc.com:4202/api/addNotesRisk?ClientKey=${ClientKey}&Category=${Category}&Notes=${Notes}&Currency=${Currency}&Risk=${Risk}&CreatedBy=${CreatedBy}&DueDate=${DueDate}`;
-      const body = {
-        ClientKey: ClientKey,
-        Category: Category,
-        Notes: Notes,
-        Currency: Currency,
-        Risk: Risk,
-        CreatedBy: CreatedBy,
-        DueDate: DueDate
-      };
-      return this.http.post<any>(url, body);
+  addNotesRisk(ClientKey: string, Category: string, Notes: string, Currency: string, Risk: string, CreatedBy: string, DueDate: string){
+      const url = `https://everest.revinc.com:4202/api/addNotesRisk`;
+      // const body = {
+      //   ClientKey: ClientKey,
+      //   Category: Category,
+      //   Notes: Notes,
+      //   Currency: Currency,
+      //   Risk: Risk,
+      //   CreatedBy: CreatedBy,
+      //   DueDate: DueDate
+      // };
+      const formData = new FormData();
+    formData.append('ClientKey', ClientKey);
+    formData.append('Category', Category);
+    formData.append('Notes', Notes);
+    formData.append('Currency', Currency);
+    formData.append('Risk', Risk);
+    formData.append('CreatedBy', CreatedBy);
+    formData.append('DueDate', DueDate);
+    
+    // this.http.post('https://everest.revinc.com:4202/api/debtorMasterAddDocument', formData)
+    //  .subscribe(response => {
+    //    console.log('file uploaded',response);       
+    //  }, error => {
+    //    console.error('Upload failed', error);
+    //  });
+
+
+      return this.http.post<any>(url, formData)
   }
 
-  updateCRMRisk(ClientKey: number, CRM: string, UserKey: string){
+  updateCRMRisk(ClientKey: string, CRM: string, UserKey: string){
       const url = `https://everest.revinc.com:4202/api/updateCRMRisk?ClientKey=${ClientKey}&CRM=${CRM}&UserKey=${UserKey}`;
-      const body = {
-        ClientKey: ClientKey,
-        CRM: CRM,
-        UserKey: UserKey
-      };
-      return this.http.post<any>(url, body);
+      const formData = new FormData();
+      formData.append('ClientKey', ClientKey);
+      formData.append('CRM', CRM);
+      formData.append('UserKey', UserKey);
+    
+      return this.http.post<any>(url, formData);
   }
 
-  updateLevelRisk(ClientKey: number, GroupValue: string, UserKey: string){
+  updateLevelRisk(ClientKey: string, GroupValue: string, UserKey: string){
       const url = `https://everest.revinc.com:4202/api/updateLevelRisk?ClientKey=${ClientKey}&GroupValue=${GroupValue}&UserKey=${UserKey}`;
-      const body = {
-        ClientKey: ClientKey,
-        GroupValue: GroupValue,
-        UserKey: UserKey
-      };
-      return this.http.post<any>(url, body);
+      const formData = new FormData();
+      formData.append('ClientKey', ClientKey);
+      formData.append('GroupValue', GroupValue);
+      formData.append('UserKey', UserKey);
+      return this.http.post<any>(url, formData);
   }
 
   updateCompleteStatusRisk(ClientNoteKey: string, Complete: string){
       const url = `https://everest.revinc.com:4202/api/updateCompleteStatusRisk?ClientNoteKey=${ClientNoteKey}&Complete=${Complete}`
-      const body = {
-        ClientNoteKey: ClientNoteKey,
-        Complete: Complete
-      };
-      return this.http.post<any>(url, body);
+      const formData = new FormData();
+      formData.append('ClientNoteKey', ClientNoteKey);
+      formData.append('Complete', Complete);
+      return this.http.post<any>(url, formData);
   }
 }

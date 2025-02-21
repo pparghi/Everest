@@ -51,6 +51,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { RiskMonitoringDetailComponent } from './components/risk-monitoring-detail/risk-monitoring-detail.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TicketingComponent } from './components/ticketing/ticketing.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MasterDebtorEditComponent,
     RiskMonitoringComponent,
     RiskMonitoringDetailComponent,
+    TicketingComponent,
   ],
   imports: [
     MatDatepickerModule,
