@@ -65,6 +65,15 @@ export class DocumentDialogComponent implements OnInit {
   fileExtension: any;
   addressSuggestions: any[] = [];
   selectedValue!: string;
+  Payment30: any;
+  Payment60: any;
+  Payment90: any;
+  Payment120: any;
+  currentMonth!: string;
+  lastThreeMonths: string[] = [];
+  lastThreeMonths30!: string;
+  lastThreeMonths60!: string;
+  lastThreeMonths90!: string;
   
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressCompleteService: AddressAutocompleteService) {
     if(data.openChequeSearchForm){  
@@ -88,6 +97,7 @@ export class DocumentDialogComponent implements OnInit {
 
     const roundThousandsPipe = new RoundThousandsPipe();
     var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
+    var AIGLimit = roundThousandsPipe.transform(data.AIGLimit);
     
     this.editForm = this.fb.group({
       DebtorKey: [data.DebtorKey || ''],
@@ -100,7 +110,7 @@ export class DocumentDialogComponent implements OnInit {
       Phone1: [Phone1 || ''],
       Phone2: [Phone2 || ''],
       TotalCreditLimit: [creditLimit || ''],
-      AIGLimit: [data.AIGLimit || ''],
+      AIGLimit: [AIGLimit || ''],
       Terms: [data.Terms || ''],
       Email: [data.Email || ''],
       MotorCarrNo: [data.MotorCarrNo || ''],
@@ -160,16 +170,31 @@ export class DocumentDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const script = document.createElement('script');
-    script.src = 'https://ws1.postescanada-canadapost.ca/js/addresscomplete-2.50.min.js';
-    script.onload = () => {      
-      const ac = new (<any>window).pca.AddressComplete(document.getElementById('Addr2'), {
-        key: 'dy85-mj85-wx29-nn39',
-        country: 'CAN'
-      });
-    };
-    console.log(script);
-    document.body.appendChild(script);
+    const now = new Date();
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"];
+
+    this.currentMonth = monthNames[now.getMonth()];
+
+    for (let i = 1; i <= 3; i++) {
+      const pastMonth = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      this.lastThreeMonths.push(monthNames[pastMonth.getMonth()]);
+    }
+    this.lastThreeMonths30 = this.lastThreeMonths[2];
+    this.lastThreeMonths60 = this.lastThreeMonths[1];
+    this.lastThreeMonths90 = this.lastThreeMonths[0];
+
+    this.addressCompleteService.initializeAutocomplete('Addr1');
+    // const script = document.createElement('script');
+    // script.src = 'https://ws1.postescanada-canadapost.ca/js/addresscomplete-2.50.min.js';
+    // script.onload = () => {      
+    //   const ac = new (<any>window).pca.AddressComplete(document.getElementById('Addr2'), {
+    //     key: 'dy85-mj85-wx29-nn39',
+    //     country: 'CAN'
+    //   });
+    // };
+    // console.log(script);
+    // document.body.appendChild(script);
   }
 
   ngAfterViewInit() {
@@ -183,12 +208,12 @@ export class DocumentDialogComponent implements OnInit {
     // }
   }
 
-  onAddressInput(event: any) {
-    const query = event.target.value;
-    this.addressCompleteService.getSuggestions(query).then((data: any) => {
-      this.addressSuggestions = data;
-    });
-  }
+  // onAddressInput(event: any) {
+  //   const query = event.target.value;
+  //   this.addressCompleteService.getSuggestions(query).then((data: any) => {
+  //     this.addressSuggestions = data;
+  //   });
+  // }
 
   openFile(){
     // let url = atob(this.link);       
@@ -317,8 +342,10 @@ export class DocumentDialogComponent implements OnInit {
 
         this.dataService.getDebtorsPayments(DebtorKey, CheckNo, Amt, PostDateStart, PostDateEnd, LastPayments).subscribe(response => {                                
           this.paymentsDataSource.data = response.payments;
-          console.log(this.paymentDataSource);
-          
+          this.Payment30 = response.payments[0].Payments30;
+          this.Payment60 = response.payments[0].Payments60;
+          this.Payment90 = response.payments[0].Payments90;
+          this.Payment120 = response.payments[0].Payments120;
         });
     
       }

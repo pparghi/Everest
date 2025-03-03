@@ -69,8 +69,14 @@ export class RiskMonitoringComponent implements OnInit {
     let currentDate = new Date();
     let today = new Date();
     currentDate.setDate(currentDate.getDate() - 6);
-    this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
-    this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+    if (this.isDDSelect == 'N') {
+      this.dueDateFrom = '2000-01-01';
+      this.dueDateTo = '2099-12-31';
+    } else {
+      this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+      this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+    }
+    
   }
 
   ngOnInit(): void {    
@@ -207,6 +213,16 @@ export class RiskMonitoringComponent implements OnInit {
   onChangeDDSelect(event: Event){
     const selectElement = event.target as HTMLSelectElement;
       this.isDDSelect = selectElement.value   
+      if (this.isDDSelect == 'N') {
+        this.dueDateFrom = '2000-01-01';
+        this.dueDateTo = '2099-12-31';
+      } else {
+        let currentDate = new Date();
+        let today = new Date();
+        currentDate.setDate(currentDate.getDate() - 6);
+        this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+        this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+      }
       this.loadData();
   }
 

@@ -7,7 +7,7 @@
   border: 1px solid #dee2e6;
   padding: 10px;
   border-radius: 5px;  
-  max-height: 700px;
+  max-height: 710px;
   overflow-y: auto;
   background-color: #ffffff;
 }   
@@ -21,7 +21,7 @@
 }   
 
 .example-container {
-  height: 810px;
+  height: 820px;
   overflow: auto;
   padding: 7px;
 }

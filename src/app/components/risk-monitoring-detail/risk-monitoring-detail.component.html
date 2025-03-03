@@ -3,11 +3,10 @@
         <div class="col-md-4">
             <mat-card appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title>Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <!-- <span *ngIf="client.Inactive == 0; else elseBlockStatus" style="font-size: 15px; color: green;"></span>
+                    <mat-card-title style="font-size: 20px;">Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span *ngIf="client.Inactive == 0; else elseBlockStatus" style="color: green; font-size: 15px;"><b>Active</b></span>
                         <ng-template #elseBlockStatus>
-                            <span style="font-size: small; color: red;"><b>Inactive</b></span>
-                        </ng-template> -->
+                            <span style="color: red; font-size: 15px;"><b>Inactive</b></span>
+                        </ng-template>                      
                 </mat-card-title>
                 </mat-card-header>
                 <mat-card-content *ngIf="client">
@@ -39,14 +38,7 @@
                         <tr>
                             <td style="vertical-align: top;"><b>Phones</b></td>
                             <td>{{ client.Phone1 }} {{ client.Phone2 }}</td>
-                        </tr>                        
-                        <tr>
-                            <td style="vertical-align: top;"></td>
-                            <td *ngIf="client.Inactive == 0; else elseBlockStatus" style="color: green;"><b>Active</b></td>
-                            <ng-template #elseBlockStatus>
-                                <td style="color: red;"><b>Inactive</b></td>
-                            </ng-template>
-                        </tr>
+                        </tr>                                                
                     </table>
                 </mat-card-content>
             </mat-card>
@@ -54,7 +46,7 @@
         <div class="col-md-4">
             <mat-card style="height: 100%;" appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title>Contacts</mat-card-title>
+                    <mat-card-title style="font-size: 20px;">Contacts</mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
                     <table>
@@ -75,7 +67,7 @@
         <div class="col-md-4">
             <mat-card style="height: 100%;" appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title>Concern</mat-card-title>
+                    <mat-card-title style="font-size: 20px;">Concern</mat-card-title>
                 </mat-card-header>
                 <mat-card-content *ngIf="client">
                     <tr>
@@ -147,7 +139,7 @@
         <div class="col">
             <mat-card appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title>Add New Note</mat-card-title>
+                    <mat-card-title style="font-size: 20px;">Add New Note</mat-card-title>
                 </mat-card-header><br>
                 <mat-card-content>
                     <div class="row">
@@ -180,7 +172,7 @@
         <div class="col">
             <mat-card appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title>Note History</mat-card-title>     
+                    <mat-card-title style="font-size: 20px;">Note History</mat-card-title>     
                     <span style="font-size: 12px; background-color: #315cf8; border: 1px solid #385491; color: rgb(255, 255, 255);" class="header-right-text" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-primary': true}">Hidden Notes</span>                           
                 </mat-card-header><br>
                 <mat-card-content>

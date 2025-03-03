@@ -96,7 +96,7 @@
 
         <ng-container matColumnDef="Client">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="after" class="client-column">Client</th>
-            <td mat-cell *matCellDef="let element" class="client-column">{{ element.Client }}</td>
+            <td mat-cell *matCellDef="let element" class="client-column" title="{{ element.LastNote }}">{{ element.Client }}</td>
         </ng-container>
         <ng-container matColumnDef="NoteDueDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="after">Due Date</th>

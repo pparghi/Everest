@@ -6,12 +6,12 @@
 .table-container {
 border: 1px solid #dee2e6;
 border-radius: 5px;  
-max-height: 630px;
+max-height: 850px;
 overflow-y: auto;
 }   
 
 .example-container {
-height: 750px;
+height: 820px;
 overflow: auto;
 padding: 7px;
 }

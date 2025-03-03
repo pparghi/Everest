@@ -109,8 +109,8 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Edit Debtor Details</h3>
   </div>
+  <form [formGroup]="editForm" (ngSubmit)="onEdit()">
   <div class="dialog-content">
-    <form [formGroup]="editForm" (ngSubmit)="onEdit()">
         <mat-dialog-content>
           <div class="row" style="padding-top: 5px;">
             <div class="col-md-6">
@@ -130,11 +130,11 @@
           <div class="row" style="padding-top: 5px;">
             <div class="col-md-3">
               <label for="Addr1" class="form-label">Address 1</label>
-              <input type="text" id="Addr1" class="form-control" formControlName="Addr1" placeholder="N/A">            
+              <input type="text" id="Addr1" class="form-control" formControlName="Addr1" placeholder="N/A" autocomplete="off">            
             </div>
             <div class="col-md-3">
               <label for="Addr2" class="form-label">Address 2</label>
-              <input type="text" id="Addr2" class="form-control" formControlName="Addr2" placeholder="N/A">
+              <input type="text" id="Addr2" class="form-control" formControlName="Addr2" placeholder="N/A" autocomplete="off">
             </div>
             <div class="col-md-3">
               <label for="City" class="form-label">City</label>
@@ -179,23 +179,7 @@
               <label for="Duns" class="form-label">Duns</label>
               <input type="text" id="Duns" class="form-control" formControlName="Duns" placeholder="N/A">
             </div>           
-            <div class="col-md-3">
-                <!-- <input type="radio" id="FF#" name="FFCVORUSDOT" value="FFNo" (change)="onRadioChange('FFNo')" />&nbsp;<label class="form-label" for="FFNo">FF#</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" id="CVOR" name="FFCVORUSDOT" value="CVOR" (change)="onRadioChange('CVOR')" />&nbsp;<label class="form-label" for="CVOR">CVOR</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" id="USDOT" name="FFCVORUSDOT" value="USDOT" (change)="onRadioChange('USDOT')" />&nbsp;<label class="form-label" for="USDOT">USDOT</label>
-
-              <span *ngIf="selectedValue === 'FFNo'">
-                <input type="text" class="form-control" formControlName="FFNo">
-              </span>
-              <span *ngIf="selectedValue === 'CVOR'">
-                <input type="text" class="form-control" formControlName="CVOR">
-              </span>
-              <span *ngIf="selectedValue === 'USDOT'">
-                <input type="text" class="form-control" formControlName="USDOT">
-              </span>
-              <span *ngIf="!selectedValue">
-                <input type="text" class="form-control" name="">
-              </span> -->
+            <div class="col-md-3">                
               <label for="DotNo" class="form-label">USDOT</label>
                 <input type="text" id="DotNo" class="form-control" formControlName="DotNo" placeholder="N/A">           
             </div>
@@ -230,12 +214,14 @@
           </div>
             
           </mat-dialog-content>
+        </div>
+        <div class="dialog-footer">
           <mat-dialog-actions>
             <button mat-button mat-dialog-close>Cancel</button>
-            <button mat-button type="submit" [disabled]="editForm.invalid">Save</button>
-          </mat-dialog-actions>
-    </form>
-  </div>
+            <button mat-button type="submit">Save</button>
+          </mat-dialog-actions>            
+        </div>
+      </form>
 </div>
 
 <div *ngIf="data.noa">
@@ -475,7 +461,7 @@
         <table mat-table [dataSource]="statementsDataSource" class="mat-elevation-z8">
           
           <ng-container matColumnDef="Debtor">
-              <th mat-header-cell *matHeaderCellDef>Customer</th>
+              <th mat-header-cell *matHeaderCellDef>Debtor</th>
               <td mat-cell *matCellDef="let element">{{ element.DtrName }}</td>
           </ng-container>
 
@@ -538,6 +524,24 @@
   <div class="dialog-content"> 
       <form [formGroup]="chequeSearchForm" (ngSubmit)="onChequeSearch()">
         <mat-dialog-content>
+          
+          <div class="row">
+            <div class="col-md"></div>
+            <div class="col-md-2">
+              <b>{{ this.lastThreeMonths30 }}:&nbsp;</b><span>{{ this.Payment30 | roundThousands }}</span>
+            </div>
+            <div class="col-md-2">              
+              <b>{{ this.lastThreeMonths60 }}:&nbsp;</b><span>{{ this.Payment60 | roundThousands }}</span>
+            </div>
+            <div class="col-md-2">
+              <b>{{ this.lastThreeMonths90 }}:&nbsp;</b><span>{{ this.Payment90 | roundThousands }}</span>
+            </div>
+            <div class="col-md-2">
+              <b>{{ this.currentMonth }}:&nbsp;</b><span>{{ this.Payment120 | roundThousands }}</span>
+            </div>
+            <div class="col-md"></div>
+          </div>
+          <br>
             <!-- <div class="row">
               <div class="col-md-4">
                 <label for="CheckNo" class="form-label">Cheque #</label>

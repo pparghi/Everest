@@ -40,7 +40,7 @@ interface MemberDataItem {
 })
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Client', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'IneligiblePct', 'OverAdvancedPct', 'Balance', 'Reserve', 'NFE', 'extra'];
+    displayedColumns: string[] = ['expand', 'Client', 'Warning', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'IneligiblePct', 'OverAdvancedPct', 'Balance', 'Reserve', 'NFE', 'extra'];
     displayedMemberColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 

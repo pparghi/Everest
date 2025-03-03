@@ -20,11 +20,6 @@
                 <option value="%" style="color: gray;">Select Group Value</option>
                 <option *ngFor="let group of clientGroupValueList" [value]="group.GroupValue">{{ group.Name }}</option>
             </select>
-            <!-- <label for="group_level"><b>Group Level </b>&nbsp;</label>
-            <select class="dropdown" id="group_level" (change)="onChangeGroupLevel($event)" aria-placeholder="Select Group">
-                <option value="%" style="color: gray;">Select Group</option>
-                <option *ngFor="let groupLevel of clientGroupLevelList" [value]="groupLevel.GroupValue">{{ groupLevel.GroupValue }}</option>
-            </select> -->
             <label>&nbsp;
                 <input type="radio" name="filterByBalance" value="Show All" (change)="onChange($event)" [attr.checked]="true">&nbsp; <b>Show All</b>
             </label>&nbsp;
@@ -80,19 +75,13 @@
                             <i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Client }}
                         </div>
                     </div>
-                </ng-template>
-                     
-
-                <!-- <div *ngIf="getDilutionIcon(element) == 'green' && getIneligibleIcon(element) == 'green' && getAvailableIcon(element) == 'green'" >
-                    <i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Client }}
-                </div>                
-                 <div *ngIf="getDilutionIcon(element) == 'green' && getIneligibleIcon(element) == 'green' && getAvailableIcon(element) == 'orange'" >
-                    <i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Client }}
-                </div>                
-                <div *ngIf="getDilutionIcon(element) == 'green' && getIneligibleIcon(element) == 'green' && getAvailableIcon(element) == 'red'" >
-                    <i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true"></i> &nbsp; {{ element.Client }}
-                </div> -->               
+                </ng-template>               
             </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Warning">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Warning</th>
+            <td mat-cell *matCellDef="let element" style="text-align: end;"></td>
         </ng-container>
 
         <ng-container matColumnDef="Age0to30">
@@ -165,16 +154,7 @@
         </ng-container>      
     
             <tr mat-header-row class="mat-header-row" *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>    
-            
-           <!--<ng-container matColumnDef="expandedDetail">
-                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
-                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
-                        
-                        <app-members [DebtorKey]="element.DebtorKey"></app-members>                   
-                    </div>                                      
-                </td>            
-            </ng-container>--> 
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>     
                             
              <ng-container matColumnDef="expandedDetail" style="position: sticky;" >
                 <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" style="padding-left: 3.5%;">  
