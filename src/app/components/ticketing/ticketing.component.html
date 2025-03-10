@@ -1,1 +1,150 @@
-<p>ticketing works!</p>
+<div class="example-container mat-elevation-z8" tabindex="0">                        
+    <div class="page-header">        
+        <div *ngFor="let option of statusListOptions">
+            <input type="checkbox" [value]="option.value" (change)="onCheckboxChange($event)" [checked]="isChecked(option.value)">
+            {{ option.label }}
+        </div>
+        <div>              
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label for="request_date"><b>Request Date </b></label>
+            &nbsp;&nbsp;&nbsp;<input class="dropdown" type="date" (change)="onChangeRequestDate($event)" value="{{ requestDate }}" name="" id="request_date">
+        </div>                            
+        <div>
+            <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
+            &nbsp;&nbsp;
+            <input (keyup.enter)="applyFilter($event)" class="search-bar">
+        </div>
+    </div>
+    <div class="table-container">
+  
+        <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
+        
+            <ng-container matColumnDef="Debtor">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor</th>
+                <td mat-cell *matCellDef="let element" class="truncate" title="{{ element.Debtor }}">{{ element.Debtor }}</td>
+            </ng-container> 
+
+            <ng-container matColumnDef="Client">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
+                <td mat-cell *matCellDef="let element"  class="truncate" title="{{ element.Client }}">{{ element.Client }}</td>
+            </ng-container>
+            
+            <ng-container matColumnDef="TotalCreditLimit">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CreditLimit</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.TotalCreditLimit | roundThousands }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Status">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Status</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.Status }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="IndivCreditLimit">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Single credit limit</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.IndivCreditLimit | roundThousands }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="RequestAmt">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Amount Requested</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.RequestAmt | roundThousands }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="RequestNo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Reqeust#</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.RequestNo }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="RequestUser">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">User</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.RequestUser }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Office">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Office</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.Office }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="BankAcctName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">EFT/ACH/Wire</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.BankAcctName }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="RequestDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Date & time</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.RequestDate | date:"MM/dd/yyyy HH:mm:ss" }}
+                </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="CreditType">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Credit Type</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Edit">
+                <th mat-header-cell *matHeaderCellDef style="text-align: end;">Action</th>
+                <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">
+                    <span (click)="edit(element)">                        
+                        <mat-icon style="height: 20px; width: 20px; font-size: 15px; color: #3a8ada;"><i class="fa fa-edit"></i></mat-icon>
+                    </span>                     
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="expand">
+                <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let element">
+                        <span (click)="toggleRow(element)">                        
+                            <mat-icon style="height: 20px; width: 20px; font-size: 20px;">{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
+                        </span>
+                    </td>
+            </ng-container>  
+        
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"></tr>
+
+            <ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
+                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
+                        <div class="table-container" style="background-color: #f5fbff;">                            
+                            <table class="bordered-table">
+                                <tr>                                
+                                    <th class="header" style="width: 10%;">Comments</th>
+                                    <th class="header" style="width: 10%;">CRM / Client comment box</th>               
+                                </tr>                               
+                                <tr class="table-row">
+                                    <td class="cell" style="width: 10%;">{{ element.Comments }}</td>
+                                    <td class="cell" style="width: 10%;">--</td>
+                                </tr>                                
+                            </table>                            
+                        </div> 
+                        <br>
+                        <app-ticketing-master-member-debtors [DebtorKey]="element.DebtorKey"></app-ticketing-master-member-debtors>
+                        <app-clients [DebtorKey]="element.DebtorKey"></app-clients>                   
+                    </div>                                      
+                </td>            
+            </ng-container>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
+        </table>
+    </div>
+  
+<!-- <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons></mat-paginator> -->
+  
+</div>

@@ -7,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { TicketingService } from '../../services/ticketing.service';
+import { DatePipe } from '@angular/common';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -18,11 +19,20 @@ interface DataItem {
 @Component({
   selector: 'app-ticketing',
   templateUrl: './ticketing.component.html',
-  styleUrl: './ticketing.component.css'
+  styleUrl: './ticketing.component.css',
+  providers: [DatePipe]
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'Debtor', 'Balance', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'IndivCreditLimit', 'AIGLimit', 'Terms', 'CalcRateCode', 'CredExpireDate', 'RateDate', 'Edit', 'extra'];
+    displayedColumns: string[] = ['expand', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestNo', 'RequestUser', 'Office', 'BankAcctName', 'RequestDate', 'CreditType', 'Edit'];    
+    statusListOptions = [
+      { label: 'Pending', value: '0' },
+      { label: 'Approved', value: '1' },
+      { label: 'Declined', value: '2' },
+      { label: 'Held', value: '3' }
+    ];
+    selectedValues: string[] = [];
+    selectedValuesString: string = '';
     isLoading = true;
     dataSource = new MatTableDataSource<any>();
     totalRecords = 0;
@@ -30,9 +40,9 @@ export class TicketingComponent {
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
     math = Math;
-    statusList = '';
-    requestDate = '';
-    client!: number;
+    statusList = '1';
+    requestDate: any;
+    client = '';
     readonly dialog = inject(MatDialog);    
 
     profile: any;
@@ -55,9 +65,15 @@ export class TicketingComponent {
     NavOptionRiskMonitoringRestricted: any;
     NavAccessRiskMonitoringRestricted: any;
 
-    constructor(private dataService: TicketingService, private router: Router, private http: HttpClient, private loginService: LoginService) {      
+    constructor(private dataService: TicketingService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe) {         
+      const today = new Date();
+      const yesterdayDate = new Date(today);
+      yesterdayDate.setDate(today.getDate() - 1);
+      this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
-    ngOnInit(): void {      
+    ngOnInit(): void {
+      this.selectedValues = this.statusListOptions.map(option => option.value);
+      this.selectedValuesString = this.selectedValues.join(', ');      
       this.loadData();      
     }
 
@@ -113,23 +129,40 @@ export class TicketingComponent {
           console.error('error--', error);
         });
 
-        this.isLoading = true;      
-        let sort = this.sort ? this.sort.active : '';
-        let order = this.sort ? this.sort.direction : 'DESC';
-        const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
-        const pageSize = this.paginator ? this.paginator.pageSize : 25;
+        this.isLoading = true;              
+        const mail = btoa(this.profile.mail);             
 
-        const mail = btoa(this.profile.mail);        
-
-        this.dataService.getData(this.statusList, this.requestDate, this.client, page ,pageSize, sort, order).subscribe(response => {                
+        this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
           this.isLoading = false;
-          this.dataSource.data = response.data;
-          response.data.forEach((element: any) => {
-            const total = element.total;          
-            this.totalRecords = total;                
-          });                                    
+          this.dataSource.data = response.data;                                              
         });
       });
+    }
+
+    onCheckboxChange(event: Event): void {
+      const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.selectedValues.push(checkbox.value);
+    } else {
+      const index = this.selectedValues.indexOf(checkbox.value);
+      if (index > -1) {
+        this.selectedValues.splice(index, 1);
+      }
+    }
+    this.selectedValuesString = this.selectedValues.join(', ');
+    console.log(this.selectedValuesString);
+    
+      this.loadData();
+    }
+
+    isChecked(value: string): boolean {
+      return this.selectedValues.includes(value);
+    }
+
+    onChangeRequestDate(event: Event){
+      const selectElement = event.target as HTMLSelectElement;
+      this.requestDate = selectElement.value   
+      this.loadData();
     }
 
     applyFilter(event: Event): void {
@@ -169,5 +202,9 @@ export class TicketingComponent {
     const selectElement = event.target as HTMLSelectElement;
                
       this.loadData();
+  }
+
+  edit(element: DataItem){
+    
   }
 }

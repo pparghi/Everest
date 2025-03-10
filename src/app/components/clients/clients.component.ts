@@ -1,8 +1,8 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
-import { Subject } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, filter } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -28,15 +28,23 @@ export class ClientsComponent implements OnInit {
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
     math = Math;
-    DebtorKey!: number;
+    @Input() DebtorKey!: number;
     displayDebtor: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+    currentPath: string = '';
 
-  constructor(private route: ActivatedRoute, private dataService: ClientsService, private router: Router){}
+  constructor(private route: ActivatedRoute, private dataService: ClientsService, private router: Router){
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event) => {
+      this.currentPath = this.router.url.split('/').slice(1).join('/');
+    });
+  }
     
     ngOnInit(): void {
+      this.currentPath = this.router.url.split('/').slice(1).join('/');
       this.route.queryParams.subscribe(params => {
         const DebtorKey = +params['DebtorKey'];
         this.DebtorKey = DebtorKey
@@ -45,7 +53,15 @@ export class ClientsComponent implements OnInit {
       });
     }
 
-    loadClientsDetails(DebtorKey: number): void {            
+    ngOnChanges(changes: SimpleChanges) {
+      if (changes['DebtorKey']) {
+        this.loadClientsDetails(this.DebtorKey);
+      }
+    }
+
+    loadClientsDetails(DebtorKey: number): void {   
+      console.log(DebtorKey);
+               
       this.dataService.getClients(DebtorKey).subscribe(response => {        
         this.dataSource.data = response.data;
       });

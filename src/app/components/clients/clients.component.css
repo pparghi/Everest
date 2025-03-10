@@ -43,6 +43,10 @@ display: flex;
 align-items: center;
 }
 
+.mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
+  width: 30px !important;  
+}
+
 .custom-spinner ::ng-deep .mat-spinner circle, .mat-progress-spinner circle {
 stroke: #b3e5fc; /* Change this to your desired color */
 }

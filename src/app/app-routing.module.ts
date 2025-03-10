@@ -16,6 +16,7 @@ import { MasterDebtorEditComponent } from './components/master-debtor-edit/maste
 import { RiskMonitoringComponent } from './components/risk-monitoring/risk-monitoring.component';
 import { RiskMonitoringDetailComponent } from './components/risk-monitoring-detail/risk-monitoring-detail.component';
 import { TicketingComponent } from './components/ticketing/ticketing.component';
+import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-master-member-debtors/ticketing-master-member-debtors.component';
 
 const routes: Routes = [  
   { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
@@ -31,6 +32,7 @@ const routes: Routes = [
   { path: 'detail', component: RiskMonitoringDetailComponent },
   { path: 'monitoring', component: RiskMonitoringComponent },
   { path: 'ticketing', component: TicketingComponent },
+  { path: 'debtorsTicketing', component: TicketingMasterMemberDebtorsComponent },
   { path: 'test', component: TestComponent },
 ];
 

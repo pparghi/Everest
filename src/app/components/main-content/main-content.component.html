@@ -38,6 +38,9 @@
     <div *ngIf="currentPath.includes('ticketing')">
         <app-ticketing></app-ticketing>
     </div>
+    <div *ngIf="currentPath.includes('debtorsTicketing')">
+        <app-ticketing-master-member-debtors></app-ticketing-master-member-debtors>
+    </div>
     <div *ngIf="currentPath.includes('test')">
         <app-test></app-test>
     </div>

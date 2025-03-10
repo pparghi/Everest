@@ -52,6 +52,7 @@ import { RiskMonitoringDetailComponent } from './components/risk-monitoring-deta
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TicketingComponent } from './components/ticketing/ticketing.component';
+import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-master-member-debtors/ticketing-master-member-debtors.component';
 
 @NgModule({
   declarations: [
@@ -79,6 +80,7 @@ import { TicketingComponent } from './components/ticketing/ticketing.component';
     RiskMonitoringComponent,
     RiskMonitoringDetailComponent,
     TicketingComponent,
+    TicketingMasterMemberDebtorsComponent,
   ],
   imports: [
     MatDatepickerModule,
