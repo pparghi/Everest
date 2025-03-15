@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -8,6 +8,8 @@ import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { TicketingService } from '../../services/ticketing.service';
 import { DatePipe } from '@angular/common';
+import { MatTableExporterDirective } from 'mat-table-exporter';
+import * as XLSX from 'xlsx';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -55,6 +57,8 @@ export class TicketingComponent {
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+    @ViewChild(MatTableExporterDirective) exporter!: MatTableExporterDirective;  
+    @ViewChild('table', { static: false }) table!: ElementRef;
 
     NavOptionMasterDebtorUpdate: any;
     NavAccessMasterDebtorUpdate: any;
@@ -149,9 +153,7 @@ export class TicketingComponent {
         this.selectedValues.splice(index, 1);
       }
     }
-    this.selectedValuesString = this.selectedValues.join(', ');
-    console.log(this.selectedValuesString);
-    
+    this.selectedValuesString = this.selectedValues.join(', ');    
       this.loadData();
     }
 
@@ -206,5 +208,19 @@ export class TicketingComponent {
 
   edit(element: DataItem){
     
+  }
+
+  exportTable() {        
+    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(this.table.nativeElement);
+    const data = XLSX.utils.sheet_to_json(ws, { header: 1 }) as any[][];
+
+    const filteredData = data.map((row: any[]) => {
+      return row.slice(1, -1); 
+    });
+
+    const newWs: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(filteredData);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, newWs, 'Sheet1');
+    XLSX.writeFile(wb, 'filtered-data.xlsx');
   }
 }

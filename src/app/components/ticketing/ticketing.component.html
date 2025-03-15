@@ -10,14 +10,14 @@
             &nbsp;&nbsp;&nbsp;<input class="dropdown" type="date" (change)="onChangeRequestDate($event)" value="{{ requestDate }}" name="" id="request_date">
         </div>                            
         <div>
-            <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
-            &nbsp;&nbsp;
-            <input (keyup.enter)="applyFilter($event)" class="search-bar">
+            <button mat-icon-button (click)="exporter.exportTable('csv', {fileName: 'exported-data'})">
+                <mat-icon>file_download</mat-icon>
+            </button>
         </div>
     </div>
     <div class="table-container">
   
-        <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
+        <table mat-table [dataSource]="dataSource" matTableExporter #exporter="matTableExporter" matSort multiTemplateDataRows class="mat-table">
         
             <ng-container matColumnDef="Debtor">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Debtor</th>

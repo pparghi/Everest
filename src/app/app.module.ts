@@ -53,6 +53,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TicketingComponent } from './components/ticketing/ticketing.component';
 import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-master-member-debtors/ticketing-master-member-debtors.component';
+import { MatTableExporterModule } from 'mat-table-exporter';
 
 @NgModule({
   declarations: [
@@ -86,6 +87,7 @@ import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-ma
     MatDatepickerModule,
     BrowserModule,
     BrowserAnimationsModule,
+    MatTableExporterModule,
     MsalModule.forRoot(new PublicClientApplication(
       {
         auth: {
