@@ -28,6 +28,10 @@ border-top: 1px solid transparent;
 font-size: 13px;
 }
 
+.mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
+  width: 30px !important;  
+}
+
 .element-row {
 border: 0;
 height: 10px;

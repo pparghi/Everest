@@ -69,9 +69,10 @@ export class RiskMonitoringComponent implements OnInit {
     let currentDate = new Date();
     let today = new Date();
     currentDate.setDate(currentDate.getDate() - 6);
-    if (this.isDDSelect == 'N') {
-      this.dueDateFrom = '2000-01-01';
-      this.dueDateTo = '2099-12-31';
+    if (this.isDDSelect == 'N') {      
+      var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      this.dueDateFrom = this.datePipe.transform(firstDay, 'yyyy-MM-dd');            
+      this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
     } else {
       this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
       this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
@@ -212,13 +213,14 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangeDDSelect(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isDDSelect = selectElement.value   
+      this.isDDSelect = selectElement.value  
+      let currentDate = new Date();
+      let today = new Date();       
       if (this.isDDSelect == 'N') {
-        this.dueDateFrom = '2000-01-01';
-        this.dueDateTo = '2099-12-31';
-      } else {
-        let currentDate = new Date();
-        let today = new Date();
+        var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        this.dueDateFrom = this.datePipe.transform(firstDay, 'yyyy-MM-dd');            
+        this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+      } else {        
         currentDate.setDate(currentDate.getDate() - 6);
         this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
         this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
@@ -284,11 +286,9 @@ export class RiskMonitoringComponent implements OnInit {
   }
 
   openDetailWindow(ClientKey: number, ARGrossBalance: number, Ineligible: number, NFE: number, Reserve: number, Availability: number, Level: string){
-    const url = this.router.serializeUrl(
-      this.router.createUrlTree(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level } })
-    );
     this.dataService.setData('Level', Level);
-    window.open(url, '_blank');
+    this.router.navigate(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level }  });
+    this.dataService.setData('Level', Level);
   }
 
   isExpanded(element: DataItem): boolean {

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DataTableDirective, DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -8,6 +8,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { ClientsInvoicesService } from '../../services/clients-invoices.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 
 interface DataItem {
   Debtor: string;
@@ -39,7 +41,9 @@ export class ClientsInvoicesComponent implements OnInit {
     expandedElement: DataItem | null = null;
     math = Math;
     ClientKey!: number;
+    DebtorKey!: number;
     displayClient: any;
+    readonly dialog = inject(MatDialog);
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -50,13 +54,15 @@ export class ClientsInvoicesComponent implements OnInit {
       this.route.queryParams.subscribe(params => {
         const ClientKey = +params['ClientKey'];
         this.ClientKey = ClientKey
+        const DebtorKey = +params['DebtorKey'];
+        this.DebtorKey = DebtorKey
         this.displayClient = params['Client']
-        this.loadClientsinvoicesDetails(ClientKey);
+        this.loadClientsinvoicesDetails(ClientKey, DebtorKey);
       });
     }
 
-    loadClientsinvoicesDetails(ClientKey: number): void {            
-      this.dataService.getClientsInvoices(ClientKey).subscribe(response => {        
+    loadClientsinvoicesDetails(ClientKey: number, DebtorKey: number): void {            
+      this.dataService.getClientsInvoices(ClientKey, DebtorKey).subscribe(response => {        
         this.dataSource.data = response.data;
       });
     }
@@ -65,7 +71,7 @@ export class ClientsInvoicesComponent implements OnInit {
       const filterValue = (event.target as HTMLInputElement).value;
       this.filter = filterValue.trim().toLowerCase(); 
       this.paginator.pageIndex = 0; 
-      this.loadClientsinvoicesDetails(this.ClientKey);
+      this.loadClientsinvoicesDetails(this.ClientKey, this.DebtorKey);
     }
     
     get totalPages(): number { 
@@ -79,7 +85,7 @@ export class ClientsInvoicesComponent implements OnInit {
       } 
       if (this.paginator) {
         this.paginator.pageIndex = this.specificPage - 1;
-        this.loadClientsinvoicesDetails(this.ClientKey);
+        this.loadClientsinvoicesDetails(this.ClientKey, this.DebtorKey);
       }
       
     }
@@ -93,4 +99,21 @@ export class ClientsInvoicesComponent implements OnInit {
     }
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
+
+    openInvoiceDetailNoteDialog(InvoiceKey: number){         
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',                    
+           data: {
+            InvoiceKey: InvoiceKey, 
+            invoiceDetails: 'invoiceDetails',
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+      });        
+    }
 }

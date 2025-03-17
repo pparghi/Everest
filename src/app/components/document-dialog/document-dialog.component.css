@@ -81,3 +81,26 @@
 	textarea::placeholder {
 		color: rgb(252, 112, 112);
 	}
+
+	.autocomplete {
+		position: relative;
+		width: 100%;
+	   }
+	   .suggestions-list {
+		position: absolute;
+		width: 100%;
+		background: white;
+		border: 1px solid #ccc;
+		max-height: 200px;
+		overflow-y: auto;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	   }
+	   .suggestions-list li {
+		padding: 10px;
+		cursor: pointer;
+	   }
+	   .suggestions-list li:hover {
+		background: #f0f0f0;
+	   }
