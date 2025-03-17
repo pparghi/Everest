@@ -53,7 +53,7 @@ export class ClientsComponent implements OnInit {
 
     openClientsInvoicesWindow(ClientKey: number, Client: string): void {
       const url = this.router.serializeUrl(
-        this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, Client: Client } })
+        this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, DebtorKey: this.DebtorKey, Client: Client } })
       );
       window.open(url, '_blank');
     }

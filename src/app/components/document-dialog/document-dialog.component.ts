@@ -10,7 +10,9 @@ import { error, event } from 'jquery';
 import { count, map } from 'rxjs/operators';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
 import { LoginService } from '../../services/login.service';
-import { AddressAutocompleteService } from '../../services/address-autocomplete.service';
+import { ClientsInvoicesService } from '../../services/clients-invoices.service';
+import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { AddressService } from '../../services/address.service';
 // import imageCompression from 'browser-image-compression';
 declare var pca: any;
 
@@ -42,6 +44,7 @@ export class DocumentDialogComponent implements OnInit {
   statementsColumns: string[] = ['Debtor', 'Client', 'PO/LOAD', 'Invoice#', 'InvDate', 'Age', 'Currency', 'Amt', 'Balance'];
   paymentColumns: string[] = ['date', 'check#', 'amount'];
   miscDataColumns: string[] = ['element', 'value'];
+  detailNotesColumns: string[] = ['Date', 'UserName', 'contact', 'Method', 'Promise', 'Note'];
   contactDataSource = new MatTableDataSource<any>([]);
   auditDataSource = new MatTableDataSource<any>([]);
   statementsDataSource = new MatTableDataSource<any>([]);
@@ -49,6 +52,7 @@ export class DocumentDialogComponent implements OnInit {
   MiscDataListDataSource = new MatTableDataSource<any>([]);
   ratesDataSource = new MatTableDataSource<any>([]);
   paymentsDataSource = new MatTableDataSource<any>([]);
+  detailNotesDataSource = new MatTableDataSource<any>([]);
 
   jpgDataUrl: string | ArrayBuffer | null = null;
 
@@ -74,8 +78,12 @@ export class DocumentDialogComponent implements OnInit {
   lastThreeMonths30!: string;
   lastThreeMonths60!: string;
   lastThreeMonths90!: string;
+
+  query: string = '';
+ suggestions: any[] = [];
+ private searchSubject = new Subject<string>();
   
-  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressCompleteService: AddressAutocompleteService) {
+  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService) {
     if(data.openChequeSearchForm){  
       this.chequeSearchForm = this.fb.group({
         CheckNo: [''],
@@ -162,12 +170,58 @@ export class DocumentDialogComponent implements OnInit {
       });      
     } else if (data.chequeSearch) {                     
        
+    } else if (data.invoiceDetails) {                     
+      this.clientInvoiceService.getClientsInvoiceDetailNotes(data.InvoiceKey).subscribe(response => {   
+        this.detailNotesDataSource.data = response.data;        
+      });
     } else {
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
         this.contactDataSource.data = response.debtorContactsData;
       });
     }
+
+    this.searchSubject.pipe(debounceTime(1000),
+  distinctUntilChanged(),
+  switchMap(query => {
+    console.log("Fetching suggestsions for : ", query);
+    return this.addressService.getAddressSuggestions(query);
+  })
+  ).subscribe( {
+    next: (data) => {
+      console.log("API Response:", data);
+      if (data.Items) {
+        this.suggestions = data.Items.map((item: any) => ({
+          text: item.Text,
+          description: item.Description
+        }));
+      } else {
+        this.suggestions = [];
+      }
+    },
+    error: (error) => {
+      console.error('Error fetching address suggestions: ', error);
+    }
+  });
   }
+
+  onQueryChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    console.log("query changed:", selectElement.value);
+    this.query = selectElement.value
+ 
+   if (this.query.length > 2) {
+     console.log("lendth > called");
+     this.searchSubject.next(this.query);
+   } else {
+     console.log("else part to clear suggestions");
+     this.suggestions = []; // Clear suggestions when query is too short
+   }
+  }
+  
+ selectSuggestion(suggestion: any) {
+   this.editForm.get('Addr1')?.setValue(suggestion.text)
+   this.suggestions = [];
+ }
 
   ngOnInit(): void {
     const now = new Date();
@@ -184,7 +238,6 @@ export class DocumentDialogComponent implements OnInit {
     this.lastThreeMonths60 = this.lastThreeMonths[1];
     this.lastThreeMonths90 = this.lastThreeMonths[0];
 
-    this.addressCompleteService.initializeAutocomplete('Addr1');
     // const script = document.createElement('script');
     // script.src = 'https://ws1.postescanada-canadapost.ca/js/addresscomplete-2.50.min.js';
     // script.onload = () => {      

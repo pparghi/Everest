@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LoginService } from '../../services/login.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -57,7 +57,7 @@ export class RiskMonitoringDetailComponent {
   data!: string[];
   LevelValue: any;
   
-  constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService) { 
+  constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService, private router: Router) { 
     
   }
 
@@ -330,5 +330,9 @@ export class RiskMonitoringDetailComponent {
     dialogRef.afterClosed().subscribe(result => {
         
     });
+  }
+
+  goBack(){
+    this.router.navigate(['/monitoring']);
   }
 }
