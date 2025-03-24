@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginService } from '../../services/login.service';
 import { DataService } from '../../services/data.service';
+import { FilterService } from '../../services/filter.service';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
@@ -47,8 +48,10 @@ export class RiskMonitoringComponent implements OnInit {
   DDCreatedBy: any;  
   defaultDate!: string;
   formattedDate: any;
-  dueDateFrom: any;
-  dueDateTo: any;
+  dueDateFromFront: any;
+  dueDateToFront: any;
+  dueDateFromBack: any;
+  dueDateToBack: any;  
   profile: any; 
   NavOptionMasterDebtor: any;
   NavAccessMasterDebtor: any;
@@ -65,22 +68,26 @@ export class RiskMonitoringComponent implements OnInit {
   NotesFutureDate = false;
   NotesPastDue = false
   
-  constructor(private riskService: RiskMonitoringService, private http: HttpClient, private datePipe: DatePipe, private router: Router, private loginService: LoginService, private dataService: DataService) { 
+  constructor(private riskService: RiskMonitoringService, private http: HttpClient, private datePipe: DatePipe, private router: Router, private loginService: LoginService, private dataService: DataService, private filterService: FilterService) { 
     let currentDate = new Date();
     let today = new Date();
-    currentDate.setDate(currentDate.getDate() - 6);
     if (this.isDDSelect == 'N') {      
-      var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      this.dueDateFrom = this.datePipe.transform(firstDay, 'yyyy-MM-dd');            
-      this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+      currentDate.setDate(currentDate.getDate() - 6);
+      this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');            
+      this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+      this.dueDateFromBack = '';            
+      this.dueDateToBack = '';
     } else {
-      this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
-      this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+      this.dueDateFromBack = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+      this.dueDateFromBack = this.datePipe.transform(today, 'yyyy-MM-dd');
     }
     
   }
 
   ngOnInit(): void {    
+    // this.filter = this.filterService.getFilterState();
+    // console.log(this.filter);
+    
     this.loadData();      
     this.loadClientGroupLevelList();
     this.loadClientCRMList();
@@ -157,7 +164,7 @@ export class RiskMonitoringComponent implements OnInit {
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;  
       
-      this.riskService.getData(page ,pageSize, sort, order, this.isActive, this.dueDateFrom, this.dueDateTo, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {                
+      this.riskService.getData(page ,pageSize, sort, order, this.isActive, this.dueDateFromBack, this.dueDateToBack, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {                
         this.isLoading = false;
       
         this.dataSource.data = response.data;
@@ -201,13 +208,13 @@ export class RiskMonitoringComponent implements OnInit {
   
   onChangedueDateFrom(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.dueDateFrom = selectElement.value   
+      this.dueDateToBack = selectElement.value   
       this.loadData();
   }
 
   onChangedueDateTo(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.dueDateTo = selectElement.value   
+      this.dueDateToBack = selectElement.value   
       this.loadData();
   }
 
@@ -217,13 +224,17 @@ export class RiskMonitoringComponent implements OnInit {
       let currentDate = new Date();
       let today = new Date();       
       if (this.isDDSelect == 'N') {
-        var firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        this.dueDateFrom = this.datePipe.transform(firstDay, 'yyyy-MM-dd');            
-        this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+        currentDate.setDate(currentDate.getDate() - 6);
+        this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');        
+        this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+        this.dueDateFromBack = '';            
+        this.dueDateToBack = '';
       } else {        
         currentDate.setDate(currentDate.getDate() - 6);
-        this.dueDateFrom = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
-        this.dueDateTo = this.datePipe.transform(today, 'yyyy-MM-dd');
+        this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');            
+        this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+        this.dueDateFromBack = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+        this.dueDateToBack = this.datePipe.transform(today, 'yyyy-MM-dd');
       }
       this.loadData();
   }
@@ -265,6 +276,7 @@ export class RiskMonitoringComponent implements OnInit {
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.filter = filterValue.trim().toLowerCase(); 
+    // this.filterService.setFilterState(this.filter);
     this.paginator.pageIndex = 0;
     this.loadData();     
   }

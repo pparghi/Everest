@@ -668,3 +668,9 @@
     </mat-dialog-actions>
   </div>
 </div>
+
+<div *ngIf="data.showWarningNote">
+  <div class="dialog-content" style="padding: 20px;">
+      {{ data.Warning }}
+  </div>
+</div>

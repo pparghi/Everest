@@ -26,7 +26,7 @@ interface DataItem {
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestNo', 'RequestUser', 'Office', 'BankAcctName', 'RequestDate', 'CreditType', 'Edit'];    
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'BankAcctName', 'RequestDate', 'CreditType', 'Edit'];    
     statusListOptions = [
       { label: 'Pending', value: '0' },
       { label: 'Approved', value: '1' },

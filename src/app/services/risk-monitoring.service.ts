@@ -125,8 +125,8 @@ export class RiskMonitoringService {
     );
   }
 
-  getMonitoringNotes(ClientKey: number, Category: string){
-    const url = `https://everest.revinc.com:4202/api/MonitoringNotes?ClientKey=${ClientKey}&Category=${Category}`;
+  getMonitoringNotes(ClientKey: number, Category: string, Hidden: string){
+    const url = `https://everest.revinc.com:4202/api/MonitoringNotes?ClientKey=${ClientKey}&Category=${Category}&Hidden=${Hidden}`;
     return this.http.get<any>(url).pipe(
       map(response => {        
         return {
@@ -141,15 +141,6 @@ export class RiskMonitoringService {
 
   addNotesRisk(ClientKey: string, Category: string, Notes: string, Currency: string, Risk: string, CreatedBy: string, DueDate: string){
       const url = `https://everest.revinc.com:4202/api/addNotesRisk`;
-      // const body = {
-      //   ClientKey: ClientKey,
-      //   Category: Category,
-      //   Notes: Notes,
-      //   Currency: Currency,
-      //   Risk: Risk,
-      //   CreatedBy: CreatedBy,
-      //   DueDate: DueDate
-      // };
       const formData = new FormData();
     formData.append('ClientKey', ClientKey);
     formData.append('Category', Category);
@@ -158,14 +149,6 @@ export class RiskMonitoringService {
     formData.append('Risk', Risk);
     formData.append('CreatedBy', CreatedBy);
     formData.append('DueDate', DueDate);
-    
-    // this.http.post('https://everest.revinc.com:4202/api/debtorMasterAddDocument', formData)
-    //  .subscribe(response => {
-    //    console.log('file uploaded',response);       
-    //  }, error => {
-    //    console.error('Upload failed', error);
-    //  });
-
 
       return this.http.post<any>(url, formData)
   }
@@ -195,5 +178,14 @@ export class RiskMonitoringService {
       formData.append('ClientNoteKey', ClientNoteKey);
       formData.append('Complete', Complete);
       return this.http.post<any>(url, formData);
+  }
+
+  clientNotesHide(ClientNoteKey: string, UserKey: string, Hide: string){
+    const url = `https://everest.revinc.com:4202/api/ClientNotesHide?ClientNoteKey=${ClientNoteKey}&UserKey=${UserKey}&Hide=${Hide}`
+    const formData = new FormData();
+    formData.append('ClientNoteKey', ClientNoteKey);
+    formData.append('UserKey', UserKey);
+    formData.append('Hide', Hide);
+    return this.http.post<any>(url, formData);
   }
 }

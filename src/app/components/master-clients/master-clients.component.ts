@@ -25,6 +25,7 @@ interface DataItem {
   IneligiblePct: number;
   OverAdvancedPct: number;
   Available: number;
+  Warning: string;
   expandedDetail: { detail: string };
 }
 interface MemberDataItem {
@@ -40,7 +41,7 @@ interface MemberDataItem {
 })
 
 export class MasterClientsComponent implements OnInit, AfterViewInit {
-    displayedColumns: string[] = ['expand', 'Client', 'Warning', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'IneligiblePct', 'OverAdvancedPct', 'Balance', 'Reserve', 'NFE', 'extra'];
+    displayedColumns: string[] = ['expand', 'Client', 'Warning', 'CreditLimit', 'ContractualLimit', 'Age0to30', 'Age31to60', 'Age61to90', 'Age91to120', 'Age121to150', 'Ineligible', 'IneligiblePct', 'OverAdvancedPct', 'Balance', 'Reserve', 'NFE', 'extra'];
     displayedMemberColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
     memberClient: string[] = ['member1', 'member2', 'member3'];
 
@@ -359,6 +360,23 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
         const selectElement = event.target as HTMLSelectElement;          
           this.filterByCRM = selectElement.value;          
           this.loadData();
+      }
+
+      showWarningNote(element: DataItem){    
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',                    
+            data: {
+              showWarningNote: 'showWarningNote',              
+              Warning: element.Warning,  
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+        });
       }
    
 }

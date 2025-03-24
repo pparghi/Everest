@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -56,6 +56,13 @@ export class RiskMonitoringDetailComponent {
   readonly dialog = inject(MatDialog);
   data!: string[];
   LevelValue: any;
+  hiddenNoteText = 'Hidden Notes';
+  hideNoteBtnText = 'Hide Note';
+  
+  @ViewChild('spanElement') spanElement!: ElementRef;
+  @ViewChild('spanHideElement') spanHideElement!: ElementRef;
+  hiddenNotesSpanText = '';
+  hideNoteSpanText = '';
   
   constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService, private router: Router) { 
     
@@ -142,6 +149,14 @@ export class RiskMonitoringDetailComponent {
     });
   }  
 
+  ngAfterViewInit() {
+    // After the view is initialized, you can get the text content of the span
+    const hiddenNotesSpanText = this.spanElement.nativeElement.innerText;
+    this.hiddenNotesSpanText = hiddenNotesSpanText;
+    const hideNoteSpanText = this.spanHideElement.nativeElement.innerText;
+    this.hideNoteSpanText = hideNoteSpanText;    
+  }
+ 
   checkLevel(): boolean {    
     return this.startsWith(this.Level, 'SPECIAL');
   }
@@ -187,7 +202,7 @@ export class RiskMonitoringDetailComponent {
   }
 
   loadMonitoringNotes(ClientKey: number){
-    this.dataService.getMonitoringNotes(ClientKey, this.category).subscribe(data => {
+    this.dataService.getMonitoringNotes(ClientKey, this.category, 'N').subscribe(data => {
       this.MonitoringNotes = data.MonitoringNotes;     
     });       
   }
@@ -206,8 +221,7 @@ export class RiskMonitoringDetailComponent {
       this.user = userId 
     });
 
-    this.dataService.addNotesRisk(this.ClientKey, this.note_category, this.note, '', '1', this.user, this.due_date).subscribe(response => {
-      alert('Note added successfully');
+    this.dataService.addNotesRisk(this.ClientKey, this.note_category, this.note, '', '1', this.user, this.due_date).subscribe(response => {      
       window.location.reload();
     }, error => {
       alert('Failed');
@@ -228,8 +242,7 @@ export class RiskMonitoringDetailComponent {
       let UserKey = this.user;
 
       this.dataService.updateCRMRisk(ClientKey, crm, UserKey).subscribe(
-        response => { 
-          alert("CRM updated successfully.");
+        response => {           
           window.location.reload();
         },
         error => {
@@ -256,8 +269,7 @@ export class RiskMonitoringDetailComponent {
       let UserKey = this.user;
   
       this.dataService.updateLevelRisk(ClientKey, GroupValue, UserKey).subscribe(
-        response => { 
-          alert("Level updated successfully.");
+        response => {           
           window.location.reload();
         },
         error => {
@@ -279,8 +291,7 @@ export class RiskMonitoringDetailComponent {
       let complete = "Y";
 
       this.dataService.updateCompleteStatusRisk(this.data[1], complete).subscribe(
-        response => { 
-          alert("Status updated successfully.");
+        response => {           
           window.location.reload();
         },
         error => {
@@ -302,8 +313,7 @@ export class RiskMonitoringDetailComponent {
       let complete = "N";
 
       this.dataService.updateCompleteStatusRisk(this.data[1], complete).subscribe(
-        response => { 
-          alert("Status updated successfully.");
+        response => {           
           window.location.reload();
         },
         error => {
@@ -334,5 +344,51 @@ export class RiskMonitoringDetailComponent {
 
   goBack(){
     this.router.navigate(['/monitoring']);
+  }
+
+  hiddenNotes(ClientKey: number){           
+    if (this.hiddenNoteText == 'Hidden Notes') {      
+      this.hiddenNoteText = 'Visible Notes';
+      this.hideNoteBtnText = 'Unhide Note';
+      this.dataService.getMonitoringNotes(ClientKey, this.category, 'Y').subscribe(data => {
+        this.MonitoringNotes = data.MonitoringNotes;     
+      });
+    } else {      
+      this.hiddenNoteText = 'Hidden Notes';
+      this.hideNoteBtnText = 'Hide Note';
+      this.dataService.getMonitoringNotes(ClientKey, this.category, 'N').subscribe(data => {
+        this.MonitoringNotes = data.MonitoringNotes;     
+      });
+    }         
+  }
+
+  hideNote(ClientNoteKey: string){
+    this.http.get(GRAPH_ENDPOINT)
+    .subscribe(profile => {
+      this.profile = profile;          
+      var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+      this.user = userId 
+    });
+    if (this.hideNoteBtnText == 'Hide Note') { 
+      this.dataService.clientNotesHide(ClientNoteKey, this.user, 'Y').subscribe(
+        response => { 
+          console.log('Note Hidden Successfully.');
+          window.location.reload();
+        },
+        error => {
+          console.log('error', error);
+        }              
+        )
+      } else {
+      this.dataService.clientNotesHide(ClientNoteKey, this.user, 'N').subscribe(
+        response => { 
+          console.log('Note Hidden Successfully.');
+          window.location.reload();
+        },
+        error => {
+          console.log('error', error);
+        }              
+      )
+    }
   }
 }
