@@ -92,13 +92,7 @@ export class RiskMonitoringDetailComponent {
       this.ReserveNeg = Reserve*-1;     
       this.AvailabilityNeg = Availability*-1;                
       
-      this.loadClientDetails(ClientKey); 
-      this.loadClientContactsDetails(ClientKey);
-      this.loadMonitoringCategories();
-      this.loadMonitoringNotes(ClientKey);
-      this.loadClientCRMList();
-      this.loadClientGroupLevelList();
-      this.checkLevel();      
+            
 
       if (this.checkLevel()) {        
         this.bgcolor = '2px solid red';
@@ -147,6 +141,14 @@ export class RiskMonitoringDetailComponent {
         console.error('error--', error);
       });
     });
+
+    this.loadClientDetails(this.ClientKey); 
+    this.loadClientContactsDetails(this.ClientKey);
+    this.loadMonitoringCategories();
+    this.loadMonitoringNotes(this.ClientKey);
+    this.loadClientCRMList();
+    this.loadClientGroupLevelList();
+    this.checkLevel();
   }  
 
   ngAfterViewInit() {

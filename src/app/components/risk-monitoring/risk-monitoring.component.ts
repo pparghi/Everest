@@ -299,8 +299,7 @@ export class RiskMonitoringComponent implements OnInit {
 
   openDetailWindow(ClientKey: number, ARGrossBalance: number, Ineligible: number, NFE: number, Reserve: number, Availability: number, Level: string){
     this.dataService.setData('Level', Level);
-    this.router.navigate(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level }  });
-    this.dataService.setData('Level', Level);
+    this.router.navigate(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level }  });    
   }
 
   isExpanded(element: DataItem): boolean {
