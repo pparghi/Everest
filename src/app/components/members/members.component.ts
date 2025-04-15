@@ -89,7 +89,7 @@ export class MembersComponent implements OnInit {
         const DebtorKey = +params['DebtorKey'];        
         this.DebtorKey = DebtorKey
         this.displayDebtor = params['Debtor']                
-        this.loadMemberDebtorDetails(DebtorKey);
+        // this.loadMemberDebtorDetails(DebtorKey);
       });
     }
 

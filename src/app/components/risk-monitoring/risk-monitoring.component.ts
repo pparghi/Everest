@@ -158,8 +158,7 @@ export class RiskMonitoringComponent implements OnInit {
 
       this.isLoading = true;      
       let sort = this.sort && this.sort.active ? this.sort.active : 'NoteDueDate';            
-      let order = this.sort && this.sort.direction ? this.sort.direction : 'DESC';
-      console.log(sort);
+      let order = this.sort && this.sort.direction ? this.sort.direction : 'DESC';      
       
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;  
@@ -276,7 +275,7 @@ export class RiskMonitoringComponent implements OnInit {
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.filter = filterValue.trim().toLowerCase(); 
-    // this.filterService.setFilterState(this.filter);
+    this.filterService.setFilterState(this.filter);
     this.paginator.pageIndex = 0;
     this.loadData();     
   }
@@ -307,5 +306,32 @@ export class RiskMonitoringComponent implements OnInit {
   }
 
   isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
+
+  resetFilters(){
+    this.isActive = '0';
+    this.isDDSelect = 'N';
+    this.isDDCreatedBy = '';
+    this.filter = '';
+    this.level = '';
+    this.office = '';
+    this.crm = '';
+    this.isFuel = '';
+
+    let currentDate = new Date();
+    let today = new Date();
+    if (this.isDDSelect == 'N') {      
+      currentDate.setDate(currentDate.getDate() - 6);
+      this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');            
+      this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+      this.dueDateFromBack = '';            
+      this.dueDateToBack = '';
+    } else {
+      this.dueDateFromBack = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+      this.dueDateFromBack = this.datePipe.transform(today, 'yyyy-MM-dd');
+    }
+    
+    this.loadData();
+  };
+
 }
 

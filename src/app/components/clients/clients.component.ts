@@ -29,6 +29,7 @@ export class ClientsComponent implements OnInit {
     expandedElement: DataItem | null = null;
     math = Math;
     @Input() DebtorKey!: number;
+    @Input() ClientKey!: string;
     displayDebtor: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -48,6 +49,9 @@ export class ClientsComponent implements OnInit {
       this.route.queryParams.subscribe(params => {
         const DebtorKey = +params['DebtorKey'];
         this.DebtorKey = DebtorKey
+        const ClientKey = params['ClientKey'];
+        this.ClientKey = params['ClientKey'];        
+        
         this.displayDebtor = params['Debtor']
         this.loadClientsDetails(DebtorKey);
       });
@@ -59,12 +63,23 @@ export class ClientsComponent implements OnInit {
       }
     }
 
-    loadClientsDetails(DebtorKey: number): void {   
-      console.log(DebtorKey);
-               
-      this.dataService.getClients(DebtorKey).subscribe(response => {        
-        this.dataSource.data = response.data;
-      });
+    loadClientsDetails(DebtorKey: number): void {               
+      if (this.ClientKey) {
+        let clientkey = this.ClientKey.trim();  
+        this.dataService.getClients(DebtorKey).subscribe(response => {                             
+          this.dataSource.data = response.data;                    
+          const index = this.dataSource.data.findIndex(c => c.ClientKey == clientkey);        
+          if (index !== -1) {
+            const [found] = response.data.splice(index, 1);               
+            response.data.unshift(found); 
+          }
+          this.dataSource.data = response.data.slice(1);
+        });
+      } else {
+        this.dataService.getClients(DebtorKey).subscribe(response => {                             
+          this.dataSource.data = response.data;
+        });
+      }                
     }
 
     openClientsInvoicesWindow(ClientKey: number, Client: string): void {

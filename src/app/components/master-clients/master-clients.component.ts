@@ -371,6 +371,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
             data: {
               showWarningNote: 'showWarningNote',              
               Warning: element.Warning,  
+              Client: element.Client
           }
         });
         

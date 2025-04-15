@@ -161,15 +161,15 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
         if (this.filterByBalance == 'Balance') {
           filterByBalance = 'balance';
+          sort = 'Balance';
+          order = 'DESC';
         } 
         
         this.dataService.getData(mail, page ,pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {                
           this.isLoading = false;
-          this.dataSource.data = response.data;
-          response.data.forEach((element: any) => {
-            const total = element.total;          
-            this.totalRecords = total;                
-          });          
+          this.dataSource.data = response.data;          
+            const total =  response.data[0].total;          
+            this.totalRecords = total;                                    
           this.DebtoNoBuyDisputeList = response.noBuyDisputeList;                
         });
       });

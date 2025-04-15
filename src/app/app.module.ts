@@ -54,6 +54,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TicketingComponent } from './components/ticketing/ticketing.component';
 import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-master-member-debtors/ticketing-master-member-debtors.component';
 import { MatTableExporterModule } from 'mat-table-exporter';
+import { NegativeToParenthesesPipe } from './negative-to-parentheses.pipe';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -82,6 +84,7 @@ import { MatTableExporterModule } from 'mat-table-exporter';
     RiskMonitoringDetailComponent,
     TicketingComponent,
     TicketingMasterMemberDebtorsComponent,
+    NegativeToParenthesesPipe,    
   ],
   imports: [
     MatDatepickerModule,
@@ -139,7 +142,8 @@ import { MatTableExporterModule } from 'mat-table-exporter';
     MatListModule,
     MatSelectModule,
     MatCardModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatExpansionModule
   ],
   providers: [
     CacheService,
