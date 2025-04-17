@@ -54,8 +54,7 @@ export class RiskMonitoringDetailComponent {
   note: any = '';
 
   readonly dialog = inject(MatDialog);
-  data!: string[];
-  LevelValue: any;
+  data!: string[];  
   hiddenNoteText = 'Hidden Notes';
   hideNoteBtnText = 'Hide Note';
   
@@ -84,7 +83,7 @@ export class RiskMonitoringDetailComponent {
       this.NFE = NFE;
       this.Reserve = Reserve;
       this.Availability = Availability;
-      // this.Level = Level;
+      this.Level = Level;
 
       this.ARGrossBalanceNeg = ARGrossBalance*-1;        
       this.IneligibleNeg = Ineligible*-1;    
@@ -97,10 +96,7 @@ export class RiskMonitoringDetailComponent {
       if (this.checkLevel()) {        
         this.bgcolor = '2px solid red';
       }
-    });       
-
-    const LevelValue = this.riskService.getData();
-    console.log('test----',LevelValue['Level']);
+    });           
     
 
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
@@ -155,11 +151,14 @@ export class RiskMonitoringDetailComponent {
     // After the view is initialized, you can get the text content of the span
     const hiddenNotesSpanText = this.spanElement.nativeElement.innerText;
     this.hiddenNotesSpanText = hiddenNotesSpanText;
-    const hideNoteSpanText = this.spanHideElement.nativeElement.innerText;
+    const hideNoteSpanText = this.spanHideElement?.nativeElement.innerText;
     this.hideNoteSpanText = hideNoteSpanText;    
   }
  
   checkLevel(): boolean {    
+    if (!this.Level || typeof this.Level !== 'string') {      
+      return false;
+    }
     return this.startsWith(this.Level, 'SPECIAL');
   }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import Swal from 'sweetalert2';
@@ -63,7 +63,9 @@ export class DocumentDialogComponent implements OnInit {
   ]
 
   editForm!: FormGroup;
+  editTicketForm!: FormGroup;
   chequeSearchForm!: FormGroup;
+  addNewTicketForm!: FormGroup;
   changedNoaStatus!: string;    
   payment_images!: { fullname: string; basename: any; }[];
   fileExtension: any;
@@ -81,7 +83,9 @@ export class DocumentDialogComponent implements OnInit {
 
   query: string = '';
  suggestions: any[] = [];
+ addr2suggestions: any[] = [];
  private searchSubject = new Subject<string>();
+ readonly panelOpenState = signal(false);
   
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService) {
     if(data.openChequeSearchForm){  
@@ -136,7 +140,38 @@ export class DocumentDialogComponent implements OnInit {
     })
 
       this.debtor = data.Debtor
-    } else if (data.documentsList) {
+    } else if(data.openTicketForm){      
+  
+      const roundThousandsPipe = new RoundThousandsPipe();
+      var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
+      var AIGLimit = roundThousandsPipe.transform(data.AIGLimit);
+      
+      this.editTicketForm = this.fb.group({
+        ClientKey: [data.ClientKey || ''],
+        Client: [data.Client || ''],
+        Office: [data.Office || ''],
+        BankAcctName: [data.BankAcctName || ''],
+        DebtorKey: [data.DebtorKey || ''],
+        Debtor: [data.Debtor || ''],
+        RequestNo: [data.RequestNo || ''],
+        RequestDate: [data.RequestDate || ''],
+        RequestAmt: [data.RequestAmt || ''],
+        Status: [data.Status || ''],
+        RequestUser: [data.RequestUser || ''],
+        Comments: [data.Comments || ''],
+        ApproveDate: [data.ApproveDate || ''],
+        ApproveAmt: [data.ApproveAmt || ''],
+        Response: [data.Response || ''],
+        Source: [data.Source || ''],
+        TotalCreditLimit: [data.TotalCreditLimit || ''],
+        IndivCreditLimit: [data.IndivCreditLimit || ''],
+        Balance: [data.Balance || ''],
+        PastDue: [data.PastDue || ''],
+        Available: [data.Available || ''],
+      })
+  
+        this.debtor = data.Debtor
+      } else if (data.documentsList) {
       this.data.documentsList.forEach((document: { FileName: string; Path: any; DocHdrKey: { toString: () => string; }; Link: string; }, index: any) => {
         const filename = document.FileName.split('.');
         const x = filename.length - 1;
@@ -170,6 +205,16 @@ export class DocumentDialogComponent implements OnInit {
       });      
     } else if (data.chequeSearch) {                     
        
+    } else if (data.addNew) {                     
+      this.addNewTicketForm = this.fb.group({
+        ClientKey: [data.ClientKey || ''],
+        DebtorKey: [data.DebtorKey || ''],
+        RequestAmt: [data.RequestAmt || ''],
+        RequestUser: [data.RequestUser || ''],
+        Comments: [data.Comments || ''],
+        SourceCode: [data.SourceCode || ''],
+        ReqContactKey: [data.ReqContactKey || '']
+      })
     } else if (data.invoiceDetails) {                     
       this.clientInvoiceService.getClientsInvoiceDetailNotes(data.InvoiceKey).subscribe(response => {   
         this.detailNotesDataSource.data = response.data;        
@@ -180,7 +225,7 @@ export class DocumentDialogComponent implements OnInit {
       });
     }
 
-    this.searchSubject.pipe(debounceTime(1000),
+    this.searchSubject.pipe(debounceTime(500),
   distinctUntilChanged(),
   switchMap(query => {
     console.log("Fetching suggestsions for : ", query);
@@ -194,8 +239,13 @@ export class DocumentDialogComponent implements OnInit {
           text: item.Text,
           description: item.Description
         }));
+        // this.addr2suggestions = data.Items.map((item: any) => ({
+        //   text: item.Text,
+        //   description: item.Description
+        // }));
       } else {
         this.suggestions = [];
+        // this.addr2suggestions = [];
       }
     },
     error: (error) => {
@@ -217,11 +267,29 @@ export class DocumentDialogComponent implements OnInit {
      this.suggestions = []; // Clear suggestions when query is too short
    }
   }
+
+  // onAddr2QueryChange(event: Event) {
+  //   const selectElement = event.target as HTMLSelectElement;
+  //   console.log("query changed:", selectElement.value);
+  //   this.query = selectElement.value
+ 
+  //  if (this.query.length > 2) {
+  //    console.log("lendth > called");
+  //    this.searchSubject.next(this.query);
+  //  } else {
+  //    console.log("else part to clear suggestions");
+  //    this.addr2suggestions = []; // Clear suggestions when query is too short
+  //  }
+  // }
   
  selectSuggestion(suggestion: any) {
    this.editForm.get('Addr1')?.setValue(suggestion.text)
    this.suggestions = [];
  }
+//  selectAddr2Suggestion(addr2suggestion: any) {
+//    this.editForm.get('Addr2')?.setValue(addr2suggestion.text)
+//    this.addr2suggestions = [];
+//  }
 
   ngOnInit(): void {
     const now = new Date();
@@ -305,7 +373,7 @@ export class DocumentDialogComponent implements OnInit {
 
     onEdit(){
       if (this.editForm.valid) {  
-        console.log(this.editForm.value);
+        // console.log(this.editForm.value);
 
         const formData = new FormData();
     formData.append('DebtorKey', this.editForm.value.DebtorKey);
@@ -405,5 +473,31 @@ export class DocumentDialogComponent implements OnInit {
     }
 
     getFileExtension(filename: string): string {     const extension = filename.split('.').pop();     return extension ? extension.toLowerCase() : '';   }
+
+    onTicketEdit(){
+
+    }
+
+    onCreateTicket(){
+      if (this.addNewTicketForm.valid) {
+        console.log(this.addNewTicketForm.value);
+        const formData = new FormData();
+        formData.append('ClientKey', this.editForm.value.ClientKey);
+        formData.append('DebtorKey', this.editForm.value.DebtorKey);
+        formData.append('RequestAmt', this.editForm.value.RequestAmt);
+        formData.append('RequestUser', this.editForm.value.RequestUser);
+        formData.append('Comments', this.editForm.value.Comments);
+        formData.append('SourceCode', this.editForm.value.SourceCode);
+        formData.append('ReqContactKey', this.editForm.value.ReqContactKey);
+
+        this.http.post(`https://everest.revinc.com:4202/api/CredRequestAdd`, formData)
+        .subscribe(response => {
+          console.log('New Credit Request Added',response);       
+          window.location.reload();
+        }, error => {
+          console.error('Error', error);
+        });
+      }
+    }
 
 }

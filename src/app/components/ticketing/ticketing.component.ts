@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -11,23 +11,51 @@ import { DatePipe } from '@angular/common';
 import { MatTableExporterDirective } from 'mat-table-exporter';
 import { FilterService } from '../../services/filter.service';
 import * as XLSX from 'xlsx';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { ClientsService } from '../../services/clients.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
-  Client: string;
-  expandedDetail: { detail: string };
-} 
+    Office: any;
+    BankAcctName: any;
+    RequestNo: any;
+    RequestDate: any;
+    RequestAmt: any;
+    Status: any;
+    RequestUser: any;
+    Comments: any;
+    ApproveDate: any;
+    ApproveAmt: any;
+    Response: any;
+    Source: any;
+    Balance: any;
+    PastDue: any;
+    Available: any;
+    ClientKey: string;
+    Debtor: string;
+    Client: string;
+    DebtorKey: number;    
+    TotalCreditLimit: number;    
+    IndivCreditLimit: number;    
+    expandedDetail: { detail: string };
+}
+
+interface clientDataItem {
+  Client: string;  
+}
 
 @Component({
   selector: 'app-ticketing',
   templateUrl: './ticketing.component.html',
   styleUrl: './ticketing.component.css',
-  providers: [DatePipe]
+  providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'BankAcctName', 'RequestDate', 'CreditType', 'Edit'];    
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'RequestDate', 'ApprovedDate', 'CreditType', 'Edit'];   
+    clientDisplayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis']; 
     statusListOptions = [
       { label: 'Pending', value: '0' },
       { label: 'Approved', value: '1' },
@@ -38,15 +66,19 @@ export class TicketingComponent {
     selectedValuesString: string = '';
     isLoading = true;
     dataSource = new MatTableDataSource<any>();
+    firstRecord = []; // Get only the first record
+    firstClientDataSource = new MatTableDataSource<any>();
     totalRecords = 0;
     filter: string = '';
     specificPage: number = 1;
     expandedElement: DataItem | null = null;
+    clientExpandedElement: clientDataItem | null = null;
     math = Math;
     statusList = '1';
     requestDate: any;
     client = '';
     readonly dialog = inject(MatDialog);    
+    readonly panelOpenState = signal(false);
 
     profile: any;
     user: any;    
@@ -70,7 +102,7 @@ export class TicketingComponent {
     NavOptionRiskMonitoringRestricted: any;
     NavAccessRiskMonitoringRestricted: any;
 
-    constructor(private dataService: TicketingService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
+    constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
@@ -83,12 +115,12 @@ export class TicketingComponent {
         this.selectedValues = filterValues.selectedValues;
       }
       else {
-        this.selectedValues = this.statusListOptions.map(option => option.value);
+        this.selectedValues = ['0']; // Default value
       }
       if (filterValues?.requestDate) {
         this.requestDate = filterValues.requestDate;
       }
-      
+
       this.selectedValuesString = this.selectedValues.join(', ');      
       this.loadData();      
     }
@@ -150,7 +182,8 @@ export class TicketingComponent {
 
         this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
           this.isLoading = false;
-          this.dataSource.data = response.data;                                              
+          this.dataSource.data = response.data; 
+          console.log(this.dataSource.data);                                             
         });
       });
     }
@@ -205,8 +238,29 @@ export class TicketingComponent {
     }
 
     toggleRow(element: DataItem): void {                        
-      this.expandedElement = this.expandedElement === element ? null : element;       
+      this.expandedElement = this.expandedElement === element ? null : element; 
+
+      let clientkey = element.ClientKey.trim();  
+        this.clientService.getClients(element.DebtorKey).subscribe(response => {                             
+          this.firstClientDataSource.data = response.data;                    
+          const index = this.firstClientDataSource.data.findIndex(c => c.ClientKey == clientkey);        
+          if (index !== -1) {
+            const [found] = response.data.splice(index, 1);               
+            response.data.unshift(found); 
+          }
+          this.firstClientDataSource.data = response.data.slice(0, 1);
+        });
     }
+
+    clientToggleRow(element: clientDataItem){
+      this.clientExpandedElement = this.clientExpandedElement === element ? null : element;
+    }
+
+    isClientExpanded(element: clientDataItem): boolean {
+      return this.clientExpandedElement === element;
+    }
+
+    isClientExpansionDetailRow = (index: number, row: clientDataItem) => row.hasOwnProperty('clientExpandedDetail');
 
     isExpanded(element: DataItem): boolean {
       return this.expandedElement === element;
@@ -220,8 +274,74 @@ export class TicketingComponent {
       this.loadData();
   }
 
-  edit(element: DataItem){
-    
+  openClientsInvoicesWindow(ClientKey: number, Client: string): void {
+    // const url = this.router.serializeUrl(
+    //   this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, DebtorKey: this.DebtorKey, Client: Client } })
+    // );
+    // window.open(url, '_blank');
+  }
+
+  edit(row: DataItem){
+    this.http.get(GRAPH_ENDPOINT)
+        .subscribe(profile => {
+          this.profile = profile;          
+          var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+          this.user = userId
+          
+          const dialogRef = this.dialog.open(DocumentDialogComponent, {         
+            width: '1050px',       
+            maxWidth: 'none',   
+            height: 'auto',    
+            panelClass: 'custom-dialog-container',                       
+            data: {
+             ClientKey: row.ClientKey,
+             Client: row.Client,
+             Office: row.Office,
+             BankAcctName: row.BankAcctName,
+             DebtorKey: row.DebtorKey,
+             Debtor: row.Debtor,
+             RequestNo: row.RequestNo,
+             RequestDate: row.RequestDate,
+             RequestAmt: row.RequestAmt,
+             Status: row.Status,
+             RequestUser: row.RequestUser,
+             Comments: row.Comments,
+             ApproveDate: row.ApproveDate,
+             ApproveAmt: row.ApproveAmt,
+             Response: row.Response,
+             Source: row.Source,
+             TotalCreditLimit: row.TotalCreditLimit,
+             IndivCreditLimit: row.IndivCreditLimit,
+             Balance: row.Balance,
+             PastDue: row.PastDue,
+             Available: row.Available,
+             openTicketForm: 'editTicketForm',                 
+           }
+          });
+          dialogRef.afterClosed().subscribe(result => {
+              
+          });
+      });
+  }
+
+  addNew(){
+    this.http.get(GRAPH_ENDPOINT)
+      .subscribe(profile => {
+        this.profile = profile;          
+        var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+        this.user = userId
+        
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {         
+          width: '1050px',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',                       
+          data: {
+            addNew: 'addNewTicket',
+            RequestUser: this.user
+          }
+        });
+    });
   }
 
   exportTable() {        

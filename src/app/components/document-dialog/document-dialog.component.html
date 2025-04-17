@@ -140,6 +140,12 @@
             <div class="col-md-3">
               <label for="Addr2" class="form-label">Address 2</label>
               <input type="text" formControlName="Addr2" id="Addr2" class="form-control" placeholder="N/A">
+              <!-- <input type="text" id="Addr2" formControlName="Addr2" (input)="onAddr2QueryChange($event)" placeholder="N/A" class="form-control">  
+              <ul *ngIf="addr2suggestions.length" class="addr2-suggestions-list">
+                <li *ngFor="let addr2suggestion of addr2suggestions" (click)="selectAddr2Suggestion(addr2suggestion)">
+                    {{ addr2suggestion.text }} {{ addr2suggestion.description }}
+                </li>
+              </ul> -->
             </div>
             <div class="col-md-3">
               <label for="City" class="form-label">City</label>
@@ -671,6 +677,138 @@
 
 <div *ngIf="data.showWarningNote">
   <div class="dialog-content" style="padding: 20px;">
+    <h6>{{ data.Client }}</h6>
       {{ data.Warning }}
   </div>
+</div>
+
+<div *ngIf="data.openTicketForm">
+  <div class="dialog-header">
+    <h3 mat-dialog-title>Approve/Deny Credit Request</h3>
+  </div>
+  <form [formGroup]="editTicketForm" (ngSubmit)="onTicketEdit()">
+  <div class="dialog-content">
+        <mat-dialog-content>
+          <!-- <mat-accordion>
+            <mat-expansion-panel hideToggle>
+              <mat-expansion-panel-header>
+                <mat-panel-title> This is the expansion title </mat-panel-title>
+                <mat-panel-description> This is a summary of the content </mat-panel-description>
+              </mat-expansion-panel-header>
+              <p>This is the primary content of the panel.</p>
+            </mat-expansion-panel>
+            <mat-expansion-panel (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
+              <mat-expansion-panel-header>
+                <mat-panel-title> Self aware panel </mat-panel-title>
+                <mat-panel-description>
+                  Currently I am {{panelOpenState() ? 'open' : 'closed'}}
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <p>I'm visible because I am open</p>
+            </mat-expansion-panel>
+          </mat-accordion> -->
+          <div class="row">
+            <div class="col">
+              <div class="row" style="padding-top: 5px;">
+                <div class="col-md-12">
+                  <label for="RequestNo" class="form-label">Request#</label>
+                  <input type="text" id="RequestNo" class="form-control" formControlName="RequestNo" placeholder="N/A">
+                </div>
+              </div>
+              <div class="row" style="padding-top: 5px;">
+                <div class="col-md-12">
+                  <label for="Client" class="form-label">Client</label>
+                  <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A">
+                </div>
+              </div>
+              <div class="row" style="padding-top: 5px;">      
+                <div class="col-md-12">  
+                  <label for="Debtor" class="form-label">Debtor Name</label>
+                  <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
+                  <textarea id="Debtor" class="form-control" formControlName="" cols="30" rows="2"></textarea>
+                </div>
+              </div>            
+              <div class="row" style="padding-top: 5px;">      
+                <div class="col-md-12">
+                  <label for="" class="form-label">Ship date</label>
+                  <input type="text" id="" class="form-control" formControlName="" placeholder="N/A">
+                </div>
+              </div>                             
+              <div class="row" style="padding-top: 5px;">      
+                <div class="col-md-12">
+                  <label for="" class="form-label">Terms</label>
+                  <input type="text" id="" class="form-control" formControlName="" placeholder="N/A">
+                </div>
+              </div>                             
+              <div class="row" style="padding-top: 5px;">      
+                <div class="col-md-12">
+                  <label for="" class="form-label">Comments</label>
+                  <textarea id="Debtor" class="form-control" formControlName="" cols="30" rows="2"></textarea>
+                </div>
+              </div>
+              <div class="row" style="padding-top: 5px;">      
+                <div class="col-md-12">
+                  <label for="" class="form-label">House line</label>
+                  <input type="text" id="" class="form-control" formControlName="" placeholder="N/A">
+                </div>
+              </div>                              
+            </div>          
+          </div>
+          </mat-dialog-content>
+        </div>
+        <div class="dialog-footer">
+          <mat-dialog-actions>
+            <button mat-button mat-dialog-close>Cancel</button>
+            <button mat-button type="submit">Save</button>
+          </mat-dialog-actions>            
+        </div>
+      </form>
+</div>
+
+<div *ngIf="data.addNew">
+  <div class="dialog-header">
+    <h3 mat-dialog-title>Create New Request</h3>
+  </div>
+  <form [formGroup]="addNewTicketForm" (ngSubmit)="onCreateTicket()">
+  <div class="dialog-content">
+    <mat-dialog-content>
+      <div class="row" style="padding-top: 5px;">
+        <div class="col-md-6">
+          <label for="Client" class="form-label">Client</label>
+          <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A">
+        </div>
+        <div class="col-md-6">
+          <label for="Debtor" class="form-label">Debtor</label>
+          <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
+        </div>
+      </div>
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-6">
+            <label for="RequestAmt" class="form-label">Request Amount</label>
+            <input type="text" id="RequestAmt" class="form-control" formControlName="RequestAmt" placeholder="N/A">
+          </div>
+          <div class="col-md-6">
+            <label for="Comments" class="form-label">Comments</label>
+            <input type="text" id="Comments" class="form-control" formControlName="Comments" placeholder="N/A">
+          </div>
+        </div>
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-6">
+            <label for="SourceCode" class="form-label">Source Code</label>
+            <input type="text" id="SourceCode" class="form-control" formControlName="SourceCode" placeholder="N/A">
+          </div>
+          <div class="col-md-6">
+            <label for="ReqContactKey" class="form-label">Request Contact</label>
+            <input type="text" id="ReqContactKey" class="form-control" formControlName="ReqContactKey" placeholder="N/A">
+          </div>
+        </div>
+    </mat-dialog-content>
+    </div>
+    <div class="dialog-footer">
+      <mat-dialog-actions>
+        <button mat-button mat-dialog-close>Cancel</button>
+        <button mat-button type="submit">Save</button>
+      </mat-dialog-actions>            
+    </div>
+  </form>
 </div>

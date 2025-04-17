@@ -10,6 +10,11 @@
             &nbsp;&nbsp;&nbsp;<input class="dropdown" type="date" (change)="onChangeRequestDate($event)" value="{{ requestDate }}" name="" id="request_date">
         </div>                            
         <div>
+            <button style="font-size: 12px; background-color: #383b91; border: 1px solid #383b91; color: rgb(255, 255, 255);" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" (click)="addNew()">
+                Add New
+            </button>
+        </div>
+        <div>
             <button mat-icon-button (click)="exporter.exportTable('csv', {fileName: 'exported-data'})">
                 <mat-icon>file_download</mat-icon>
             </button>
@@ -20,8 +25,8 @@
         <table mat-table [dataSource]="dataSource" matTableExporter #exporter="matTableExporter" matSort multiTemplateDataRows class="mat-table">
 
             <ng-container matColumnDef="RequestNo">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Request#</th>            
-                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Request#</th>            
+                <td mat-cell *matCellDef="let element">                
                     {{ element.RequestNo }}
                 </td>
             </ng-container>
@@ -71,6 +76,13 @@
                 </td>
             </ng-container>
 
+            <ng-container matColumnDef="Industry">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Industry</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    
+                </td>
+            </ng-container>
+
             <ng-container matColumnDef="Office">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Office</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;">                
@@ -80,15 +92,22 @@
 
             <ng-container matColumnDef="BankAcctName">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">EFT/ACH/Wire</th>            
-                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
                     {{ element.BankAcctName }}
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="RequestDate">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Date & time</th>            
-                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
                     {{ element.RequestDate | date:"MM/dd/yyyy HH:mm:ss" }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ApprovedDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Approved Date & time</th>            
+                <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
+                    {{ element.ApproveDate | date:"MM/dd/yyyy HH:mm:ss" }}
                 </td>
             </ng-container>
             
@@ -109,8 +128,8 @@
             </ng-container>
 
             <ng-container matColumnDef="expand">
-                <th mat-header-cell *matHeaderCellDef></th>
-                    <td mat-cell *matCellDef="let element">
+                <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
+                    <td mat-cell *matCellDef="let element" class="expand-column">
                         <span (click)="toggleRow(element)">                        
                             <mat-icon style="height: 20px; width: 20px; font-size: 20px;">{{ isExpanded(element) ? 'remove' : 'add' }}</mat-icon>
                         </span>
@@ -120,7 +139,7 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns" class="element-row"></tr>
 
-            <ng-container matColumnDef="expandedDetail">
+            <ng-container matColumnDef="expandedDetail" style="padding: 2px;">
                 <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
                     <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
                         <div class="table-container" style="background-color: #f5fbff;">                            
@@ -131,13 +150,100 @@
                                 </tr>                               
                                 <tr class="table-row">
                                     <td class="cell" style="width: 10%;">{{ element.Comments }}</td>
-                                    <td class="cell" style="width: 10%;">--</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Response }}</td>
                                 </tr>                                
                             </table>                            
-                        </div> 
-                        <br>
+                        </div>
+                        <br>                         
                         <app-ticketing-master-member-debtors [DebtorKey]="element.DebtorKey"></app-ticketing-master-member-debtors>
-                        <app-clients [DebtorKey]="element.DebtorKey"></app-clients>                   
+                        <br>
+                        <mat-accordion>
+                            <mat-expansion-panel (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
+                                <mat-expansion-panel-header style="padding: 0 20px 0 0;">                                  
+                                  <mat-panel-title>
+                                    <table mat-table [dataSource]="firstClientDataSource" matSort multiTemplateDataRows class="mat-table">
+        
+                                        <ng-container matColumnDef="Client">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
+                                            <td (click)="openClientsInvoicesWindow(element.ClientKey, element.Client)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Client }}</u></td>
+                                        </ng-container>
+                            
+                                        <ng-container matColumnDef="TotalAR">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Total AR</th>
+                                            <td mat-cell *matCellDef="let element">{{ element.Balance | roundThousands }}</td>
+                                        </ng-container>
+                                    
+                                        <ng-container matColumnDef="AgingOver60Days">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Aging Over 60 Days</th>
+                                            <td mat-cell *matCellDef="let element">{{ element.Over60 | roundThousands }}</td>
+                                        </ng-container>
+                            
+                                        <ng-container matColumnDef="%pastdue">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>% pastdue</th>
+                                            <td mat-cell *matCellDef="let element" title="{{ element.PastDuePct }}">{{ element.PastDuePct | percent: '1.0-0' }}</td>
+                                        </ng-container>
+                            
+                                        <ng-container matColumnDef="#ofInvoicesDisputes">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header># of Invoices Disputes</th>
+                                            <td mat-cell *matCellDef="let element">{{ element.NoInvoicesDispute }}</td>
+                                        </ng-container>
+                            
+                                        <ng-container matColumnDef="#holdInvoices">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header># hold Invoices</th>
+                                            <td mat-cell *matCellDef="let element">{{ element.NoInvoicesHold }}</td>
+                                        </ng-container>
+                                    
+                                        <ng-container matColumnDef="%concentration">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>% concentration</th>
+                                            <td mat-cell *matCellDef="let element" title="{{ element.Concentration }}">{{ element.Concentration | percent: '1.0-0' }}</td>
+                                        </ng-container>            
+                                    
+                                        <ng-container matColumnDef="CRM">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>CRM</th>
+                                            <td mat-cell *matCellDef="let element">{{ element.CRM }}</td>
+                                        </ng-container>
+                                    
+                                        <ng-container matColumnDef="Office">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Office</th>
+                                            <td mat-cell *matCellDef="let element">{{ element.Office }}</td>
+                                        </ng-container>
+                                    
+                                        <ng-container matColumnDef="Analysis">
+                                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Analysis</th>
+                                            <td mat-cell *matCellDef="let element"></td>
+                                        </ng-container>
+                            
+                                        <ng-container matColumnDef="expand">
+                                            <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
+                                            <td mat-cell *matCellDef="let element" class="expand-column">
+                                                <span (click)="clientToggleRow(element)">                        
+                                                    <mat-icon style="height: 20px; width: 20px; font-size: 20px;">{{ isClientExpanded(element) ? 'remove' : 'add' }}</mat-icon>
+                                                </span>
+                                            </td>
+                                        </ng-container>  
+                                    
+                                        <tr mat-header-row *matHeaderRowDef="clientDisplayedColumns"></tr>
+                                        <tr mat-row *matRowDef="let row; columns: clientDisplayedColumns" class="element-row"></tr>
+                            
+                                        <ng-container matColumnDef="clientExpandedDetail">
+                                            <td mat-cell *matCellDef="let memberElement" [attr.colspan]="clientDisplayedColumns.length" style="padding-left: 1%;">            
+                                                <div *ngIf="isClientExpanded(memberElement)">
+                                                    <br>                                
+                                                    <div class="table-container" style="background-color: #f5fbff;">                                                          
+                                                        <app-clients-debtors [MasterClientKey]="memberElement.ClientKey"></app-clients-debtors>
+                                                    </div>
+                                                    <br>                    
+                                                </div>                                      
+                                            </td>            
+                                        </ng-container>
+                                        <tr mat-row *matRowDef="let row; columns: ['clientExpandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
+                                    </table>
+                                  </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                                            
+                              <app-clients [DebtorKey]="element.DebtorKey" [ClientKey]="element.ClientKey"></app-clients>
+                            </mat-expansion-panel>
+                          </mat-accordion>                                           
                     </div>                                      
                 </td>            
             </ng-container>

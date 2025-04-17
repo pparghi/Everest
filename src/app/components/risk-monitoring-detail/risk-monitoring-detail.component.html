@@ -3,7 +3,7 @@
         <div class="col-md-4">
             <mat-card style="height: 100%;" appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title style="font-size: 20px;">Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span *ngIf="client.Inactive == 0; else elseBlockStatus" style="color: green; font-size: 15px;"><b>Active</b></span>
+                    <mat-card-title style="font-size: 20px;">Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span *ngIf="client?.Inactive == 0; else elseBlockStatus" style="color: green; font-size: 15px;"><b>Active</b></span>
                         <ng-template #elseBlockStatus>
                             <span style="color: red; font-size: 15px;"><b>Inactive</b></span>
                         </ng-template>                      

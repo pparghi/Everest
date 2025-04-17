@@ -41,13 +41,13 @@
         <div>                        
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <b>Client</b><br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="searchBar" (keyup.enter)="applyFilter($event)" class="search-bar">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="searchBar" [(ngModel)]="filter" (keyup.enter)="applyFilter($event)" class="search-bar">        
         </div>
         <div>    
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="level"><b>Level </b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <select class="dropdown" id="level" (change)="onChangeLevel($event)" aria-placeholder="Select Group Value" [(ngModel)]="level">
+            <select class="dropdown" id="level" [(ngModel)]="level" (change)="onChangeLevel($event)" aria-placeholder="Select Group Value">
                 <option value="%" style="color: gray;">Select Level</option>
                 <option *ngFor="let groupLevel of clientGroupLevelList" [value]="groupLevel.GroupValue">{{ groupLevel.GroupValue }}</option>                
             </select>
@@ -56,7 +56,7 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="office"><b>Office </b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <select class="dropdown" id="office" (change)="onChangeOffice($event)" aria-placeholder="Select Group Value" [(ngModel)]="office">                 
+            <select class="dropdown" id="office" [(ngModel)]="office" (change)="onChangeOffice($event)" aria-placeholder="Select Group Value">                 
                 <option value="%" style="color: gray;">Select Office</option>
                 <option *ngFor="let office of officeList" [value]="office.Office">{{ office.Office }}</option>               
             </select>
@@ -65,7 +65,7 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="crm"><b>CRM </b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <select class="dropdown" id="crm" (change)="onChangeCRM($event)" aria-placeholder="Select CRM" [(ngModel)]="crm">                
+            <select class="dropdown" id="crm" [(ngModel)]="crm" (change)="onChangeCRM($event)" aria-placeholder="Select CRM">                
                 <option value="%" style="color: gray;">Select CRM</option>
                 <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey">{{ crm.UserKey }}</option>                
             </select>
@@ -78,6 +78,12 @@
             <label>
                 <input [(ngModel)]="isFuel" type="radio" name="isFuelClient" value="N" (change)="onChangeFuel($event)" [attr.checked]="true"> &nbsp;<b>N</b> 
             </label>
+        </div>      
+        <div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label></label><br>  
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button style="background-color: #383b91; border: 1px solid #383b91; color: rgb(255, 255, 255);" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" (click)="resetFilters()">
+            Reset
+            </button>
         </div>
     </div>
     
@@ -124,11 +130,11 @@
         </ng-container>
         <ng-container matColumnDef="Reserves">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Reserve</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Reserve | roundThousands }}</td>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Reserve | negativeToParentheses }}</td>
         </ng-container>
         <ng-container matColumnDef="Availability">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Availability</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Availability | roundThousands }}</td>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Availability | negativeToParentheses }}</td>
         </ng-container>
 
         <ng-container matColumnDef="expandedDetail">
