@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { HttpClient } from '@angular/common/http';
 import { LoginService } from '../../services/login.service';
+import { FilterService } from '../../services/filter.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -77,8 +78,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   clientCRMList: any;
   clientGroupValueList: any;
   filterByGroupLevel!: string;
-  filterByGroup!: any;
-  filterByGroupValue!: any;
+  filterByGroup:any = '%';
+  filterByGroupValue = '%';
   profile: any;
   NavOptionUpdateMasterDebtor: any;
   NavAccessUpdateMasterDebtor: any;
@@ -86,9 +87,9 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   NavAccessRiskMonitoring: any;
   NavOptionRiskMonitoringRestricted: any;
   NavAccessRiskMonitoringRestricted: any;
-  filterByCRM!: any;
+  filterByCRM = '%';
 
-    constructor(private dataService: MasterClientsService, private router: Router, private http: HttpClient, private loginService: LoginService) {}
+    constructor(private dataService: MasterClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService) {}
     ngOnInit(): void {  
       this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       
@@ -128,7 +129,32 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
           console.error('error--', error);
         });    
         
-      });          
+      });    
+      
+      
+      // load filter state from filter service
+      const filterValues = this.filterService.getFilterState('master-clients');
+      if (filterValues){
+        // get filter values from filter state
+        this.filter = filterValues.filter || '';
+        this.filterByBalance = filterValues.filterByBalance || 'Show All';
+        this.filterByGroup = filterValues.filterByGroup || '';
+        if (this.filterByGroup) {
+          this.loadClientGroupValueList(); // load client group value list based on filterByGroup
+        }
+        this.filterByGroupValue = filterValues.filterByGroupValue || '';
+        this.filterByCRM = filterValues.filterByCRM || '';
+        // set html filter state
+        if (this.filter){
+          document.getElementsByName('searchBar')[0].setAttribute('value', this.filter);
+        }
+        // set html filterByBalance states
+        if (this.filterByBalance == 'Balance') {
+          document.getElementsByName('filterByBalance')[0].setAttribute('checked', 'false');
+          document.getElementsByName('filterByBalance')[1].setAttribute('checked', 'true');
+        }
+      }
+
       this.loadData();
       this.loadClientGroupLevelList();
       this.loadClientGroupList();
@@ -213,6 +239,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     applyFilter(event: Event): void {
       const filterValue = (event.target as HTMLInputElement).value;
+      this.filterService.setFilterState('master-clients', { "filter": filterValue.trim().toLowerCase() }); // save search value to filter service
       this.filter = filterValue.trim().toLowerCase(); 
       this.paginator.pageIndex = 0; 
       this.loadData();
@@ -334,6 +361,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
       onChange(event: Event) {
         const selectElement = event.target as HTMLSelectElement;
+        this.filterService.setFilterState('master-clients', { "filterByBalance": selectElement.value }); // save filterByBalance value to filter service
           this.filterByBalance = selectElement.value          
           this.loadData();
       }
@@ -346,18 +374,21 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
       onChangeGroup(event: Event){
         const selectElement = event.target as HTMLSelectElement;          
+        this.filterService.setFilterState('master-clients', { "filterByGroup": selectElement.value }); // save filterByGroup value to filter service
           this.filterByGroup = selectElement.value;
           this.loadClientGroupValueList();
       }
 
       onChangeGroupValue(event: Event){
         const selectElement = event.target as HTMLSelectElement;          
+        this.filterService.setFilterState('master-clients', { "filterByGroupValue": selectElement.value }); // save filterByGroupValue value to filter service
           this.filterByGroupValue = selectElement.value;          
           this.loadData();
       }
 
       onChangeCRM(event: Event){
         const selectElement = event.target as HTMLSelectElement;          
+        this.filterService.setFilterState('master-clients', { "filterByCRM": selectElement.value }); // save filterByCRM value to filter service
           this.filterByCRM = selectElement.value;          
           this.loadData();
       }

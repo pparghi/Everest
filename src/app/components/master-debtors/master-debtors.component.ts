@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, inject, AfterViewChecked  } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -11,6 +11,7 @@ import { error } from 'jquery';
 import Swal from 'sweetalert2';
 import { LoginService } from '../../services/login.service';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
+import { FilterService } from '../../services/filter.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -50,7 +51,7 @@ interface DataItem {
   styleUrl: './master-debtors.component.css'
 })
 
-export class MasterDebtorsComponent implements OnInit, AfterViewInit {
+export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewChecked  {
     displayedColumns: string[] = ['expand', 'Debtor', 'Balance', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'IndivCreditLimit', 'AIGLimit', 'Terms', 'CalcRateCode', 'CredExpireDate', 'RateDate', 'Edit', 'extra'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>();
@@ -91,24 +92,47 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
   NavAccessRiskMonitoringRestricted: any;
   debtorAudit: any;
 
-    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService) {      
+  isSortSubscribed = false; // flag of sort subscription, avoid multiple subscriptions
+
+    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService) {      
     }
-    ngOnInit(): void {      
-      this.loadData();      
+    ngOnInit(): void {  
+      const filterValues = this.filterService.getFilterState("master-debtors"); // get filter state from filter service
+      if (filterValues){
+        this.filter = filterValues.filter || ''; // get filter value from filter state
+        this.filterByBalance = filterValues.filterByBalance || 'Show All'; // get filter value from filter state
+        // set html filter state
+        if (this.filter){
+          document.getElementsByName('searchBar')[0].setAttribute('value', this.filter);
+        }
+        // set html filterByBalance states
+        if (this.filterByBalance == 'Balance') {
+          document.getElementsByName('filterByBalance')[0].setAttribute('checked', 'false');
+          document.getElementsByName('filterByBalance')[1].setAttribute('checked', 'true');
+        }
+      }
+      
+      this.loadData();  
     }
 
     ngAfterViewInit(): void {            
       if(this.paginator){
-        this.paginator.page.subscribe(() => this.loadData());  
-      }  
-      if (this.sort) {
+        this.paginator.page.subscribe(() => {
+          this.loadData();
+        });  
+      }                    
+    }
+
+    ngAfterViewChecked (): void { 
+      if (this.sort && !this.isSortSubscribed) {
+        this.isSortSubscribed = true; // set flag to true to avoid multiple subscriptions
         this.sort.sortChange.subscribe(() => {  
           if(this.paginator){
             this.paginator.pageIndex = 0;  
           }
           this.loadData();  
         });  
-      }                     
+      }  
     }
 
     loadData(): void {
@@ -184,8 +208,10 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
     applyFilter(event: Event): void {
       const filterValue = (event.target as HTMLInputElement).value;
+      this.filterService.setFilterState('master-debtors', { "filter": filterValue.trim().toLowerCase() }); // save search value to filter service
       this.filter = filterValue.trim().toLowerCase(); 
       this.paginator.pageIndex = 0; 
+      console.log('sort--', this.sort);
       this.loadData();
     }
     
@@ -483,6 +509,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit {
 
   onChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('master-debtors', { "filterByBalance": selectElement.value }); // save search value to filter service
       this.filterByBalance = selectElement.value          
       this.loadData();
   }

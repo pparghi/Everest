@@ -33,7 +33,7 @@ export class RiskMonitoringComponent implements OnInit {
   level = '';
   office = '';
   crm = '';
-  isFuel = '';
+  isFuel = 'N';
   dataSource = new MatTableDataSource<any>();
   totalRecords = 0;
   displayedColumns: string[] = ['expand', 'Client', 'NoteDueDate', 'Level', 'CRM','A/R', 'NFE', 'Ineligibles', 'Reserves', 'Availability'];
@@ -87,7 +87,29 @@ export class RiskMonitoringComponent implements OnInit {
   ngOnInit(): void {    
     // this.filter = this.filterService.getFilterState();
     // console.log(this.filter);
-    
+
+    // load filter state from filter service
+    const filterValues = this.filterService.getFilterState('risk-monitoring');
+    if (filterValues) {
+      // get filter values from filter state
+      this.isActive = filterValues.isActive || '0';
+      this.isDDSelect = filterValues.isDDSelect || 'N';
+      this.isDDCreatedBy = filterValues.isDDCreatedBy || '';
+      this.dueDateFromBack = filterValues.dueDateFromBack || '';
+      this.dueDateFromFront = this.dueDateFromBack;
+      this.dueDateToBack = filterValues.dueDateToBack || '';
+      this.dueDateToFront = this.dueDateToBack;
+      this.filter = filterValues.filter || '';
+      if (this.filter){
+        document.getElementsByName('searchBar')[0].setAttribute('value', this.filter);
+      }
+      this.level = filterValues.level || '';
+      this.office = filterValues.office || '';
+      this.crm = filterValues.crm || '';
+      this.isFuel = filterValues.isFuel || 'N';
+
+    }
+
     this.loadData();      
     this.loadClientGroupLevelList();
     this.loadClientCRMList();
@@ -202,25 +224,29 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangeIsActive(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isActive = selectElement.value   
+    this.filterService.setFilterState('risk-monitoring', { "isActive": selectElement.value });
+      this.isActive = selectElement.value;   
       this.loadData();
   }
   
   onChangedueDateFrom(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.dueDateToBack = selectElement.value   
+    this.filterService.setFilterState('risk-monitoring', { "dueDateFromBack": selectElement.value });
+      this.dueDateFromBack = selectElement.value;   
       this.loadData();
   }
 
   onChangedueDateTo(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.dueDateToBack = selectElement.value   
+    this.filterService.setFilterState('risk-monitoring', { "dueDateToBack": selectElement.value });
+      this.dueDateToBack = selectElement.value;   
       this.loadData();
   }
 
   onChangeDDSelect(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isDDSelect = selectElement.value  
+    this.filterService.setFilterState('risk-monitoring', { "isDDSelect": selectElement.value });
+      this.isDDSelect = selectElement.value;  
       let currentDate = new Date();
       let today = new Date();       
       if (this.isDDSelect == 'N') {
@@ -241,30 +267,35 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangeDDCreatedBy(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "isDDCreatedBy": selectElement.value });
       this.isDDCreatedBy = selectElement.value   
       this.loadData();
   }
 
   onChangeLevel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "level": selectElement.value });
       this.level = selectElement.value   
       this.loadData();
   }
 
   onChangeOffice(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "office": selectElement.value });
       this.office = selectElement.value   
       this.loadData();
   }
 
   onChangeCRM(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "crm": selectElement.value });
       this.crm = selectElement.value   
       this.loadData();
   }
 
   onChangeFuel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "isFuel": selectElement.value });
       this.isFuel = selectElement.value   
       this.loadData();
   }  
@@ -275,6 +306,7 @@ export class RiskMonitoringComponent implements OnInit {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
+    this.filterService.setFilterState('risk-monitoring', { "filter": filterValue.trim().toLowerCase() }); // save search value to filter service
     this.filter = filterValue.trim().toLowerCase(); 
     // this.filterService.setFilterState(this.filter);
     this.paginator.pageIndex = 0;

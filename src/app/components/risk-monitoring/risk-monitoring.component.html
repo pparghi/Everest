@@ -41,13 +41,13 @@
         <div>                        
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <b>Client</b><br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input (keyup.enter)="applyFilter($event)" class="search-bar">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="searchBar" (keyup.enter)="applyFilter($event)" class="search-bar">        
         </div>
         <div>    
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="level"><b>Level </b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <select class="dropdown" id="level" (change)="onChangeLevel($event)" aria-placeholder="Select Group Value">
+            <select class="dropdown" id="level" (change)="onChangeLevel($event)" aria-placeholder="Select Group Value" [(ngModel)]="level">
                 <option value="%" style="color: gray;">Select Level</option>
                 <option *ngFor="let groupLevel of clientGroupLevelList" [value]="groupLevel.GroupValue">{{ groupLevel.GroupValue }}</option>                
             </select>
@@ -56,7 +56,7 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="office"><b>Office </b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <select class="dropdown" id="office" (change)="onChangeOffice($event)" aria-placeholder="Select Group Value">                 
+            <select class="dropdown" id="office" (change)="onChangeOffice($event)" aria-placeholder="Select Group Value" [(ngModel)]="office">                 
                 <option value="%" style="color: gray;">Select Office</option>
                 <option *ngFor="let office of officeList" [value]="office.Office">{{ office.Office }}</option>               
             </select>
@@ -65,7 +65,7 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="crm"><b>CRM </b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <select class="dropdown" id="crm" (change)="onChangeCRM($event)" aria-placeholder="Select CRM">                
+            <select class="dropdown" id="crm" (change)="onChangeCRM($event)" aria-placeholder="Select CRM" [(ngModel)]="crm">                
                 <option value="%" style="color: gray;">Select CRM</option>
                 <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey">{{ crm.UserKey }}</option>                
             </select>
@@ -73,10 +73,10 @@
         <div>            
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><b>Fuel Client</b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>
-                <input type="radio" name="isFuelClient" value="Y" (change)="onChangeFuel($event)">&nbsp; <b>Y</b>
+                <input [(ngModel)]="isFuel" type="radio" name="isFuelClient" value="Y" (change)="onChangeFuel($event)">&nbsp; <b>Y</b>
             </label>&nbsp;
             <label>
-                <input type="radio" name="isFuelClient" value="N" (change)="onChangeFuel($event)" [attr.checked]="true"> &nbsp;<b>N</b> 
+                <input [(ngModel)]="isFuel" type="radio" name="isFuelClient" value="N" (change)="onChangeFuel($event)" [attr.checked]="true"> &nbsp;<b>N</b> 
             </label>
         </div>
     </div>
