@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import Swal from 'sweetalert2';
@@ -26,7 +26,7 @@ interface Response {
   styleUrl: './document-dialog.component.css',  
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DocumentDialogComponent implements OnInit {
+export class DocumentDialogComponent implements OnInit, AfterViewInit {
   link: any;
   documentDescr: any;
   documentCategory: any;
@@ -86,6 +86,8 @@ export class DocumentDialogComponent implements OnInit {
  addr2suggestions: any[] = [];
  private searchSubject = new Subject<string>();
  readonly panelOpenState = signal(false);
+
+ focusedInputOfAdress: string = 'address1';
   
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService) {
     if(data.openChequeSearchForm){  
@@ -235,14 +237,18 @@ export class DocumentDialogComponent implements OnInit {
     next: (data) => {
       console.log("API Response:", data);
       if (data.Items) {
-        this.suggestions = data.Items.map((item: any) => ({
-          text: item.Text,
-          description: item.Description
-        }));
-        // this.addr2suggestions = data.Items.map((item: any) => ({
-        //   text: item.Text,
-        //   description: item.Description
-        // }));
+        // condition of focusing on address 1
+        if (this.focusedInputOfAdress == "address1") {
+          this.suggestions = data.Items.map((item: any) => ({
+            text: item.Text,
+            description: item.Description
+          }));
+        } else {
+          this.addr2suggestions = data.Items.map((item: any) => ({
+            text: item.Text,
+            description: item.Description
+          }));
+        }
       } else {
         this.suggestions = [];
         // this.addr2suggestions = [];
@@ -259,6 +265,7 @@ export class DocumentDialogComponent implements OnInit {
     console.log("query changed:", selectElement.value);
     this.query = selectElement.value
  
+    this.focusedInputOfAdress = "address1";
    if (this.query.length > 2) {
      console.log("lendth > called");
      this.searchSubject.next(this.query);
@@ -268,28 +275,29 @@ export class DocumentDialogComponent implements OnInit {
    }
   }
 
-  // onAddr2QueryChange(event: Event) {
-  //   const selectElement = event.target as HTMLSelectElement;
-  //   console.log("query changed:", selectElement.value);
-  //   this.query = selectElement.value
+  onAddr2QueryChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    console.log("address 2 query changed:", selectElement.value);
+    this.query = selectElement.value
  
-  //  if (this.query.length > 2) {
-  //    console.log("lendth > called");
-  //    this.searchSubject.next(this.query);
-  //  } else {
-  //    console.log("else part to clear suggestions");
-  //    this.addr2suggestions = []; // Clear suggestions when query is too short
-  //  }
-  // }
+    this.focusedInputOfAdress = "address2";
+   if (this.query.length > 2) {
+     console.log("lendth > called");
+     this.searchSubject.next(this.query);
+   } else {
+     console.log("else part to clear suggestions");
+     this.addr2suggestions = []; // Clear suggestions when query is too short
+   }
+  }
   
  selectSuggestion(suggestion: any) {
    this.editForm.get('Addr1')?.setValue(suggestion.text)
    this.suggestions = [];
  }
-//  selectAddr2Suggestion(addr2suggestion: any) {
-//    this.editForm.get('Addr2')?.setValue(addr2suggestion.text)
-//    this.addr2suggestions = [];
-//  }
+ selectAddr2Suggestion(addr2suggestion: any) {
+   this.editForm.get('Addr2')?.setValue(addr2suggestion.text)
+   this.addr2suggestions = [];
+ }
 
   ngOnInit(): void {
     const now = new Date();
@@ -318,7 +326,7 @@ export class DocumentDialogComponent implements OnInit {
     // document.body.appendChild(script);
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     // if (typeof pca !== 'undefined') {
     //   pca.setup({
     //     key: 'dy85-mj85-wx29-nn39',
@@ -327,6 +335,40 @@ export class DocumentDialogComponent implements OnInit {
     // } else {
     //   console.error('AddressComplete script not loaded');
     // }
+
+    
+    // const inputElement = document.getElementById('Addr1');
+    // if (!inputElement) {
+    //   console.error('Input element not found.');
+    //   return;
+    // }
+
+    try {
+      // Create an instance of pca.AddressComplete
+      // const addressComplete = new pca.AddressComplete(inputElement, {
+      //   key: 'dy85-mj85-wx29-nn39', // Your API key
+      //   culture: 'en-CA', // Set the culture to Canada
+      //   country: 'CAN', // Restrict to Canada
+      // });
+      const addressComplete = new pca.AddressComplete();
+
+      // Listen for the address selection event for Addr1
+      // console.log('addressComplete.controls:', addressComplete.controls);
+      addressComplete.controls[4].listen('populate', (address: any) => {
+        // console.log('Selected Address:', address);
+        this.editForm.get('Addr1')?.setValue(address.Line1);
+      });
+
+      // Listen for the address selection event for Addr2
+      addressComplete.controls[3].listen('populate', (address: any) => {
+        // console.log('Selected Address:', address);
+        this.editForm.get('Addr2')?.setValue(address.Line1);
+      });
+
+    } catch (error) {
+      console.error('Error initializing AddressComplete:', error);
+    }
+
   }
 
   // onAddressInput(event: any) {
@@ -369,45 +411,50 @@ export class DocumentDialogComponent implements OnInit {
      }, error => {
        console.error('Upload failed', error);
      });
-    }
+  }
 
-    onEdit(){
-      if (this.editForm.valid) {  
-        // console.log(this.editForm.value);
+  onEdit() {
+    const confirmed = window.confirm('Are you sure you want to update the debtor details?'); // Add confirmation popup
+    if (confirmed && this.editForm.valid) {
+      // console.log(this.editForm.value);
 
-        const formData = new FormData();
-    formData.append('DebtorKey', this.editForm.value.DebtorKey);
-    formData.append('Debtor', this.editForm.value.Debtor);
-    formData.append('Duns', this.editForm.value.Duns);
-    formData.append('Addr1', this.editForm.value.Addr1);
-    formData.append('Addr2',this.editForm.value.Addr2);
-    formData.append('Phone1',this.editForm.value.Phone1);
-    formData.append('Phone2',this.editForm.value.Phone2);
-    formData.append('City',this.editForm.value.City);
-    formData.append('State',this.editForm.value.State);
-    formData.append('TotalCreditLimit',this.editForm.value.TotalCreditLimit);
-    formData.append('IndivCreditLimit',this.editForm.value.IndivCreditLimit);
-    formData.append('AIGLimit',this.editForm.value.AIGLimit);
-    formData.append('Terms',this.editForm.value.Terms);
-    formData.append('MotorCarrNo',this.editForm.value.MotorCarrNo);
-    formData.append('CredAppBy',this.editForm.value.CredAppBy);
-    formData.append('Email',this.editForm.value.Email);
-    formData.append('RateDate',this.editForm.value.RateDate);
-    formData.append('CredExpireMos',this.editForm.value.CredExpireMos);
-    formData.append('Notes',this.editForm.value.Notes);
-    formData.append('CredNote',this.editForm.value.CredNote);
-    formData.append('Warning',this.editForm.value.Warning);
-    formData.append('DotNo',this.editForm.value.DotNo);
+      const formData = new FormData();
+      formData.append('DebtorKey', this.editForm.value.DebtorKey);
+      formData.append('Debtor', this.editForm.value.Debtor);
+      formData.append('Duns', this.editForm.value.Duns);
+      formData.append('Addr1', this.editForm.value.Addr1);
+      formData.append('Addr2', this.editForm.value.Addr2);
+      formData.append('Phone1', this.editForm.value.Phone1);
+      formData.append('Phone2', this.editForm.value.Phone2);
+      formData.append('City', this.editForm.value.City);
+      formData.append('State', this.editForm.value.State);
+      formData.append('TotalCreditLimit', this.editForm.value.TotalCreditLimit);
+      formData.append('IndivCreditLimit', this.editForm.value.IndivCreditLimit);
+      formData.append('AIGLimit', this.editForm.value.AIGLimit);
+      formData.append('Terms', this.editForm.value.Terms);
+      formData.append('MotorCarrNo', this.editForm.value.MotorCarrNo);
+      formData.append('CredAppBy', this.editForm.value.CredAppBy);
+      formData.append('Email', this.editForm.value.Email);
+      formData.append('RateDate', this.editForm.value.RateDate);
+      formData.append('CredExpireMos', this.editForm.value.CredExpireMos);
+      formData.append('Notes', this.editForm.value.Notes);
+      formData.append('CredNote', this.editForm.value.CredNote);
+      formData.append('Warning', this.editForm.value.Warning);
+      formData.append('DotNo', this.editForm.value.DotNo);
 
-        this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, formData)
+      this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, formData)
         .subscribe(response => {
-          console.log('Debtor data updated',response);       
+          console.log('Debtor data updated', response);
           window.location.reload();
         }, error => {
           console.error('Error', error);
         });
-      }
     }
+    // don't update the form if the user cancels the update nor if the form is invalid
+    else {
+      console.log('Update cancelled');
+    }
+  }
 
     onChange(event: Event) {
       const selectElement = event.target as HTMLSelectElement;
