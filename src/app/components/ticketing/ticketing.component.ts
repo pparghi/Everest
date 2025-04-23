@@ -170,8 +170,7 @@ export class TicketingComponent {
 
         this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
           this.isLoading = false;
-          this.dataSource.data = response.data; 
-          console.log(this.dataSource.data);                                             
+          this.dataSource.data = response.data;                                              
         });
       });
     }
@@ -260,11 +259,13 @@ export class TicketingComponent {
       this.loadData();
   }
 
-  openClientsInvoicesWindow(ClientKey: number, Client: string): void {
-    // const url = this.router.serializeUrl(
-    //   this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, DebtorKey: this.DebtorKey, Client: Client } })
-    // );
-    // window.open(url, '_blank');
+  openClientsInvoicesWindow(ClientKey: number, Client: string) {
+    let DebtorKey = this.expandedElement?.DebtorKey;
+    
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, DebtorKey: DebtorKey, Client: Client } })
+    );
+    window.open(url, '_blank');
   }
 
   edit(row: DataItem){

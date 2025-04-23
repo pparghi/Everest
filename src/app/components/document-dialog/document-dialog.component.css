@@ -123,3 +123,60 @@
 	   .addr2-suggestions-list li:hover {
 		background: #f0f0f0;
 	   }
+	   
+.detail-row .mat-mdc-cell {
+	border-bottom: 1px solid #dee2e6;
+	border-top: 1px solid transparent;
+	padding-left: 3%;
+	font-size: 13px;
+  }
+  
+  .element-row {
+	border: 0;
+	height: 10px;
+  }
+  
+  .detail-row {
+	height: 0;
+  }
+  .detail-row .example-element-detail {
+	padding: 16px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+  }
+.mat-mdc-header-cell.expand-column, .mat-mdc-cell.expand-column {
+	width: 30px !important;  
+  }
+
+  .mat-header-row {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background-color: white;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #58595B;
+	font-weight: bolder;  
+	height: 40px;
+  }
+
+  
+.table-container {
+	border: 1px solid #dee2e6;
+	padding: 10px;
+	border-radius: 5px;  
+	max-height: 710px;
+	overflow-y: auto;
+	background-color: #ffffff;
+  }   
+
+  
+.main-table-container {
+	border: 1px solid #dee2e6;
+	border-radius: 5px;  
+	max-height: 700px;
+	overflow-y: auto;
+	background-color: #ffffff;
+	font-size: 13px;
+  }   
+  

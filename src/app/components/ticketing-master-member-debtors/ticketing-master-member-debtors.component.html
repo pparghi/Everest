@@ -74,8 +74,81 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
 
             <ng-container matColumnDef="expandedDetail">
-                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
-                      
+                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">            
+                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
+                        <div class="table-container" style="background-color: #f5fbff;">                            
+                            <table class="bordered-table">
+                                <tr>
+                                    <th class="header" style="width: 10%;">Total AR</th>
+                                    <th class="header" style="width: 10%;">0-30</th>
+                                    <th class="header" style="width: 10%;">31-60</th>
+                                    <th class="header" style="width: 10%;">61-90</th>
+                                    <th class="header" style="width: 10%;">91-120</th>
+                                    <th class="header" style="width: 10%;">121-150</th>
+                                    <th class="header" style="width: 10%;">DSO30</th>
+                                    <th class="header" style="width: 10%;">DSO60</th>
+                                    <th class="header" style="width: 10%;">DSO90</th>
+                                    <th class="header" style="width: 10%;">DSOAll</th>              
+                                </tr>                               
+                                <tr class="table-row">
+                                    <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openDebtorStatementsDialog(element.DebtorKey)">{{ element.Balance | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;">{{ math.round(element.DSO30) }}</td>
+                                    <td class="cell" style="width: 10%;">{{ math.round(element.DSO60) }}</td>
+                                    <td class="cell" style="width: 10%;">{{ math.round(element.DSO90) }}</td>
+                                    <td class="cell" style="width: 10%;">{{ math.round(element.DSOAll) }}</td>                                                        
+                                </tr>                                
+                            </table>
+                            <table class="bordered-table">                                                       
+                                <tr>
+                                    <th class="header" style="width: 10%;">C/L</th>                                                                 
+                                    <th class="header" style="width: 10%;">Held Invoices</th>                                        
+                                    <th class="header" style="width: 20%;"># of Outstanding Invoices</th>                                 
+                                    <th class="header" style="width: 10%;">Last Payment Date</th>
+                                    <th class="header" style="width: 10%;">Dispute %</th>
+                                    <th class="header" style="width: 10%;">Audit</th>
+                                    <th class="header" style="width: 20%;">Address</th>
+                                    <th class="header" style="width: 20%;">Alternate address</th>                                    
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td> 
+                                    <td class="cell" style="width: 10%;">-</td>                                  
+                                    <td class="cell" style="width: 20%;">{{ element.NoInvoices }}</td>
+                                    <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openChecqueSearchDialog(element.DebtorKey)">{{ element.LastPmtDate | date:"MM/dd/yyyy" }}</td>
+                                    <td class="cell" style="width: 10%;">{{ element.DisputesPct | roundThousands }}</td>
+                                    <td class="cell" style="width: 10%;" (click)="openDebtorAuditDialog(element.DebtorKey)"><i class="fa-solid fa-list-check" style="color: #3a8ada;"></i></td>
+                                    <td class="cell" style="width: 20%;">{{ element.Addr1 }}</td>                                    
+                                    <td class="cell" style="width: 20%;">{{ element.Addr2 }}</td>                                                                        
+                                </tr>
+                            </table>
+                            <table class="bordered-table">                                                                                
+                                <tr>                                    
+                                    <th class="header" style="width: 20%;">Email</th>
+                                    <th class="header" style="width: 10%;">Phone1</th>
+                                    <th class="header" style="width: 10%;">Phone2</th>
+                                    <th class="header" style="width: 10%;">Documents</th>
+                                    <th class="header" style="width: 20%;">Warning</th>
+                                    <th class="header" style="width: 10%;">Duns</th>                                    
+                                    <th class="header" style="width: 10%;">MC#</th>
+                                    <th class="header" style="width: 30%;"></th>                                                                                                            
+                                </tr>                                
+                                <tr>
+                                    <td>{{ element.Email }}</td>                                  
+                                    <td><a href="tel:{{ element.Phone1 }}">{{ element.Phone1 }}</a></td>                                    
+                                    <td><a href="tel:{{ element.Phone1 }}">{{ element.Phone2 }}</a></td>                                    
+                                    <td class="cell" (click)="openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
+                                    <td class="cell">{{ element.Warning }}</td>
+                                    <td class="cell">{{ element.DbDunsNo }}</td>
+                                    <td class="cell">{{ element.MotorCarrNo }}</td>    
+                                    <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)"style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>                                                                   
+                                </tr>                    
+                            </table>                            
+                        </div>                    
+                    </div>                                      
                 </td>      
             </ng-container>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" id="detail-row" class="detail-row"></tr>

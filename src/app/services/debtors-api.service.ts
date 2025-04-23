@@ -86,7 +86,11 @@ export class DebtorsApiService {
             // Add expanded detail here
           })),              
           debtorAudit: response.debtorAudit,
-          debtorStatementsDetails: response.debtorStatementsDetails
+          debtorStatementsDetails: response.debtorStatementsDetails.map((item: any) => ({
+            ...item,
+            // Add expanded detail here
+            expandedDetail: { detail: 'Additional details for ' + item.DtrName }
+          }))
         };
       })
     );

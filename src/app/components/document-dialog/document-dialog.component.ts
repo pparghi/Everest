@@ -20,6 +20,10 @@ interface Response {
   payments: Array<any>;
 }
 
+interface DebtorDataItem {  
+  expandedDetail: { detail: string };
+}
+
 @Component({
   selector: 'app-document-dialog',
   templateUrl: './document-dialog.component.html',
@@ -41,7 +45,7 @@ export class DocumentDialogComponent implements OnInit {
   contactColumns: string[] = ['name', 'email', 'contact_no'];
   paymentsColumns: string[] = ['CheckNo', 'ClientName', 'DebtorName', 'PostDate', 'Buy', 'PayAmt'];
   auditColumns: string[] = ['TimeStamp', 'UserKey', 'Field', 'Was', 'Is'];
-  statementsColumns: string[] = ['Debtor', 'Client', 'PO/LOAD', 'Invoice#', 'InvDate', 'Age', 'Currency', 'Amt', 'Balance'];
+  statementsColumns: string[] = ['Debtor', 'Client', 'PO/LOAD', 'Invoice#', 'InvDate', 'Age', 'Currency', 'Amt', 'Balance', 'expand'];
   paymentColumns: string[] = ['date', 'check#', 'amount'];
   miscDataColumns: string[] = ['element', 'value'];
   detailNotesColumns: string[] = ['Date', 'UserName', 'contact', 'Method', 'Promise', 'Note'];
@@ -86,6 +90,8 @@ export class DocumentDialogComponent implements OnInit {
  addr2suggestions: any[] = [];
  private searchSubject = new Subject<string>();
  readonly panelOpenState = signal(false);
+
+ expandedElement: DebtorDataItem | null = null;
   
   constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService) {
     if(data.openChequeSearchForm){  
@@ -499,5 +505,17 @@ export class DocumentDialogComponent implements OnInit {
         });
       }
     }
+
+    toggleRow(element: DebtorDataItem): void {   
+      console.log(element);
+                           
+      this.expandedElement = this.expandedElement === element ? null : element;       
+    }
+
+    isExpanded(element: DebtorDataItem): boolean {
+      return this.expandedElement === element;
+    }
+
+    isExpansionDetailRow = (index: number, row: DebtorDataItem) => row.hasOwnProperty('expandedDetail');
 
 }

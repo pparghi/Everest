@@ -81,17 +81,7 @@
         <ng-container matColumnDef="CalcRateCode">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Rating</th>
             <td mat-cell *matCellDef="let element" style="text-align: end; color: #3a8ada;" (click)="openDSODialog(element.DSO30, element.DSO60, element.DSO90, element.Debtor)">{{ element.CalcRateCode }}</td>
-        </ng-container>        
-
-        <ng-container matColumnDef="CredExpireDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CredExpireDate</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.CredExpireDate | date:'yyyy-MM-dd' }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="RateDate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Research Date</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.RateDate | date:'yyyy-MM-dd' }}</td>
-        </ng-container>
+        </ng-container>                
 
         <ng-container matColumnDef="Edit" *ngIf="this.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && this.NavAccessUpdateMasterDebtor == 1">
             <th mat-header-cell *matHeaderCellDef style="text-align: end;">Action</th>
@@ -158,7 +148,7 @@
                             <table class="bordered-table">                                                       
                                 <tr>
                                     <th class="header" style="width: 10%;">C/L</th>                                                                 
-                                    <th class="header" style="width: 10%;">Skipped Invoices</th>                                        
+                                    <th class="header" style="width: 10%;">Held Invoices</th>                                        
                                     <th class="header" style="width: 20%;"># of Outstanding Invoices</th>                                 
                                     <th class="header" style="width: 10%;">Last Payment Date</th>
                                     <th class="header" style="width: 10%;">Dispute %</th>

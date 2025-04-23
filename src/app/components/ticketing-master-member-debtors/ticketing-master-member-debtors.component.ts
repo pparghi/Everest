@@ -10,6 +10,7 @@ import { DebtorsApiService } from '../../services/debtors-api.service';
 import { LoginService } from '../../services/login.service';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
   Debtor: string;
@@ -38,6 +39,17 @@ export class TicketingMasterMemberDebtorsComponent implements OnInit {
     documentsFolder: any;
     profile: any;
     user: any;
+    DebtorContactsData: any;
+    NavOptionUpdateMasterDebtor: any;
+    NavAccessUpdateMasterDebtor: any;
+    NavOptionMasterDebtor: any;
+    NavAccessMasterDebtor: any;
+    NavOptionClientRisk: any;
+    NavAccessClientRisk: any;
+    NavOptionRiskMonitoring: any;
+    NavAccessRiskMonitoring: any;
+    NavOptionRiskMonitoringRestricted: any;
+    NavAccessRiskMonitoringRestricted: any;
 
     readonly dialog = inject(MatDialog);    
 
@@ -62,10 +74,47 @@ export class TicketingMasterMemberDebtorsComponent implements OnInit {
       }
     }
 
-    loadMemberDebtorDetails(DebtorKey: number): void {        
+    loadMemberDebtorDetails(DebtorKey: number): void {    
+      this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+        this.profile = profile;
+        this.loginService.getData(this.profile.mail).subscribe(response => {                                
+          response.data.forEach((element: any) => {
+            if (element.NavOption == 'Master Debtor') {            
+              this.NavOptionMasterDebtor = element.NavOption;          
+              this.NavAccessMasterDebtor = element.NavAccess;
+            } else if (element.NavOption == 'Client Risk Page'){
+              this.NavOptionClientRisk = element.NavOption;          
+              this.NavAccessClientRisk = element.NavAccess;
+            } else if (element.NavOption == 'Update Master Debtor'){
+              this.NavOptionUpdateMasterDebtor = element.NavOption;          
+              this.NavAccessUpdateMasterDebtor = element.NavAccess;
+            } else if (element.NavOption == 'Risk Monitoring'){
+              this.NavOptionRiskMonitoring = element.NavOption;          
+              this.NavAccessRiskMonitoring = element.NavAccess;
+            } else if (element.NavOption == 'Risk Monitoring Restricted'){
+              this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+              this.NavAccessRiskMonitoringRestricted = element.NavAccess;
+            } else {
+              this.NavOptionMasterDebtor = '';
+              this.NavAccessMasterDebtor = '';
+              this.NavOptionClientRisk = '';
+              this.NavAccessClientRisk = '';       
+              this.NavOptionUpdateMasterDebtor = '';       
+              this.NavAccessUpdateMasterDebtor = ''; 
+              this.NavOptionRiskMonitoring = '';
+              this.NavAccessRiskMonitoring = '';
+              this.NavOptionRiskMonitoringRestricted = '';
+              this.NavAccessRiskMonitoringRestricted = '';
+            }                                           
+                        
+          });
+        }, error => {
+          console.error('error--', error);
+        });    
       this.dataService.getMemberDebtors(DebtorKey).subscribe(response => {        
         this.dataSource.data = response.data;
       });
+    })
     }
 
     applyFilter(event: Event): void {
@@ -143,6 +192,103 @@ export class TicketingMasterMemberDebtorsComponent implements OnInit {
         
     });
     
+  }
+
+  openDebtorContactsDialog(DebtorKey: number){
+      this.masterDebtorService.getDebtorsContacts(DebtorKey).subscribe(response => {                                
+        this.DebtorContactsData = response.debtorContactsData;
+        
+        const dialogRef = this.dialog.open(DocumentDialogComponent, {     
+          width: 'auto',       
+          maxWidth: 'none',   
+          height: 'auto',    
+          panelClass: 'custom-dialog-container',            
+          data: {
+            DebtorKey: DebtorKey, 
+            DebtorContactsData: this.DebtorContactsData,
+          }
+        });
+        
+        dialogRef.afterClosed().subscribe(result => {
+            
+        });
+    });
+  }
+
+  openDocumentsDialog(DebtorKey: number){      
+    this.masterDebtorService.getDebtorsDocuments(DebtorKey).subscribe(response => {                                
+      this.DocumentsList = response.documentsList;
+      this.DocumentsCat = response.DocumentsCat;
+      this.documentsFolder = response.DocumentsFolder;
+      
+      const dialogRef = this.dialog.open(DocumentDialogComponent, { 
+        width: 'auto',       
+        maxWidth: 'none',   
+        height: 'auto',    
+        panelClass: 'custom-dialog-container',               
+         data: {
+          DebtorKey: DebtorKey, 
+          documentsList: this.DocumentsList,
+          documentCategory: this.DocumentsCat,
+          documentsFolder: this.documentsFolder,
+          NavOptionUpdateMasterDebtor: this.NavOptionUpdateMasterDebtor,
+          NavAccessUpdateMasterDebtor: this.NavAccessUpdateMasterDebtor
+        }
+      });        
+      dialogRef.afterClosed().subscribe(result => {            
+      });
+    });      
+  }
+
+  openDebtorAuditDialog(DebtorKey: number){   
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+        width: 'auto',       
+        maxWidth: 'none',   
+        height: 'auto',    
+        panelClass: 'custom-dialog-container',                    
+        data: {
+          DebtorKey: DebtorKey, 
+          debtorAudit: 'debtorAudit',
+        }
+      });
+      
+      dialogRef.afterClosed().subscribe(result => {
+          
+    });    
+  }
+
+  openDebtorStatementsDialog(DebtorKey: number){   
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+        width: 'auto',       
+        maxWidth: 'none',   
+        height: 'auto',    
+        panelClass: 'custom-dialog-container',                    
+        data: {
+          DebtorKey: DebtorKey, 
+          debtorStatements: 'debtorStatements',
+        }
+      });
+      
+      dialogRef.afterClosed().subscribe(result => {
+          
+    });    
+  }
+
+  openChecqueSearchDialog(DebtorKey: number){
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {      
+      width: 'auto',       
+      maxWidth: 'none',   
+      height: 'auto',    
+      panelClass: 'custom-dialog-container',                    
+      data: {
+        DebtorKey: DebtorKey, 
+        openChequeSearchForm: 'chequeSearchForm',
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+        
+    });
   }
   
 }
