@@ -41,7 +41,7 @@
         <div>                        
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <b>Client</b><br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input [(ngModel)]="filter" (keyup.enter)="applyFilter($event)" class="search-bar">        
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="searchBar" [(ngModel)]="filter" (keyup.enter)="applyFilter($event)" class="search-bar">        
         </div>
         <div>    
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -73,10 +73,10 @@
         <div>            
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label><b>Fuel Client</b></label><br>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>
-                <input type="radio" name="isFuelClient" value="Y" (change)="onChangeFuel($event)">&nbsp; <b>Y</b>
+                <input [(ngModel)]="isFuel" type="radio" name="isFuelClient" value="Y" (change)="onChangeFuel($event)">&nbsp; <b>Y</b>
             </label>&nbsp;
             <label>
-                <input type="radio" name="isFuelClient" value="N" (change)="onChangeFuel($event)" [attr.checked]="true"> &nbsp;<b>N</b> 
+                <input [(ngModel)]="isFuel" type="radio" name="isFuelClient" value="N" (change)="onChangeFuel($event)" [attr.checked]="true"> &nbsp;<b>N</b> 
             </label>
         </div>      
         <div>

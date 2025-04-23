@@ -129,23 +129,26 @@
           
           <div class="row" style="padding-top: 5px;">
             <div class="col-md-3">
-              <label for="Addr1" class="form-label">Address 1</label>
+              <!-- <label for="Addr1" class="form-label">Address 1</label>
               <input type="text" id="Addr1" formControlName="Addr1" (input)="onQueryChange($event)" placeholder="N/A" class="form-control">  
               <ul *ngIf="suggestions.length" class="suggestions-list">
                 <li *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)">
                     {{ suggestion.text }} {{ suggestion.description }}
                 </li>
-            </ul>          
+            </ul>           -->
+            <label for="Addr1" class="form-label">Address 1</label>
+            <input type="text" id="Addr1" formControlName="Addr1" errormessage="Please enter your Address" placeholder="N/A" class="form-control" autocomplete="off">
             </div>
             <div class="col-md-3">
-              <label for="Addr2" class="form-label">Address 2</label>
-              <input type="text" formControlName="Addr2" id="Addr2" class="form-control" placeholder="N/A">
-              <!-- <input type="text" id="Addr2" formControlName="Addr2" (input)="onAddr2QueryChange($event)" placeholder="N/A" class="form-control">  
+              <!-- <label for="Addr2" class="form-label">Address 2</label>
+              <input type="text" formControlName="Addr2" id="Addr2" (input)="onAddr2QueryChange($event)" class="form-control" placeholder="N/A"> 
               <ul *ngIf="addr2suggestions.length" class="addr2-suggestions-list">
                 <li *ngFor="let addr2suggestion of addr2suggestions" (click)="selectAddr2Suggestion(addr2suggestion)">
                     {{ addr2suggestion.text }} {{ addr2suggestion.description }}
                 </li>
               </ul> -->
+              <label for="Addr2" class="form-label">Address 2</label>
+              <input type="text" id="Addr2" formControlName="Addr2" errormessage="Please enter your Address" placeholder="N/A" class="form-control" autocomplete="off">
             </div>
             <div class="col-md-3">
               <label for="City" class="form-label">City</label>

@@ -33,7 +33,7 @@ export class RiskMonitoringComponent implements OnInit {
   level = '';
   office = '';
   crm = '';
-  isFuel = '';
+  isFuel = 'N';
   dataSource = new MatTableDataSource<any>();
   totalRecords = 0;
   displayedColumns: string[] = ['expand', 'Client', 'NoteDueDate', 'Level', 'CRM','A/R', 'NFE', 'Ineligibles', 'Reserves', 'Availability'];
@@ -69,25 +69,48 @@ export class RiskMonitoringComponent implements OnInit {
   NotesPastDue = false
   
   constructor(private riskService: RiskMonitoringService, private http: HttpClient, private datePipe: DatePipe, private router: Router, private loginService: LoginService, private dataService: DataService, private filterService: FilterService) { 
-    let currentDate = new Date();
-    let today = new Date();
-    if (this.isDDSelect == 'N') {      
-      currentDate.setDate(currentDate.getDate() - 6);
-      this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');            
-      this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
-      this.dueDateFromBack = '';            
-      this.dueDateToBack = '';
-    } else {
-      this.dueDateFromBack = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
-      this.dueDateFromBack = this.datePipe.transform(today, 'yyyy-MM-dd');
-    }
+    
     
   }
 
   ngOnInit(): void {    
     // this.filter = this.filterService.getFilterState();
     // console.log(this.filter);
+
+    // load filter state from filter service
+    const filterValues = this.filterService.getFilterState('risk-monitoring');
+    if (filterValues) {
+      // get filter values from filter state
+      this.isActive = filterValues.isActive || '0';
+      this.isDDSelect = filterValues.isDDSelect || 'N';
+      this.isDDCreatedBy = filterValues.isDDCreatedBy || '';
+      this.dueDateFromFront = filterValues.dueDateFromFront || '';
+      this.dueDateToFront = filterValues.dueDateToFront || '';
+      this.filter = filterValues.filter || '';
+      this.level = filterValues.level || '';
+      this.office = filterValues.office || '';
+      this.crm = filterValues.crm || '';
+      this.isFuel = filterValues.isFuel || 'N';
+    }
+
+    // set default date to recent 7 days
+    let currentDate = new Date();
+    let today = new Date();
+    currentDate.setDate(currentDate.getDate() - 6);
+    // set due dates back base on due dates front
+    this.dueDateFromBack = this.dueDateFromFront || '';
+    this.dueDateToBack = this.dueDateToFront || '';
+
+    // set due date front to recent 7 days if at least one of both due date front from and to is empty
+    if (!this.dueDateFromFront || !this.dueDateToFront) {
+      this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+      this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+      // save due date front to filter service
+      this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+      this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+    }
     
+
     this.loadData();      
     this.loadClientGroupLevelList();
     this.loadClientCRMList();
@@ -162,16 +185,40 @@ export class RiskMonitoringComponent implements OnInit {
       
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;  
-      
-      this.riskService.getData(page ,pageSize, sort, order, this.isActive, this.dueDateFromBack, this.dueDateToBack, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {                
+
+      // empty due date from and to if isDDSelect is N
+      if (this.isDDSelect == 'N') {
+        this.dueDateFromBack = '';            
+        this.dueDateToBack = '';
+      }
+      else {
+        // set default date to recent 7 days
+        let currentDate = new Date();
+        let today = new Date();
+        currentDate.setDate(currentDate.getDate() - 6);
+
+        // set due date front to recent 7 days if at least one of both due date front from and to is empty
+        if (this.dueDateFromFront == '' || this.dueDateToFront == '') {
+          this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+          this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+          // save due date front to filter service
+          this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+          this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+        }
+        // set back due date to front due date
+        this.dueDateFromBack = this.dueDateFromFront;
+        this.dueDateToBack = this.dueDateToFront;
+      }
+
+      this.riskService.getData(page, pageSize, sort, order, this.isActive, this.dueDateFromBack, this.dueDateToBack, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {
         this.isLoading = false;
-      
+
         this.dataSource.data = response.data;
         response.data.forEach((element: any) => {
-          const total = element.Total;          
-          this.totalRecords = total;                
-        });                             
-      });    
+          const total = element.Total;
+          this.totalRecords = total;
+        });
+      });
     });
   }
 
@@ -201,69 +248,94 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangeIsActive(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.isActive = selectElement.value   
+    this.filterService.setFilterState('risk-monitoring', { "isActive": selectElement.value });
+      this.isActive = selectElement.value;   
       this.loadData();
   }
   
   onChangedueDateFrom(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.dueDateToBack = selectElement.value   
+    this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": selectElement.value });
+      this.dueDateFromBack = selectElement.value;   
+      this.dueDateFromFront = selectElement.value;   
       this.loadData();
   }
 
   onChangedueDateTo(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-      this.dueDateToBack = selectElement.value   
+    this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": selectElement.value });
+      this.dueDateToBack = selectElement.value;   
+      this.dueDateToFront = selectElement.value; 
       this.loadData();
   }
 
   onChangeDDSelect(event: Event){
+    console.log("dueDateFromFront--", this.dueDateFromFront);
+    console.log("dueDateToFront--", this.dueDateToFront);
     const selectElement = event.target as HTMLSelectElement;
-      this.isDDSelect = selectElement.value  
+    this.filterService.setFilterState('risk-monitoring', { "isDDSelect": selectElement.value });
+      this.isDDSelect = selectElement.value;  
       let currentDate = new Date();
       let today = new Date();       
       if (this.isDDSelect == 'N') {
-        currentDate.setDate(currentDate.getDate() - 6);
-        this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');        
-        this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+        // fetch rows with no date restriction
         this.dueDateFromBack = '';            
         this.dueDateToBack = '';
       } else {        
-        currentDate.setDate(currentDate.getDate() - 6);
-        this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');            
-        this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
-        this.dueDateFromBack = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
-        this.dueDateToBack = this.datePipe.transform(today, 'yyyy-MM-dd');
+        // condition of at least one of both due date front from and to is empty 
+        if (!this.dueDateFromFront || !this.dueDateToFront) {
+          // reset due date to recent 7 days
+          currentDate.setDate(currentDate.getDate() - 6);
+          this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+          this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+          // save due date to filter service
+          this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+          this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+        }
+        // condition of both due date from and to are not empty
+        else {
+          // fetch data with current date values
+          this.dueDateFromBack = this.dueDateFromFront;
+          this.dueDateToBack = this.dueDateToFront;
+          // save due date to filter service
+          this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+          this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+        }
       }
       this.loadData();
   }
 
   onChangeDDCreatedBy(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "isDDCreatedBy": selectElement.value });
       this.isDDCreatedBy = selectElement.value   
       this.loadData();
   }
 
   onChangeLevel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "level": selectElement.value });
       this.level = selectElement.value   
       this.loadData();
   }
 
   onChangeOffice(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "office": selectElement.value });
       this.office = selectElement.value   
       this.loadData();
   }
 
   onChangeCRM(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "crm": selectElement.value });
       this.crm = selectElement.value   
       this.loadData();
   }
 
   onChangeFuel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
+    this.filterService.setFilterState('risk-monitoring', { "isFuel": selectElement.value });
       this.isFuel = selectElement.value   
       this.loadData();
   }  
@@ -274,8 +346,8 @@ export class RiskMonitoringComponent implements OnInit {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
+    this.filterService.setFilterState('risk-monitoring', { "filter": filterValue.trim().toLowerCase() }); // save search value to filter service
     this.filter = filterValue.trim().toLowerCase(); 
-    this.filterService.setFilterState(this.filter);
     this.paginator.pageIndex = 0;
     this.loadData();     
   }
@@ -317,19 +389,16 @@ export class RiskMonitoringComponent implements OnInit {
     this.crm = '';
     this.isFuel = '';
 
+    // reset default date to recent 7 days
     let currentDate = new Date();
     let today = new Date();
-    if (this.isDDSelect == 'N') {      
-      currentDate.setDate(currentDate.getDate() - 6);
-      this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');            
-      this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
-      this.dueDateFromBack = '';            
-      this.dueDateToBack = '';
-    } else {
-      this.dueDateFromBack = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
-      this.dueDateFromBack = this.datePipe.transform(today, 'yyyy-MM-dd');
-    }
-    
+    currentDate.setDate(currentDate.getDate() - 6);
+    this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+    this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+    // modify due date front and save to service
+    this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+    this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+
     this.loadData();
   };
 

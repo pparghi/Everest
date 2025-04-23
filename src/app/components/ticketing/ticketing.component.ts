@@ -9,6 +9,7 @@ import { LoginService } from '../../services/login.service';
 import { TicketingService } from '../../services/ticketing.service';
 import { DatePipe } from '@angular/common';
 import { MatTableExporterDirective } from 'mat-table-exporter';
+import { FilterService } from '../../services/filter.service';
 import * as XLSX from 'xlsx';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { ClientsService } from '../../services/clients.service';
@@ -101,15 +102,26 @@ export class TicketingComponent {
     NavOptionRiskMonitoringRestricted: any;
     NavAccessRiskMonitoringRestricted: any;
 
-    constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe) {         
+    constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {
-      this.selectedValues = ['0'];
-      this.selectedValuesString = this.selectedValues.join(', ');
+      // load filter state from filter service
+      const filterValues = this.filterService.getFilterState('ticketing');
+      if (filterValues?.selectedValues) {
+        this.selectedValues = filterValues.selectedValues;
+      }
+      else {
+        this.selectedValues = ['0']; // Default value
+      }
+      if (filterValues?.requestDate) {
+        this.requestDate = filterValues.requestDate;
+      }
+
+      this.selectedValuesString = this.selectedValues.join(', ');      
       this.loadData();      
     }
 
@@ -185,7 +197,8 @@ export class TicketingComponent {
         this.selectedValues.splice(index, 1);
       }
     }
-    this.selectedValuesString = this.selectedValues.join(', ');    
+    this.selectedValuesString = this.selectedValues.join(', ');
+    this.filterService.setFilterState('ticketing', { "selectedValues": this.selectedValues });  
       this.loadData();
     }
 
@@ -196,6 +209,7 @@ export class TicketingComponent {
     onChangeRequestDate(event: Event){
       const selectElement = event.target as HTMLSelectElement;
       this.requestDate = selectElement.value   
+      this.filterService.setFilterState('ticketing', { "requestDate": this.requestDate }); 
       this.loadData();
     }
 
