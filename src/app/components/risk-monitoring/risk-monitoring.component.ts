@@ -389,6 +389,16 @@ export class RiskMonitoringComponent implements OnInit {
     this.crm = '';
     this.isFuel = '';
 
+    // reset filter state to default values
+    this.filterService.setFilterState('risk-monitoring', { "isActive": this.isActive });
+    this.filterService.setFilterState('risk-monitoring', { "isDDSelect": this.isDDSelect });
+    this.filterService.setFilterState('risk-monitoring', { "isDDCreatedBy": this.isDDCreatedBy });
+    this.filterService.setFilterState('risk-monitoring', { "level": this.level });
+    this.filterService.setFilterState('risk-monitoring', { "office": this.office });
+    this.filterService.setFilterState('risk-monitoring', { "crm": this.crm });
+    this.filterService.setFilterState('risk-monitoring', { "filter": this.filter });
+    this.filterService.setFilterState('risk-monitoring', { "isFuel": this.isFuel });
+
     // reset default date to recent 7 days
     let currentDate = new Date();
     let today = new Date();
