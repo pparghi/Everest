@@ -180,8 +180,8 @@ export class RiskMonitoringComponent implements OnInit {
       });
 
       this.isLoading = true;      
-      let sort = this.sort && this.sort.active ? this.sort.active : 'NoteDueDate';            
-      let order = this.sort && this.sort.direction ? this.sort.direction : 'DESC';      
+      let sort = this.sort && this.sort.active ? this.sort.active : 'Client';            
+      let order = this.sort && this.sort.direction ? this.sort.direction : 'ASC';  
       
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;  

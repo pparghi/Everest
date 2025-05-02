@@ -56,6 +56,8 @@ import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-ma
 import { MatTableExporterModule } from 'mat-table-exporter';
 import { NegativeToParenthesesPipe } from './negative-to-parentheses.pipe';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MinutesToDHMPipe } from './minutes-to-dhm.pipe';
+import {MatTabsModule} from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -84,7 +86,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     RiskMonitoringDetailComponent,
     TicketingComponent,
     TicketingMasterMemberDebtorsComponent,
-    NegativeToParenthesesPipe,    
+    NegativeToParenthesesPipe,
+    MinutesToDHMPipe,    
   ],
   imports: [
     MatDatepickerModule,
@@ -143,7 +146,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatSelectModule,
     MatCardModule,
     MatCheckboxModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatTabsModule
   ],
   providers: [
     CacheService,

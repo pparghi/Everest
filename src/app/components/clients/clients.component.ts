@@ -8,6 +8,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { ClientsService } from '../../services/clients.service';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { columnGroupWidths } from '@swimlane/ngx-datatable';
+import { get } from 'jquery';
 
 interface DataItem {
   Client: string;  
@@ -35,6 +38,9 @@ export class ClientsComponent implements OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
     currentPath: string = '';
+
+    rawData: any[] = []; // Store the raw data for filtering
+    checkboxValues: any[] = [false, false]; // Array to hold checkbox values
 
   constructor(private route: ActivatedRoute, private dataService: ClientsService, private router: Router){
     this.router.events.pipe(
@@ -66,7 +72,7 @@ export class ClientsComponent implements OnInit {
     loadClientsDetails(DebtorKey: number): void {               
       if (this.ClientKey) {
         let clientkey = this.ClientKey.trim();  
-        this.dataService.getClients(DebtorKey).subscribe(response => {                             
+        this.dataService.getClients(DebtorKey).subscribe(response => {                         
           this.dataSource.data = response.data;                    
           const index = this.dataSource.data.findIndex(c => c.ClientKey == clientkey);        
           if (index !== -1) {
@@ -76,8 +82,10 @@ export class ClientsComponent implements OnInit {
           this.dataSource.data = response.data.slice(1);
         });
       } else {
-        this.dataService.getClients(DebtorKey).subscribe(response => {                             
+        this.dataService.getClients(DebtorKey).subscribe(response => {                     
+          console.log(response.data);            
           this.dataSource.data = response.data;
+          this.rawData = response.data;
         });
       }                
     }
@@ -121,4 +129,34 @@ export class ClientsComponent implements OnInit {
     }
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
+
+
+    // event handler for checkbox click
+    onCheckboxClick(event: MatCheckboxChange): void {
+      if (event.source.id === 'onlyShowBalances') {
+        this.checkboxValues[0] = event.checked;
+      }
+      else if (event.source.id === 'onlyShowActives') {
+        this.checkboxValues[1] = event.checked;
+      }
+
+      // iterate through rawData and pick rows base on filters
+      let filteredData: any[] = this.rawData;
+
+      if (this.checkboxValues[0]) {
+        filteredData = filteredData.filter(item => {
+          const hasBalance = parseFloat(item.Balance) > 0;
+          return (hasBalance);
+        });
+      }
+      if (this.checkboxValues[1]) {
+        filteredData = filteredData.filter(item => {
+          const isActive = (item.Inactive === '0');
+          return (isActive);
+        });
+      }
+      
+      this.dataSource.data = filteredData;
+
+    }
 }

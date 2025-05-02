@@ -10,7 +10,7 @@
             &nbsp;&nbsp;&nbsp;<input class="dropdown" type="date" (change)="onChangeRequestDate($event)" value="{{ requestDate }}" name="" id="request_date">
         </div>                            
         <div>
-            <button style="font-size: 12px; background-color: #383b91; border: 1px solid #383b91; color: rgb(255, 255, 255);" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" (click)="addNew()">
+            <button disabled={{true}} style="font-size: 12px; background-color: #383b91; border: 1px solid #383b91; color: rgb(255, 255, 255);" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" (click)="addNew()">
                 Add New
             </button>
         </div>
@@ -79,7 +79,7 @@
             <ng-container matColumnDef="Industry">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Industry</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;">                
-                    
+                    {{ element.Industry }}
                 </td>
             </ng-container>
 
@@ -91,7 +91,7 @@
             </ng-container>
 
             <ng-container matColumnDef="BankAcctName">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">EFT/ACH/Wire</th>            
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Client Payment Type</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
                     {{ element.BankAcctName }}
                 </td>
@@ -100,7 +100,8 @@
             <ng-container matColumnDef="RequestDate">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Date & time</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
-                    {{ element.RequestDate | date:"MM/dd/yyyy HH:mm:ss" }}
+                    <!-- {{ element.RequestDate | date:"MM/dd/yyyy HH:mm:ss" }} -->
+                    {{  element.Age | minutesToDHM }}
                 </td>
             </ng-container>
 
@@ -112,9 +113,9 @@
             </ng-container>
             
             <ng-container matColumnDef="CreditType">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Credit Type</th>            
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Credit Type</th>             
                 <td mat-cell *matCellDef="let element" style="text-align: end;">                
-                    
+                    {{ element.Source }}
                 </td>
             </ng-container>
 

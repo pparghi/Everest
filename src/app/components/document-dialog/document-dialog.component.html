@@ -8,15 +8,16 @@
         <li (click)="openFile()" style="cursor: pointer;">{{ item.FileName }}</li>
       </ul>
       <div *ngIf="data.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && data.NavAccessUpdateMasterDebtor == 1">
-      <hr>
+        <hr>
         <label for="documentCategory"> <b>Category</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
         <select class="dropdown" [(ngModel)]="documentCategory" id="documentCategory">
-          <option *ngFor="let category of data.documentCategory" value="{{ category.DocCatKey }}">{{ category.Descr }}</option>
+          <option *ngFor="let category of data.documentCategory" value="{{ category.DocCatKey }}">{{ category.Descr }}
+          </option>
         </select><br><br>
 
-        <label for="documentDescr"> <b>Description</b> &nbsp;</label> 
-        <input type="text" class="dropdown" [(ngModel)]="documentDescr" id="documentDescr"><br><br>  
-              
+        <label for="documentDescr"> <b>Description</b> &nbsp;</label>
+        <input type="text" class="dropdown" [(ngModel)]="documentDescr" id="documentDescr"><br><br>
+
         <div class="input-group custom-file-button">
           <label class="input-group-text" for="inputGroupFile">Browse</label>
           <input type="file" class="form-control" id="inputGroupFile" (change)="this.onFilechange($event)">
@@ -28,7 +29,9 @@
   <div class="dialog-footer">
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-button [mat-dialog-close]="true" *ngIf="data.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && data.NavAccessUpdateMasterDebtor == 1" (click)="onSubmit()" cdkFocusInitial>Upload</button>
+      <button mat-button [mat-dialog-close]="true"
+        *ngIf="data.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && data.NavAccessUpdateMasterDebtor == 1"
+        (click)="onSubmit()" cdkFocusInitial>Upload</button>
     </mat-dialog-actions>
   </div>
 </div>
@@ -38,28 +41,28 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Debtor Contacts</h3>
   </div>
-  <div class="dialog-content"> 
+  <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
-        <table mat-table [dataSource]="contactDataSource" class="mat-elevation-z8">
-          
-          <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let element">{{ element.FirstName }}</td>
-          </ng-container>
+      <table mat-table [dataSource]="contactDataSource" class="mat-elevation-z8">
 
-          <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef>Email</th>
-              <td mat-cell *matCellDef="let element"><a href="mailto:{{ element.Email }}">{{ element.Email }}</a></td>
-          </ng-container>
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.FirstName }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="contact_no">
-              <th mat-header-cell *matHeaderCellDef>Contact No</th>
-              <td mat-cell *matCellDef="let element"><a href="tel:{{ element.Phone }}">{{ element.Phone }}</a></td>
-          </ng-container>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let element"><a href="mailto:{{ element.Email }}">{{ element.Email }}</a></td>
+        </ng-container>
 
-            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="contactColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: contactColumns;"></tr>
-        </table>
+        <ng-container matColumnDef="contact_no">
+          <th mat-header-cell *matHeaderCellDef>Contact No</th>
+          <td mat-cell *matCellDef="let element"><a href="tel:{{ element.Phone }}">{{ element.Phone }}</a></td>
+        </ng-container>
+
+        <tr mat-header-row class="mat-header-row" *matHeaderRowDef="contactColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: contactColumns;"></tr>
+      </table>
     </mat-dialog-content>
   </div>
   <div class="dialog-footer">
@@ -71,31 +74,32 @@
 
 <div *ngIf="data.DebtorPaymentsData">
   <div class="dialog-header"><br>
-     &nbsp;Payments - {{ data.Debtor }}
-     <br>
+    &nbsp;Payments - {{ data.Debtor }}
+    <br>
   </div>
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
-        <table mat-table [dataSource]="paymentDataSource" class="mat-elevation-z8">
-          
-          <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let element">{{ element.CheckDate | date }}</td>
-          </ng-container>
+      <table mat-table [dataSource]="paymentDataSource" class="mat-elevation-z8">
 
-          <ng-container matColumnDef="check#">
-              <th mat-header-cell *matHeaderCellDef>Check#</th>
-              <td mat-cell *matCellDef="let element" (click)="getPaymentsImage(element)" style="cursor: pointer;">{{ element.CheckNo }}</td>
-          </ng-container>
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.CheckDate | date }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="amount">
-              <th mat-header-cell *matHeaderCellDef>Amount</th>
-              <td mat-cell *matCellDef="let element">{{ element.Amt | roundThousands }}</td>
-          </ng-container>
+        <ng-container matColumnDef="check#">
+          <th mat-header-cell *matHeaderCellDef>Check#</th>
+          <td mat-cell *matCellDef="let element" (click)="getPaymentsImage(element)" style="cursor: pointer;">{{
+            element.CheckNo }}</td>
+        </ng-container>
 
-            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="paymentColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: paymentColumns;"></tr>
-        </table>
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let element">{{ element.Amt | roundThousands }}</td>
+        </ng-container>
+
+        <tr mat-header-row class="mat-header-row" *matHeaderRowDef="paymentColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: paymentColumns;"></tr>
+      </table>
     </mat-dialog-content>
   </div>
   <div class="dialog-footer">
@@ -110,26 +114,28 @@
     <h3 mat-dialog-title>Edit Debtor Details</h3>
   </div>
   <form [formGroup]="editForm" (ngSubmit)="onEdit()">
-  <div class="dialog-content">
-        <mat-dialog-content>
-          <div class="row" style="padding-top: 5px;">
-            <div class="col-md-6">
-              <label for="Debtor" class="form-label">Debtor Name</label>
-              <input type="text" id="Debtor" class="form-control" formControlName="Debtor" value="{{ this.debtor }}" placeholder="N/A">
-            </div>
-            <div class="col-md-3">
-              <label for="TotalCreditLimit" class="form-label">CreditLimit</label>
-              <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A">
-            </div>
-            <div class="col-md-3">
-              <label for="Terms" class="form-label">Terms</label>
-              <input type="text" id="Terms" class="form-control" formControlName="Terms" placeholder="N/A">
-            </div> 
+    <div class="dialog-content">
+      <mat-dialog-content>
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-6">
+            <label for="Debtor" class="form-label">Debtor Name</label>
+            <input type="text" id="Debtor" class="form-control" formControlName="Debtor" value="{{ this.debtor }}"
+              placeholder="N/A">
           </div>
-          
-          <div class="row" style="padding-top: 5px;">
-            <div class="col-md-3">
-              <!-- <label for="Addr1" class="form-label">Address 1</label>
+          <div class="col-md-3">
+            <label for="TotalCreditLimit" class="form-label">CreditLimit</label>
+            <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit"
+              placeholder="N/A">
+          </div>
+          <div class="col-md-3">
+            <label for="Terms" class="form-label">Terms</label>
+            <input type="text" id="Terms" class="form-control" formControlName="Terms" placeholder="N/A">
+          </div>
+        </div>
+
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-3">
+            <!-- <label for="Addr1" class="form-label">Address 1</label>
               <input type="text" id="Addr1" formControlName="Addr1" (input)="onQueryChange($event)" placeholder="N/A" class="form-control">  
               <ul *ngIf="suggestions.length" class="suggestions-list">
                 <li *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)">
@@ -137,105 +143,112 @@
                 </li>
             </ul>           -->
             <label for="Addr1" class="form-label">Address 1</label>
-            <input type="text" id="Addr1" formControlName="Addr1" errormessage="Please enter your Address" placeholder="N/A" class="form-control" autocomplete="off">
-            </div>
-            <div class="col-md-3">
-              <!-- <label for="Addr2" class="form-label">Address 2</label>
+            <input type="text" id="Addr1" formControlName="Addr1" errormessage="Please enter your Address"
+              placeholder="N/A" class="form-control" autocomplete="off">
+          </div>
+          <div class="col-md-3">
+            <!-- <label for="Addr2" class="form-label">Address 2</label>
               <input type="text" formControlName="Addr2" id="Addr2" (input)="onAddr2QueryChange($event)" class="form-control" placeholder="N/A"> 
               <ul *ngIf="addr2suggestions.length" class="addr2-suggestions-list">
                 <li *ngFor="let addr2suggestion of addr2suggestions" (click)="selectAddr2Suggestion(addr2suggestion)">
                     {{ addr2suggestion.text }} {{ addr2suggestion.description }}
                 </li>
               </ul> -->
-              <label for="Addr2" class="form-label">Address 2</label>
-              <input type="text" id="Addr2" formControlName="Addr2" errormessage="Please enter your Address" placeholder="N/A" class="form-control" autocomplete="off">
-            </div>
-            <div class="col-md-3">
-              <label for="City" class="form-label">City</label>
-              <input type="text" id="City" class="form-control" formControlName="City" placeholder="N/A">
-            </div>        
-            <div class="col-md-3">
-              <label for="State" class="form-label">State</label>
-              <input type="text" id="State" class="form-control" formControlName="State" placeholder="N/A">
-            </div>
+            <label for="Addr2" class="form-label">Address 2</label>
+            <input type="text" id="Addr2" formControlName="Addr2" errormessage="Please enter your Address"
+              placeholder="N/A" class="form-control" autocomplete="off">
           </div>
-          
-          <div class="row" style="padding-top: 5px;">          
-            <div class="col-md-3">
-              <label for="Phone1" class="form-label">Phone 1</label>
-              <input type="text" id="Phone1" class="form-control" formControlName="Phone1">
-            </div>
-            <div class="col-md-3">
-              <label for="Phone2" class="form-label">Phone 2</label>
-              <input type="text" id="Phone2" class="form-control" formControlName="Phone2" placeholder="N/A">
-            </div>
-            <div class="col-md-3">
-              <label for="AIGLimit" class="form-label">AIGLimit</label>
-              <input type="text" id="AIGLimit" class="form-control" formControlName="AIGLimit" placeholder="N/A">
-            </div> 
-            <div class="col-md-3">
-              <label for="RateDate" class="form-label">Research Date</label>
-              <input type="date" id="RateDate" class="form-control" formControlName="RateDate" placeholder="N/A">
-            </div>            
-            
+          <div class="col-md-3">
+            <label for="City" class="form-label">City</label>
+            <input type="text" id="City" class="form-control" formControlName="City" placeholder="N/A">
           </div>
-          
-          <div class="row" style="padding-top: 5px;">
-            <div class="col-md-3">
-              <label for="CredExpireMos" class="form-label">Expiry Month</label>
-              <input type="text" id="CredExpireMos" class="form-control" formControlName="CredExpireMos" placeholder="N/A">
-            </div>
-            <div class="col-md-3">
-              <label for="MotorCarrNo" class="form-label">MC#</label>
-              <input type="text" id="MotorCarrNo" class="form-control" formControlName="MotorCarrNo" placeholder="N/A">
-            </div> 
-            <div class="col-md-3">
-              <label for="Duns" class="form-label">Duns</label>
-              <input type="text" id="Duns" class="form-control" formControlName="Duns" placeholder="N/A">
-            </div>           
-            <div class="col-md-3">                
-              <label for="DotNo" class="form-label">USDOT</label>
-                <input type="text" id="DotNo" class="form-control" formControlName="DotNo" placeholder="N/A">           
-            </div>
+          <div class="col-md-3">
+            <label for="State" class="form-label">State</label>
+            <input type="text" id="State" class="form-control" formControlName="State" placeholder="N/A">
           </div>
-          
-          <div class="row" style="padding-top: 5px;">
-            <div class="col-md-12">
-              <label for="Email" class="form-label">Email</label>
-              <textarea id="Email" cols="110" class="form-control" rows="2" formControlName="Email" placeholder="N/A"></textarea>            
-            </div> 
-          </div>
-
-          <div class="row" style="padding-top: 5px;">
-            <div class="col-md-12">
-              <label for="Warning" class="form-label">Warning</label>
-              <textarea id="Warning" cols="110" class="form-control" rows="2" formControlName="Warning" placeholder="N/A"></textarea>            
-            </div> 
-          </div>
-
-          <div class="row" style="padding-top: 5px;">
-            <div class="col-md-12">
-              <label for="Notes" class="form-label">Instructions</label>
-              <textarea id="Notes" cols="110" class="form-control" rows="2" formControlName="Notes" placeholder="N/A"></textarea>            
-            </div>            
-          </div>
-
-          <div class="row" style="padding-top: 5px;">
-            <div class="col-md-12">
-              <label for="CredNote" class="form-label">Credit Information</label>
-              <textarea id="CredNote" cols="110" class="form-control" rows="2" formControlName="CredNote" placeholder="N/A"></textarea>            
-            </div>            
-          </div>
-            
-          </mat-dialog-content>
         </div>
-        <div class="dialog-footer">
-          <mat-dialog-actions>
-            <button mat-button mat-dialog-close>Cancel</button>
-            <button mat-button type="submit">Save</button>
-          </mat-dialog-actions>            
+
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-3">
+            <label for="Phone1" class="form-label">Phone 1</label>
+            <input type="text" id="Phone1" class="form-control" formControlName="Phone1">
+          </div>
+          <div class="col-md-3">
+            <label for="Phone2" class="form-label">Phone 2</label>
+            <input type="text" id="Phone2" class="form-control" formControlName="Phone2" placeholder="N/A">
+          </div>
+          <div class="col-md-3">
+            <label for="AIGLimit" class="form-label">AIGLimit</label>
+            <input type="text" id="AIGLimit" class="form-control" formControlName="AIGLimit" placeholder="N/A">
+          </div>
+          <div class="col-md-3">
+            <label for="RateDate" class="form-label">Research Date</label>
+            <input type="date" id="RateDate" class="form-control" formControlName="RateDate" placeholder="N/A">
+          </div>
+
         </div>
-      </form>
+
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-3">
+            <label for="CredExpireMos" class="form-label">Expiry Month</label>
+            <input type="text" id="CredExpireMos" class="form-control" formControlName="CredExpireMos"
+              placeholder="N/A">
+          </div>
+          <div class="col-md-3">
+            <label for="MotorCarrNo" class="form-label">MC#</label>
+            <input type="text" id="MotorCarrNo" class="form-control" formControlName="MotorCarrNo" placeholder="N/A">
+          </div>
+          <div class="col-md-3">
+            <label for="Duns" class="form-label">Duns</label>
+            <input type="text" id="Duns" class="form-control" formControlName="Duns" placeholder="N/A">
+          </div>
+          <div class="col-md-3">
+            <label for="DotNo" class="form-label">USDOT</label>
+            <input type="text" id="DotNo" class="form-control" formControlName="DotNo" placeholder="N/A">
+          </div>
+        </div>
+
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-12">
+            <label for="Email" class="form-label">Email</label>
+            <textarea id="Email" cols="110" class="form-control" rows="2" formControlName="Email"
+              placeholder="N/A"></textarea>
+          </div>
+        </div>
+
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-12">
+            <label for="Warning" class="form-label">Warning</label>
+            <textarea id="Warning" cols="110" class="form-control" rows="2" formControlName="Warning"
+              placeholder="N/A"></textarea>
+          </div>
+        </div>
+
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-12">
+            <label for="Notes" class="form-label">Instructions</label>
+            <textarea id="Notes" cols="110" class="form-control" rows="2" formControlName="Notes"
+              placeholder="N/A"></textarea>
+          </div>
+        </div>
+
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-12">
+            <label for="CredNote" class="form-label">Credit Information</label>
+            <textarea id="CredNote" cols="110" class="form-control" rows="2" formControlName="CredNote"
+              placeholder="N/A"></textarea>
+          </div>
+        </div>
+
+      </mat-dialog-content>
+    </div>
+    <div class="dialog-footer">
+      <mat-dialog-actions>
+        <button mat-button mat-dialog-close>Cancel</button>
+        <button mat-button type="submit">Save</button>
+      </mat-dialog-actions>
+    </div>
+  </form>
 </div>
 
 <div *ngIf="data.noa">
@@ -248,17 +261,18 @@
       <select class="dropdown" (change)="onChange($event)" id="noaStatus">
         <option *ngFor="let status of noaStatus" [value]="status.value">{{ status.label }}</option>
       </select>
-  <br><br>
-    <div *ngIf="changedNoaStatus == 'Received'">
-      <h3 mat-dialog-title>Upload Document</h3>
-      <label for="documentCategory"> <b>Category</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+      <br><br>
+      <div *ngIf="changedNoaStatus == 'Received'">
+        <h3 mat-dialog-title>Upload Document</h3>
+        <label for="documentCategory"> <b>Category</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
         <select class="dropdown" [(ngModel)]="documentCategory" id="documentCategory">
-          <option *ngFor="let category of data.documentCategory" value="{{ category.DocCatKey }}">{{ category.Descr }}</option>
+          <option *ngFor="let category of data.documentCategory" value="{{ category.DocCatKey }}">{{ category.Descr }}
+          </option>
         </select><br><br>
-    
-        <label for="documentDescr"> <b>Description</b> &nbsp;</label> 
-        <input type="text" class="dropdown" [(ngModel)]="documentDescr" id="documentDescr"><br><br>  
-              
+
+        <label for="documentDescr"> <b>Description</b> &nbsp;</label>
+        <input type="text" class="dropdown" [(ngModel)]="documentDescr" id="documentDescr"><br><br>
+
         <div class="input-group custom-file-button">
           <label class="input-group-text" for="inputGroupFile">Browse</label>
           <input type="file" class="form-control" id="inputGroupFile" (change)="this.onFilechange($event)">
@@ -280,21 +294,21 @@
   </div>
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
-        <table mat-table [dataSource]="MiscDataListDataSource" class="mat-elevation-z8">
-          
-          <ng-container matColumnDef="element">
-              <th mat-header-cell *matHeaderCellDef>Element</th>
-              <td mat-cell *matCellDef="let element">{{ element.DataElementName }}</td>
-          </ng-container>
+      <table mat-table [dataSource]="MiscDataListDataSource" class="mat-elevation-z8">
 
-          <ng-container matColumnDef="value">
-              <th mat-header-cell *matHeaderCellDef>Value</th>
-              <td mat-cell *matCellDef="let element">{{ element.FldValue }}</td>
-          </ng-container>
+        <ng-container matColumnDef="element">
+          <th mat-header-cell *matHeaderCellDef>Element</th>
+          <td mat-cell *matCellDef="let element">{{ element.DataElementName }}</td>
+        </ng-container>
 
-            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="miscDataColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: miscDataColumns;"></tr>
-        </table>
+        <ng-container matColumnDef="value">
+          <th mat-header-cell *matHeaderCellDef>Value</th>
+          <td mat-cell *matCellDef="let element">{{ element.FldValue }}</td>
+        </ng-container>
+
+        <tr mat-header-row class="mat-header-row" *matHeaderRowDef="miscDataColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: miscDataColumns;"></tr>
+      </table>
     </mat-dialog-content>
   </div>
   <div class="dialog-footer">
@@ -304,61 +318,70 @@
   </div>
 </div>
 
-<div *ngIf="data.ClientAccountStatus">  
+<div *ngIf="data.ClientAccountStatus">
   <div class="dialog-content">
     <br>
     <div style="text-align: center;">&nbsp;&nbsp;{{ data.Client }}&nbsp;&nbsp;</div>
-    <mat-dialog-content class="mat-typography" >
-        <table>
-          <tr>
-            <td>Dilution</td>
-            <td>
-              <div *ngIf="data.Dilution <= 1.5">
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
-              </div>
-              <div *ngIf="data.Dilution >= 1.51 && data.Dilution <= 3" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
-              </div>
-              <div *ngIf="data.Dilution > 3" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Ineligibles</td>
-            <td>
-              <div *ngIf="data.Ineligibles <= 4.9">
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
-              </div>
-              <div *ngIf="data.Ineligibles >= 5 && data.Ineligibles <= 10" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
-              </div>
-              <div *ngIf="data.Ineligibles > 10" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
-              </div>
-            </td>            
-          </tr>
-          <tr>
-            <td>Availability</td>
-            <td>
-              <div *ngIf="data.Availability < -2" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
-              </div>
-              <div *ngIf="data.Availability < 0 && data.Availability >= -2" >
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
-              </div>
-              <div *ngIf="data.Availability >= 0">
-                &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true" title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
-              </div>              
-            </td>            
-          </tr>
-        </table>
+    <mat-dialog-content class="mat-typography">
+      <table>
+        <tr>
+          <td>Dilution</td>
+          <td>
+            <div *ngIf="data.Dilution <= 1.5">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
+            </div>
+            <div *ngIf="data.Dilution >= 1.51 && data.Dilution <= 3">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
+            </div>
+            <div *ngIf="data.Dilution > 3">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Dilution }}"></i>&nbsp; {{ data.Dilution | roundThousands }} %
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Ineligibles</td>
+          <td>
+            <div *ngIf="data.Ineligibles <= 4.9">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
+            </div>
+            <div *ngIf="data.Ineligibles >= 5 && data.Ineligibles <= 10">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
+            </div>
+            <div *ngIf="data.Ineligibles > 10">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Ineligibles }}"></i>&nbsp; {{ data.Ineligibles | roundThousands }} %
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Availability</td>
+          <td>
+            <div *ngIf="data.Availability < -2">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: red; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
+            </div>
+            <div *ngIf="data.Availability < 0 && data.Availability >= -2">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: orange; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
+            </div>
+            <div *ngIf="data.Availability >= 0">
+              &nbsp;&nbsp;&nbsp;<i class="fa fa-circle" style="color: green; font-size: 10px;" aria-hidden="true"
+                title="{{ data.Availability }}"></i>&nbsp; {{ data.Availability | roundThousands }} %
+            </div>
+          </td>
+        </tr>
+      </table>
     </mat-dialog-content>
-  </div>  
+  </div>
 </div>
 
 <div *ngIf="data.exchangeRatesByMonth">
-  
+
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
       <table>
@@ -377,20 +400,20 @@
   </div>
 </div>
 
-<div *ngIf="data.DSO_30">  
+<div *ngIf="data.DSO_30">
   <div class="dialog-content">
     <strong>{{ data.Debtor }}</strong>
     <mat-dialog-content class="mat-typography">
       <table>
         <tr>
-          <th>DSO30</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          
-          <th>DSO60</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          
-          <th>DSO90</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;          
+          <th>DSO30</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <th>DSO60</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <th>DSO90</th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </tr>
         <tr>
-          <td>{{ data.DSO_30 }}</td>&nbsp;&nbsp;          
-          <td>{{ data.DSO_60 }}</td>&nbsp;&nbsp;          
-          <td>{{ data.DSO_90 }}</td>&nbsp;&nbsp;          
+          <td>{{ data.DSO_30 }}</td>&nbsp;&nbsp;
+          <td>{{ data.DSO_60 }}</td>&nbsp;&nbsp;
+          <td>{{ data.DSO_90 }}</td>&nbsp;&nbsp;
         </tr>
       </table>
     </mat-dialog-content>
@@ -425,38 +448,38 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Debtor Audit History</h3>
   </div>
-  <div class="dialog-content"> 
+  <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
-        <table mat-table [dataSource]="auditDataSource" class="mat-elevation-z8">
-          
-          <ng-container matColumnDef="TimeStamp">
-              <th mat-header-cell *matHeaderCellDef>Time Stamp</th>
-              <td mat-cell *matCellDef="let element">{{ element.TimeStamp | date: 'MM/dd/yyyy hh:mm:ss a' }}</td>
-          </ng-container>
+      <table mat-table [dataSource]="auditDataSource" class="mat-elevation-z8">
 
-          <ng-container matColumnDef="UserKey">
-              <th mat-header-cell *matHeaderCellDef>User</th>
-              <td mat-cell *matCellDef="let element">{{ element.UserKey }}</td>
-          </ng-container>
+        <ng-container matColumnDef="TimeStamp">
+          <th mat-header-cell *matHeaderCellDef>Time Stamp</th>
+          <td mat-cell *matCellDef="let element">{{ element.TimeStamp | date: 'MM/dd/yyyy hh:mm:ss a' }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="Field">
-              <th mat-header-cell *matHeaderCellDef>Field</th>
-              <td mat-cell *matCellDef="let element">{{ element.Field }}</td>
-          </ng-container>
+        <ng-container matColumnDef="UserKey">
+          <th mat-header-cell *matHeaderCellDef>User</th>
+          <td mat-cell *matCellDef="let element">{{ element.UserKey }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="Was">
-              <th mat-header-cell *matHeaderCellDef>Was</th>
-              <td mat-cell *matCellDef="let element">{{ element.WasValue }}</td>
-          </ng-container>
+        <ng-container matColumnDef="Field">
+          <th mat-header-cell *matHeaderCellDef>Field</th>
+          <td mat-cell *matCellDef="let element">{{ element.Field }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="Is">
-              <th mat-header-cell *matHeaderCellDef>Is</th>
-              <td mat-cell *matCellDef="let element">{{ element.IsValue }}</td>
-          </ng-container>
+        <ng-container matColumnDef="Was">
+          <th mat-header-cell *matHeaderCellDef>Was</th>
+          <td mat-cell *matCellDef="let element">{{ element.WasValue }}</td>
+        </ng-container>
 
-            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="auditColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: auditColumns;"></tr>
-        </table>
+        <ng-container matColumnDef="Is">
+          <th mat-header-cell *matHeaderCellDef>Is</th>
+          <td mat-cell *matCellDef="let element">{{ element.IsValue }}</td>
+        </ng-container>
+
+        <tr mat-header-row class="mat-header-row" *matHeaderRowDef="auditColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: auditColumns;"></tr>
+      </table>
     </mat-dialog-content>
   </div>
   <div class="dialog-footer">
@@ -470,78 +493,80 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Debtor Statement Details</h3>
   </div>
-  <div class="dialog-content"> 
-    <mat-dialog-content class="mat-typography">                              
-        <div class="main-table-container">    
-          <table mat-table [dataSource]="statementsDataSource" multiTemplateDataRows class="mat-table">
-            
-            <ng-container matColumnDef="Debtor">
-                <th mat-header-cell *matHeaderCellDef>Debtor</th>
-                <td mat-cell *matCellDef="let element">{{ element.DtrName }}</td>
-            </ng-container>
+  <div class="dialog-content">
+    <mat-dialog-content class="mat-typography">
+      <div class="main-table-container">
+        <table mat-table [dataSource]="statementsDataSource" multiTemplateDataRows class="mat-table">
 
-            <ng-container matColumnDef="Client">
-                <th mat-header-cell *matHeaderCellDef>Vendor/Carrier</th>
-                <td mat-cell *matCellDef="let element">{{ element.CliName }}</td>
-            </ng-container>
+          <ng-container matColumnDef="Debtor">
+            <th mat-header-cell *matHeaderCellDef>Debtor</th>
+            <td mat-cell *matCellDef="let element">{{ element.DtrName }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="PO/LOAD">
-                <th mat-header-cell *matHeaderCellDef>PO/Load#</th>
-                <td mat-cell *matCellDef="let element">{{ element.PurchOrd }}</td>
-            </ng-container>
+          <ng-container matColumnDef="Client">
+            <th mat-header-cell *matHeaderCellDef>Vendor/Carrier</th>
+            <td mat-cell *matCellDef="let element">{{ element.CliName }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="Invoice#">
-                <th mat-header-cell *matHeaderCellDef>Invoice#</th>
-                <td mat-cell *matCellDef="let element">{{ element.InvNo }}</td>
-            </ng-container>
+          <ng-container matColumnDef="PO/LOAD">
+            <th mat-header-cell *matHeaderCellDef>PO/Load#</th>
+            <td mat-cell *matCellDef="let element">{{ element.PurchOrd }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="InvDate">
-                <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
-                <td mat-cell *matCellDef="let element">{{ element.InvDate | date:"MM/dd/yyyy" }}</td>
-            </ng-container>
+          <ng-container matColumnDef="Invoice#">
+            <th mat-header-cell *matHeaderCellDef>Invoice#</th>
+            <td mat-cell *matCellDef="let element">{{ element.InvNo }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="Age">
-                <th mat-header-cell *matHeaderCellDef>Age</th>
-                <td mat-cell *matCellDef="let element">{{ element.Age }}</td>
-            </ng-container>
+          <ng-container matColumnDef="InvDate">
+            <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
+            <td mat-cell *matCellDef="let element">{{ element.InvDate | date:"MM/dd/yyyy" }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="Currency">
-                <th mat-header-cell *matHeaderCellDef>Currency</th>
-                <td mat-cell *matCellDef="let element">{{ element.CurrencyType }}</td>
-            </ng-container>
+          <ng-container matColumnDef="Age">
+            <th mat-header-cell *matHeaderCellDef>Age</th>
+            <td mat-cell *matCellDef="let element">{{ element.Age }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="Amt">
-                <th mat-header-cell *matHeaderCellDef>Amount</th>
-                <td mat-cell *matCellDef="let element">{{ element.Amt | number:'1.2-2' }}</td>
-            </ng-container>
+          <ng-container matColumnDef="Currency">
+            <th mat-header-cell *matHeaderCellDef>Currency</th>
+            <td mat-cell *matCellDef="let element">{{ element.CurrencyType }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="Balance">
-                <th mat-header-cell *matHeaderCellDef>Balance</th>
-                <td mat-cell *matCellDef="let element">{{ element.Balance | number:'1.2-2' }}</td>
-            </ng-container>
+          <ng-container matColumnDef="Amt">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let element">{{ element.Amt | number:'1.2-2' }}</td>
+          </ng-container>
 
-            <ng-container matColumnDef="expand">
-              <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
-              <td mat-cell *matCellDef="let element" class="expand-column">
-                  <span (click)="toggleRow(element)">                        
-                      <mat-icon style="height: 20px; width: 20px; font-size: 20px;">{{ isExpanded(element) ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
-                  </span>
-              </td>
-            </ng-container>
+          <ng-container matColumnDef="Balance">
+            <th mat-header-cell *matHeaderCellDef>Balance</th>
+            <td mat-cell *matCellDef="let element">{{ element.Balance | number:'1.2-2' }}</td>
+          </ng-container>
 
-              <tr mat-header-row class="mat-header-row" *matHeaderRowDef="statementsColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: statementsColumns;"  class="element-row"></tr>
+          <ng-container matColumnDef="expand">
+            <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
+            <td mat-cell *matCellDef="let element" class="expand-column">
+              <span (click)="toggleRow(element)">
+                <mat-icon style="height: 20px; width: 20px; font-size: 20px;">{{ isExpanded(element) ?
+                  'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+              </span>
+            </td>
+          </ng-container>
 
-              <ng-container matColumnDef="expandedDetail">
-                <td mat-cell *matCellDef="let element" [attr.colspan]="statementsColumns.length">            
-                    <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">                                
-                         <b>Note: </b>
-                    </div>                                     
-                </td>            
-            </ng-container>
-            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
-          </table>
-        </div>      
+          <tr mat-header-row class="mat-header-row" *matHeaderRowDef="statementsColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: statementsColumns;" class="element-row"></tr>
+
+          <ng-container matColumnDef="expandedDetail">
+            <td mat-cell *matCellDef="let element" [attr.colspan]="statementsColumns.length">
+              <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">
+                <b>Note: </b> {{ element.LastNote }}
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row">
+          </tr>
+        </table>
+      </div>
     </mat-dialog-content>
   </div>
   <div class="dialog-footer">
@@ -555,28 +580,28 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Cheque Search</h3>
   </div>
-  <div class="dialog-content"> 
-      <form [formGroup]="chequeSearchForm" (ngSubmit)="onChequeSearch()">
-        <mat-dialog-content>
-          
-          <div class="row">
-            <div class="col-md"></div>
-            <div class="col-md-2">
-              <b>{{ this.lastThreeMonths30 }}:&nbsp;</b><span>{{ this.Payment30 | roundThousands }}</span>
-            </div>
-            <div class="col-md-2">              
-              <b>{{ this.lastThreeMonths60 }}:&nbsp;</b><span>{{ this.Payment60 | roundThousands }}</span>
-            </div>
-            <div class="col-md-2">
-              <b>{{ this.lastThreeMonths90 }}:&nbsp;</b><span>{{ this.Payment90 | roundThousands }}</span>
-            </div>
-            <div class="col-md-2">
-              <b>{{ this.currentMonth }}:&nbsp;</b><span>{{ this.Payment120 | roundThousands }}</span>
-            </div>
-            <div class="col-md"></div>
+  <div class="dialog-content">
+    <form [formGroup]="chequeSearchForm" (ngSubmit)="onChequeSearch()">
+      <mat-dialog-content>
+
+        <div class="row">
+          <div class="col-md"></div>
+          <div class="col-md-2">
+            <b>{{ this.lastThreeMonths30 }}:&nbsp;</b><span>{{ this.Payment30 | roundThousands }}</span>
           </div>
-          <br>
-            <!-- <div class="row">
+          <div class="col-md-2">
+            <b>{{ this.lastThreeMonths60 }}:&nbsp;</b><span>{{ this.Payment60 | roundThousands }}</span>
+          </div>
+          <div class="col-md-2">
+            <b>{{ this.lastThreeMonths90 }}:&nbsp;</b><span>{{ this.Payment90 | roundThousands }}</span>
+          </div>
+          <div class="col-md-2">
+            <b>{{ this.currentMonth }}:&nbsp;</b><span>{{ this.Payment120 | roundThousands }}</span>
+          </div>
+          <div class="col-md"></div>
+        </div>
+        <br>
+        <!-- <div class="row">
               <div class="col-md-4">
                 <label for="CheckNo" class="form-label">Cheque #</label>
                 <input type="text" id="CheckNo" class="form-control" formControlName="CheckNo">
@@ -604,46 +629,47 @@
               </div>
             </div> -->
 
-            <table mat-table [dataSource]="paymentsDataSource" class="mat-elevation-z8">
-          
-              <ng-container matColumnDef="CheckNo">
-                  <th mat-header-cell *matHeaderCellDef>Cheque#</th>
-                  <td mat-cell *matCellDef="let element" style="color: #3a8ada;" (click)="getPaymentsImage(element)">{{ element.CheckNo }}</td>
-              </ng-container>
+        <table mat-table [dataSource]="paymentsDataSource" class="mat-elevation-z8">
 
-              <ng-container matColumnDef="ClientName">
-                  <th mat-header-cell *matHeaderCellDef>Client Name</th>
-                  <td mat-cell *matCellDef="let element">{{ element.ClientName }}</td>
-              </ng-container>
+          <ng-container matColumnDef="CheckNo">
+            <th mat-header-cell *matHeaderCellDef>Cheque#</th>
+            <td mat-cell *matCellDef="let element" style="color: #3a8ada;" (click)="getPaymentsImage(element)">{{
+              element.CheckNo }}</td>
+          </ng-container>
 
-              <ng-container matColumnDef="DebtorName">
-                  <th mat-header-cell *matHeaderCellDef>Debtor Name</th>
-                  <td mat-cell *matCellDef="let element">{{ element.DebtorName }}</td>
-              </ng-container>
-    
-              <ng-container matColumnDef="PostDate">
-                  <th mat-header-cell *matHeaderCellDef>Date</th>
-                  <td mat-cell *matCellDef="let element">{{ element.PostDate | date:"MM/dd/yyyy" }}</td>
-              </ng-container>
+          <ng-container matColumnDef="ClientName">
+            <th mat-header-cell *matHeaderCellDef>Client Name</th>
+            <td mat-cell *matCellDef="let element">{{ element.ClientName }}</td>
+          </ng-container>
 
-              <ng-container matColumnDef="Buy">
-                  <th mat-header-cell *matHeaderCellDef>Buy</th>
-                  <td mat-cell *matCellDef="let element"></td>
-              </ng-container>
+          <ng-container matColumnDef="DebtorName">
+            <th mat-header-cell *matHeaderCellDef>Debtor Name</th>
+            <td mat-cell *matCellDef="let element">{{ element.DebtorName }}</td>
+          </ng-container>
 
-              <ng-container matColumnDef="PayAmt">
-                  <th mat-header-cell *matHeaderCellDef>Amount</th>
-                  <td mat-cell *matCellDef="let element">{{ element.PayAmt | roundThousands }}</td>
-              </ng-container>
-    
-                <tr mat-header-row class="mat-header-row" *matHeaderRowDef="paymentsColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: paymentsColumns;"></tr>
-            </table>
-        </mat-dialog-content>
-        <mat-dialog-actions align="end">
-          <button mat-button mat-dialog-close>Cancel</button>
-          <!-- <button mat-button type="submit" [disabled]="chequeSearchForm.invalid">Save</button> -->
-        </mat-dialog-actions>
+          <ng-container matColumnDef="PostDate">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let element">{{ element.PostDate | date:"MM/dd/yyyy" }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Buy">
+            <th mat-header-cell *matHeaderCellDef>Buy</th>
+            <td mat-cell *matCellDef="let element"></td>
+          </ng-container>
+
+          <ng-container matColumnDef="PayAmt">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let element">{{ element.PayAmt | roundThousands }}</td>
+          </ng-container>
+
+          <tr mat-header-row class="mat-header-row" *matHeaderRowDef="paymentsColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: paymentsColumns;"></tr>
+        </table>
+      </mat-dialog-content>
+      <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close>Cancel</button>
+        <!-- <button mat-button type="submit" [disabled]="chequeSearchForm.invalid">Save</button> -->
+      </mat-dialog-actions>
     </form>
   </div>
 </div>
@@ -652,43 +678,43 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Invoice Detail Notes</h3>
   </div>
-  <div class="dialog-content"> 
+  <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
-        <table mat-table [dataSource]="detailNotesDataSource" class="mat-elevation-z8">
-          
-          <ng-container matColumnDef="Date">
-              <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let element">{{ element.Date | date }}</td>
-          </ng-container>
+      <table mat-table [dataSource]="detailNotesDataSource" class="mat-elevation-z8">
 
-          <ng-container matColumnDef="UserName">
-              <th mat-header-cell *matHeaderCellDef>User</th>
-              <td mat-cell *matCellDef="let element">{{ element.UserName }}</td>
-          </ng-container>
+        <ng-container matColumnDef="Date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.Date | date }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="contact">
-              <th mat-header-cell *matHeaderCellDef>Contact</th>
-              <td mat-cell *matCellDef="let element">{{ element.SpokeTo }}</td>
-          </ng-container>
+        <ng-container matColumnDef="UserName">
+          <th mat-header-cell *matHeaderCellDef>User</th>
+          <td mat-cell *matCellDef="let element">{{ element.UserName }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="Method">
-              <th mat-header-cell *matHeaderCellDef>Method</th>
-              <td mat-cell *matCellDef="let element">{{ element.Method }}</td>
-          </ng-container>
+        <ng-container matColumnDef="contact">
+          <th mat-header-cell *matHeaderCellDef>Contact</th>
+          <td mat-cell *matCellDef="let element">{{ element.SpokeTo }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="Promise">
-              <th mat-header-cell *matHeaderCellDef>Promise</th>
-              <td mat-cell *matCellDef="let element">{{ element.Promise | date }}</td>
-          </ng-container>
+        <ng-container matColumnDef="Method">
+          <th mat-header-cell *matHeaderCellDef>Method</th>
+          <td mat-cell *matCellDef="let element">{{ element.Method }}</td>
+        </ng-container>
 
-          <ng-container matColumnDef="Note">
-              <th mat-header-cell *matHeaderCellDef style="width: 600px;">Note</th>
-              <td mat-cell *matCellDef="let element">{{ element.Text }}</td>
-          </ng-container>
+        <ng-container matColumnDef="Promise">
+          <th mat-header-cell *matHeaderCellDef>Promise</th>
+          <td mat-cell *matCellDef="let element">{{ element.Promise | date }}</td>
+        </ng-container>
 
-          <tr mat-header-row class="mat-header-row" *matHeaderRowDef="detailNotesColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: detailNotesColumns;"></tr>               
-        </table>
+        <ng-container matColumnDef="Note">
+          <th mat-header-cell *matHeaderCellDef style="width: 600px;">Note</th>
+          <td mat-cell *matCellDef="let element">{{ element.Text }}</td>
+        </ng-container>
+
+        <tr mat-header-row class="mat-header-row" *matHeaderRowDef="detailNotesColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: detailNotesColumns;"></tr>
+      </table>
     </mat-dialog-content>
   </div>
   <div class="dialog-footer">
@@ -701,7 +727,7 @@
 <div *ngIf="data.showWarningNote">
   <div class="dialog-content" style="padding: 20px;">
     <h6>{{ data.Client }}</h6>
-      {{ data.Warning }}
+    {{ data.Warning }}
   </div>
 </div>
 
@@ -709,83 +735,71 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Approve/Deny Credit Request</h3>
   </div>
-  <form [formGroup]="editTicketForm" (ngSubmit)="onTicketEdit()">
-  <div class="dialog-content">
-        <mat-dialog-content>
-          <!-- <mat-accordion>
-            <mat-expansion-panel hideToggle>
-              <mat-expansion-panel-header>
-                <mat-panel-title> This is the expansion title </mat-panel-title>
-                <mat-panel-description> This is a summary of the content </mat-panel-description>
-              </mat-expansion-panel-header>
-              <p>This is the primary content of the panel.</p>
-            </mat-expansion-panel>
-            <mat-expansion-panel (opened)="panelOpenState.set(true)" (closed)="panelOpenState.set(false)">
-              <mat-expansion-panel-header>
-                <mat-panel-title> Self aware panel </mat-panel-title>
-                <mat-panel-description>
-                  Currently I am {{panelOpenState() ? 'open' : 'closed'}}
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-              <p>I'm visible because I am open</p>
-            </mat-expansion-panel>
-          </mat-accordion> -->
-          <div class="row">
-            <div class="col">
-              <div class="row" style="padding-top: 5px;">
-                <div class="col-md-12">
-                  <label for="RequestNo" class="form-label">Request#</label>
-                  <input type="text" id="RequestNo" class="form-control" formControlName="RequestNo" placeholder="N/A">
+  <mat-tab-group>
+    <mat-tab label="Request"> 
+      <form [formGroup]="editTicketForm" (ngSubmit)="onTicketEdit()">
+        <div class="dialog-content">
+          <mat-dialog-content>
+            <div class="row">
+              <div class="col">
+                <div class="row" style="padding-top: 0px;">
+                  <div class="col-md-12">
+                    <label for="RequestNo" class="form-label">Request#</label>
+                    <input type="text" id="RequestNo" class="form-control" formControlName="RequestNo" placeholder="N/A">
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-12">
+                    <label for="Client" class="form-label">Client</label>
+                    <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A">
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-12">
+                    <label for="Debtor" class="form-label">Debtor Name</label>
+                    <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
+                    <textarea id="Debtor" class="form-control"  cols="30" rows="2"></textarea>
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-12">
+                    <label for="ShipDate" class="form-label">Ship date</label>
+                    <input type="text" id="ShipDate" class="form-control" placeholder="N/A">
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-12">
+                    <label for="Terms" class="form-label">Terms</label>
+                    <input type="text" id="Terms" class="form-control" placeholder="N/A">
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-12">
+                    <label for="Comments" class="form-label">Comments</label>
+                    <textarea id="Comments" class="form-control" formControlName="Comments" cols="30" rows="2"></textarea>
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-12">
+                    <label for="" class="form-label">House line</label>
+                    <input type="text" id="" class="form-control" placeholder="N/A">
+                  </div>
                 </div>
               </div>
-              <div class="row" style="padding-top: 5px;">
-                <div class="col-md-12">
-                  <label for="Client" class="form-label">Client</label>
-                  <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A">
-                </div>
-              </div>
-              <div class="row" style="padding-top: 5px;">      
-                <div class="col-md-12">  
-                  <label for="Debtor" class="form-label">Debtor Name</label>
-                  <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
-                  <textarea id="Debtor" class="form-control" formControlName="" cols="30" rows="2"></textarea>
-                </div>
-              </div>            
-              <div class="row" style="padding-top: 5px;">      
-                <div class="col-md-12">
-                  <label for="" class="form-label">Ship date</label>
-                  <input type="text" id="" class="form-control" formControlName="" placeholder="N/A">
-                </div>
-              </div>                             
-              <div class="row" style="padding-top: 5px;">      
-                <div class="col-md-12">
-                  <label for="" class="form-label">Terms</label>
-                  <input type="text" id="" class="form-control" formControlName="" placeholder="N/A">
-                </div>
-              </div>                             
-              <div class="row" style="padding-top: 5px;">      
-                <div class="col-md-12">
-                  <label for="" class="form-label">Comments</label>
-                  <textarea id="Debtor" class="form-control" formControlName="" cols="30" rows="2"></textarea>
-                </div>
-              </div>
-              <div class="row" style="padding-top: 5px;">      
-                <div class="col-md-12">
-                  <label for="" class="form-label">House line</label>
-                  <input type="text" id="" class="form-control" formControlName="" placeholder="N/A">
-                </div>
-              </div>                              
-            </div>          
-          </div>
+            </div>
           </mat-dialog-content>
         </div>
         <div class="dialog-footer">
           <mat-dialog-actions>
             <button mat-button mat-dialog-close>Cancel</button>
             <button mat-button type="submit">Save</button>
-          </mat-dialog-actions>            
+          </mat-dialog-actions>
         </div>
       </form>
+    </mat-tab>
+    <mat-tab label="Trend"> Content 2 </mat-tab>
+    <mat-tab label="Aging"> Content 3 </mat-tab>
+  </mat-tab-group>
 </div>
 
 <div *ngIf="data.addNew">
@@ -793,18 +807,18 @@
     <h3 mat-dialog-title>Create New Request</h3>
   </div>
   <form [formGroup]="addNewTicketForm" (ngSubmit)="onCreateTicket()">
-  <div class="dialog-content">
-    <mat-dialog-content>
-      <div class="row" style="padding-top: 5px;">
-        <div class="col-md-6">
-          <label for="Client" class="form-label">Client</label>
-          <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A">
+    <div class="dialog-content">
+      <mat-dialog-content>
+        <div class="row" style="padding-top: 5px;">
+          <div class="col-md-6">
+            <label for="Client" class="form-label">Client</label>
+            <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A">
+          </div>
+          <div class="col-md-6">
+            <label for="Debtor" class="form-label">Debtor</label>
+            <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
+          </div>
         </div>
-        <div class="col-md-6">
-          <label for="Debtor" class="form-label">Debtor</label>
-          <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
-        </div>
-      </div>
         <div class="row" style="padding-top: 5px;">
           <div class="col-md-6">
             <label for="RequestAmt" class="form-label">Request Amount</label>
@@ -822,16 +836,17 @@
           </div>
           <div class="col-md-6">
             <label for="ReqContactKey" class="form-label">Request Contact</label>
-            <input type="text" id="ReqContactKey" class="form-control" formControlName="ReqContactKey" placeholder="N/A">
+            <input type="text" id="ReqContactKey" class="form-control" formControlName="ReqContactKey"
+              placeholder="N/A">
           </div>
         </div>
-    </mat-dialog-content>
+      </mat-dialog-content>
     </div>
     <div class="dialog-footer">
       <mat-dialog-actions>
         <button mat-button mat-dialog-close>Cancel</button>
         <button mat-button type="submit">Save</button>
-      </mat-dialog-actions>            
+      </mat-dialog-actions>
     </div>
   </form>
 </div>
