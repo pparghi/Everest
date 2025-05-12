@@ -39,6 +39,7 @@ interface DataItem {
     TotalCreditLimit: number;    
     IndivCreditLimit: number;    
     expandedDetail: { detail: string };
+    ClientNo: string;
 }
 
 interface clientDataItem {
@@ -297,6 +298,7 @@ export class TicketingComponent {
             data: {
              ClientKey: row.ClientKey,
              Client: row.Client,
+             ClientNo: row.ClientNo,
              Office: row.Office,
              BankAcctName: row.BankAcctName,
              DebtorKey: row.DebtorKey,

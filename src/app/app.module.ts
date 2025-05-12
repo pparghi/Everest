@@ -58,6 +58,11 @@ import { NegativeToParenthesesPipe } from './negative-to-parentheses.pipe';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MinutesToDHMPipe } from './minutes-to-dhm.pipe';
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import { NoticeOfAccessmentComponent } from './components/notice-of-accessment/notice-of-accessment.component';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatRadioModule} from '@angular/material/radio';
 
 @NgModule({
   declarations: [
@@ -87,7 +92,8 @@ import {MatTabsModule} from '@angular/material/tabs';
     TicketingComponent,
     TicketingMasterMemberDebtorsComponent,
     NegativeToParenthesesPipe,
-    MinutesToDHMPipe,    
+    MinutesToDHMPipe,
+    NoticeOfAccessmentComponent,    
   ],
   imports: [
     MatDatepickerModule,
@@ -147,7 +153,11 @@ import {MatTabsModule} from '@angular/material/tabs';
     MatCardModule,
     MatCheckboxModule,
     MatExpansionModule,
-    MatTabsModule
+    MatTabsModule,
+    MatTooltipModule,
+    MatMenuModule,
+    MatAutocompleteModule,
+    MatRadioModule,
   ],
   providers: [
     CacheService,

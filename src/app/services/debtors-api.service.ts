@@ -142,4 +142,20 @@ export class DebtorsApiService {
       })
     );
   }
+
+  // get data for ticketing page Approve/Deny Credit Request window and trend tab
+  getDebtorClientTrendData(DebtorKey: number, ClientNo: string, Type: string){    
+    const url = `https://everest.revinc.com:4202/api/debtorHistoryTrend?DebtorKey=${DebtorKey}&ClientNo=${ClientNo}&Type=${Type}`;
+    return this.http.get<any>(url).pipe(
+      map(response => {
+        return {
+          data: response.data.map((item: any) => ({
+            ...item,
+            // Add expanded detail here
+          })),              
+        };
+      })
+    );
+  }
+
 }

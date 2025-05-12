@@ -1,0 +1,10 @@
+.NOA-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 20px;
+  }
+
+  mat-form-field {
+    width: 400px;
+  }

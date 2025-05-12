@@ -31,8 +31,20 @@
             <li class="nav-item" style="background-color: #e5e5e5;">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/ticketing" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Credit Requests</a>
             </li>
-            <li class="nav-item" style="border-top-right-radius: 10px; background-color: #e5e5e5;">
+            <li class="nav-item" style="background-color: #e5e5e5;">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/page" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Invoices</a>
+            </li>
+            <li class="nav-item" style="border-top-right-radius: 10px; background-color: #e5e5e5;">
+                <a class="nav-link" style="color: #808183; display: flex; align-items: center;" data-toggle="tab" [matMenuTriggerFor]="documents" [ngClass]="{ 'active': isDocumentsTabActive }">
+                    Documents
+                    <mat-icon fontIcon="arrow_drop_down"></mat-icon>
+                </a>
+                <mat-menu #documents="matMenu">
+                    <a mat-menu-item routerLink="/notice-of-accessment">NOA</a>
+                    <a mat-menu-item >Release Letter</a>
+                    <a mat-menu-item >Statements</a>
+                    <a mat-menu-item >Invoice Images</a>
+                </mat-menu>
             </li>
         </ul>
     </div>

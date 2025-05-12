@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import Swal from 'sweetalert2';
@@ -13,6 +13,7 @@ import { LoginService } from '../../services/login.service';
 import { ClientsInvoicesService } from '../../services/clients-invoices.service';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { AddressService } from '../../services/address.service';
+import { MatTableExporterDirective } from 'mat-table-exporter';
 // import imageCompression from 'browser-image-compression';
 declare var pca: any;
 
@@ -20,14 +21,14 @@ interface Response {
   payments: Array<any>;
 }
 
-interface DebtorDataItem {  
+interface DebtorDataItem {
   expandedDetail: { detail: string };
 }
 
 @Component({
   selector: 'app-document-dialog',
   templateUrl: './document-dialog.component.html',
-  styleUrl: './document-dialog.component.css',  
+  styleUrl: './document-dialog.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentDialogComponent implements OnInit, AfterViewInit {
@@ -39,7 +40,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   path: any;
   ContactName: any;
   ContactEmail: any;
-  ContactNo: any;  
+  ContactNo: any;
   debtor: any;
 
   contactColumns: string[] = ['name', 'email', 'contact_no'];
@@ -70,7 +71,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   editTicketForm!: FormGroup;
   chequeSearchForm!: FormGroup;
   addNewTicketForm!: FormGroup;
-  changedNoaStatus!: string;    
+  changedNoaStatus!: string;
   payment_images!: { fullname: string; basename: any; }[];
   fileExtension: any;
   addressSuggestions: any[] = [];
@@ -86,17 +87,28 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   lastThreeMonths90!: string;
 
   query: string = '';
- suggestions: any[] = [];
- addr2suggestions: any[] = [];
- private searchSubject = new Subject<string>();
- readonly panelOpenState = signal(false);
+  suggestions: any[] = [];
+  addr2suggestions: any[] = [];
+  private searchSubject = new Subject<string>();
+  readonly panelOpenState = signal(false);
 
- expandedElement: DebtorDataItem | null = null;
+  expandedElement: DebtorDataItem | null = null;
 
- focusedInputOfAdress: string = 'address1';
-  
-  constructor(private fb: FormBuilder,private http: HttpClient,private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService,private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService) {
-    if(data.openChequeSearchForm){  
+  focusedInputOfAdress: string = 'address1';
+
+  // ticketing page
+  @ViewChild(MatTableExporterDirective) exporter!: MatTableExporterDirective; 
+  displayedColumns: string[] = ['YearMonth', 'Purchases', 'PurchasesAvg', 'PurchasesNo', 'PaiTodZero', 'Recoursed', 'AvgWeightedDays'];
+  ticketingTrendDataSource = new MatTableDataSource<any>();
+  trendDabtorName: string = '';
+  trendClientName: string = '';
+  trendDebtorKey: number = 0;
+  trendClientNo: string = '';
+  trendPeriodChar: string = 'M';
+
+
+  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService) {
+    if (data.openChequeSearchForm) {
       this.chequeSearchForm = this.fb.group({
         CheckNo: [''],
         Amt: [''],
@@ -105,55 +117,57 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
         LastPayments: ['']
       });
       this.onChequeSearch();
-    } else if(data.openForm){      
+    } else if (data.openForm) {
 
-    if(data.Phone1.length == 11 || data.Phone2.length == 11){
-      var Phone1 = data.Phone1.substring(1);
-      var Phone2 = data.Phone2.substring(1);
-    } else {
-      Phone1 = data.Phone1;
-      Phone2 = data.Phone2;
-    }
+      if (data.Phone1.length == 11 || data.Phone2.length == 11) {
+        var Phone1 = data.Phone1.substring(1);
+        var Phone2 = data.Phone2.substring(1);
+      } else {
+        Phone1 = data.Phone1;
+        Phone2 = data.Phone2;
+      }
 
-    const roundThousandsPipe = new RoundThousandsPipe();
-    var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
-    var AIGLimit = roundThousandsPipe.transform(data.AIGLimit);
-    
-    this.editForm = this.fb.group({
-      DebtorKey: [data.DebtorKey || ''],
-      Debtor: [data.Debtor || ''],
-      Duns: [data.Duns || ''],
-      Addr1: [data.Addr1 || ''],
-      Addr2: [data.Addr2 || ''],
-      City: [data.City || ''],
-      State: [data.State || ''],      
-      Phone1: [Phone1 || ''],
-      Phone2: [Phone2 || ''],
-      TotalCreditLimit: [creditLimit || ''],
-      AIGLimit: [AIGLimit || ''],
-      Terms: [data.Terms || ''],
-      Email: [data.Email || ''],
-      MotorCarrNo: [data.MotorCarrNo || ''],
-      CredExpireMos: [ data.CredExpireMos || ''],
-      RateDate: [data.RateDate || ''],
-      Notes: [data.Notes || ''],
-      CredNote: [data.CredNote || ''],
-      IndivCreditLimit: [data.IndivCreditLimit || ''],
-      CredAppBy: [data.CredAppBy || ''],
-      FFNo: [data.FFNo || ''],
-      CVOR: [data.Cvor || ''],
-      USDOT: [data.USDot || ''],
-      Warning: [data.Warning || ''],      
-      DotNo: [data.DotNo || '']      
-    })
-
-      this.debtor = data.Debtor
-    } else if(data.openTicketForm){      
-  
       const roundThousandsPipe = new RoundThousandsPipe();
       var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
       var AIGLimit = roundThousandsPipe.transform(data.AIGLimit);
-      
+
+      this.editForm = this.fb.group({
+        DebtorKey: [data.DebtorKey || ''],
+        Debtor: [data.Debtor || ''],
+        Duns: [data.Duns || ''],
+        Addr1: [data.Addr1 || ''],
+        Addr2: [data.Addr2 || ''],
+        City: [data.City || ''],
+        State: [data.State || ''],
+        Phone1: [Phone1 || ''],
+        Phone2: [Phone2 || ''],
+        TotalCreditLimit: [creditLimit || ''],
+        AIGLimit: [AIGLimit || ''],
+        Terms: [data.Terms || ''],
+        Email: [data.Email || ''],
+        MotorCarrNo: [data.MotorCarrNo || ''],
+        CredExpireMos: [data.CredExpireMos || ''],
+        RateDate: [data.RateDate || ''],
+        Notes: [data.Notes || ''],
+        CredNote: [data.CredNote || ''],
+        IndivCreditLimit: [data.IndivCreditLimit || ''],
+        CredAppBy: [data.CredAppBy || ''],
+        FFNo: [data.FFNo || ''],
+        CVOR: [data.Cvor || ''],
+        USDOT: [data.USDot || ''],
+        Warning: [data.Warning || ''],
+        DotNo: [data.DotNo || '']
+      })
+
+      this.debtor = data.Debtor
+    } else if (data.openTicketForm) {
+      // region ticketing page
+
+      // request tab
+      const roundThousandsPipe = new RoundThousandsPipe();
+      var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
+      var AIGLimit = roundThousandsPipe.transform(data.AIGLimit);
+
       this.editTicketForm = this.fb.group({
         ClientKey: [data.ClientKey || ''],
         Client: [data.Client || ''],
@@ -177,43 +191,52 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
         PastDue: [data.PastDue || ''],
         Available: [data.Available || ''],
       })
-  
-        this.debtor = data.Debtor
-      } else if (data.documentsList) {
+
+      this.debtor = data.Debtor
+
+      // trend tab
+      this.trendDabtorName = data.Debtor;
+      this.trendClientName = data.Client;
+      this.trendDebtorKey = data.DebtorKey;
+      this.trendClientNo = data.ClientNo;
+      this.loadTrendDialogData(data.DebtorKey, data.ClientNo, this.trendPeriodChar);
+
+      // endregion
+    } else if (data.documentsList) {
       this.data.documentsList.forEach((document: { FileName: string; Path: any; DocHdrKey: { toString: () => string; }; Link: string; }, index: any) => {
         const filename = document.FileName.split('.');
         const x = filename.length - 1;
         const link = `${document.Path}\\${document.DocHdrKey.toString().padStart(6, '0')}.${filename[x]}`;
         document.Link = btoa(link);
         this.link = document.Link
-      }); 
-     
+      });
+
       this.data.documentsFolder.forEach((docFolder: any) => {
         this.path = docFolder.Path
       });
-    } else if(data.DebtorPaymentsData) {
-      this.clientService.getDebtorsPayments(data.DebtorKey, data.ClientKey).subscribe(response => {                                
-        this.paymentDataSource.data = response.debtorPaymentsData;      
+    } else if (data.DebtorPaymentsData) {
+      this.clientService.getDebtorsPayments(data.DebtorKey, data.ClientKey).subscribe(response => {
+        this.paymentDataSource.data = response.debtorPaymentsData;
       });
-    } else if(data.MiscDataList) {
-      this.clientService.getMiscData(data.DebtorKey, data.ClientKey).subscribe(response => {                                
-        this.MiscDataListDataSource.data = response.MiscDataList;      
+    } else if (data.MiscDataList) {
+      this.clientService.getMiscData(data.DebtorKey, data.ClientKey).subscribe(response => {
+        this.MiscDataListDataSource.data = response.MiscDataList;
       });
     } else if (data.exchangeRatesByMonth) {
-      this.loginService.getExchangeRatesByMonth().subscribe(response => {                                
+      this.loginService.getExchangeRatesByMonth().subscribe(response => {
         this.ratesDataSource.data = response.exchangeRatesByMonth;
-      });    
-    } else if (data.debtorAudit) {            
-      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
-        this.auditDataSource.data = response.debtorAudit;        
-      });                        
-    } else if (data.debtorStatements) {            
-      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
-        this.statementsDataSource.data = response.debtorStatementsDetails;        
-      });      
-    } else if (data.chequeSearch) {                     
-       
-    } else if (data.addNew) {                     
+      });
+    } else if (data.debtorAudit) {
+      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
+        this.auditDataSource.data = response.debtorAudit;
+      });
+    } else if (data.debtorStatements) {
+      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
+        this.statementsDataSource.data = response.debtorStatementsDetails;
+      });
+    } else if (data.chequeSearch) {
+
+    } else if (data.addNew) {
       this.addNewTicketForm = this.fb.group({
         ClientKey: [data.ClientKey || ''],
         DebtorKey: [data.DebtorKey || ''],
@@ -223,92 +246,92 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
         SourceCode: [data.SourceCode || ''],
         ReqContactKey: [data.ReqContactKey || '']
       })
-    } else if (data.invoiceDetails) {                     
-      this.clientInvoiceService.getClientsInvoiceDetailNotes(data.InvoiceKey).subscribe(response => {   
-        this.detailNotesDataSource.data = response.data;        
+    } else if (data.invoiceDetails) {
+      this.clientInvoiceService.getClientsInvoiceDetailNotes(data.InvoiceKey).subscribe(response => {
+        this.detailNotesDataSource.data = response.data;
       });
     } else {
-      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {                                
+      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
         this.contactDataSource.data = response.debtorContactsData;
       });
     }
 
     this.searchSubject.pipe(debounceTime(500),
-  distinctUntilChanged(),
-  switchMap(query => {
-    console.log("Fetching suggestsions for : ", query);
-    return this.addressService.getAddressSuggestions(query);
-  })
-  ).subscribe( {
-    next: (data) => {
-      console.log("API Response:", data);
-      if (data.Items) {
-        // condition of focusing on address 1
-        if (this.focusedInputOfAdress == "address1") {
-          this.suggestions = data.Items.map((item: any) => ({
-            text: item.Text,
-            description: item.Description
-          }));
+      distinctUntilChanged(),
+      switchMap(query => {
+        console.log("Fetching suggestsions for : ", query);
+        return this.addressService.getAddressSuggestions(query);
+      })
+    ).subscribe({
+      next: (data) => {
+        console.log("API Response:", data);
+        if (data.Items) {
+          // condition of focusing on address 1
+          if (this.focusedInputOfAdress == "address1") {
+            this.suggestions = data.Items.map((item: any) => ({
+              text: item.Text,
+              description: item.Description
+            }));
+          } else {
+            this.addr2suggestions = data.Items.map((item: any) => ({
+              text: item.Text,
+              description: item.Description
+            }));
+          }
         } else {
-          this.addr2suggestions = data.Items.map((item: any) => ({
-            text: item.Text,
-            description: item.Description
-          }));
+          this.suggestions = [];
+          // this.addr2suggestions = [];
         }
-      } else {
-        this.suggestions = [];
-        // this.addr2suggestions = [];
+      },
+      error: (error) => {
+        console.error('Error fetching address suggestions: ', error);
       }
-    },
-    error: (error) => {
-      console.error('Error fetching address suggestions: ', error);
-    }
-  });
+    });
   }
 
   onQueryChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     console.log("query changed:", selectElement.value);
     this.query = selectElement.value
- 
+
     this.focusedInputOfAdress = "address1";
-   if (this.query.length > 2) {
-     console.log("lendth > called");
-     this.searchSubject.next(this.query);
-   } else {
-     console.log("else part to clear suggestions");
-     this.suggestions = []; // Clear suggestions when query is too short
-   }
+    if (this.query.length > 2) {
+      console.log("lendth > called");
+      this.searchSubject.next(this.query);
+    } else {
+      console.log("else part to clear suggestions");
+      this.suggestions = []; // Clear suggestions when query is too short
+    }
   }
 
   onAddr2QueryChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     console.log("address 2 query changed:", selectElement.value);
     this.query = selectElement.value
- 
+
     this.focusedInputOfAdress = "address2";
-   if (this.query.length > 2) {
-     console.log("lendth > called");
-     this.searchSubject.next(this.query);
-   } else {
-     console.log("else part to clear suggestions");
-     this.addr2suggestions = []; // Clear suggestions when query is too short
-   }
+    if (this.query.length > 2) {
+      console.log("lendth > called");
+      this.searchSubject.next(this.query);
+    } else {
+      console.log("else part to clear suggestions");
+      this.addr2suggestions = []; // Clear suggestions when query is too short
+    }
   }
-  
- selectSuggestion(suggestion: any) {
-   this.editForm.get('Addr1')?.setValue(suggestion.text)
-   this.suggestions = [];
- }
- selectAddr2Suggestion(addr2suggestion: any) {
-   this.editForm.get('Addr2')?.setValue(addr2suggestion.text)
-   this.addr2suggestions = [];
- }
+
+  selectSuggestion(suggestion: any) {
+    this.editForm.get('Addr1')?.setValue(suggestion.text)
+    this.suggestions = [];
+  }
+  selectAddr2Suggestion(addr2suggestion: any) {
+    this.editForm.get('Addr2')?.setValue(addr2suggestion.text)
+    this.addr2suggestions = [];
+  }
 
   ngOnInit(): void {
     const now = new Date();
     const monthNames = ["January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December"];
+      "July", "August", "September", "October", "November", "December"];
 
     this.currentMonth = monthNames[now.getMonth()];
 
@@ -342,7 +365,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
     //   console.error('AddressComplete script not loaded');
     // }
 
-    
+
     // const inputElement = document.getElementById('Addr1');
     // if (!inputElement) {
     //   console.error('Input element not found.');
@@ -384,7 +407,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   //   });
   // }
 
-  openFile(){
+  openFile() {
     // let url = atob(this.link);       
     // window.open("https://everest.revinc.com:4202/storage/uploads/");
     let url = 'https://login.baron.finance/iris/public/common/show_pdf.php?pdf=' + this.link;
@@ -392,31 +415,31 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
     return false;
   }
 
-  onFilechange(event: any) {    
+  onFilechange(event: any) {
     this.file = event.target.files[0]
   }
- 
-    
-  onSubmit() { 
+
+
+  onSubmit() {
     const DebtorKey = this.data.DebtorKey;
     const Descr = this.documentDescr;
     const DocCatKey = this.documentCategory;
     const DocFolderPath = this.path;
     const file = this.file;
-    
+
     const formData = new FormData();
     formData.append('DebtorKey', DebtorKey);
     formData.append('Descr', Descr);
     formData.append('DocCatKey', DocCatKey);
     formData.append('DocFolderPath', DocFolderPath);
     formData.append('file', this.file);
-    
+
     this.http.post('https://everest.revinc.com:4202/api/debtorMasterAddDocument', formData)
-     .subscribe(response => {
-       console.log('file uploaded',response);       
-     }, error => {
-       console.error('Upload failed', error);
-     });
+      .subscribe(response => {
+        console.log('file uploaded', response);
+      }, error => {
+        console.error('Upload failed', error);
+      });
   }
 
   onEdit() {
@@ -462,107 +485,125 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
-    onChange(event: Event) {
-      const selectElement = event.target as HTMLSelectElement;
-        this.changedNoaStatus = selectElement.value
+  onChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    this.changedNoaStatus = selectElement.value
+  }
+
+  getPaymentsImage(event: any) {
+    this.clientService.convertDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {
+      console.log('file called', response);
+    }, error => {
+      console.error('file failed', error);
     }
+    );
+    this.clientService.startTimer(() => {
+      this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {
+        response.debtorPaymentImages.forEach(async (element: any) => {
+          const fileName = element.FileName;
+          this.fileExtension = this.getFileExtension(fileName);
+          console.log(this.fileExtension);
 
-    getPaymentsImage(event: any){        
-      this.clientService.convertDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                             
-        console.log('file called',response);       
-        }, error => {
-          console.error('file failed', error);                             
-        }
-      );               
-      this.clientService.startTimer(() => { 
-        this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {                                                    
-          response.debtorPaymentImages.forEach(async (element: any) => {   
-            const fileName = element.FileName;
-            this.fileExtension = this.getFileExtension(fileName);
-            console.log(this.fileExtension);
-
-            if (this.fileExtension == 'jpg' || this.fileExtension == 'jpeg' || this.fileExtension == 'png' || this.fileExtension == 'pdf'){
-              window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);
-            } else {
-              window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName + '.jpg');                       
-            }
-            
-            });                                  
-          }, error => {
-            console.error('file not converted', error);                             
+          if (this.fileExtension == 'jpg' || this.fileExtension == 'jpeg' || this.fileExtension == 'png' || this.fileExtension == 'pdf') {
+            window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);
+          } else {
+            window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName + '.jpg');
           }
-        );  
-      }, 3000);     
-                              
-    };  
 
-    onRadioChange(value: string) {
-      this.selectedValue = value;
-    }
-
-    onChequeSearch(){      
-      if (this.chequeSearchForm.valid) {  
-        let DebtorKey = this.data.DebtorKey;
-        let CheckNo = this.chequeSearchForm.value.CheckNo;
-        let Amt = this.chequeSearchForm.value.Amt;
-        let PostDateStart = this.chequeSearchForm.value.PostDateStart;
-        let PostDateEnd = this.chequeSearchForm.value.PostDateEnd;
-        let LastPayments = '';
-        // if (this.chequeSearchForm.value.LastPayments == true) {
-          LastPayments = 'Y';
-        // } else {
-        //   LastPayments = 'N'
-        // }
-
-        this.dataService.getDebtorsPayments(DebtorKey, CheckNo, Amt, PostDateStart, PostDateEnd, LastPayments).subscribe(response => {                                
-          this.paymentsDataSource.data = response.payments;
-          this.Payment30 = response.payments[0].Payments30;
-          this.Payment60 = response.payments[0].Payments60;
-          this.Payment90 = response.payments[0].Payments90;
-          this.Payment120 = response.payments[0].Payments120;
         });
-    
+      }, error => {
+        console.error('file not converted', error);
       }
+      );
+    }, 3000);
+
+  };
+
+  onRadioChange(value: string) {
+    this.selectedValue = value;
+  }
+
+  onChequeSearch() {
+    if (this.chequeSearchForm.valid) {
+      let DebtorKey = this.data.DebtorKey;
+      let CheckNo = this.chequeSearchForm.value.CheckNo;
+      let Amt = this.chequeSearchForm.value.Amt;
+      let PostDateStart = this.chequeSearchForm.value.PostDateStart;
+      let PostDateEnd = this.chequeSearchForm.value.PostDateEnd;
+      let LastPayments = '';
+      // if (this.chequeSearchForm.value.LastPayments == true) {
+      LastPayments = 'Y';
+      // } else {
+      //   LastPayments = 'N'
+      // }
+
+      this.dataService.getDebtorsPayments(DebtorKey, CheckNo, Amt, PostDateStart, PostDateEnd, LastPayments).subscribe(response => {
+        this.paymentsDataSource.data = response.payments;
+        this.Payment30 = response.payments[0].Payments30;
+        this.Payment60 = response.payments[0].Payments60;
+        this.Payment90 = response.payments[0].Payments90;
+        this.Payment120 = response.payments[0].Payments120;
+      });
+
     }
+  }
 
-    getFileExtension(filename: string): string {     const extension = filename.split('.').pop();     return extension ? extension.toLowerCase() : '';   }
+  getFileExtension(filename: string): string { const extension = filename.split('.').pop(); return extension ? extension.toLowerCase() : ''; }
 
-    onTicketEdit(){
+  onTicketEdit() {
 
-    }
+  }
 
-    onCreateTicket(){
-      if (this.addNewTicketForm.valid) {
-        console.log(this.addNewTicketForm.value);
-        const formData = new FormData();
-        formData.append('ClientKey', this.editForm.value.ClientKey);
-        formData.append('DebtorKey', this.editForm.value.DebtorKey);
-        formData.append('RequestAmt', this.editForm.value.RequestAmt);
-        formData.append('RequestUser', this.editForm.value.RequestUser);
-        formData.append('Comments', this.editForm.value.Comments);
-        formData.append('SourceCode', this.editForm.value.SourceCode);
-        formData.append('ReqContactKey', this.editForm.value.ReqContactKey);
+  onCreateTicket() {
+    if (this.addNewTicketForm.valid) {
+      console.log(this.addNewTicketForm.value);
+      const formData = new FormData();
+      formData.append('ClientKey', this.editForm.value.ClientKey);
+      formData.append('DebtorKey', this.editForm.value.DebtorKey);
+      formData.append('RequestAmt', this.editForm.value.RequestAmt);
+      formData.append('RequestUser', this.editForm.value.RequestUser);
+      formData.append('Comments', this.editForm.value.Comments);
+      formData.append('SourceCode', this.editForm.value.SourceCode);
+      formData.append('ReqContactKey', this.editForm.value.ReqContactKey);
 
-        this.http.post(`https://everest.revinc.com:4202/api/CredRequestAdd`, formData)
+      this.http.post(`https://everest.revinc.com:4202/api/CredRequestAdd`, formData)
         .subscribe(response => {
-          console.log('New Credit Request Added',response);       
+          console.log('New Credit Request Added', response);
           window.location.reload();
         }, error => {
           console.error('Error', error);
         });
-      }
     }
+  }
 
-    toggleRow(element: DebtorDataItem): void {   
-      console.log(element);
-                           
-      this.expandedElement = this.expandedElement === element ? null : element;       
-    }
+  toggleRow(element: DebtorDataItem): void {
+    console.log(element);
 
-    isExpanded(element: DebtorDataItem): boolean {
-      return this.expandedElement === element;
-    }
+    this.expandedElement = this.expandedElement === element ? null : element;
+  }
 
-    isExpansionDetailRow = (index: number, row: DebtorDataItem) => row.hasOwnProperty('expandedDetail');
+  isExpanded(element: DebtorDataItem): boolean {
+    return this.expandedElement === element;
+  }
+
+  isExpansionDetailRow = (index: number, row: DebtorDataItem) => row.hasOwnProperty('expandedDetail');
+
+
+  //region ticketPG functions
+  // function for fetching api data for the trend dialog and save to ticketingTrendDataSource
+  loadTrendDialogData(DebtorKey:number, ClientNo:string, trendPeriodChar:string) {
+    this.dataService.getDebtorClientTrendData(DebtorKey, ClientNo, trendPeriodChar).subscribe(response => {
+      this.ticketingTrendDataSource.data = response.data;
+    });
+  }
+
+  // event handler for the trend doalog period change
+  onTrendPeriodChange(event: Event) {
+    // const selectElement = event.target as HTMLSelectElement;
+    // console.log(selectElement.value); 
+    this.loadTrendDialogData(this.trendDebtorKey, this.trendClientNo, this.trendPeriodChar);
+  }
+
+  // endregion
 
 }

@@ -1,0 +1,31 @@
+<h2>Create NOA</h2>
+<form class="NOA-form" [formGroup]="noaForm" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="fill">
+        <mat-label>Client</mat-label>
+        <input type="text" placeholder="Pick one" aria-label="Client" matInput formControlName="client"
+            [matAutocomplete]="clientAuto">
+        <mat-autocomplete #clientAuto="matAutocomplete">
+            @for (option of clientOptions; track option) {
+            <mat-option [value]="option">{{option}}</mat-option>
+            }
+        </mat-autocomplete>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+        <mat-label>Debtor</mat-label>
+        <input type="text" placeholder="Pick one" aria-label="Debtor" matInput formControlName="debtor"
+            [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete">
+            @for (option of debtorOptions; track option) {
+            <mat-option [value]="option">{{option}}</mat-option>
+            }
+        </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-label>Factor Signature</mat-label>
+    <mat-radio-group aria-label="Factor Signature" formControlName="factorSignature">
+        <mat-radio-button [value]="false">No</mat-radio-button>
+        <mat-radio-button [value]="true">Yes</mat-radio-button>
+    </mat-radio-group>
+    <br>
+    <button mat-flat-button color="primary" type="submit">Submit</button>
+</form>

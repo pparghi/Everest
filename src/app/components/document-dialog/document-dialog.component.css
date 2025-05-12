@@ -180,3 +180,13 @@
 	font-size: 13px;
   }   
   
+.trend-tab {
+	margin: 30px;
+	max-height: 700px;
+	overflow: auto;
+}
+
+.mat-card-trend-input{
+	padding: 10px;
+	background-color: #ffffff;
+}

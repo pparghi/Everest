@@ -13,7 +13,7 @@ import { columnGroupWidths } from '@swimlane/ngx-datatable';
 import { get } from 'jquery';
 
 interface DataItem {
-  Client: string;  
+  Client: string;
 }
 
 @Component({
@@ -23,140 +23,144 @@ interface DataItem {
 })
 
 export class ClientsComponent implements OnInit {
-  displayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis'];
-    isLoading = true;
-    dataSource = new MatTableDataSource<any>([]);
-    totalRecords = 0;
-    filter: string = '';
-    specificPage: number = 1;
-    expandedElement: DataItem | null = null;
-    math = Math;
-    @Input() DebtorKey!: number;
-    @Input() ClientKey!: string;
-    displayDebtor: any;
+  displayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration', 'CRM', 'Office', 'Analysis'];
+  isLoading = true;
+  dataSource = new MatTableDataSource<any>([]);
+  totalRecords = 0;
+  filter: string = '';
+  specificPage: number = 1;
+  expandedElement: DataItem | null = null;
+  math = Math;
+  @Input() DebtorKey!: number;
+  @Input() ClientKey!: string;
+  displayDebtor: any;
 
-    @ViewChild(MatPaginator) paginator!: MatPaginator;
-    @ViewChild(MatSort) sort!: MatSort;
-    currentPath: string = '';
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  currentPath: string = '';
 
-    rawData: any[] = []; // Store the raw data for filtering
-    checkboxValues: any[] = [false, false]; // Array to hold checkbox values
+  rawData: any[] = []; // Store the raw data for filtering
+  checkboxValues: any[] = [true, false]; // Array to hold checkbox values
 
-  constructor(private route: ActivatedRoute, private dataService: ClientsService, private router: Router){
+  constructor(private route: ActivatedRoute, private dataService: ClientsService, private router: Router) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event) => {
       this.currentPath = this.router.url.split('/').slice(1).join('/');
     });
   }
-    
-    ngOnInit(): void {
-      this.currentPath = this.router.url.split('/').slice(1).join('/');
-      this.route.queryParams.subscribe(params => {
-        const DebtorKey = +params['DebtorKey'];
-        this.DebtorKey = DebtorKey
-        const ClientKey = params['ClientKey'];
-        this.ClientKey = params['ClientKey'];        
-        
-        this.displayDebtor = params['Debtor']
-        this.loadClientsDetails(DebtorKey);
+
+  ngOnInit(): void {
+    this.currentPath = this.router.url.split('/').slice(1).join('/');
+    this.route.queryParams.subscribe(params => {
+      const DebtorKey = +params['DebtorKey'];
+      this.DebtorKey = DebtorKey
+      const ClientKey = params['ClientKey'];
+      this.ClientKey = params['ClientKey'];
+
+      this.displayDebtor = params['Debtor']
+      this.loadClientsDetails(DebtorKey);
+    });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['DebtorKey']) {
+      this.loadClientsDetails(this.DebtorKey);
+    }
+  }
+
+  loadClientsDetails(DebtorKey: number): void {
+    if (this.ClientKey) {
+      let clientkey = this.ClientKey.trim();
+      this.dataService.getClients(DebtorKey).subscribe(response => {
+        this.dataSource.data = response.data;
+        const index = this.dataSource.data.findIndex(c => c.ClientKey == clientkey);
+        if (index !== -1) {
+          const [found] = response.data.splice(index, 1);
+          response.data.unshift(found);
+        }
+        this.dataSource.data = response.data.slice(1);
+      });
+    } else {
+      this.dataService.getClients(DebtorKey).subscribe(response => {
+        this.dataSource.data = response.data;
+        this.rawData = response.data;
+        this.filterRawData();
+      });
+    }
+  }
+
+  openClientsInvoicesWindow(ClientKey: number, Client: string): void {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, DebtorKey: this.DebtorKey, Client: Client } })
+    );
+    window.open(url, '_blank');
+  }
+
+  applyFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.filter = filterValue.trim().toLowerCase();
+    this.paginator.pageIndex = 0;
+    this.loadClientsDetails(this.DebtorKey);
+  }
+
+  get totalPages(): number {
+    const pageSize = this.paginator?.pageSize || 25;
+    return Math.ceil(this.totalRecords / pageSize);
+  }
+
+  goToPage(): void {
+    if (this.specificPage < 1 || this.specificPage > this.totalPages) {
+      return;
+    }
+    if (this.paginator) {
+      this.paginator.pageIndex = this.specificPage - 1;
+      this.loadClientsDetails(this.DebtorKey);
+    }
+
+  }
+
+  toggleRow(element: DataItem): void {
+    this.expandedElement = this.expandedElement === element ? null : element;
+  }
+
+  isExpanded(element: DataItem): boolean {
+    return this.expandedElement === element;
+  }
+
+  isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
+
+
+  // filter raw data, save to dataSource.data
+  filterRawData(): void {
+    // iterate through rawData and pick rows base on filters
+    let filteredData: any[] = this.rawData;
+
+    if (this.checkboxValues[0]) {
+      filteredData = filteredData.filter(item => {
+        const hasBalance = parseFloat(item.Balance) > 0;
+        return (hasBalance);
+      });
+    }
+    if (this.checkboxValues[1]) {
+      filteredData = filteredData.filter(item => {
+        const isActive = (item.Inactive === '0');
+        return (isActive);
       });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-      if (changes['DebtorKey']) {
-        this.loadClientsDetails(this.DebtorKey);
-      }
+    this.dataSource.data = filteredData;
+  }
+  // event handler for checkbox click
+  onCheckboxClick(event: MatCheckboxChange): void {
+    if (event.source.id === 'onlyShowBalances') {
+      this.checkboxValues[0] = event.checked;
+    }
+    else if (event.source.id === 'onlyShowActives') {
+      this.checkboxValues[1] = event.checked;
     }
 
-    loadClientsDetails(DebtorKey: number): void {               
-      if (this.ClientKey) {
-        let clientkey = this.ClientKey.trim();  
-        this.dataService.getClients(DebtorKey).subscribe(response => {                         
-          this.dataSource.data = response.data;                    
-          const index = this.dataSource.data.findIndex(c => c.ClientKey == clientkey);        
-          if (index !== -1) {
-            const [found] = response.data.splice(index, 1);               
-            response.data.unshift(found); 
-          }
-          this.dataSource.data = response.data.slice(1);
-        });
-      } else {
-        this.dataService.getClients(DebtorKey).subscribe(response => {                     
-          console.log(response.data);            
-          this.dataSource.data = response.data;
-          this.rawData = response.data;
-        });
-      }                
-    }
+    this.filterRawData();
 
-    openClientsInvoicesWindow(ClientKey: number, Client: string): void {
-      const url = this.router.serializeUrl(
-        this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, DebtorKey: this.DebtorKey, Client: Client } })
-      );
-      window.open(url, '_blank');
-    }
-
-    applyFilter(event: Event): void {
-      const filterValue = (event.target as HTMLInputElement).value;
-      this.filter = filterValue.trim().toLowerCase(); 
-      this.paginator.pageIndex = 0; 
-      this.loadClientsDetails(this.DebtorKey);
-    }
-    
-    get totalPages(): number { 
-      const pageSize = this.paginator?.pageSize || 25;
-      return Math.ceil(this.totalRecords /  pageSize); 
-    } 
-        
-    goToPage(): void { 
-      if (this.specificPage < 1 || this.specificPage > this.totalPages) { 
-        return;             
-      } 
-      if (this.paginator) {
-        this.paginator.pageIndex = this.specificPage - 1;
-        this.loadClientsDetails(this.DebtorKey);
-      }
-      
-    }
-
-    toggleRow(element: DataItem): void {                        
-      this.expandedElement = this.expandedElement === element ? null : element;          
-    }
-
-    isExpanded(element: DataItem): boolean {
-      return this.expandedElement === element;
-    }
-
-    isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
-
-
-    // event handler for checkbox click
-    onCheckboxClick(event: MatCheckboxChange): void {
-      if (event.source.id === 'onlyShowBalances') {
-        this.checkboxValues[0] = event.checked;
-      }
-      else if (event.source.id === 'onlyShowActives') {
-        this.checkboxValues[1] = event.checked;
-      }
-
-      // iterate through rawData and pick rows base on filters
-      let filteredData: any[] = this.rawData;
-
-      if (this.checkboxValues[0]) {
-        filteredData = filteredData.filter(item => {
-          const hasBalance = parseFloat(item.Balance) > 0;
-          return (hasBalance);
-        });
-      }
-      if (this.checkboxValues[1]) {
-        filteredData = filteredData.filter(item => {
-          const isActive = (item.Inactive === '0');
-          return (isActive);
-        });
-      }
-      
-      this.dataSource.data = filteredData;
-
-    }
+  }
 }

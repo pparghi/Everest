@@ -23,6 +23,9 @@
     <div *ngIf="currentPath.includes('page')">
         <app-invoices></app-invoices>
     </div>
+    <div *ngIf="currentPath.includes('notice-of-accessment')">
+        <app-notice-of-accessment></app-notice-of-accessment>
+    </div>
     <div *ngIf="currentPath.includes('client-debtor')">
         <app-clients-debtors></app-clients-debtors>
     </div>

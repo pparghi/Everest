@@ -6,6 +6,7 @@ import { Subject, filter, takeUntil } from 'rxjs';
 import { LoginService } from '../../services/login.service';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -41,10 +42,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private msalBroadcast: MsalBroadcastService,
   private authService: MsalService,
   private http: HttpClient,
-  private dataService: LoginService
+  private dataService: LoginService,
+  private router: Router
   ) {}
 
+  // #region documents tab
+  // for documents tab is selected
+  isDocumentsTabActive: boolean = false;
+  // #endregion
+
   ngOnInit(): void {
+    // Listen to route changes to determine if the "Documents" tab should be active
+    this.router.events.subscribe(() => {
+      this.isDocumentsTabActive = this.router.url.includes('/notice-of-accessment');
+    });
+
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       
       this.profile = profile;     
