@@ -190,13 +190,13 @@ export class NoticeOfAccessmentComponent implements OnInit {
         this.noaForm.controls['debtor'].setErrors({reqired: true});
         return;
       }
-      // this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'').subscribe(
-      //   (response: any) => {
-      //     // Handle the response from the API
-      //     this.openBase64Pdf(response.result);
-      //     // this.openBase64Pdf(response.result.replace(/\\/g, '')); // cleanout the PDF base64 string, replace all \ with empty char
-      //   }
-      // );
+      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'').subscribe(
+        (response: any) => {
+          // Handle the response from the API
+          this.openBase64Pdf(response.result);
+          // this.openBase64Pdf(response.result.replace(/\\/g, '')); // cleanout the PDF base64 string, replace all \ with empty char
+        }
+      );
     }
     if (buttonValue === 'emailAllDebtors') {
       let debtorKeyArray = [];
