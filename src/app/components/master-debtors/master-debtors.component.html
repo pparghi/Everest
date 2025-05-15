@@ -173,7 +173,7 @@
         </ng-container> -->
 
         <ng-container matColumnDef="Edit" *ngIf="this.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && this.NavAccessUpdateMasterDebtor == 1">
-            <th mat-header-cell *matHeaderCellDef style="text-align: end;">Action</th>
+            <th mat-header-cell *matHeaderCellDef style="text-align: end;">Edit</th>
             <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">
                 <span (click)="edit(element)">                        
                     <mat-icon style="height: 20px; width: 20px; font-size: 15px; color: #3a8ada;"><i class="fa fa-edit"></i></mat-icon>

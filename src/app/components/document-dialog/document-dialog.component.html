@@ -803,15 +803,15 @@
       <div class="trend-tab">
         <mat-card appearance="raised" class="mat-card-trend-input">
           <div class="col-md-12">
-            <label class="form-label">Statistics For</label>
+            <label class="form-label"><strong>Statistics For</strong></label>
             <input id="StatisticsForInput" [readonly]="true" value={{trendDabtorName}} class="form-control">
           </div>
           <div class="col-md-12">
-            <label class="form-label">Client</label>
+            <label class="form-label"><strong>Client</strong></label>
             <input id="ClientInput" value={{trendClientName}} class="form-control">
           </div>
           <div class="col-md-12">
-            <label class="form-label">Periods</label>
+            <label class="form-label"><strong>Periods</strong></label>
             <br>
             <mat-form-field class="periods-selection">
               <select [(ngModel)]="trendPeriodChar" (change)="onTrendPeriodChange($event)" matNativeControl required>
@@ -826,7 +826,7 @@
           <table mat-table [dataSource]="ticketingTrendDataSource" matTableExporter #exporter="matTableExporter" class="mat-elevation-z8">
 
             <ng-container matColumnDef="YearMonth">
-              <th mat-header-cell *matHeaderCellDef> Date </th>
+              <th mat-header-cell *matHeaderCellDef> Period </th>
               <td mat-cell *matCellDef="let element"> {{element.YearMonth}} </td>
             </ng-container>
 

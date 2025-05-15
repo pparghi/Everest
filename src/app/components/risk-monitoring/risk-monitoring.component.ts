@@ -74,11 +74,11 @@ export class RiskMonitoringComponent implements OnInit {
   }
 
   ngOnInit(): void {    
-    // this.filter = this.filterService.getFilterState();
+    // this.filter = this.filterService.loadFromSessionStorage();
     // console.log(this.filter);
 
     // load filter state from filter service
-    const filterValues = this.filterService.getFilterState('risk-monitoring');
+    const filterValues = this.filterService.loadFromSessionStorage('risk-monitoring');
     if (filterValues) {
       // get filter values from filter state
       this.isActive = filterValues.isActive || '0';
@@ -106,8 +106,8 @@ export class RiskMonitoringComponent implements OnInit {
       this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
       this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
       // save due date front to filter service
-      this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
-      this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+      this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+      this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
     }
     
 
@@ -202,8 +202,8 @@ export class RiskMonitoringComponent implements OnInit {
           this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
           this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
           // save due date front to filter service
-          this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
-          this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
         }
         // set back due date to front due date
         this.dueDateFromBack = this.dueDateFromFront;
@@ -248,14 +248,14 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangeIsActive(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "isActive": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isActive": selectElement.value });
       this.isActive = selectElement.value;   
       this.loadData();
   }
   
   onChangedueDateFrom(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": selectElement.value });
       this.dueDateFromBack = selectElement.value;   
       this.dueDateFromFront = selectElement.value;   
       this.loadData();
@@ -263,7 +263,7 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangedueDateTo(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": selectElement.value });
       this.dueDateToBack = selectElement.value;   
       this.dueDateToFront = selectElement.value; 
       this.loadData();
@@ -273,7 +273,7 @@ export class RiskMonitoringComponent implements OnInit {
     console.log("dueDateFromFront--", this.dueDateFromFront);
     console.log("dueDateToFront--", this.dueDateToFront);
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "isDDSelect": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isDDSelect": selectElement.value });
       this.isDDSelect = selectElement.value;  
       let currentDate = new Date();
       let today = new Date();       
@@ -289,8 +289,8 @@ export class RiskMonitoringComponent implements OnInit {
           this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
           this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
           // save due date to filter service
-          this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
-          this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
         }
         // condition of both due date from and to are not empty
         else {
@@ -298,8 +298,8 @@ export class RiskMonitoringComponent implements OnInit {
           this.dueDateFromBack = this.dueDateFromFront;
           this.dueDateToBack = this.dueDateToFront;
           // save due date to filter service
-          this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
-          this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
         }
       }
       this.loadData();
@@ -307,35 +307,35 @@ export class RiskMonitoringComponent implements OnInit {
 
   onChangeDDCreatedBy(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "isDDCreatedBy": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isDDCreatedBy": selectElement.value });
       this.isDDCreatedBy = selectElement.value   
       this.loadData();
   }
 
   onChangeLevel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "level": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "level": selectElement.value });
       this.level = selectElement.value   
       this.loadData();
   }
 
   onChangeOffice(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "office": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "office": selectElement.value });
       this.office = selectElement.value   
       this.loadData();
   }
 
   onChangeCRM(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "crm": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "crm": selectElement.value });
       this.crm = selectElement.value   
       this.loadData();
   }
 
   onChangeFuel(event: Event){
     const selectElement = event.target as HTMLSelectElement;
-    this.filterService.setFilterState('risk-monitoring', { "isFuel": selectElement.value });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isFuel": selectElement.value });
       this.isFuel = selectElement.value   
       this.loadData();
   }  
@@ -346,7 +346,7 @@ export class RiskMonitoringComponent implements OnInit {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.filterService.setFilterState('risk-monitoring', { "filter": filterValue.trim().toLowerCase() }); // save search value to filter service
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "filter": filterValue.trim().toLowerCase() }); // save search value to filter service
     this.filter = filterValue.trim().toLowerCase(); 
     this.paginator.pageIndex = 0;
     this.loadData();     
@@ -387,17 +387,17 @@ export class RiskMonitoringComponent implements OnInit {
     this.level = '';
     this.office = '';
     this.crm = '';
-    this.isFuel = '';
+    this.isFuel = 'N';
 
     // reset filter state to default values
-    this.filterService.setFilterState('risk-monitoring', { "isActive": this.isActive });
-    this.filterService.setFilterState('risk-monitoring', { "isDDSelect": this.isDDSelect });
-    this.filterService.setFilterState('risk-monitoring', { "isDDCreatedBy": this.isDDCreatedBy });
-    this.filterService.setFilterState('risk-monitoring', { "level": this.level });
-    this.filterService.setFilterState('risk-monitoring', { "office": this.office });
-    this.filterService.setFilterState('risk-monitoring', { "crm": this.crm });
-    this.filterService.setFilterState('risk-monitoring', { "filter": this.filter });
-    this.filterService.setFilterState('risk-monitoring', { "isFuel": this.isFuel });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isActive": this.isActive });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isDDSelect": this.isDDSelect });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isDDCreatedBy": this.isDDCreatedBy });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "level": this.level });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "office": this.office });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "crm": this.crm });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "filter": this.filter });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "isFuel": this.isFuel });
 
     // reset default date to recent 7 days
     let currentDate = new Date();
@@ -406,8 +406,8 @@ export class RiskMonitoringComponent implements OnInit {
     this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
     this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
     // modify due date front and save to service
-    this.filterService.setFilterState('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
-    this.filterService.setFilterState('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
 
     this.loadData();
   };

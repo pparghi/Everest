@@ -1,28 +1,120 @@
-import { Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
-import { jsPDF } from "jspdf";
-import html2canvas from 'html2canvas';
+import {Observable} from 'rxjs';
+import {map, startWith, tap} from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { RiskMonitoringService } from '../../services/risk-monitoring.service';
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
+
+export interface ClientInterface {
+  ClientId: string;
+  ClientName: string;
+  ClientKey: string;
+  MasterClientKey: string;
+}
+export interface DebtorInterface {
+  DebtorKey: string;
+  DebtorName: string;
+  DebtorNo: string;
+}
 
 @Component({
   selector: 'app-notice-of-accessment',
   templateUrl: './notice-of-accessment.component.html',
   styleUrl: './notice-of-accessment.component.css',
 })
-export class NoticeOfAccessmentComponent {
+export class NoticeOfAccessmentComponent implements OnInit {
    // Define a FormGroup to manage multiple form controls
    noaForm = new FormGroup({
-    client: new FormControl(''), // Client field
-    debtor: new FormControl(''), // Debtor field
+    client: new FormControl<ClientInterface>({ClientId:'', ClientKey:'', ClientName:'', MasterClientKey:''}, [Validators.required]), // Client field
+    debtor: new FormControl<DebtorInterface>({DebtorKey:'', DebtorName:'', DebtorNo:''}, [Validators.required]), // Debtor field
     factorSignature: new FormControl(false), // FormControl for the Factor Signature radio buttons
   });
-  clientOptions: string[] = ['Client One', 'Client Two', 'Client Three'];
-  debtorOptions: string[] = ['Debtor One', 'Debtor Two', 'Debtor Three'];
+  clientOptions: ClientInterface[] = [];
+  debtorOptions: DebtorInterface[] = [];
+  filteredOptions: Observable<ClientInterface[]> | undefined;
+  debtorFilteredOptions: Observable<DebtorInterface[]> | undefined;
+
+  // inputs error type
+  errorTypeClient: string = 'required';
+  errorTypeDebtor: string = 'required';
+  // Parameter to control button state
+  isEmailButtonEnabled: boolean = true; 
+
+  // user profile
+  userID: string = '';
+
 
   // constructor
-  constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService) {}
+  constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService, private addNoteService: RiskMonitoringService) {}
 
+  ngOnInit(): void {
+    this.http.get(GRAPH_ENDPOINT)
+    .subscribe(profile => {
+      this.userID = (profile as any).mail.match(/^([^@]*)@/)[1].toUpperCase();
+    });
+    // Fetch the client list when the component is initialized
+    this.documentsReportsService.getClientsList().subscribe(
+      (response: any) => {
+        this.clientOptions = response.data;
+        this.filteredOptions = this.noaForm.controls['client'].valueChanges.pipe(
+          startWith(''),
+          map(value => {
+            const name = typeof value === 'string' ? value : value?.ClientName;
+            return name ? this._filter(name as string) : this.clientOptions.slice();
+          }),
+        );
+      },
+      (error) => {
+        console.error('Error fetching client list:', error);
+      }
+    );
+
+    // Fetch the debtor list when cllient is selected
+    this.noaForm.controls['client'].valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value?.ClientKey) {
+        this.documentsReportsService.getDebtorListByClientKey(parseInt(value.ClientKey)).subscribe(
+          (response: any) => {
+            this.debtorOptions = [{DebtorNo: 'All Debtors', DebtorName: 'All Debtors', DebtorKey: 'All Debtors'}].concat(response.data);
+            this.debtorFilteredOptions = this.noaForm.controls['debtor'].valueChanges.pipe(
+              startWith(''),
+              map(value => {
+                const name = typeof value === 'string' ? value : value?.DebtorName;
+                return name ? this._debtorFilter(name as string) : this.debtorOptions.slice();
+              }),
+            );
+          },
+          (error) => {
+            console.error('Error fetching debtor list:', error);
+          }
+        );
+
+      }
+    });
+  }
+
+  displayClientName(user: ClientInterface): string {
+    return user && user.ClientName ? user.ClientName : '';
+  }
+  
+  displayDebtorName(user: DebtorInterface): string {
+    return user && user.DebtorName ? user.DebtorName : '';
+  }
+
+  private _filter(name: string): ClientInterface[] {
+    const filterValue = name.toLowerCase();
+
+    return this.clientOptions.filter(option => option.ClientName.toLowerCase().includes(filterValue));
+  }
+
+  private _debtorFilter(name: string): DebtorInterface[] {
+    const filterValue = name.toLowerCase();
+
+    return this.debtorOptions.filter(option => option.DebtorName.toLowerCase().includes(filterValue));
+  }
 
 
 
@@ -44,24 +136,154 @@ export class NoticeOfAccessmentComponent {
   }
 
   
-  // #region create PDF
+  // #region submit form
   // use IRIS API for creating PDF files
-  onSubmit(): void {
-    // const base64Pdf = "JVBERi0xLjQKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nCi9QYWdlcyAyIDAgUgo+PgplbmRvYmoK MiAwIG9iago8PC9UeXBlIC9QYWdlcwovS2lkcyBbMyAwIFJdCi9Db3VudCAxCj4+CmVuZG9iagoz IDAgb2JqCjw8L1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA1OTUgODQy XQovQ29udGVudHMgNSAwIFIKL1Jlc291cmNlcyA8PC9Qcm9jU2V0IFsvUERGIC9UZXh0XQovRm9u dCA8PC9GMSA0IDAgUj4+Cj4+Cj4+CmVuZG9iago0IDAgb2JqCjw8L1R5cGUgL0ZvbnQKL1N1YnR5 cGUgL1R5cGUxCi9OYW1lIC9GMQovQmFzZUZvbnQgL0hlbHZldGljYQovRW5jb2RpbmcgL01hY1Jv bWFuRW5jb2RpbmcKPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDUzCj4+CnN0cmVhbQpCVAov RjEgMjAgVGYKMjIwIDQwMCBUZAooRHVtbXkgUERGKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhy ZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDA5IDAwMDAwIG4KMDAwMDAwMDA2MyAw MDAwMCBuCjAwMDAwMDAxMjQgMDAwMDAgbgowMDAwMDAwMjc3IDAwMDAwIG4KMDAwMDAwMDM5MiAw MDAwMCBuCnRyYWlsZXIKPDwvU2l6ZSA2Ci9Sb290IDEgMCBSCj4+CnN0YXJ0eHJlZgo0OTUKJSVF T0YK"; // Replace with your Base64-encoded PDF string
-    // this.openBase64Pdf(base64Pdf);
-
-    this.documentsReportsService.callNOAIRISAPI(11568, 72020, 1).subscribe(
-      (response: any) => {  
-        // Handle the response from the API
-        // console.log('API Response:', response.result.replace(/\\/g, ''));
-        this.openBase64Pdf(response.result.replace(/\\/g, ''));
+  onSubmit(event: Event): void {
+    console.log('Form Submitted: ', this.noaForm.value.client, this.noaForm.value.debtor, this.noaForm.value.factorSignature);
+    // check form inputs
+    if (typeof(this.noaForm.value.client) === 'string'){
+      if (this.noaForm.value.client === '') {
+        this.errorTypeClient = 'required';
+        this.noaForm.controls['client'].setErrors({reqired: true});
+        return;
       }
-    );
+      else {
+        this.errorTypeClient = 'error';
+        this.noaForm.controls['client'].setErrors({reqired: true});
+        return;
+      }
+    }
+    else {
+      if (!this.noaForm.value.client?.ClientKey){
+        this.errorTypeClient = 'required';
+        this.noaForm.controls['client'].setErrors({reqired: true});
+        return;
+      }
+    }
+    
+    if (typeof(this.noaForm.value.debtor) === 'string'){
+      if (this.noaForm.value.debtor === '') {
+        this.errorTypeDebtor = 'required';
+        this.noaForm.controls['debtor'].setErrors({reqired: true});
+        return;
+      }
+      else {
+        this.errorTypeDebtor = 'error';
+        this.noaForm.controls['debtor'].setErrors({reqired: true});
+        return;
+      }
+    }
+    else {
+      if (!this.noaForm.value.debtor?.DebtorKey){
+        this.errorTypeDebtor = 'required';
+        this.noaForm.controls['debtor'].setErrors({reqired: true});
+        return;
+      }
+    }
+
+    const target = event.target as HTMLButtonElement;
+    const buttonValue = (target.querySelector('button[type="submit"]:focus') as HTMLButtonElement)?.value;
+    // when click create PDF button
+    if (buttonValue === 'createIndividualPDF') {
+      if (this.noaForm.value.debtor.DebtorKey === 'All Debtors') {
+        this.errorTypeDebtor = 'notAll';
+        this.noaForm.controls['debtor'].setErrors({reqired: true});
+        return;
+      }
+      // this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'').subscribe(
+      //   (response: any) => {
+      //     // Handle the response from the API
+      //     this.openBase64Pdf(response.result);
+      //     // this.openBase64Pdf(response.result.replace(/\\/g, '')); // cleanout the PDF base64 string, replace all \ with empty char
+      //   }
+      // );
+    }
+    if (buttonValue === 'emailAllDebtors') {
+      let debtorKeyArray = [];
+      if (this.noaForm.value.debtor.DebtorKey === 'All Debtors') {
+        debtorKeyArray = this.debtorOptions.filter((debtor) => debtor.DebtorKey !== 'All Debtors');
+      }
+      else {
+        debtorKeyArray = [this.noaForm.value.debtor];
+      }
+      // send email to one debtor
+      let confirmed = false;
+      let successDebtors:string[] = [];
+      let failedDebtors:string[] = [];
+      if (debtorKeyArray.length === 1) {
+        confirmed = window.confirm('Are you sure you want to send NOA email to ' + debtorKeyArray[0].DebtorName + '?'); // Add confirmation popup
+      }
+      // send email to all debtors
+      else {
+        confirmed = window.confirm('Are you sure you want to send NOA emails to ' + debtorKeyArray.length + ' debtors?'); // Add confirmation popup
+      }
+      if (confirmed) {
+        this.isEmailButtonEnabled = false; // Disable the button
+        // Create an array of API call observables
+        const apiCalls = debtorKeyArray.map((debtor) =>
+          this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '')
+            .pipe(
+              tap((response: any) => {
+                // Handle the response from the API
+                if (response.resultType==='email_sent' && response.result === 'success') {
+                  successDebtors.push(debtor.DebtorName);
+                }
+                else if (response.resultType==='email_sent' && response.result === 'failed') {
+                  failedDebtors.push(debtor.DebtorName);
+                }
+              }),
+              catchError((error) => {
+                console.error(`Error sending email to debtor ${debtor.DebtorName}:`, error);
+                return of(null); // Return a null value to continue processing other calls
+              })
+            )
+        );
+        // Use forkJoin to wait for all API calls to complete
+        forkJoin(apiCalls).subscribe(
+          (responses) => {
+            // Handle all responses here
+            // #region add notes
+            const noteMessage = ''+this.noaForm.value.client?.ClientName + ": NOA PDFs Created " + debtorKeyArray.length + ", Emailed " + successDebtors.length;
+            this.addNoteService.addNotesRisk(this.noaForm.value.client?.MasterClientKey??'', 'Other', noteMessage, '', '1', this.userID, '').subscribe(response => {      
+              console.log('Note added successfully:', response);
+            }, error => {
+              alert('Failed adding note');
+            });
+
+            console.log('All responses received:', responses);
+            window.alert('All emails have been sent!\n' +
+              'Success: ' + successDebtors.join(', ') + '\n' + 
+              'Failed: ' + failedDebtors.join(', '));
+              this.isEmailButtonEnabled = true; // Re-enable the button
+          },
+          (error) => {
+            console.error('Error sending emails:', error);
+            window.alert('An error occurred while sending emails.');
+            this.isEmailButtonEnabled = true; // Re-enable the button
+          }
+        );
+
+        // Call the API to send emails
+        // for (let debtor of debtorKeyArray){
+        //   this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature??false,true,false,true,false,true,false,false,'rsun@baron.finance').subscribe(
+        //     (response: any) => {
+        //       // Handle the response from the API
+        //       console.log('response:', response);
+        //     },
+        //     (error) => {
+        //       console.error('Error sending email:', error);
+        //     }
+        //   );
+
+        // }
+      }
+    }
 
   }
   // #endregion create PDF
 
 
+  // #region template PDF
   /* Use html template to create PDF
   
   modifyTemplate( htmlStr: string): string {
@@ -137,4 +359,5 @@ export class NoticeOfAccessmentComponent {
 
   }
     */
+   // #endregion template PDF
 }

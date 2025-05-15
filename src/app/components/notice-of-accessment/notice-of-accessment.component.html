@@ -1,24 +1,39 @@
 <h2>Create NOA</h2>
-<form class="NOA-form" [formGroup]="noaForm" (ngSubmit)="onSubmit()">
+<form class="NOA-form" [formGroup]="noaForm" (ngSubmit)="onSubmit($event)">
     <mat-form-field appearance="fill">
         <mat-label>Client</mat-label>
         <input type="text" placeholder="Pick one" aria-label="Client" matInput formControlName="client"
-            [matAutocomplete]="clientAuto">
-        <mat-autocomplete #clientAuto="matAutocomplete">
-            @for (option of clientOptions; track option) {
-            <mat-option [value]="option">{{option}}</mat-option>
+            [matAutocomplete]="clientAuto" (keydown.enter)="$event.preventDefault()">
+        <mat-autocomplete #clientAuto="matAutocomplete" [displayWith]="displayClientName">
+            @for (option of filteredOptions | async; track option) {
+            <mat-option [value]="option">{{option.ClientName}}</mat-option>
             }
         </mat-autocomplete>
+        @if (errorTypeClient === 'required') {
+            <mat-error>Client is needed</mat-error>
+        }
+        @if (errorTypeClient === 'error') {
+            <mat-error>Wrong input, please select from list</mat-error>
+        }
     </mat-form-field>
     <mat-form-field appearance="fill">
         <mat-label>Debtor</mat-label>
         <input type="text" placeholder="Pick one" aria-label="Debtor" matInput formControlName="debtor"
-            [matAutocomplete]="auto">
-        <mat-autocomplete #auto="matAutocomplete">
-            @for (option of debtorOptions; track option) {
-            <mat-option [value]="option">{{option}}</mat-option>
+            [matAutocomplete]="debtorAuto" (keydown.enter)="$event.preventDefault()">
+        <mat-autocomplete #debtorAuto="matAutocomplete" [displayWith]="displayDebtorName">
+            @for (option of debtorFilteredOptions | async; track option) {
+            <mat-option [value]="option">{{option.DebtorName}}</mat-option>
             }
         </mat-autocomplete>
+        @if (errorTypeDebtor === 'notAll') {
+            <mat-error>Please select a single debtor</mat-error>
+        }
+        @if (errorTypeDebtor === 'required') {
+            <mat-error>Debtor is needed</mat-error>
+        }
+        @if (errorTypeDebtor === 'error') {
+            <mat-error>Wrong input, please select from list</mat-error>
+        }
     </mat-form-field>
 
     <mat-label>Factor Signature</mat-label>
@@ -27,5 +42,9 @@
         <mat-radio-button [value]="true">Yes</mat-radio-button>
     </mat-radio-group>
     <br>
-    <button mat-flat-button color="primary" type="submit">Submit</button>
+    <div class="buttons-in-row">
+        <button mat-flat-button color="success" type="submit" value="createIndividualPDF">Create Individual NOA PDF</button>
+        <button mat-flat-button color="success" type="submit" value="emailAllDebtors" [disabled]="!isEmailButtonEnabled">Email NOA To Selected Debtor(s)</button>
+    </div>
+    
 </form>

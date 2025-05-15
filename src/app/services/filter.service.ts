@@ -35,4 +35,29 @@ export class FilterService {
   getFilterState(pageName: string) {
     return this.allPageFilterState[pageName];
   }
+
+
+  /* ************************************************************
+  * Description: Save the current filter state to sessionStorage
+  * Parameters: pageName: string, filterState: json object ie. { "filter1": "value1"}
+  * Returns: void
+  * ************************************************************ */
+  saveFiltersToSessionStorage(pageName: string, filterState: any): void {
+    // load save filters first
+    let temp : any = this.loadFromSessionStorage(pageName);
+    for (const key in filterState) {
+      temp[key] = filterState[key];
+    }
+    sessionStorage.setItem(pageName, JSON.stringify(temp));
+  }
+
+  /* ************************************************************
+  * Description: Load the filter state from sessionStorage
+  * Parameters: pageName: string
+  * Returns: all states of a page in Json type ie. { "filter1": "value1"}
+  * ************************************************************ */
+  loadFromSessionStorage(pageName: string) {
+    const savedState = sessionStorage.getItem(pageName);
+    return savedState?JSON.parse(savedState):{};
+  }
 }

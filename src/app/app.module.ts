@@ -63,6 +63,7 @@ import { NoticeOfAccessmentComponent } from './components/notice-of-accessment/n
 import {MatMenuModule} from '@angular/material/menu';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatRadioModule} from '@angular/material/radio';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
@@ -158,6 +159,7 @@ import {MatRadioModule} from '@angular/material/radio';
     MatMenuModule,
     MatAutocompleteModule,
     MatRadioModule,
+    MatProgressBarModule,
   ],
   providers: [
     CacheService,
