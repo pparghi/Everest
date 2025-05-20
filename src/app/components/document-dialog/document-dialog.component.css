@@ -190,3 +190,11 @@
 	padding: 10px;
 	background-color: #ffffff;
 }
+
+.invoiceNumberClickable{
+	color:#1e5cd8
+}
+
+.invoiceNumberClickable:hover {
+	color:#133984
+}

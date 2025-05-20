@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { LoginService } from '../../services/login.service';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
 import { FilterService } from '../../services/filter.service';
+import { DocumentsReportsService } from '../../services/documents-reports.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -94,7 +95,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
 
   isSortSubscribed = false; // flag of sort subscription, avoid multiple subscriptions
 
-    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService) {      
+    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService, private documentsReportsService: DocumentsReportsService) {      
     }
     ngOnInit(): void {  
       const filterValues = this.filterService.getFilterState("master-debtors"); // get filter state from filter service
@@ -513,5 +514,14 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
       this.filterByBalance = selectElement.value          
       this.loadData();
   }
-   
+
+  // event of clicking report button 
+  getReportLink (element: DataItem){
+    // console.log("element--",element);
+    this.documentsReportsService.callAnsoniaAPI(element?.MotorCarrNo.toString()??'',element.Debtor??'',element.Addr1??'',element.City??'',element.State??'',element.Country??'').subscribe((response: { url: string }) => { 
+      // console.log('response--', response);
+      window.open(response.url, "_blank");
+    });
+  } 
+
 }

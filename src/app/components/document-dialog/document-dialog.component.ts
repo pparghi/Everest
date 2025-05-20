@@ -14,6 +14,8 @@ import { ClientsInvoicesService } from '../../services/clients-invoices.service'
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { AddressService } from '../../services/address.service';
 import { MatTableExporterDirective } from 'mat-table-exporter';
+import { DocumentsReportsService } from '../../services/documents-reports.service';
+
 // import imageCompression from 'browser-image-compression';
 declare var pca: any;
 
@@ -107,7 +109,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   trendPeriodChar: string = 'M';
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService) {
     if (data.openChequeSearchForm) {
       this.chequeSearchForm = this.fb.group({
         CheckNo: [''],
@@ -603,6 +605,160 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
     // console.log(selectElement.value); 
     this.loadTrendDialogData(this.trendDebtorKey, this.trendClientNo, this.trendPeriodChar);
   }
+
+  // endregion
+
+  //region debtor statement details functions
+  // function for fetching api data for the trend dialog and save to ticketingTrendDataSource
+  clickInvoiceNumber(element: any) {
+    // console.log('element--', element);
+    // Open a blank tab immediately
+    const newTab = window.open('', '_blank');
+
+    if (!newTab) {
+      console.error('Failed to open new tab. Popup blocker might be enabled.');
+      return;
+    }
+
+    // add progress spinner to the new tab
+    newTab.document.body.innerHTML = `
+      <html>
+        <head>
+          <title>Invoice - ${element.InvNo}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+            }
+            .loading-message {
+              text-align: center;
+            }
+            .spinner {
+              border: 4px solid #f3f3f3;
+              border-top: 4px solid #3498db;
+              border-radius: 50%;
+              width: 40px;
+              height: 40px;
+              animation: spin 1s linear infinite;
+              margin: 10px auto;
+            }
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="loading-message">
+            <div class="spinner"></div>
+            <p>Loading invoice ${element.InvNo}, please wait...</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // console.log("element--",element);
+    this.documentsReportsService.callInvoiceImageAPI(element.InvoiceKey, 0).subscribe((response: any) => {
+      // console.log('response--', response);
+
+      //when no pdf string is returned
+      if (response && response?.pdf) {
+        // Decode the Base64 string and create a Blob
+        const byteCharacters = atob(response.pdf);
+        const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+        // Create a URL for the Blob
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Update the new tab with the PDF URL
+        newTab.location.href = blobUrl;
+
+        // Revoke the object URL when the tab is closed
+        const revokeUrl = () => {
+          URL.revokeObjectURL(blobUrl);
+          console.log('Blob URL revoked');
+        };
+  
+        const interval = setInterval(() => {
+          if (newTab.closed) {
+            clearInterval(interval);
+            revokeUrl();
+          }
+        }, 1000);
+      }
+      // condition when no invoice found
+      else if(response?.status == 'success'){
+        // update the new tab with a message
+        newTab.document.body.innerHTML = `
+          <html>
+            <head>
+              <title>Invoice - ${element.InvNo}</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100vh;
+                  margin: 0;
+                }
+                .loading-message {
+                  text-align: center;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="loading-message">
+                <p>No Invoice Images Found for ${element.InvNo}.</p>
+              </div>
+            </body>
+          </html>
+        `;
+      }
+      // condition when no pdf string is returned
+      else {
+        // update the new tab with a message
+        newTab.document.body.innerHTML = `
+          <html>
+            <head>
+              <title>Invoice - ${element.InvNo}</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100vh;
+                  margin: 0;
+                }
+                .loading-message {
+                  text-align: center;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="loading-message">
+                <p>Loading invoice ${element.InvNo} is timeout, please close this tab and try again.</p>
+              </div>
+            </body>
+          </html>
+        `;
+      }
+
+    },
+      (error) => {
+        console.error('Error fetching invoice data:', error);
+        newTab.close(); // Close the blank tab if the API call fails
+      }
+    );
+  }
+
 
   // endregion
 

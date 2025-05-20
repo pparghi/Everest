@@ -118,7 +118,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
 
 
 
-  openBase64Pdf(base64String: string): void {
+  openBase64Pdf(base64String: string, fileName: string): void {
     // Decode the Base64 string and create a Blob
     const byteCharacters = atob(base64String);
     const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
@@ -128,11 +128,48 @@ export class NoticeOfAccessmentComponent implements OnInit {
     // Create a URL for the Blob
     const blobUrl = URL.createObjectURL(blob);
 
+    console.log('Blob URL:', blobUrl);
     // Open the PDF in a new tab
-    window.open(blobUrl, '_blank');
+    const newTab = window.open('', '_blank');
 
-    // Optionally, revoke the object URL after some time to free up memory
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    if (!newTab) {
+      console.error('Failed to open new tab. Popup blocker might be enabled.');
+      return;
+    }
+
+    // change file name 
+    newTab.document.head.innerHTML = `
+      <title>${fileName}</title> <!-- Set the title dynamically -->
+      <style>
+        body {
+          margin: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background-color: #f0f0f0;
+        }
+        iframe {
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
+      </style>
+  `;
+  newTab.document.body.innerHTML = `<iframe src="${blobUrl}" title="${fileName+'.pdf'}"></iframe>`;
+
+    // Revoke the object URL when the tab is closed
+    const revokeUrl = () => {
+      URL.revokeObjectURL(blobUrl);
+      console.log('Blob URL revoked');
+    };
+
+    const interval = setInterval(() => {
+      if (newTab.closed) {
+        clearInterval(interval);
+        revokeUrl();
+      }
+    }, 1000);
   }
 
   
@@ -193,7 +230,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
       this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'').subscribe(
         (response: any) => {
           // Handle the response from the API
-          this.openBase64Pdf(response.result);
+          this.openBase64Pdf(response.result, "NOA-"+this.noaForm.value.client?.ClientName+"-"+this.noaForm.value.debtor?.DebtorName);
           // this.openBase64Pdf(response.result.replace(/\\/g, '')); // cleanout the PDF base64 string, replace all \ with empty char
         }
       );

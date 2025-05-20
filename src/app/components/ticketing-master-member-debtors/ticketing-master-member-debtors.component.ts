@@ -10,6 +10,7 @@ import { DebtorsApiService } from '../../services/debtors-api.service';
 import { LoginService } from '../../services/login.service';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { DocumentsReportsService } from '../../services/documents-reports.service';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
@@ -57,7 +58,7 @@ export class TicketingMasterMemberDebtorsComponent implements OnInit {
     @ViewChild(MatSort) sort!: MatSort;
 
 
-  constructor(private route: ActivatedRoute, private masterDebtorService: DebtorsApiService,  private http: HttpClient,  private dataService: MemberDebtorsService, private router: Router,private loginService: LoginService){}
+  constructor(private route: ActivatedRoute, private masterDebtorService: DebtorsApiService,  private http: HttpClient,  private dataService: MemberDebtorsService, private router: Router,private loginService: LoginService, private documentsReportsService: DocumentsReportsService){}
     
     ngOnInit(): void {
       this.route.queryParams.subscribe(params => {        
@@ -290,6 +291,15 @@ export class TicketingMasterMemberDebtorsComponent implements OnInit {
         
     });
   }
+
+  // event of clicking report button 
+  getReportLink (element: any){
+    // console.log("element--",element);
+    this.documentsReportsService.callAnsoniaAPI(element?.MotorCarrNo.toString()??'',element.Debtor??'',element.Addr1??'',element.City??'',element.State??'',element.Country??'').subscribe((response: { url: string }) => { 
+      // console.log('response--', response);
+      window.open(response.url, "_blank");
+    });
+  } 
   
 }
 

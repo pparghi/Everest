@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { CacheService } from './cache.service';
+import { tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentsReportsService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private cacheService: CacheService) { }
 
   //call the API to get list of clients
   getClientsList() {
@@ -31,6 +33,36 @@ export class DocumentsReportsService {
     
     // Make the GET request
     return this.http.get(url, {responseType: 'json'});
+  }
+
+  // Call the API to get ansonia report url
+  callAnsoniaAPI(MCNumber: string, Name: string, Address: string, City: string, State: string, Country: string) {
+    // Construct the URL with the parameters
+    const url = `https://everest.revinc.com:4202/api/callAnsoniaAPI?MCNumber=${MCNumber}&Name=${Name}&Address=${Address}&City=${City}&State=${State}&Country=${Country}`;
+    
+    // Make the GET request
+    return this.http.get<{ url: string }>(url, {responseType: 'json'});
+  }
+  
+  // Call the API to get invoice pdf
+  callInvoiceImageAPI(invoicekey: number, includeStamp: number) {
+    // Construct the URL with the parameters
+    const url = `https://everest.revinc.com:4202/api/callInvoiceImageAPI?invoicekey=${invoicekey}&includeStamp=${includeStamp}`;
+    
+    // Make the GET request
+    // return this.http.get(url, {responseType: 'json'});
+
+    return this.http.get(url, {responseType: 'json'}).pipe(
+      tap((response: any) => {
+        if (response && response?.status) {
+          // Cache the response if it's valid
+          this.cacheService.put(url, response);
+        } else {
+          // Clear the cache for this URL if the response is empty
+          this.cacheService.put(url, null); // Optional: Cache null to avoid repeated calls
+        }
+      })
+    );
   }
 
 }

@@ -128,8 +128,16 @@
               placeholder="N/A">
           </div>
           <div class="col-md-3">
-            <label for="Terms" class="form-label">Terms</label>
-            <input type="text" id="Terms" class="form-control" formControlName="Terms" placeholder="N/A">
+            <div class="row">
+              <div class="col-md-6">
+                <label for="IndivCreditLimit" class="form-label">S.C. Limit</label>
+                <input type="text" id="IndivCreditLimit" class="form-control" formControlName="IndivCreditLimit" placeholder="N/A">
+              </div>
+              <div class="col-md-6">
+                <label for="Terms" class="form-label">Terms</label>
+                <input type="text" id="Terms" class="form-control" formControlName="Terms" placeholder="N/A">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -515,7 +523,7 @@
 
           <ng-container matColumnDef="Invoice#">
             <th mat-header-cell *matHeaderCellDef>Invoice#</th>
-            <td mat-cell *matCellDef="let element">{{ element.InvNo }}</td>
+            <td mat-cell *matCellDef="let element" class="invoiceNumberClickable" (click)="clickInvoiceNumber(element)">{{ element.InvNo }}</td>
           </ng-container>
 
           <ng-container matColumnDef="InvDate">

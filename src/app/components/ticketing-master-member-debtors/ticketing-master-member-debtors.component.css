@@ -144,3 +144,6 @@
     padding: 10px;   
    }
   
+.report-button:hover {
+  color:#061c80
+}

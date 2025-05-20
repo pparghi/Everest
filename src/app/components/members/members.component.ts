@@ -12,6 +12,7 @@ import { DocumentDialogComponent } from '../document-dialog/document-dialog.comp
 import { MatDialog } from '@angular/material/dialog';
 import { LoginService } from '../../services/login.service';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
+import { DocumentsReportsService } from '../../services/documents-reports.service';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 interface DataItem {
@@ -82,7 +83,7 @@ export class MembersComponent implements OnInit {
   NavOptionRiskMonitoringRestricted: any;
   NavAccessRiskMonitoringRestricted: any;
 
-  constructor(private route: ActivatedRoute, private masterDebtorService: DebtorsApiService,  private http: HttpClient,  private dataService: MemberDebtorsService, private router: Router,private loginService: LoginService){}
+  constructor(private route: ActivatedRoute, private masterDebtorService: DebtorsApiService,  private http: HttpClient,  private dataService: MemberDebtorsService, private router: Router,private loginService: LoginService, private documentsReportsService: DocumentsReportsService){}
     
     ngOnInit(): void {
       this.route.queryParams.subscribe(params => {        
@@ -385,4 +386,14 @@ openDebtorStatementsDialog(DebtorKey: number){
       
 });    
 }
+
+  // event of clicking report button 
+  getReportLink (element: DataItem){
+    // console.log("element--",element);
+    this.documentsReportsService.callAnsoniaAPI(element?.MotorCarrNo.toString()??'',element.Debtor??'',element.Addr1??'',element.City??'',element.State??'',element.Country??'').subscribe((response: { url: string }) => { 
+      // console.log('response--', response);
+      window.open(response.url, "_blank");
+    });
+  } 
+
 }
