@@ -1,22 +1,117 @@
-.autocomplete {
-    position: relative;
+.page-container {
+    overflow: auto;
+    padding: 7px;
     width: 100%;
-   }
-   .suggestions-list {
-    position: absolute;
-    width: 100%;
-    background: white;
-    border: 1px solid #ccc;
-    max-height: 200px;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content:flex-start;
+}
+
+.filter-input {
+    font-size: small;
+}
+
+.filter-unit {
+    display:block;
+    padding-left: 10px;
+}
+
+.search-button {
+    display: flex;
+    align-items:center; 
+    justify-content: center;
+    width: 100px;
+    height: 30px;
+    margin-top: 20px;
+    margin-left: 30px;
+    border-radius: 7px;
+    border: 0;
+    background-color: #383b91;
+    color: white;
+    font-size: 14px;
+}
+.search-button:hover {
+    background-color: #252763;
+    color: white;
+}
+
+.download-button {
+    display: flex;
+    align-items:center; 
+    justify-content: center;
+    width: 100px;
+    height: 30px;
+    margin-top: 20px;
+    margin-left: 10px;
+    border-radius: 7px;
+    border: none;
+    background-color: #383b91;
+    color: white;
+    font-size: 14px;
+}
+.download-button:hover {
+    background-color: #252763;
+    color: white;
+}
+
+.button-icon{
+    font-size: 20px;
+}
+
+#DisputeCode {
+    width: 300px;
+    border: 1px solid #767676;
+    border-radius: 2px;
+}
+
+::ng-deep .disputeCode-Tooltip .mdc-tooltip__surface {
+    max-width: 500px !important;
+}
+
+.main-table-container {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    max-height: 700px;
     overflow-y: auto;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-   }
-   .suggestions-list li {
-    padding: 10px;
-    cursor: pointer;
-   }
-   .suggestions-list li:hover {
-    background: #f0f0f0;
-   }
+    background-color: #ffffff;
+    margin-top: 10px;
+}
+
+.mat-table {
+    background-color: white;
+}
+
+.mat-mdc-header-cell.invDate-column, .mat-mdc-cell.invDate-column {
+    width: 110px !important; 
+  } 
+
+.element-row .mat-mdc-cell {
+    /* white-space: nowrap;  */
+    /* overflow: hidden;
+    text-overflow: ellipsis; */
+    font-size: 13px;
+  }
+
+  /* .element-row {
+    border: 0;
+    height: 35px;
+  } */
+
+.invoiceNumberClickable{
+	color:#1e5cd8;
+}
+
+.invoiceNumberClickable:hover {
+	color:#133984;
+	cursor: pointer;
+}
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px; 
+}

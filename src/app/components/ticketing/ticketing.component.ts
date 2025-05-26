@@ -290,8 +290,8 @@ export class TicketingComponent {
           var userId = this.profile.mail.match(/^([^@]*)@/)[1];
           this.user = userId
           
-          const dialogRef = this.dialog.open(DocumentDialogComponent, {         
-            width: '1050px',       
+          const dialogRef = this.dialog.open(DocumentDialogComponent, {     
+            width: '1050px',   
             maxWidth: 'none',   
             height: 'auto',    
             panelClass: 'custom-dialog-container',                       

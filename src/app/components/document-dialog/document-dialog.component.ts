@@ -98,7 +98,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
 
   focusedInputOfAdress: string = 'address1';
 
-  // ticketing page
+  // #region ticketing variables
   @ViewChild(MatTableExporterDirective) exporter!: MatTableExporterDirective; 
   displayedColumns: string[] = ['YearMonth', 'Purchases', 'PurchasesAvg', 'PurchasesNo', 'PaiTodZero', 'Recoursed', 'AvgWeightedDays'];
   ticketingTrendDataSource = new MatTableDataSource<any>();
@@ -163,7 +163,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
 
       this.debtor = data.Debtor
     } else if (data.openTicketForm) {
-      // region ticketing page
+      // #region ticketing page
+      console.log('ticketing data--', data);
 
       // request tab
       const roundThousandsPipe = new RoundThousandsPipe();
@@ -192,6 +193,14 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
         Balance: [data.Balance || ''],
         PastDue: [data.PastDue || ''],
         Available: [data.Available || ''],
+        PONumber: '',
+        ShipDate: '',
+        EstablishedDate: '',
+        Terms: '',
+        ExpiresDate: '',
+        Action: '',
+        NewLimit: '',
+        ExpiresInMonths: '',
       })
 
       this.debtor = data.Debtor
@@ -552,9 +561,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
 
   getFileExtension(filename: string): string { const extension = filename.split('.').pop(); return extension ? extension.toLowerCase() : ''; }
 
-  onTicketEdit() {
-
-  }
+  
 
   onCreateTicket() {
     if (this.addNewTicketForm.valid) {
@@ -606,9 +613,14 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
     this.loadTrendDialogData(this.trendDebtorKey, this.trendClientNo, this.trendPeriodChar);
   }
 
+  // submit the ticketing request tab form and save
+  onTicketEdit() {
+    console.log('edit ticketing form--', this.editTicketForm)
+  }
+
   // endregion
 
-  //region debtor statement details functions
+  // #region debtor statement details functions
   // function for fetching api data for the trend dialog and save to ticketingTrendDataSource
   clickInvoiceNumber(element: any) {
     // console.log('element--', element);

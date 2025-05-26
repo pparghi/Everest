@@ -1,15 +1,168 @@
+<div class="page-container">
+    <form class="NOA-form" [formGroup]="filterForm">
+        <div class="filter-container">
+            <div class="filter-unit">
+                <label for="InvFrom"><b>Inv From</b></label> <br>
+                <input type="date" id="InvFrom" class="filter-input" style="width: 100px;" formControlName="InvFrom"
+                    (keydown.enter)="$event.preventDefault()">
+            </div>
+            <div class="filter-unit">
+                <label for="InvTo"><b>Inv To</b></label> <br>
+                <input type="date" id="InvTo" class="filter-input" style="width: 100px;" formControlName="InvTo"
+                    (keydown.enter)="$event.preventDefault()">
+            </div>
+            <div class="filter-unit">
+                <label for="InvoviceNumber"><b>Invoice#</b></label> <br>
+                <input type="text" id="InvoviceNumber" class="filter-input" style="width: 100px;"
+                    formControlName="InvoviceNumber" (keydown.enter)="$event.preventDefault()">
+            </div>
+            <div class="filter-unit">
+                <label for="POLoadNumber"><b>PO#/ Load#</b></label> <br>
+                <input type="text" id="POLoadNumber" class="filter-input" style="width: 100px;"
+                    formControlName="POLoadNumber" (keydown.enter)="$event.preventDefault()">
+            </div>
+            <div class="filter-unit">
+                <label for="Client"><b>Client</b></label> <br>
+                <input type="text" id="Client" class="filter-input" style="width: 100px;" formControlName="Client"
+                    (keydown.enter)="$event.preventDefault()">
+            </div>
+            <div class="filter-unit">
+                <label for="Debtor"><b>Debtor</b></label> <br>
+                <input type="text" id="Debtor" class="filter-input" style="width: 100px;" formControlName="Debtor"
+                    (keydown.enter)="$event.preventDefault()">
+            </div>
+            <div class="filter-unit">
+                <label for="Status"><b>Status</b></label> <br>
+                <select id="Status" style="width: 120px;" formControlName="Status">
+                    @for (status of invoiceStatusList; track status.StatusCode) {
+                    <option value={{status.StatusCode}}>{{status.StatusText}}</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-unit">
+                <label for="CRM"><b>CRM</b></label> <br>
+                <select id="CRM" style="width: 120px;" formControlName="CRM">
+                    <option value=""></option>
+                    @for (crm of clientCRMList; track crm.UserKey) {
+                    <option value={{crm.UserKey}}>{{crm.UserKey}}</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-unit">
+                <label for="DisputeCode"><b>Dispute Code</b></label> <br>
+                <mat-select id="DisputeCode" formControlName="DisputeCode" multiple
+                    matTooltip="{{displaySelectedDisputeCode()}}" matTooltipClass="disputeCode-Tooltip">
+                    @for (disputeCode of disputeCodeList; track disputeCode.DisputeCodeKey) {
+                    <mat-option value={{disputeCode.DisputeCodeKey}}>{{disputeCode.DisputeCode}}</mat-option>
+                    }
+                </mat-select>
+            </div>
+            <div class="filter-unit">
+                <label for="BatchNumber"><b>Batch#</b></label> <br>
+                <input type="text" id="BatchNumber" class="filter-input" style="width: 100px;"
+                    formControlName="BatchNumber" (keydown.enter)="$event.preventDefault()">
+            </div>
+            <div class="filter-unit">
+                <button class="search-button" (click)="onSubmitFilters()"><mat-icon fontIcon="search"
+                        class="button-icon"></mat-icon>Search</button>
+            </div>
+            <div class="filter-unit">
+                <button class="download-button" (click)="exportSelectedToExcel()" [disabled]="!selection.hasValue()">
+                    <mat-icon fontIcon="download" class="button-icon"></mat-icon>Download
+                </button>
+            </div>
+        </div>
+    </form>
+    <div class="main-table-container">
+        <table mat-table [dataSource]="invoiceListSource" class="mat-elevation-z8" class="mat-table">
 
-<!-- <div class="autocomplete">
-    <input
-       type="text"
-       [(ngModel)]="query"
-       (input)="onQueryChange()"
-       placeholder="Enter address"
-       class="form-control"
-     />
-    <ul *ngIf="suggestions.length" class="suggestions-list">
-        <li *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)">
-            {{ suggestion.text }} {{ suggestion.description }}
-        </li>
-    </ul>
-</div> -->
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox 
+                    (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()">
+                </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                <mat-checkbox
+                    (click)="$event.stopPropagation()"
+                    (change)="$event ? selection.toggle(row) : null"
+                    [checked]="selection.isSelected(row)">
+                </mat-checkbox>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="InvDate">
+                <th mat-header-cell *matHeaderCellDef class="invDate-column"> Inv Date </th>
+                <td mat-cell *matCellDef="let element" class="invDate-column"> {{element.InvDate | date:'yyyy-MM-dd'}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="OpenDays">
+                <th mat-header-cell *matHeaderCellDef> Age </th>
+                <td mat-cell *matCellDef="let element"> {{element.OpenDays}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="InvNo">
+                <th mat-header-cell *matHeaderCellDef> Invoice# </th>
+                <td mat-cell *matCellDef="let element" class="invoiceNumberClickable" (click)="clickInvoiceNumber(element)"> {{element.InvNo}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="PurchOrd">
+                <th mat-header-cell *matHeaderCellDef> PO#/ Load# </th>
+                <td mat-cell *matCellDef="let element"> {{element.PurchOrd}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Client">
+                <th mat-header-cell *matHeaderCellDef> Client Name </th>
+                <td mat-cell *matCellDef="let element" title="{{ element.Client }}"> {{element.Client}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Debtor">
+                <th mat-header-cell *matHeaderCellDef> Debtor Name </th>
+                <td mat-cell *matCellDef="let element"> {{element.Debtor}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element"> {{element.Status}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="AcctExec">
+                <th mat-header-cell *matHeaderCellDef> CRM </th>
+                <td mat-cell *matCellDef="let element"> {{element.AcctExec}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="DisputeCode">
+                <th mat-header-cell *matHeaderCellDef> Dispute Code </th>
+                <td mat-cell *matCellDef="let element"> {{element.DisputeCode}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="BatchNo">
+                <th mat-header-cell *matHeaderCellDef> Batch# </th>
+                <td mat-cell *matCellDef="let element"> {{element.BatchNo}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Amt">
+                <th mat-header-cell *matHeaderCellDef> Amount </th>
+                <td mat-cell *matCellDef="let element"> {{element.Amt | number:'1.2-2'}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Balance">
+                <th mat-header-cell *matHeaderCellDef> Balance </th>
+                <td mat-cell *matCellDef="let element"> {{element.Balance | number:'1.2-2'}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="invoceColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: invoceColumns;" class="element-row"></tr>
+        </table>
+    </div>
+    <div class="spinner-container" *ngIf="isLoading;">
+        <mat-spinner class="custom-spinner"></mat-spinner>
+    </div>
+    <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="pageSize"
+        showFirstLastButtons
+        aria-label="Select page of periodic elements">
+    </mat-paginator>
+</div>

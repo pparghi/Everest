@@ -15,7 +15,7 @@ import { NgxDatatableModule} from '@swimlane/ngx-datatable';
 import { DataTablesModule } from 'angular-datatables';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MembersComponent } from './components/members/members.component';
 import { TableOverviewExampleComponent } from './components/table-overview-example/table-overview-example.component';
 import { MatFormField, MatFormFieldModule, MatFormFieldControl } from '@angular/material/form-field';

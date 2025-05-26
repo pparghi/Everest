@@ -176,7 +176,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
   // #region submit form
   // use IRIS API for creating PDF files
   onSubmit(event: Event): void {
-    console.log('Form Submitted: ', this.noaForm.value.client, this.noaForm.value.debtor, this.noaForm.value.factorSignature);
+    // console.log('Form Submitted: ', this.noaForm.value.client, this.noaForm.value.debtor, this.noaForm.value.factorSignature);
     // check form inputs
     if (typeof(this.noaForm.value.client) === 'string'){
       if (this.noaForm.value.client === '') {

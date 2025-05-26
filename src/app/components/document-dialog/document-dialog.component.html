@@ -555,7 +555,7 @@
             <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
             <td mat-cell *matCellDef="let element" class="expand-column">
               <span (click)="toggleRow(element)">
-                <mat-icon style="height: 20px; width: 20px; font-size: 20px;">{{ isExpanded(element) ?
+                <mat-icon onMouseOver="this.style.cursor='pointer'" style="height: 20px; width: 20px; font-size: 20px;">{{ isExpanded(element) ?
                   'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
               </span>
             </td>
@@ -748,7 +748,7 @@
       <form [formGroup]="editTicketForm" (ngSubmit)="onTicketEdit()">
         <div class="dialog-content">
           <mat-dialog-content>
-            <div class="row">
+            <div class="row" style="padding-bottom: 5px;">
               <div class="col">
                 <div class="row" style="padding-top: 0px;">
                   <div class="col-md-12">
@@ -765,34 +765,75 @@
                 </div>
                 <div class="row" style="padding-top: 5px;">
                   <div class="col-md-12">
-                    <label for="Debtor" class="form-label">Debtor Name</label>
+                    <label for="Debtor" class="form-label">Debtor</label>
                     <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
-                    <textarea id="Debtor" class="form-control" cols="30" rows="2"></textarea>
+                    <!-- <textarea id="Debtor" class="form-control" cols="30" rows="2"></textarea> -->
                   </div>
                 </div>
                 <div class="row" style="padding-top: 5px;">
                   <div class="col-md-12">
+                    <label for="PONumber" class="form-label">PO #</label>
+                    <input type="text" id="PONumber" class="form-control" formControlName="PONumber">
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-6">
                     <label for="ShipDate" class="form-label">Ship date</label>
-                    <input type="text" id="ShipDate" class="form-control" placeholder="N/A">
+                    <input type="date" id="ShipDate" class="form-control" formControlName="ShipDate">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="EstablishedDate" class="form-label">Established date</label>
+                    <input type="date" id="EstablishedDate" class="form-control" formControlName="EstablishedDate">
                   </div>
                 </div>
                 <div class="row" style="padding-top: 5px;">
                   <div class="col-md-12">
                     <label for="Terms" class="form-label">Terms</label>
-                    <input type="text" id="Terms" class="form-control" placeholder="N/A">
+                    <input type="text" id="Terms" class="form-control" formControlName="Terms">
                   </div>
                 </div>
                 <div class="row" style="padding-top: 5px;">
                   <div class="col-md-12">
                     <label for="Comments" class="form-label">Comments</label>
-                    <textarea id="Comments" class="form-control" formControlName="Comments" cols="30"
-                      rows="2"></textarea>
+                    <textarea id="Comments" class="form-control" formControlName="Comments" cols="30" rows="5"></textarea>
                   </div>
                 </div>
                 <div class="row" style="padding-top: 5px;">
-                  <div class="col-md-12">
-                    <label for="" class="form-label">House line</label>
-                    <input type="text" id="" class="form-control" placeholder="N/A">
+                  <div class="col-md-6">
+                    <label for="TotalCreditLimit" class="form-label">House line</label>
+                    <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="ExpiresDate" class="form-label">Expires date</label>
+                    <input type="date" id="ExpiresDate" class="form-control" formControlName="ExpiresDate" >
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-6">
+                    <label for="Action" class="form-label">Action</label>
+                    <select id="Action" class="form-control" formControlName="Action">
+                      <option value="action_one">action one</option>
+                      <option value="action_two">action two</option>
+                      <option value="action_three">action three</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="RequestAmt" class="form-label">Requested</label>
+                    <input type="text" id="RequestAmt" class="form-control" formControlName="RequestAmt" placeholder="N/A">
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-4">
+                    <label for="ApproveAmt" class="form-label">Approved</label>
+                    <input type="text" id="ApproveAmt" class="form-control" formControlName="ApproveAmt" placeholder="N/A">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="NewLimit" class="form-label">New limit will be</label>
+                    <input type="text" id="NewLimit" class="form-control" formControlName="NewLimit">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="ExpiresInMonths" class="form-label">Expires In Months</label>
+                    <input type="text" id="ExpiresInMonths" class="form-control" formControlName="ExpiresInMonths">
                   </div>
                 </div>
               </div>
@@ -879,7 +920,7 @@
         </div>
       </div>
     </mat-tab>
-    <mat-tab label="Aging"> Content 3 </mat-tab>
+    <mat-tab label="Aging"> Aging Content </mat-tab>
   </mat-tab-group>
 </div>
 

@@ -27,6 +27,7 @@ export class RiskMonitoringComponent implements OnInit {
 
   filter: string = '';
   specificPage: number = 1;
+  pageSize?: number;
   isActive = '0';
   isDDSelect = 'N';
   isLoading = true;
@@ -91,6 +92,14 @@ export class RiskMonitoringComponent implements OnInit {
       this.office = filterValues.office || '';
       this.crm = filterValues.crm || '';
       this.isFuel = filterValues.isFuel || 'N';
+      // Load paginator state
+      if (filterValues.pageIndex !== undefined) {
+        this.specificPage = filterValues.pageIndex + 1;
+      }
+      if (filterValues.pageSize) {
+        // Will be applied to paginator after view init
+        this.pageSize = filterValues.pageSize;
+      }
     }
 
     // set default date to recent 7 days
@@ -128,8 +137,26 @@ export class RiskMonitoringComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {            
-    if(this.paginator){
-      this.paginator.page.subscribe(() => this.loadData());  
+    if (this.paginator) {
+      // Set the restored page size if it exists
+      if (this.pageSize) {
+        this.paginator.pageSize = this.pageSize;
+      }
+      if (this.specificPage) {
+        this.paginator.pageIndex = this.specificPage - 1;
+      }
+
+      // Subscribe to paginator changes
+      this.paginator.page.subscribe(() => {
+        this.specificPage = this.paginator.pageIndex + 1;
+        this.pageSize = this.paginator.pageSize;
+        // Save paginator state
+        this.filterService.saveFiltersToSessionStorage('risk-monitoring', {
+          pageIndex: this.paginator.pageIndex,
+          pageSize: this.paginator.pageSize
+        });
+        this.loadData();
+      });
     }  
     if (this.sort) {
       this.sort.sortChange.subscribe(() => {  
@@ -183,8 +210,22 @@ export class RiskMonitoringComponent implements OnInit {
       let sort = this.sort && this.sort.active ? this.sort.active : 'Client';            
       let order = this.sort && this.sort.direction ? this.sort.direction : 'ASC';  
       
-      const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
-      const pageSize = this.paginator ? this.paginator.pageSize : 25;  
+      // const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
+      // const pageSize = this.paginator ? this.paginator.pageSize : 25;  
+      let page: number;
+      let pageSize: number; 
+      if (this.specificPage) {
+        page = this.specificPage;
+      }
+      else {
+        page = this.paginator ? this.paginator.pageIndex + 1 : 1;
+      }
+      if (this.pageSize) {
+        pageSize = this.pageSize;
+      }
+      else {
+        pageSize = this.paginator ? this.paginator.pageSize : 25;
+      }
 
       // empty due date from and to if isDDSelect is N
       if (this.isDDSelect == 'N') {
@@ -408,6 +449,18 @@ export class RiskMonitoringComponent implements OnInit {
     // modify due date front and save to service
     this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
     this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+
+    // Reset paginator state
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', {
+      pageIndex: 0,
+      pageSize: 25 // or whatever your default page size is
+    });
+    this.specificPage = 1;
+    this.pageSize = 25;
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+      this.paginator.pageSize = 25;
+    }
 
     this.loadData();
   };

@@ -192,9 +192,10 @@
 }
 
 .invoiceNumberClickable{
-	color:#1e5cd8
+	color:#1e5cd8;
 }
 
 .invoiceNumberClickable:hover {
-	color:#133984
+	color:#133984;
+	cursor: pointer;
 }
