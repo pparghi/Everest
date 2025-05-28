@@ -128,7 +128,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
     // Create a URL for the Blob
     const blobUrl = URL.createObjectURL(blob);
 
-    console.log('Blob URL:', blobUrl);
+    // console.log('Blob URL:', blobUrl);
     // Open the PDF in a new tab
     const newTab = window.open('', '_blank');
 
@@ -137,26 +137,97 @@ export class NoticeOfAccessmentComponent implements OnInit {
       return;
     }
 
-    // change file name 
-    newTab.document.head.innerHTML = `
-      <title>${fileName}</title> <!-- Set the title dynamically -->
-      <style>
-        body {
-          margin: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          background-color: #f0f0f0;
-        }
-        iframe {
-          width: 100%;
-          height: 100%;
-          border: none;
-        }
-      </style>
-  `;
-  newTab.document.body.innerHTML = `<iframe src="${blobUrl}" title="${fileName+'.pdf'}"></iframe>`;
+    // Write the HTML content
+    newTab.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${fileName}</title>
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+              overflow: hidden;
+              height: 100vh;
+            }
+            #overlay-toolbar-title {
+              position: fixed;
+              min-width:300px;
+              top: 10px;
+              left: 50px;
+              z-index: 1000;
+              padding: 10px;
+              background: #3c3c3c;
+              color: white;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            #overlay-toolbar-download {
+              position: fixed;
+              top: 3px;
+              right: 80px;
+              left: auto;
+              z-index: 1000;
+              padding: 10px;
+              background: #3c3c3c;
+              color: white;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            #download-btn {
+              padding: 8px 16px;
+              background: #383b91;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+            #download-btn:hover {
+              background: #252763;
+            }
+            #pdf-container {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+            }
+            iframe {
+              width: 100%;
+              height: 100%;
+              border: none;
+            }
+          </style>
+        </head>
+        <body>
+          <div id="overlay-toolbar-title">
+            <span>${fileName}</span>
+          </div>
+          <div id="overlay-toolbar-download">
+            <button id="download-btn" onclick="downloadPdf()">Download</button>
+          </div>
+          <div id="pdf-container">
+            <iframe
+              src="${blobUrl}#view=FitH"
+              type="application/pdf"
+            ></iframe>
+          </div>
+          <script>
+            function downloadPdf() {
+              const link = document.createElement('a');
+              link.href = '${blobUrl}';
+              link.download = '${fileName}.pdf';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    newTab.document.close();
 
     // Revoke the object URL when the tab is closed
     const revokeUrl = () => {
@@ -256,6 +327,26 @@ export class NoticeOfAccessmentComponent implements OnInit {
       }
       if (confirmed) {
         this.isEmailButtonEnabled = false; // Disable the button
+
+        // add note when there is 0 debtor
+        if (debtorKeyArray.length === 0) {
+          // Add note even when there are no debtors
+          const noteMessage = `${this.noaForm.value.client?.ClientName}: NOA PDFs Created 0, Emailed 0`;
+          this.addNoteService.addNotesRisk(
+            this.noaForm.value.client?.MasterClientKey ?? '', 'Other', noteMessage, '', '1', this.userID, ''
+          ).subscribe({
+            next: (response) => {
+              console.log('Note added successfully:', response);
+              this.isEmailButtonEnabled = true;
+            },
+            error: (error) => {
+              alert('Failed adding note');
+              this.isEmailButtonEnabled = true;
+            }
+          });
+          return;
+        }
+
         // Create an array of API call observables
         const apiCalls = debtorKeyArray.map((debtor) =>
           this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '')

@@ -10,9 +10,9 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { MainContentComponent } from './components/main-content/main-content.component';
-import { DataTableComponent } from './components/data-table/data-table.component';
+// import { DataTableComponent } from './components/data-table/data-table.component';
 import { NgxDatatableModule} from '@swimlane/ngx-datatable';
-import { DataTablesModule } from 'angular-datatables';
+// import { DataTablesModule } from 'angular-datatables';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -72,7 +72,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     FooterComponent,
     NavigationComponent,
     MainContentComponent,
-    DataTableComponent,
+    // DataTableComponent,
     MembersComponent,
     TableOverviewExampleComponent,
     ThousandsPipe,
@@ -135,7 +135,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     AppRoutingModule,
     HttpClientModule,
     NgxDatatableModule,
-    DataTablesModule,
+    // DataTablesModule,
     MatDialogModule,
     MatTableModule,
     MatPaginatorModule,

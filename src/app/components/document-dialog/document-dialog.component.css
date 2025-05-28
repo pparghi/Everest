@@ -188,6 +188,28 @@
 
 .mat-card-trend-input{
 	padding: 10px;
+	margin-left: 5px;
+	margin-right: 5px;
+	background-color: #ffffff;
+}
+
+.mat-card-trend-table {
+	margin-top: 20px;
+	margin-left: 5px;
+	margin-right: 5px;
+	background-color: #ffffff;
+}
+
+.mat-card-trend-chart {
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-left: 5px;
+	margin-right: 5px;
+	padding: 5px;
+	background-color: #ffffff;
+}
+
+.trend-table {
 	background-color: #ffffff;
 }
 

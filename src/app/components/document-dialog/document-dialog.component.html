@@ -871,53 +871,72 @@
             </mat-form-field>
           </div>
         </mat-card>
-        <div class="col-md-12">
-          <table mat-table [dataSource]="ticketingTrendDataSource" matTableExporter #exporter="matTableExporter" class="mat-elevation-z8">
+        <mat-card appearance="raised" class="mat-card-trend-table">
+          <div class="col-md-12">
+            <table mat-table [dataSource]="ticketingTrendDataSource" matTableExporter #exporter="matTableExporter" class="mat-elevation-z8 trend-table">
 
-            <ng-container matColumnDef="YearMonth">
-              <th mat-header-cell *matHeaderCellDef> Period </th>
-              <td mat-cell *matCellDef="let element"> {{element.YearMonth}} </td>
-            </ng-container>
+              <ng-container matColumnDef="YearMonth">
+                <th mat-header-cell *matHeaderCellDef> Period </th>
+                <td mat-cell *matCellDef="let element"> {{element.YearMonth}} </td>
+              </ng-container>
 
-            <ng-container matColumnDef="Purchases">
-              <th mat-header-cell *matHeaderCellDef> Purchases </th>
-              <td mat-cell *matCellDef="let element"> {{element.Purchases | number: '1.0-4'}} </td>
-            </ng-container>
+              <ng-container matColumnDef="Purchases">
+                <th mat-header-cell *matHeaderCellDef> Purchases </th>
+                <td mat-cell *matCellDef="let element"> {{element.Purchases | number: '1.0-4'}} </td>
+              </ng-container>
 
-            <ng-container matColumnDef="PurchasesAvg">
-              <th mat-header-cell *matHeaderCellDef> Average </th>
-              <td mat-cell *matCellDef="let element"> {{element.PurchasesAvg | number: '1.0-4'}} </td>
-            </ng-container>
+              <ng-container matColumnDef="PurchasesAvg">
+                <th mat-header-cell *matHeaderCellDef> Average </th>
+                <td mat-cell *matCellDef="let element"> {{element.PurchasesAvg | number: '1.0-4'}} </td>
+              </ng-container>
 
-            <ng-container matColumnDef="PurchasesNo">
-              <th mat-header-cell *matHeaderCellDef> Invoices </th>
-              <td mat-cell *matCellDef="let element"> {{element.PurchasesNo}} </td>
-            </ng-container>
+              <ng-container matColumnDef="PurchasesNo">
+                <th mat-header-cell *matHeaderCellDef> Invoices </th>
+                <td mat-cell *matCellDef="let element"> {{element.PurchasesNo}} </td>
+              </ng-container>
 
-            <ng-container matColumnDef="PaiTodZero">
-              <th mat-header-cell *matHeaderCellDef> Paid to zero </th>
-              <td mat-cell *matCellDef="let element"> {{element.PaiTodZero}} </td>
-            </ng-container>
+              <ng-container matColumnDef="PaiTodZero">
+                <th mat-header-cell *matHeaderCellDef> Paid to zero </th>
+                <td mat-cell *matCellDef="let element"> {{element.PaiTodZero}} </td>
+              </ng-container>
 
-            <ng-container matColumnDef="Recoursed">
-              <th mat-header-cell *matHeaderCellDef> Recoursed </th>
-              <td mat-cell *matCellDef="let element"> {{element.Recoursed}} </td>
-            </ng-container>
+              <ng-container matColumnDef="Recoursed">
+                <th mat-header-cell *matHeaderCellDef> Recoursed </th>
+                <td mat-cell *matCellDef="let element"> {{element.Recoursed}} </td>
+              </ng-container>
 
-            <ng-container matColumnDef="AvgWeightedDays">
-              <th mat-header-cell *matHeaderCellDef> Avg Weighted Days </th>
-              <td mat-cell *matCellDef="let element"> {{element.AvgWeightedDays | number: '1.0-4'}} </td>
-            </ng-container>
+              <ng-container matColumnDef="AvgWeightedDays">
+                <th mat-header-cell *matHeaderCellDef> Avg Weighted Days </th>
+                <td mat-cell *matCellDef="let element"> {{element.AvgWeightedDays | number: '1.0-0'}} </td>
+              </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-        </div>
-        <div>
-            <button mat-icon-button (click)="exporter.exportTable('xlsx', {fileName: trendDabtorName+' - '+trendClientName+' - Trend'})">
-                <mat-icon>file_download</mat-icon>
-            </button>
-        </div>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+          <div>
+              <button mat-icon-button (click)="exporter.exportTable('xlsx', {fileName: trendDabtorName+' - '+trendClientName+' - Trend'})">
+                  <mat-icon>file_download</mat-icon>
+              </button>
+          </div>
+        </mat-card>
+        <!-- trend bar chart -->
+        <mat-card appearance="raised" class="mat-card-trend-chart">
+          <div class="col-md-12">
+            <select class="form-column-selection" [(ngModel)]="trendColumn" (change)="onTrendColumnChange()">
+              <option value="Purchases">Purchases</option>
+              <option value="PurchasesAvg">Average</option>
+              <option value="PurchasesNo">Invoices</option>
+              <option value="PaiTodZero">Paid to zero</option>
+              <option value="Recoursed">Recoursed</option>
+              <option value="AvgWeightedDays">Average Weighted Days</option>
+            </select>
+            
+            <div style="width: 100%; height: 500px;">
+              <canvas #trendBarChart></canvas>
+            </div>
+          </div>
+        </mat-card>
       </div>
     </mat-tab>
     <mat-tab label="Aging"> Aging Content </mat-tab>

@@ -54,10 +54,7 @@ export class DocumentsReportsService {
 
     return this.http.get(url, {responseType: 'json'}).pipe(
       tap((response: any) => {
-        if (response && response?.status) {
-          // Cache the response if it's valid
-          this.cacheService.put(url, response);
-        } else {
+        if (!(response && response?.status)) {
           // Clear the cache for this URL if the response is empty
           this.cacheService.put(url, null); // Optional: Cache null to avoid repeated calls
         }

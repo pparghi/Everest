@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import Swal from 'sweetalert2';
@@ -11,11 +11,20 @@ import { count, map } from 'rxjs/operators';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
 import { LoginService } from '../../services/login.service';
 import { ClientsInvoicesService } from '../../services/clients-invoices.service';
-import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { AddressService } from '../../services/address.service';
 import { MatTableExporterDirective } from 'mat-table-exporter';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
-
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
+Chart.register(
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Title,
+  Tooltip
+);
 // import imageCompression from 'browser-image-compression';
 declare var pca: any;
 
@@ -33,7 +42,7 @@ interface DebtorDataItem {
   styleUrl: './document-dialog.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DocumentDialogComponent implements OnInit, AfterViewInit {
+export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   link: any;
   documentDescr: any;
   documentCategory: any;
@@ -107,6 +116,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   trendDebtorKey: number = 0;
   trendClientNo: string = '';
   trendPeriodChar: string = 'M';
+  // charts
+  chart: any;
+  @ViewChild('trendBarChart') chartCanvas!: ElementRef;
+  trendColumn: string = 'Purchases';
 
 
   constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService) {
@@ -411,6 +424,12 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
 
   }
 
+  ngOnDestroy() {
+    if (this.chart) {
+      this.chart.destroy();
+    }
+  }
+
   // onAddressInput(event: any) {
   //   const query = event.target.value;
   //   this.addressCompleteService.getSuggestions(query).then((data: any) => {
@@ -601,9 +620,31 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   //region ticketPG functions
   // function for fetching api data for the trend dialog and save to ticketingTrendDataSource
   loadTrendDialogData(DebtorKey:number, ClientNo:string, trendPeriodChar:string) {
+    console.log('loadTrendDialogData called');
     this.dataService.getDebtorClientTrendData(DebtorKey, ClientNo, trendPeriodChar).subscribe(response => {
       this.ticketingTrendDataSource.data = response.data;
+
+      // for loading the chart
+      if (this.chartCanvas && this.chartCanvas.nativeElement) {
+        const tempPeriod = trendPeriodChar==='M' ? 'Months' : trendPeriodChar==='Q' ? 'Quarters' : 'Years';
+        this.createTrendBarChart(this.ticketingTrendDataSource.data, tempPeriod, this.trendColumn);
+      }
+      // deleyed loading of the chart
+      else {
+        setTimeout(() => {
+          console.log('Reloading the chart');
+          const tempPeriod = trendPeriodChar==='M' ? 'Months' : trendPeriodChar==='Q' ? 'Quarters' : 'Years';
+          this.createTrendBarChart(this.ticketingTrendDataSource.data, tempPeriod, this.trendColumn);
+        }, 500);
+      }
+
     });
+  }
+
+  // event handler for the trend chart column change
+  onTrendColumnChange() {
+    const tempPeriod = this.trendPeriodChar==='M' ? 'Months' : this.trendPeriodChar==='Q' ? 'Quarters' : 'Years';
+    this.createTrendBarChart(this.ticketingTrendDataSource.data, tempPeriod, this.trendColumn);
   }
 
   // event handler for the trend doalog period change
@@ -616,6 +657,96 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
   // submit the ticketing request tab form and save
   onTicketEdit() {
     console.log('edit ticketing form--', this.editTicketForm)
+  }
+
+  // generate the trend chart
+  createTrendBarChart(data: any, period: string, column: string) {
+    // console.log("data--", data);
+    // convert column to readable word
+    let columnName= '';
+    switch (column) {
+      case 'Purchases': 
+        columnName = 'Purchases';
+        break;
+      case 'PurchasesAvg':
+        columnName = 'Average';
+        break;
+      case 'PurchasesNo':
+        columnName = 'Invoices';
+        break;
+      case 'PaiTodZero':
+        columnName = 'Paid to zero';
+        break;
+      case 'Recoursed':
+        columnName = 'Recoursed';
+        break;
+      case 'AvgWeightedDays':
+        columnName = 'Average Weighted Days';
+        break;
+      default:
+        columnName = column;
+        break;
+    }
+    // filter the data base on parameters
+    let tempLabels: string[] = [];
+    let tempData: number[] = [];
+    for (let it of data) {
+      tempLabels.push(it.YearMonth);
+      tempData.push(parseFloat(it[column]));
+    }
+
+    if (!this.chartCanvas) {
+      console.warn('Chart canvas not initialized');
+      return;
+    }
+    const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    
+    if (this.chart) {
+      this.chart.destroy();
+    }
+    this.chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        // labels: ['January', 'February', 'March', 'April', 'May'],
+        labels: tempLabels,
+        datasets: [
+          // {
+          //   label: 'Dataset 1',
+          //   data: [65, 59, 80, 81, 56],
+          //   backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          //   borderColor: 'rgb(75, 192, 192)',
+          //   borderWidth: 1
+          // },
+          {
+            label: columnName,
+            data: tempData,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          title: {
+            // change size of the title
+            font: {
+              size: 14,
+              weight: 'bold',
+            },
+            display: true,
+            text: period + ' ' + columnName + ' Trend',
+          }
+        }
+      }
+    });
   }
 
   // endregion
@@ -674,8 +805,9 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
     `;
 
     // console.log("element--",element);
-    this.documentsReportsService.callInvoiceImageAPI(element.InvoiceKey, 0).subscribe((response: any) => {
-      // console.log('response--', response);
+    // Call the API to get the invoice image, include stamp
+    this.documentsReportsService.callInvoiceImageAPI(element.InvoiceKey, 1).subscribe((response: any) => {
+      console.log('response--', response);
 
       //when no pdf string is returned
       if (response && response?.pdf) {
@@ -688,8 +820,98 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit {
         // Create a URL for the Blob
         const blobUrl = URL.createObjectURL(blob);
 
-        // Update the new tab with the PDF URL
-        newTab.location.href = blobUrl;
+        const fileName = "Invoice_" + element.InvNo;
+        // Write the HTML content
+        newTab.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${fileName}</title>
+              <style>
+                body {
+                  margin: 0;
+                  padding: 0;
+                  overflow: hidden;
+                  height: 100vh;
+                }
+                #overlay-toolbar-title {
+                  position: fixed;
+                  min-width:300px;
+                  top: 10px;
+                  left: 50px;
+                  z-index: 1000;
+                  padding: 10px;
+                  background: #3c3c3c;
+                  color: white;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                }
+                #overlay-toolbar-download {
+                  position: fixed;
+                  top: 3px;
+                  right: 80px;
+                  left: auto;
+                  z-index: 1000;
+                  padding: 10px;
+                  background: #3c3c3c;
+                  color: white;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                }
+                #download-btn {
+                  padding: 8px 16px;
+                  background: #383b91;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                }
+                #download-btn:hover {
+                  background: #252763;
+                }
+                #pdf-container {
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                }
+                iframe {
+                  width: 100%;
+                  height: 100%;
+                  border: none;
+                }
+              </style>
+            </head>
+            <body>
+              <div id="overlay-toolbar-title">
+                <span>${fileName}</span>
+              </div>
+              <div id="overlay-toolbar-download">
+                <button id="download-btn" onclick="downloadPdf()">Download</button>
+              </div>
+              <div id="pdf-container">
+                <iframe
+                  src="${blobUrl}#view=FitH"
+                  type="application/pdf"
+                ></iframe>
+              </div>
+              <script>
+                function downloadPdf() {
+                  const link = document.createElement('a');
+                  link.href = '${blobUrl}';
+                  link.download = '${fileName}.pdf';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              </script>
+            </body>
+          </html>
+        `);
+        newTab.document.close();
 
         // Revoke the object URL when the tab is closed
         const revokeUrl = () => {

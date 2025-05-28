@@ -157,9 +157,10 @@
             <tr mat-header-row *matHeaderRowDef="invoceColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: invoceColumns;" class="element-row"></tr>
         </table>
-    </div>
-    <div class="spinner-container" *ngIf="isLoading;">
-        <mat-spinner class="custom-spinner"></mat-spinner>
+        
+        <div class="spinner-container" *ngIf="isLoading;">
+            <mat-spinner class="custom-spinner"></mat-spinner>
+        </div>
     </div>
     <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="pageSize"
         showFirstLastButtons

@@ -7,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import {SelectionModel} from '@angular/cdk/collections';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
+import { FilterService } from '../../services/filter.service';
 import * as XLSX from 'xlsx';
 
 // interface for each invoice data
@@ -85,9 +86,28 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
   // invoice list table columns
   invoceColumns: string[] = ['select', 'InvDate', 'OpenDays', 'InvNo', 'PurchOrd', 'Client', 'Debtor', 'Status', 'AcctExec', 'DisputeCode', 'BatchNo', 'Amt', 'Balance'];
 
-  constructor(private riskMonitoringService: RiskMonitoringService, private invoiceService: InvoiceService, private documentsReportsService: DocumentsReportsService) { };
+  constructor(private riskMonitoringService: RiskMonitoringService, private invoiceService: InvoiceService, private documentsReportsService: DocumentsReportsService, private filterService: FilterService) { };
 
   ngOnInit(): void {
+    // load filter state from filter service
+    const filterValues = this.filterService.getFilterState('invoices');
+    // console.log('filterValues--', filterValues);
+    if (filterValues) {
+      // get filter values from filter state
+      this.filterForm.patchValue({
+        InvFrom: filterValues.InvFrom || this.todayDateStr,
+        InvTo: filterValues.InvTo || this.todayDateStr,
+        InvoviceNumber: filterValues.InvoviceNumber || '',
+        POLoadNumber: filterValues.POLoadNumber || '',
+        Client: filterValues.Client || '',
+        Debtor: filterValues.Debtor || '',
+        Status: filterValues.Status || '',
+        CRM: filterValues.CRM || '',
+        DisputeCode: filterValues.DisputeCode ? filterValues.DisputeCode.split(',') : [],
+        BatchNumber: filterValues.BatchNumber || ''
+      });
+    }
+
     this.loadClientCRMList();
     this.loadInvoiceStatusList();
     this.getDisputeCodeList();
@@ -96,6 +116,10 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
 
   ngAfterViewInit() {
     this.invoiceListSource.paginator = this.paginator;
+    // clear selection when page changes
+    this.paginator.page.subscribe(() => {
+      this.selection.clear();
+    });
   }
 
   // Call the API to get the list of clients
@@ -124,6 +148,7 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
   // event submiting the filters form
   onSubmitFilters(): void {
     console.log('Form submitted:', this.filterForm.value);
+    this.selection.clear(); // clear selection when filters are applied
     this.getInvoiceListByFilters();
   }
 
@@ -163,6 +188,18 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
     const CRM = this.filterForm.get('CRM')?.value?.trim() || '%';
     const DisputeCode = this.filterForm.get('DisputeCode')?.value?.join(',')?.trim() || '0';
     const BatchNumber = this.filterForm.get('BatchNumber')?.value?.trim() || '%';
+    
+    // save all filters to cache
+    this.filterService.setFilterState('invoices', { "InvFrom": InvFrom });
+    this.filterService.setFilterState('invoices', { "InvTo": InvTo });
+    this.filterService.setFilterState('invoices', { "InvoviceNumber": InvoviceNumber.replaceAll('%', '') });
+    this.filterService.setFilterState('invoices', { "POLoadNumber": POLoadNumber.replaceAll('%', '') });
+    this.filterService.setFilterState('invoices', { "Client": Client.replaceAll('%', '') });
+    this.filterService.setFilterState('invoices', { "Debtor": Debtor.replaceAll('%', '') });
+    this.filterService.setFilterState('invoices', { "Status": Status.replaceAll('%', '') });
+    this.filterService.setFilterState('invoices', { "CRM": CRM.replaceAll('%', '') });
+    this.filterService.setFilterState('invoices', { "DisputeCode": DisputeCode==='0'? '' : DisputeCode });
+    this.filterService.setFilterState('invoices', { "BatchNumber": BatchNumber.replaceAll('%', '') });
 
     // Call the API to get the invoice list
     this.invoiceService.getInvoicesList(Client+'%', Debtor+'%', InvFrom, InvTo, InvoviceNumber+'%', POLoadNumber+'%', Status+'%', '%', 0, 9999, 0, 999999999, '2000-01-01', '2099-12-31', '2000-01-01', '2099-12-31', CRM+'%', DisputeCode, BatchNumber+'%').subscribe((response: any) => {
@@ -182,9 +219,17 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
   // #region selection methods
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.invoiceListSource.data.length;
-    return numSelected === numRows;
+    // condition of last page
+    if (this.invoiceListSource.data.length > this.paginator.pageSize && this.paginator.pageIndex === this.paginator.getNumberOfPages() - 1) {
+      const numSelected = this.selection.selected.length;
+      const numRows = this.invoiceListSource.data.length - (this.paginator.pageIndex * this.paginator.pageSize);
+      return numSelected === numRows;
+    }
+    else {
+      const numSelected = this.selection.selected.length;
+      const numRows = this.invoiceListSource.data.length < (this.invoiceListSource.paginator?.pageSize ? this.invoiceListSource.paginator?.pageSize:1000) ? this.invoiceListSource.data.length : this.invoiceListSource.paginator?.pageSize;
+      return numSelected === numRows;
+    }
   }
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggle() {
@@ -192,7 +237,10 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
       this.selection.clear();
       return;
     }
-    this.selection.select(...this.invoiceListSource.data);
+    // get subset of first page of data
+    // console.log('paginator--', this.paginator);
+    const firstPageData = this.invoiceListSource.data.slice(this.paginator.pageIndex * this.paginator.pageSize, (this.paginator.pageIndex + 1) * this.paginator.pageSize);
+    this.selection.select(...firstPageData);
   }
 
   // #region export excel
@@ -236,10 +284,10 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
       type: 'array' 
     });
 
-    this.saveExcelFile(excelBuffer, 'invoices_export');
+    this.saveExcelFile(excelBuffer);
   }
   /** Save the Excel file */
-  private saveExcelFile(buffer: any, fileName: string): void {
+  private saveExcelFile(buffer: any): void {
     const data: Blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url: string = window.URL.createObjectURL(data);
     const link: HTMLAnchorElement = document.createElement('a');
@@ -311,8 +359,9 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
       `;
 
     // console.log("element--",element);
-    this.documentsReportsService.callInvoiceImageAPI(element.InvoiceKey, 0).subscribe((response: any) => {
-      // console.log('response--', response);
+    // Call the API to get the invoice image, include stamp
+    this.documentsReportsService.callInvoiceImageAPI(element.InvoiceKey, 1).subscribe((response: any) => {
+      console.log('response--', response);
 
       //when no pdf string is returned
       if (response && response?.pdf) {
@@ -325,8 +374,98 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
         // Create a URL for the Blob
         const blobUrl = URL.createObjectURL(blob);
 
-        // Update the new tab with the PDF URL
-        newTab.location.href = blobUrl;
+        const fileName = "Invoice_" + element.InvNo;
+        // Write the HTML content
+        newTab.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${fileName}</title>
+              <style>
+                body {
+                  margin: 0;
+                  padding: 0;
+                  overflow: hidden;
+                  height: 100vh;
+                }
+                #overlay-toolbar-title {
+                  position: fixed;
+                  min-width:300px;
+                  top: 10px;
+                  left: 50px;
+                  z-index: 1000;
+                  padding: 10px;
+                  background: #3c3c3c;
+                  color: white;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                }
+                #overlay-toolbar-download {
+                  position: fixed;
+                  top: 3px;
+                  right: 80px;
+                  left: auto;
+                  z-index: 1000;
+                  padding: 10px;
+                  background: #3c3c3c;
+                  color: white;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                }
+                #download-btn {
+                  padding: 8px 16px;
+                  background: #383b91;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                }
+                #download-btn:hover {
+                  background: #252763;
+                }
+                #pdf-container {
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                }
+                iframe {
+                  width: 100%;
+                  height: 100%;
+                  border: none;
+                }
+              </style>
+            </head>
+            <body>
+              <div id="overlay-toolbar-title">
+                <span>${fileName}</span>
+              </div>
+              <div id="overlay-toolbar-download">
+                <button id="download-btn" onclick="downloadPdf()">Download</button>
+              </div>
+              <div id="pdf-container">
+                <iframe
+                  src="${blobUrl}#view=FitH"
+                  type="application/pdf"
+                ></iframe>
+              </div>
+              <script>
+                function downloadPdf() {
+                  const link = document.createElement('a');
+                  link.href = '${blobUrl}';
+                  link.download = '${fileName}.pdf';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              </script>
+            </body>
+          </html>
+        `);
+        newTab.document.close();
 
         // Revoke the object URL when the tab is closed
         const revokeUrl = () => {

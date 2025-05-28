@@ -1,6 +1,6 @@
 import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { DataTableDirective, DataTablesModule } from 'angular-datatables';
+// import { DataTableDirective, DataTablesModule } from 'angular-datatables'; this dependency is not in use and cause conflict issue
 import { Subject, filter } from 'rxjs';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
