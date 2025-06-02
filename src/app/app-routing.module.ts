@@ -29,7 +29,7 @@ const routes: Routes = [
   { path: 'member-client', component: MemberClientsComponent },
   { path: 'client-debtor', component: ClientsDebtorsComponent },
   { path: 'memberMasterdebtor', component: MemberMasterDebtorComponent },
-  { path: 'page', component: InvoicesComponent },
+  { path: 'invoice-search', component: InvoicesComponent },
   { path: 'notice-of-accessment', component: NoticeOfAccessmentComponent },
   { path: 'detail', component: RiskMonitoringDetailComponent },
   { path: 'monitoring', component: RiskMonitoringComponent },

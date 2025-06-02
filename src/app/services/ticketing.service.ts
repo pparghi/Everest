@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -22,5 +22,28 @@ export class TicketingService {
         };
       })
     );
+  }
+
+
+  // function to get the credit request status list
+  getCreditRequestStatusList(): Observable<any> {
+    const url = 'https://everest.revinc.com:4202/api/getCreditRequestStatusList';
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  // function to approve a credit request
+  approveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/approveCreditRequest`;
+    
+    const formData = new FormData();
+    formData.append('CredRequestKey', credRequestKey);
+    formData.append('ApproveUser', approveUser);
+    formData.append('Status', status);
+    formData.append('Response', response);
+    formData.append('ApprovedLimit', approvedLimit);
+    formData.append('NewLimitAmt', newLimitAmt);
+    formData.append('ExpMonths', expMonths);
+
+    return this.http.post<any>(url, formData);
   }
 }

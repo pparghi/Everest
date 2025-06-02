@@ -15,6 +15,7 @@ import { Subject, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs
 import { AddressService } from '../../services/address.service';
 import { MatTableExporterDirective } from 'mat-table-exporter';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
+import { TicketingService } from '../../services/ticketing.service';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
 Chart.register(
   BarController,
@@ -116,13 +117,14 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   trendDebtorKey: number = 0;
   trendClientNo: string = '';
   trendPeriodChar: string = 'M';
+  actionList: any[] = [];
   // charts
   chart: any;
   @ViewChild('trendBarChart') chartCanvas!: ElementRef;
   trendColumn: string = 'Purchases';
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService) {
     if (data.openChequeSearchForm) {
       this.chequeSearchForm = this.fb.group({
         CheckNo: [''],
@@ -213,10 +215,12 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         ExpiresDate: '',
         Action: '',
         NewLimit: '',
-        ExpiresInMonths: '',
+        ExpiresInMonths: '6',
+        freeTextInput: '',
       })
 
       this.debtor = data.Debtor
+      this.getCreditRequestStatusList();
 
       // trend tab
       this.trendDabtorName = data.Debtor;
@@ -620,7 +624,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   //region ticketPG functions
   // function for fetching api data for the trend dialog and save to ticketingTrendDataSource
   loadTrendDialogData(DebtorKey:number, ClientNo:string, trendPeriodChar:string) {
-    console.log('loadTrendDialogData called');
+    // console.log('loadTrendDialogData called');
     this.dataService.getDebtorClientTrendData(DebtorKey, ClientNo, trendPeriodChar).subscribe(response => {
       this.ticketingTrendDataSource.data = response.data;
 
@@ -632,7 +636,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       // deleyed loading of the chart
       else {
         setTimeout(() => {
-          console.log('Reloading the chart');
+          // console.log('Reloading the chart');
           const tempPeriod = trendPeriodChar==='M' ? 'Months' : trendPeriodChar==='Q' ? 'Quarters' : 'Years';
           this.createTrendBarChart(this.ticketingTrendDataSource.data, tempPeriod, this.trendColumn);
         }, 500);
@@ -656,7 +660,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
   // submit the ticketing request tab form and save
   onTicketEdit() {
-    console.log('edit ticketing form--', this.editTicketForm)
+    this.onApproveCreditRequest(this.editTicketForm.value.RequestNo, 'RSUN', this.editTicketForm.value.Action, this.editTicketForm.value.freeTextInput, this.editTicketForm.value.ApproveAmt, this.editTicketForm.value.NewLimit, this.editTicketForm.value.ExpiresInMonths);
   }
 
   // generate the trend chart
@@ -749,7 +753,61 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     });
   }
 
-  // endregion
+
+  // call api to get credit request status list
+  getCreditRequestStatusList() {
+    this.ticketingService.getCreditRequestStatusList().subscribe(response => {
+      // console.log('Credit Request Status List:', response);
+      this.actionList = response.data;
+    }, error => {
+      console.error('Error fetching credit request status list:', error);
+    }
+    );
+  }
+
+  // approve the credit request
+  onApproveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string) {
+    // confirm approval
+    const confirmed = window.confirm('Are you sure you want to approve the credit request?');
+    if (confirmed) {
+      this.ticketingService.approveCreditRequest(credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths).subscribe(response => {
+        console.log('Credit Request Approved:', response);
+        window.location.reload(); // reload the page to reflect changes
+      }, error => {
+        console.error('Error approving credit request:', error);
+      }
+      );
+    }
+  }
+
+  // event handler for action change in the ticketing form
+  onActionChange(event: any) {
+    // Handle the selection change here
+    const selectedAction = event.target.value;
+    
+    // You can update other form controls based on the selection
+    if (selectedAction === '6') { // W/L line selection
+      // change approved equal to requested amount
+      this.editTicketForm.patchValue({
+        ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
+        NewLimit: '0'
+      });
+    } else if (selectedAction === '7') { // SOA selection
+      // change approved = requested amount and new limit = house line(current limit) + requested
+      this.editTicketForm.patchValue({
+        ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
+        NewLimit: (parseFloat(this.editTicketForm.value.RequestAmt) + parseFloat(this.editTicketForm.value.TotalCreditLimit)).toString()
+      });
+    }
+    else {
+      this.editTicketForm.patchValue({
+        ApproveAmt: '0',
+        NewLimit: '0'
+      });
+    }
+  }
+
+  // #endregion
 
   // #region debtor statement details functions
   // function for fetching api data for the trend dialog and save to ticketingTrendDataSource

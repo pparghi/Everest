@@ -55,7 +55,7 @@ interface clientDataItem {
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'RequestDate', 'ApprovedDate', 'CreditType', 'Edit'];   
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'RequestDate', 'ApprovedDate', 'CreditType', 'Edit', 'Email'];   
     clientDisplayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis']; 
     statusListOptions = [
       { label: 'Pending', value: '0' },
@@ -345,6 +345,20 @@ export class TicketingComponent {
           }
         });
     });
+  }
+
+  emailTo(row: DataItem) {
+    console.log('emailTo called');
+    const subject = "Example Subject";
+    const body = "Debtor: " + row.Debtor + "\nClient: " + row.Client;
+    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    // Create and trigger the mailto link
+    const link = document.createElement('a');
+    link.href = mailtoLink;
+    document.body.appendChild(link); // Need to append to body first
+    link.click();
+    document.body.removeChild(link); // Clean up by removing the link
   }
 
   exportTable() {        

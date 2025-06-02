@@ -811,10 +811,10 @@
                 <div class="row" style="padding-top: 5px;">
                   <div class="col-md-6">
                     <label for="Action" class="form-label">Action</label>
-                    <select id="Action" class="form-control" formControlName="Action">
-                      <option value="action_one">action one</option>
-                      <option value="action_two">action two</option>
-                      <option value="action_three">action three</option>
+                    <select id="Action" class="form-control" formControlName="Action" (change)="onActionChange($event)">
+                      @for (actionStr of actionList; track actionStr.Name) {
+                        <option value={{actionStr.Status}}>{{actionStr.Name}}</option>
+                      }
                     </select>
                   </div>
                   <div class="col-md-6">
@@ -834,6 +834,12 @@
                   <div class="col-md-4">
                     <label for="ExpiresInMonths" class="form-label">Expires In Months</label>
                     <input type="text" id="ExpiresInMonths" class="form-control" formControlName="ExpiresInMonths">
+                  </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                  <div class="col-md-12">
+                    <label for="FreeTextInput" class="form-label">Text Input</label>
+                    <textarea id="FreeTextInput" class="form-control" formControlName="freeTextInput" rows="3"></textarea>
                   </div>
                 </div>
               </div>
