@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import Swal from 'sweetalert2';
@@ -17,6 +17,8 @@ import { MatTableExporterDirective } from 'mat-table-exporter';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { TicketingService } from '../../services/ticketing.service';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
+import { DecimalPipe } from '@angular/common';
+
 Chart.register(
   BarController,
   BarElement,
@@ -37,11 +39,17 @@ interface DebtorDataItem {
   expandedDetail: { detail: string };
 }
 
+interface TrendVerticalData {
+  Period: string;
+  [key: string]: any;  // Allow any additional properties
+}
+
 @Component({
   selector: 'app-document-dialog',
   templateUrl: './document-dialog.component.html',
   styleUrl: './document-dialog.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DecimalPipe]
 })
 export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   link: any;
@@ -111,7 +119,9 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   // #region ticketing variables
   @ViewChild(MatTableExporterDirective) exporter!: MatTableExporterDirective; 
   displayedColumns: string[] = ['YearMonth', 'Purchases', 'PurchasesAvg', 'PurchasesNo', 'PaiTodZero', 'Recoursed', 'AvgWeightedDays'];
+  displayedColumnsVertical: string[] = [];
   ticketingTrendDataSource = new MatTableDataSource<any>();
+  ticketingTrendDataVertical: TrendVerticalData[] = []; // this is used for displaying trend data in vertical format
   trendDabtorName: string = '';
   trendClientName: string = '';
   trendDebtorKey: number = 0;
@@ -124,7 +134,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   trendColumn: string = 'Purchases';
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService, private _decimalPipe: DecimalPipe, private cdr: ChangeDetectorRef) {
     if (data.openChequeSearchForm) {
       this.chequeSearchForm = this.fb.group({
         CheckNo: [''],
@@ -208,6 +218,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Balance: [data.Balance || ''],
         PastDue: [data.PastDue || ''],
         Available: [data.Available || ''],
+        CredRequestKey: [data.CredRequestKey || ''],
         PONumber: '',
         ShipDate: '',
         EstablishedDate: '',
@@ -216,7 +227,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Action: '',
         NewLimit: '',
         ExpiresInMonths: '6',
-        freeTextInput: '',
+        FreeTextInput: '',
+        SendDecisionToClient: false,
       })
 
       this.debtor = data.Debtor
@@ -627,6 +639,9 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     // console.log('loadTrendDialogData called');
     this.dataService.getDebtorClientTrendData(DebtorKey, ClientNo, trendPeriodChar).subscribe(response => {
       this.ticketingTrendDataSource.data = response.data;
+      // console.log('Trend Data:', this.ticketingTrendDataSource.data);
+      this.transferTrendDataToVertical(response.data);
+      this.cdr.detectChanges(); // Force change detection
 
       // for loading the chart
       if (this.chartCanvas && this.chartCanvas.nativeElement) {
@@ -645,6 +660,24 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     });
   }
 
+  // transfer the trend table data to vertical format
+  transferTrendDataToVertical(tableData: any[]) {
+    let tempData: TrendVerticalData[] = [{ Period: "Purchases" }, { Period: "Average" }, { Period: "Invoices" }, { Period: "Paid to zero" }, { Period: "Recoursed" }, { Period: "Avg Weighted Days" }];
+    let tempColumn = ['Period'];
+    for (let it of tableData) {
+      tempColumn.push(it.YearMonth); // make the table headers
+      tempData[0][it.YearMonth] = this._decimalPipe.transform(it.Purchases, '1.0-4');
+      tempData[1][it.YearMonth] = this._decimalPipe.transform(it.PurchasesAvg, '1.0-4');
+      tempData[2][it.YearMonth] = it.PurchasesNo;
+      tempData[3][it.YearMonth] = it.PaiTodZero;
+      tempData[4][it.YearMonth] = it.Recoursed;
+      tempData[5][it.YearMonth] = this._decimalPipe.transform(it.AvgWeightedDays, '1.0-0');
+    }
+    this.ticketingTrendDataVertical = tempData;
+    this.displayedColumnsVertical = tempColumn;
+    // console.log('ticketingTrendDataVertical--', this.ticketingTrendDataVertical);
+  }
+
   // event handler for the trend chart column change
   onTrendColumnChange() {
     const tempPeriod = this.trendPeriodChar==='M' ? 'Months' : this.trendPeriodChar==='Q' ? 'Quarters' : 'Years';
@@ -660,7 +693,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
   // submit the ticketing request tab form and save
   onTicketEdit() {
-    this.onApproveCreditRequest(this.editTicketForm.value.RequestNo, 'RSUN', this.editTicketForm.value.Action, this.editTicketForm.value.freeTextInput, this.editTicketForm.value.ApproveAmt, this.editTicketForm.value.NewLimit, this.editTicketForm.value.ExpiresInMonths);
+    console.log('editTicketForm value--', this.editTicketForm.value);
+    this.onApproveCreditRequest(this.editTicketForm.value.CredRequestKey, 'RSUN', this.editTicketForm.value.Action, this.editTicketForm.value.FreeTextInput, this.editTicketForm.value.ApproveAmt, this.editTicketForm.value.NewLimit, this.editTicketForm.value.ExpiresInMonths, this.editTicketForm.value.SendDecisionToClient?"Y":"N");
   }
 
   // generate the trend chart
@@ -766,11 +800,11 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   // approve the credit request
-  onApproveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string) {
+  onApproveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string, email: string) {
     // confirm approval
     const confirmed = window.confirm('Are you sure you want to approve the credit request?');
     if (confirmed) {
-      this.ticketingService.approveCreditRequest(credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths).subscribe(response => {
+      this.ticketingService.approveCreditRequest(credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths, email).subscribe(response => {
         console.log('Credit Request Approved:', response);
         window.location.reload(); // reload the page to reflect changes
       }, error => {

@@ -32,7 +32,7 @@ export class TicketingService {
   }
 
   // function to approve a credit request
-  approveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string): Observable<any> {
+  approveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string, email: string): Observable<any> {
     const url = `https://everest.revinc.com:4202/api/approveCreditRequest`;
     
     const formData = new FormData();
@@ -43,6 +43,7 @@ export class TicketingService {
     formData.append('ApprovedLimit', approvedLimit);
     formData.append('NewLimitAmt', newLimitAmt);
     formData.append('ExpMonths', expMonths);
+    formData.append('Email', email);
 
     return this.http.post<any>(url, formData);
   }

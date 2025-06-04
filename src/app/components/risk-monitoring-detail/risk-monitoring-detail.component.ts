@@ -198,7 +198,7 @@ export class RiskMonitoringDetailComponent {
 
   loadMonitoringCategories(){
     this.dataService.getMonitoringCategories().subscribe(data => {
-      this.MonitoringCategories = data.MonitoringCategories;      
+      this.MonitoringCategories = data.MonitoringCategories;    
     });       
   }
 
@@ -222,7 +222,7 @@ export class RiskMonitoringDetailComponent {
       this.user = userId 
     });
 
-    this.dataService.addNotesRisk(this.ClientKey, this.note_category, this.note, '', '1', this.user, this.due_date).subscribe(response => {      
+    this.dataService.addNotesRisk(this.ClientKey, this.note_category===''?'Other':this.note_category, this.note, '', '1', this.user, this.due_date).subscribe(response => {      
       window.location.reload();
     }, error => {
       alert('Failed');

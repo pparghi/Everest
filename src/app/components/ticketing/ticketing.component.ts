@@ -40,6 +40,8 @@ interface DataItem {
     IndivCreditLimit: number;    
     expandedDetail: { detail: string };
     ClientNo: string;
+    CredRequestKey:string;
+    CRMmail: string;
 }
 
 interface clientDataItem {
@@ -318,7 +320,8 @@ export class TicketingComponent {
              Balance: row.Balance,
              PastDue: row.PastDue,
              Available: row.Available,
-             openTicketForm: 'editTicketForm',                 
+             openTicketForm: 'editTicketForm',  
+             CredRequestKey: row.CredRequestKey,               
            }
           });
           dialogRef.afterClosed().subscribe(result => {
@@ -348,10 +351,11 @@ export class TicketingComponent {
   }
 
   emailTo(row: DataItem) {
-    console.log('emailTo called');
-    const subject = "Example Subject";
+    // console.log('emailTo called');
+    // console.log('row:', row);
+    const subject = "Credit request #" + row.RequestNo;
     const body = "Debtor: " + row.Debtor + "\nClient: " + row.Client;
-    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:${row.CRMmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     // Create and trigger the mailto link
     const link = document.createElement('a');

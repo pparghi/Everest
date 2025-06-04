@@ -38,6 +38,10 @@
 	padding-left: 45px;
   }
 
+  .form-label {
+	margin-bottom: 2px !important;
+  }
+
   .form-control {
 	font-size: small;
   }
@@ -198,6 +202,9 @@
 	margin-left: 5px;
 	margin-right: 5px;
 	background-color: #ffffff;
+	
+    overflow-x: auto; 
+    overflow-y: hidden;
 }
 
 .mat-card-trend-chart {
@@ -211,6 +218,8 @@
 
 .trend-table {
 	background-color: #ffffff;
+    width: 100%;
+    margin-bottom: 0;
 }
 
 .invoiceNumberClickable{
@@ -219,5 +228,18 @@
 
 .invoiceNumberClickable:hover {
 	color:#133984;
+	cursor: pointer;
+}
+
+.checkbox-container {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 5px;
+}
+
+.formCheckBox {
+    width: 20px;
+    height: 20px;
 	cursor: pointer;
 }

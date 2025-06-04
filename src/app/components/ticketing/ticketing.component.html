@@ -1,8 +1,8 @@
 <div class="example-container mat-elevation-z8" tabindex="0">                        
     <div class="page-header">        
         <div *ngFor="let option of statusListOptions">
-            <input type="checkbox" [value]="option.value" (change)="onCheckboxChange($event)" [checked]="isChecked(option.value)">
-            {{ option.label }}
+            <input type="checkbox" [value]="option.value" (change)="onCheckboxChange($event)" [checked]="isChecked(option.value)" id={{option.value}}>
+            <label for={{option.value}} style="margin-left: 5px;">{{ option.label }}</label>
         </div>
         <div>              
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

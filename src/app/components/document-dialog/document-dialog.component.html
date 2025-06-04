@@ -753,62 +753,62 @@
                 <div class="row" style="padding-top: 0px;">
                   <div class="col-md-12">
                     <label for="RequestNo" class="form-label">Request#</label>
-                    <input type="text" id="RequestNo" class="form-control" formControlName="RequestNo"
-                      placeholder="N/A">
+                    <input type="text" id="RequestNo" class="form-control" value="{{editTicketForm.get('RequestNo')?.value + ' on ' + (editTicketForm.get('RequestDate')?.value | date:'MM/dd/yyyy h:mm a') + ' by ' + editTicketForm.get('RequestUser')?.value}}"
+                      placeholder="N/A" readonly>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
                     <label for="Client" class="form-label">Client</label>
-                    <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A">
+                    <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A" readonly>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
                     <label for="Debtor" class="form-label">Debtor</label>
-                    <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A">
+                    <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A" readonly>
                     <!-- <textarea id="Debtor" class="form-control" cols="30" rows="2"></textarea> -->
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
                     <label for="PONumber" class="form-label">PO #</label>
-                    <input type="text" id="PONumber" class="form-control" formControlName="PONumber">
+                    <input type="text" id="PONumber" class="form-control" formControlName="PONumber" readonly>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-6">
                     <label for="ShipDate" class="form-label">Ship date</label>
-                    <input type="date" id="ShipDate" class="form-control" formControlName="ShipDate">
+                    <input type="date" id="ShipDate" class="form-control" formControlName="ShipDate" readonly>
                   </div>
                   <div class="col-md-6">
                     <label for="EstablishedDate" class="form-label">Established date</label>
-                    <input type="date" id="EstablishedDate" class="form-control" formControlName="EstablishedDate">
+                    <input type="date" id="EstablishedDate" class="form-control" formControlName="EstablishedDate" readonly>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
                     <label for="Terms" class="form-label">Terms</label>
-                    <input type="text" id="Terms" class="form-control" formControlName="Terms">
+                    <input type="text" id="Terms" class="form-control" formControlName="Terms" readonly>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
                     <label for="Comments" class="form-label">Comments</label>
-                    <textarea id="Comments" class="form-control" formControlName="Comments" cols="30" rows="5"></textarea>
+                    <textarea id="Comments" class="form-control" formControlName="Comments" cols="30" rows="5" readonly></textarea>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-6">
                     <label for="TotalCreditLimit" class="form-label">House line</label>
-                    <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A">
+                    <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A" readonly>
                   </div>
                   <div class="col-md-6">
                     <label for="ExpiresDate" class="form-label">Expires date</label>
-                    <input type="date" id="ExpiresDate" class="form-control" formControlName="ExpiresDate" >
+                    <input type="date" id="ExpiresDate" class="form-control" formControlName="ExpiresDate" readonly>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-6">
                     <label for="Action" class="form-label">Action</label>
                     <select id="Action" class="form-control" formControlName="Action" (change)="onActionChange($event)">
@@ -819,27 +819,33 @@
                   </div>
                   <div class="col-md-6">
                     <label for="RequestAmt" class="form-label">Requested</label>
-                    <input type="text" id="RequestAmt" class="form-control" formControlName="RequestAmt" placeholder="N/A">
+                    <input type="text" id="RequestAmt" class="form-control" formControlName="RequestAmt" placeholder="N/A" readonly>
                   </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
-                  <div class="col-md-4">
+                <div class="row" style="padding-top: 10px;">
+                  <div class="col-md-3">
                     <label for="ApproveAmt" class="form-label">Approved</label>
                     <input type="text" id="ApproveAmt" class="form-control" formControlName="ApproveAmt" placeholder="N/A">
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <label for="NewLimit" class="form-label">New limit will be</label>
                     <input type="text" id="NewLimit" class="form-control" formControlName="NewLimit">
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <label for="ExpiresInMonths" class="form-label">Expires In Months</label>
                     <input type="text" id="ExpiresInMonths" class="form-control" formControlName="ExpiresInMonths">
                   </div>
+                  <div class="col-md-3">
+                    <label for="SendDecisionToClient" class="form-label">Send decision ticket to client</label>
+                    <div class="checkbox-container">
+                      <input type="checkbox" id="SendDecisionToClient" class="formCheckBox" formControlName="SendDecisionToClient">
+                    </div>
+                  </div>
                 </div>
-                <div class="row" style="padding-top: 5px;">
+                <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
                     <label for="FreeTextInput" class="form-label">Text Input</label>
-                    <textarea id="FreeTextInput" class="form-control" formControlName="freeTextInput" rows="3"></textarea>
+                    <textarea id="FreeTextInput" class="form-control" formControlName="FreeTextInput" rows="3"></textarea>
                   </div>
                 </div>
               </div>
@@ -879,51 +885,21 @@
         </mat-card>
         <mat-card appearance="raised" class="mat-card-trend-table">
           <div class="col-md-12">
-            <table mat-table [dataSource]="ticketingTrendDataSource" matTableExporter #exporter="matTableExporter" class="mat-elevation-z8 trend-table">
-
-              <ng-container matColumnDef="YearMonth">
-                <th mat-header-cell *matHeaderCellDef> Period </th>
-                <td mat-cell *matCellDef="let element"> {{element.YearMonth}} </td>
-              </ng-container>
-
-              <ng-container matColumnDef="Purchases">
-                <th mat-header-cell *matHeaderCellDef> Purchases </th>
-                <td mat-cell *matCellDef="let element"> {{element.Purchases | number: '1.0-4'}} </td>
-              </ng-container>
-
-              <ng-container matColumnDef="PurchasesAvg">
-                <th mat-header-cell *matHeaderCellDef> Average </th>
-                <td mat-cell *matCellDef="let element"> {{element.PurchasesAvg | number: '1.0-4'}} </td>
-              </ng-container>
-
-              <ng-container matColumnDef="PurchasesNo">
-                <th mat-header-cell *matHeaderCellDef> Invoices </th>
-                <td mat-cell *matCellDef="let element"> {{element.PurchasesNo}} </td>
-              </ng-container>
-
-              <ng-container matColumnDef="PaiTodZero">
-                <th mat-header-cell *matHeaderCellDef> Paid to zero </th>
-                <td mat-cell *matCellDef="let element"> {{element.PaiTodZero}} </td>
-              </ng-container>
-
-              <ng-container matColumnDef="Recoursed">
-                <th mat-header-cell *matHeaderCellDef> Recoursed </th>
-                <td mat-cell *matCellDef="let element"> {{element.Recoursed}} </td>
-              </ng-container>
-
-              <ng-container matColumnDef="AvgWeightedDays">
-                <th mat-header-cell *matHeaderCellDef> Avg Weighted Days </th>
-                <td mat-cell *matCellDef="let element"> {{element.AvgWeightedDays | number: '1.0-0'}} </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <table mat-table [dataSource]="ticketingTrendDataVertical" matTableExporter #exporter="matTableExporter" class="mat-elevation-z8 trend-table">
+              @for (it of displayedColumnsVertical; track it) {
+                <ng-container matColumnDef={{it}}>
+                  <th mat-header-cell *matHeaderCellDef> {{it}} </th>
+                  <td mat-cell *matCellDef="let element"> {{element[it]}} </td>
+                </ng-container>
+              }
+              <tr mat-header-row *matHeaderRowDef="displayedColumnsVertical"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsVertical;"></tr>
             </table>
           </div>
           <div>
-              <button mat-icon-button (click)="exporter.exportTable('xlsx', {fileName: trendDabtorName+' - '+trendClientName+' - Trend'})">
-                  <mat-icon>file_download</mat-icon>
-              </button>
+            <button mat-icon-button (click)="exporter.exportTable('xlsx', {fileName: trendDabtorName+' - '+trendClientName+' - Trend'})">
+              <mat-icon>file_download</mat-icon>
+            </button>
           </div>
         </mat-card>
         <!-- trend bar chart -->
