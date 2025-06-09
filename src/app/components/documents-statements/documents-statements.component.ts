@@ -83,6 +83,11 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
         Reference: filterValues.Reference || '',
         descriptionChecked: filterValues.descriptionChecked || false
       });
+
+      // update columns
+      this.updateColumns();
+      // load the invoice list when filters are saved
+      this.getInvoiceListByFilters();
     }
 
     this.loadOfficeList(); //load office list

@@ -67,7 +67,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // Listen to route changes to determine if the "Documents" tab should be active
     this.router.events.subscribe(() => {
-      this.isDocumentsTabActive = this.router.url.includes('/notice-of-accessment');
+      this.isDocumentsTabActive = this.router.url.includes('/notice-of-accessment') || this.router.url.includes('/release-letter') || this.router.url.includes('/documents-statements');
     });
 
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
