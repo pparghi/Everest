@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import {Observable} from 'rxjs';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { HttpClient } from '@angular/common/http';
@@ -171,31 +171,31 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
     if (this.filterForm.get('descriptionChecked')?.value) {
       exportData = this.invoiceListSource.data.map(item => {
         return {
-          'Debtor': item.Debtor,
-          'Client': item.Client,
+          'Customer': item.Debtor,
+          'Vendor / Carrier': item.Client,
           'PO#/Load#': item.PurchOrd,
-          'Invoice Number': item.InvNo,
+          'Invoice#': item.InvNo,
           'Description': item.Descr,
-          'Invoice Date': item.InvDate,
+          'Invoice Date': item.InvDate.split(' ')[0], // Format date to YYYY-MM-DD
           'Age': item.OpenDays,
           'Currency': item.CurrencyType,
-          'Amount': item.Amt,
-          'Balance': item.Balance
+          'Amount': Number(item.Amt),
+          'Balance': Number(item.Balance)
         };
       });
     }
     else {
       exportData = this.invoiceListSource.data.map(item => {
         return {
-          'Debtor': item.Debtor,
-          'Client': item.Client,
+          'Customer': item.Debtor,
+          'Vendor / Carrier': item.Client,
           'PO#/Load#': item.PurchOrd,
-          'Invoice Number': item.InvNo,
-          'Invoice Date': item.InvDate,
+          'Invoice#': item.InvNo,
+          'Invoice Date': item.InvDate.split(' ')[0],
           'Age': item.OpenDays,
           'Currency': item.CurrencyType,
-          'Amount': item.Amt,
-          'Balance': item.Balance
+          'Amount': Number(item.Amt),
+          'Balance': Number(item.Balance)
         };
       });
     }
@@ -203,16 +203,162 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
     // Create worksheet
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
 
+    // Define specific column widths by header name
+    const columnWidths: { [key: string]: number } = {
+      'Customer': 74,
+      'Vendor / Carrier': 60,
+      'PO#/Load#': 14,
+      'Invoice#': 13,
+      'Description': 30,
+      'Invoice Date': 17,
+      'Age': 6,
+      'Currency': 13,
+      'Amount': 12,
+      'Balance': 12
+    };
+
+    // Set column widths based on header names
+    worksheet['!cols'] = Object.keys(exportData[0]).map(header => ({
+      wch: columnWidths[header] || 15 // Default to 15 if width not specified
+    }));
+    
+    // Set height in points for first row
+    worksheet['!rows'] = [{ hpt: 18 }]; 
+
+    // Add styling to header row
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+    for (let R = range.s.r; R <= range.e.r; R++) {
+      for (let C = range.s.c; C <= range.e.c; C++) {
+        const address = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!worksheet[address]) continue;
+
+        if (R === 0) {  // Header row
+          worksheet[address].s = {
+            fill: {
+              patternType: 'solid',
+              fgColor: { rgb: '00B0F0' }
+            },
+            font: {
+              name: 'Calibri',
+              sz: 14,
+              bold: true,
+              color: { rgb: 'FFFFFF' }
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center'
+            },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+        } else if (C === 0) {  // Debtor column
+          worksheet[address].s = {
+            font: {
+              name: 'Calibri',
+              sz: 11
+            },
+            alignment: {
+              horizontal: 'left',
+              vertical: 'center'
+            },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+        } else if (C === 1) {  // client column
+          worksheet[address].s = {
+            font: {
+              name: 'Calibri',
+              sz: 11
+            },
+            alignment: {
+              horizontal: 'left',
+              vertical: 'center'
+            },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+        } else if (C === 4 && range.e.c === 9) {  // description column
+          worksheet[address].s = {
+            font: {
+              name: 'Calibri',
+              sz: 11
+            },
+            alignment: {
+              horizontal: 'left',
+              vertical: 'center'
+            },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+        } else if (( range.e.c === 9 && (C === 9 || C === 8) ) || ( range.e.c === 8 && (C === 7 || C === 8) )) {  // Amount and Balance column
+          worksheet[address].s = {
+            font: {
+              name: 'Calibri',
+              sz: 11
+            },
+            alignment: {
+              horizontal: 'right',
+              vertical: 'center'
+            },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+          worksheet[address].z = '"$"#,##0.00_);\\("$"#,##0.00\\)'; // Currency format
+        } else {  // invoice# column
+          worksheet[address].s = {
+            font: {
+              name: 'Calibri',
+              sz: 11
+            },
+            alignment: {
+              horizontal: 'center',
+              vertical: 'center'
+            },
+            border: {
+              top: { style: 'thin', color: { rgb: '000000' } },
+              bottom: { style: 'thin', color: { rgb: '000000' } },
+              left: { style: 'thin', color: { rgb: '000000' } },
+              right: { style: 'thin', color: { rgb: '000000' } }
+            }
+          };
+        }
+      }
+    }
+
     // Create workbook
     const workbook: XLSX.WorkBook = {
       Sheets: { 'Invoices_Statement': worksheet },
-      SheetNames: ['Invoices_Statement']
+      SheetNames: ['Invoices_Statement'],
+      Props: {
+        Title: 'Invoices Statement'
+      }
     };
 
     // Generate Excel file
     const excelBuffer: any = XLSX.write(workbook, {
       bookType: 'xlsx',
-      type: 'array'
+      type: 'array',
+      cellStyles: true
     });
 
     this.saveExcelFile(excelBuffer);

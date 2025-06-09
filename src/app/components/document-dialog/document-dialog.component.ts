@@ -694,7 +694,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   // submit the ticketing request tab form and save
   onTicketEdit() {
     console.log('editTicketForm value--', this.editTicketForm.value);
-    this.onApproveCreditRequest(this.editTicketForm.value.CredRequestKey, 'RSUN', this.editTicketForm.value.Action, this.editTicketForm.value.FreeTextInput, this.editTicketForm.value.ApproveAmt, this.editTicketForm.value.NewLimit, this.editTicketForm.value.ExpiresInMonths, this.editTicketForm.value.SendDecisionToClient?"Y":"N");
+    // console.log('userID--', this.data.userID.toUpperCase());
+    this.onApproveCreditRequest(this.editTicketForm.value.CredRequestKey, this.data.userID.toUpperCase(), this.editTicketForm.value.Action, this.editTicketForm.value.FreeTextInput, this.editTicketForm.value.ApproveAmt, this.editTicketForm.value.NewLimit, this.editTicketForm.value.ExpiresInMonths, this.editTicketForm.value.SendDecisionToClient?"Y":"N");
   }
 
   // generate the trend chart

@@ -321,7 +321,8 @@ export class TicketingComponent {
              PastDue: row.PastDue,
              Available: row.Available,
              openTicketForm: 'editTicketForm',  
-             CredRequestKey: row.CredRequestKey,               
+             CredRequestKey: row.CredRequestKey,    
+             userID : this.user,           
            }
           });
           dialogRef.afterClosed().subscribe(result => {
