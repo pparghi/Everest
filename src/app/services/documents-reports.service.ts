@@ -23,6 +23,13 @@ export class DocumentsReportsService {
     return this.http.get(url, {responseType: 'json'});
   }
 
+  // Call the API to get the list of debtors based on the name of searching
+  getDebtorsListByName(DebtorName: string) {
+    const debtorName = DebtorName ?? '';
+    const url = `https://everest.revinc.com:4202/api/getDebtorsListByName?debtorName=${debtorName}`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
   // Call the API to get the PDF file
   callNOAIRISAPI(ClientKey: number, DebtorKey: number, FactorSignature: boolean, acknowledge_signature:boolean, bankingdetails:boolean, bankingdetails_included:boolean, 
     araging:boolean, email_debtor:boolean, email_client:boolean, email_crm:boolean, email_address:string) {

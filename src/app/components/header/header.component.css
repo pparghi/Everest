@@ -44,3 +44,39 @@
 .profile-menu i {
     cursor: pointer;
 }
+
+.greeting-message {
+    color: #737474; 
+    font-size: 28px;
+    font-family: "Times New Roman", Times, serif;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 1px;
+}
+
+.wave-text {
+    display: inline-block;
+    animation: wave 1.5s 1;
+    animation-delay: calc(.1s * var(--i));
+}
+
+@keyframes wave {
+    0%, 40%, 100% {
+        transform: translateY(0);
+    }
+    20% {
+        transform: translateY(-10px);
+    }
+}
+
+.wave-text:nth-child(10n + 1) { --i: 1; }
+.wave-text:nth-child(10n + 2) { --i: 2; }
+.wave-text:nth-child(10n + 3) { --i: 3; }
+.wave-text:nth-child(10n + 4) { --i: 4; }
+.wave-text:nth-child(10n + 5) { --i: 5; }
+.wave-text:nth-child(10n + 6) { --i: 6; }
+.wave-text:nth-child(10n + 7) { --i: 7; }
+.wave-text:nth-child(10n + 8) { --i: 8; }
+.wave-text:nth-child(10n + 9) { --i: 9; }
+.wave-text:nth-child(10n + 10) { --i: 10; }

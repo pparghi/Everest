@@ -64,6 +64,8 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { DocumentsStatementsComponent } from './components/documents-statements/documents-statements.component';
+import { ReleaseLetterComponent } from './components/release-letter/release-letter.component';
 
 @NgModule({
   declarations: [
@@ -94,7 +96,9 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     TicketingMasterMemberDebtorsComponent,
     NegativeToParenthesesPipe,
     MinutesToDHMPipe,
-    NoticeOfAccessmentComponent,    
+    NoticeOfAccessmentComponent,
+    DocumentsStatementsComponent,
+    ReleaseLetterComponent,    
   ],
   imports: [
     MatDatepickerModule,

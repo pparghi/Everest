@@ -18,6 +18,8 @@ import { RiskMonitoringDetailComponent } from './components/risk-monitoring-deta
 import { TicketingComponent } from './components/ticketing/ticketing.component';
 import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-master-member-debtors/ticketing-master-member-debtors.component';
 import { NoticeOfAccessmentComponent } from './components/notice-of-accessment/notice-of-accessment.component';
+import { DocumentsStatementsComponent } from './components/documents-statements/documents-statements.component';
+import { ReleaseLetterComponent } from './components/release-letter/release-letter.component';
 
 const routes: Routes = [  
   { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
@@ -31,6 +33,8 @@ const routes: Routes = [
   { path: 'memberMasterdebtor', component: MemberMasterDebtorComponent },
   { path: 'invoice-search', component: InvoicesComponent },
   { path: 'notice-of-accessment', component: NoticeOfAccessmentComponent },
+  { path: 'documents-statements', component: DocumentsStatementsComponent },
+  { path: 'release-letter', component: ReleaseLetterComponent },
   { path: 'detail', component: RiskMonitoringDetailComponent },
   { path: 'monitoring', component: RiskMonitoringComponent },
   { path: 'ticketing', component: TicketingComponent },

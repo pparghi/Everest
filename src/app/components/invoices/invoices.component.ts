@@ -5,7 +5,6 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import {SelectionModel} from '@angular/cdk/collections';
-import {MatCheckboxModule} from '@angular/material/checkbox';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { FilterService } from '../../services/filter.service';
 import * as XLSX from 'xlsx';

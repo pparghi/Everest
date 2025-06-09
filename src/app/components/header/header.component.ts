@@ -33,6 +33,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   todayRate: any;
   todayCurrency: any;
 
+  userName: string = '';
+  greetingMessage: string = '';
+
   readonly dialog = inject(MatDialog);    
   NavOptionRiskMonitoringRestricted: any;
   NavAccessRiskMonitoringRestricted: any;
@@ -52,14 +55,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // #endregion
 
   ngOnInit(): void {
+    // base on users time to create a greeting message
+    const currentHour = new Date().getHours();
+    if (currentHour < 12 && currentHour >= 6) {
+      this.greetingMessage = 'Good Morning, ';
+    } else if (currentHour < 18 && currentHour >= 12) {
+      this.greetingMessage = 'Good Afternoon, ';
+    } else {
+      this.greetingMessage = 'Good Evening, ';
+    }
+
     // Listen to route changes to determine if the "Documents" tab should be active
     this.router.events.subscribe(() => {
       this.isDocumentsTabActive = this.router.url.includes('/notice-of-accessment');
     });
 
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-      
       this.profile = profile;     
+      this.userName = this.profile.displayName.split(' ')[0]; // Get the first name from the display name
       this.dataService.getData(this.profile.mail).subscribe(response => {                                
         response.data.forEach((element: any) => {
           if (element.NavOption == 'Master Debtor') {            
@@ -94,6 +107,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
         console.error('error--', error);
       });    
 
+      // Ensure the animation starts when the component initializes
+      setTimeout(() => {
+        const waveTexts = document.querySelectorAll('.wave-text');
+        waveTexts.forEach((text, index) => {
+          (text as HTMLElement).style.setProperty('--i', index.toString());
+        });
+      });
       
     });
     this.dataService.getExchangeRatesByMonth().subscribe(response => {                                     

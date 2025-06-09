@@ -1,0 +1,106 @@
+.page-container {
+    overflow: auto;
+    padding: 7px;
+    width: 100%;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content:flex-start;
+}
+
+.filter-input {
+    font-size: small;
+}
+
+.filter-unit {
+    display:block;
+    padding-left: 10px;
+}
+
+.checkbox-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.description-checkbox {
+    margin: 0;
+    transform: translateY(-5px);
+}
+
+.search-button {
+    display: flex;
+    align-items:center; 
+    justify-content: center;
+    width: 100px;
+    height: 30px;
+    margin-top: 20px;
+    margin-left: 30px;
+    border-radius: 7px;
+    border: 0;
+    background-color: #383b91;
+    color: white;
+    font-size: 14px;
+}
+.search-button:hover {
+    background-color: #252763;
+    color: white;
+}
+
+.download-button {
+    display: flex;
+    align-items:center; 
+    justify-content: center;
+    width: 100px;
+    height: 30px;
+    margin-top: 20px;
+    margin-left: 10px;
+    border-radius: 7px;
+    border: none;
+    background-color: #383b91;
+    color: white;
+    font-size: 14px;
+}
+.download-button:hover {
+    background-color: #252763;
+    color: white;
+}
+
+.button-icon{
+    font-size: 20px;
+}
+
+.debtor-input {
+    width: 350px !important;
+    height: 25px !important;
+}
+
+.main-table-container {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    max-height: 700px;
+    overflow-y: auto;
+    background-color: #ffffff;
+    margin-top: 10px;
+}
+
+.mat-table {
+    background-color: white;
+}
+
+.mat-mdc-header-cell.invDate-column, .mat-mdc-cell.invDate-column {
+    width: 110px !important; 
+} 
+
+.spinner-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* height: 200px;  */
+}

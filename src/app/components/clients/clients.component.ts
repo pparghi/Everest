@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Inject, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 // import { DataTableDirective, DataTablesModule } from 'angular-datatables'; this dependency is not in use and cause conflict issue
 import { Subject, filter } from 'rxjs';
@@ -14,6 +14,14 @@ import { get } from 'jquery';
 
 interface DataItem {
   Client: string;
+  Balance: number;
+  Over60: number;
+  PastDuePct: number;
+  NoInvoicesDispute: number;
+  NoInvoicesHold: number;
+  Concentration: number;
+  CRM: string;
+  Office: string;
 }
 
 @Component({
@@ -22,7 +30,7 @@ interface DataItem {
   styleUrl: './clients.component.css'
 })
 
-export class ClientsComponent implements OnInit {
+export class ClientsComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration', 'CRM', 'Office', 'Analysis'];
   isLoading = true;
   dataSource = new MatTableDataSource<any>([]);
@@ -63,6 +71,28 @@ export class ClientsComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit() {
+    this.dataSource.sortingDataAccessor = (item: any, property: string) => {
+      switch(property) {
+        case 'TotalAR':
+          return parseFloat(item.Balance) || 0;
+        case 'AgingOver60Days':
+          return parseFloat(item.Over60) || 0;
+        case '%pastdue':
+          return parseFloat(item.PastDuePct) || 0;
+        case '#ofInvoicesDisputes':
+          return parseInt(item.NoInvoicesDispute) || 0;
+        case '#holdInvoices':
+          return parseInt(item.NoInvoicesHold) || 0;
+        case '%concentration':
+          return parseFloat(item.Concentration) || 0;
+        default:
+          return item[property];
+      }
+    };
+    this.dataSource.sort = this.sort;
+  }
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes['DebtorKey']) {
       this.loadClientsDetails(this.DebtorKey);
@@ -74,6 +104,7 @@ export class ClientsComponent implements OnInit {
       let clientkey = this.ClientKey.trim();
       this.dataService.getClients(DebtorKey).subscribe(response => {
         this.dataSource.data = response.data;
+        this.dataSource.sort = this.sort; // Re-attach sort after new data
         const index = this.dataSource.data.findIndex(c => c.ClientKey == clientkey);
         if (index !== -1) {
           const [found] = response.data.splice(index, 1);
@@ -84,6 +115,7 @@ export class ClientsComponent implements OnInit {
     } else {
       this.dataService.getClients(DebtorKey).subscribe(response => {
         this.dataSource.data = response.data;
+        this.dataSource.sort = this.sort; // Re-attach sort after new data
         this.rawData = response.data;
         this.filterRawData();
       });

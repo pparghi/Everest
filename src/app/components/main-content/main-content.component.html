@@ -26,6 +26,12 @@
     <div *ngIf="currentPath.includes('notice-of-accessment')">
         <app-notice-of-accessment></app-notice-of-accessment>
     </div>
+    <div *ngIf="currentPath.includes('documents-statements')">
+        <app-documents-statements></app-documents-statements>
+    </div>
+    <div *ngIf="currentPath.includes('release-letter')">
+        <app-release-letter></app-release-letter>
+    </div>
     <div *ngIf="currentPath.includes('client-debtor')">
         <app-clients-debtors></app-clients-debtors>
     </div>

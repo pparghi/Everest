@@ -1,8 +1,13 @@
 <header class="app-header">
     <img src="assets/images/Everest-Logo.png" alt="Logo" class="logo">    
+    <span *ngIf="isUserLoggedIn" class="greeting-message">
+        <span class="wave-text" *ngFor="let char of (greetingMessage + userName + '!').split(''); let i = index">
+            {{char}}
+        </span>
+    </span>
     <nav class="nav-menu">
-        <ul>                                                
-            <li><button mat-raised-button *ngIf="!isUserLoggedIn" (click)="login()">Login</button></li>              
+        <ul>                                                     
+            <li><button mat-raised-button *ngIf="!isUserLoggedIn" (click)="login()">Login</button></li>       
             <li>
                 <img *ngIf="isUserLoggedIn" (click)="logout()" style="height: 40px; width: 40px; cursor: pointer;" src="assets/images/gear.png" alt="Settings" class="logo">
             </li>
@@ -41,8 +46,8 @@
                 </a>
                 <mat-menu #documents="matMenu">
                     <a mat-menu-item routerLink="/notice-of-accessment">NOA</a>
-                    <a mat-menu-item >Release Letter</a>
-                    <a mat-menu-item >Statements</a>
+                    <a mat-menu-item routerLink="/release-letter">Release Letter</a>
+                    <a mat-menu-item routerLink="/documents-statements">Statements</a>
                 </mat-menu>
             </li>
         </ul>
