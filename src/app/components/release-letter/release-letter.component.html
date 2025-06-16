@@ -1,1 +1,87 @@
-<p>release-letter works!</p>
+<h2>Release Letter</h2>
+<form class="LOR-form" [formGroup]="noaForm" (ngSubmit)="onSubmit($event)">
+    <mat-label>Division:</mat-label>
+    <mat-radio-group aria-label="Division" formControlName="division">
+        <mat-radio-button [value]="'factor'">Factor</mat-radio-button>
+        <mat-radio-button [value]="'construction'">Construction</mat-radio-button>
+        <mat-radio-button [value]="'both'">Both</mat-radio-button>
+    </mat-radio-group>
+
+    <mat-form-field appearance="fill">
+        <mat-label>Client</mat-label>
+        <input type="text" placeholder="Pick one" aria-label="Client" matInput formControlName="client"
+            [matAutocomplete]="clientAuto" (keydown.enter)="$event.preventDefault()">
+        <mat-autocomplete #clientAuto="matAutocomplete" [displayWith]="displayClientName">
+            @for (option of filteredOptions | async; track option) {
+            <mat-option [value]="option">{{option.ClientName}}</mat-option>
+            }
+        </mat-autocomplete>
+        @if (errorTypeClient === 'required') {
+            <mat-error>Client is needed</mat-error>
+        }
+        @if (errorTypeClient === 'error') {
+            <mat-error>Wrong input, please select from list</mat-error>
+        }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+        <mat-label>Contact</mat-label>
+        <input type="text" placeholder="Pick one" aria-label="Contact" matInput formControlName="contact"
+            [matAutocomplete]="contactAuto" (keydown.enter)="$event.preventDefault()">
+        <mat-autocomplete #contactAuto="matAutocomplete" [displayWith]="displayContactName">
+            @for (option of contactsOptions | async; track option) {
+            <mat-option [value]="option">{{option.Name}}</mat-option>
+            }
+        </mat-autocomplete>
+        @if (errorTypeClient === 'required') {
+            <mat-error>Contact is needed</mat-error>
+        }
+        @if (errorTypeClient === 'error') {
+            <mat-error>Wrong input, please select from list</mat-error>
+        }
+    </mat-form-field>
+
+    
+    <mat-form-field appearance="fill">
+        <mat-label>Debtor</mat-label>
+        <input type="text" placeholder="Pick one" aria-label="Debtor" matInput formControlName="debtor"
+            [matAutocomplete]="debtorAuto" (keydown.enter)="$event.preventDefault()">
+        <mat-autocomplete #debtorAuto="matAutocomplete" [displayWith]="displayDebtorName">
+            @for (option of debtorFilteredOptions | async; track option) {
+            <mat-option [value]="option">{{option.DebtorName}}</mat-option>
+            }
+        </mat-autocomplete>
+        @if (errorTypeDebtor === 'notAll') {
+            <mat-error>Please select a single debtor</mat-error>
+        }
+        @if (errorTypeDebtor === 'required') {
+            <mat-error>Debtor is needed</mat-error>
+        }
+        @if (errorTypeDebtor === 'error') {
+            <mat-error>Wrong input, please select from list</mat-error>
+        }
+    </mat-form-field>
+
+    
+    <mat-label>If No Debtor Selection</mat-label>
+    <div class="inline-radio-group">
+        <p>Mark All Debtors as No Buy: </p>
+        <mat-radio-group aria-label="If No Debtor Selection" formControlName="ifNoBuySelection">
+            <mat-radio-button [value]="'false'">No</mat-radio-button>
+            <mat-radio-button [value]="'true'">Yes</mat-radio-button>
+        </mat-radio-group>
+    </div>
+    
+    <mat-label>Report Format</mat-label>
+    <mat-radio-group aria-label="ReportFormat" formControlName="reportFormat">
+        <mat-radio-button [value]="'DOC'">DOC</mat-radio-button>
+        <mat-radio-button [value]="'PDF'">PDF</mat-radio-button>
+        <mat-radio-button [value]="'PDFWithWatermark'">PDF with Watermark</mat-radio-button>
+    </mat-radio-group>
+
+    <br>
+    <div class="buttons-in-row">
+        <button mat-flat-button color="success" type="submit" value="createSingleReleaseLetter">Create Single Release Letter</button>
+    </div>
+
+</form>

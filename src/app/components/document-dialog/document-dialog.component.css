@@ -220,6 +220,26 @@
 	background-color: #ffffff;
     width: 100%;
     margin-bottom: 0;
+	table-layout: fixed; 
+}
+
+.trend-table th, .trend-table td {
+    /* white-space: nowrap; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 2px; /* Reduce padding to save space */
+    font-size: 0.7rem; /* Slightly reduce font size */
+}
+
+.trend-table th:first-child, 
+.trend-table td:first-child {
+    width: 10%;
+    min-width: 100px;
+}
+
+.trend-table th:not(:first-child), 
+.trend-table td:not(:first-child) {
+    width: calc(90% / 12); /* Distribute remaining width among 12 data columns */
 }
 
 .invoiceNumberClickable{

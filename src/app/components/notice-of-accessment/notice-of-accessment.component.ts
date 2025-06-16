@@ -46,6 +46,8 @@ export class NoticeOfAccessmentComponent implements OnInit {
 
   // user profile
   userID: string = '';
+  userName: string = '';
+  userEmail: string = '';
 
 
   // constructor
@@ -54,7 +56,10 @@ export class NoticeOfAccessmentComponent implements OnInit {
   ngOnInit(): void {
     this.http.get(GRAPH_ENDPOINT)
     .subscribe(profile => {
+      // console.log('User profile:', profile);
       this.userID = (profile as any).mail.match(/^([^@]*)@/)[1].toUpperCase();
+      this.userName = (profile as any).displayName;
+      this.userEmail = (profile as any).mail;
     });
     // Fetch the client list when the component is initialized
     this.documentsReportsService.getClientsList().subscribe(
@@ -76,8 +81,9 @@ export class NoticeOfAccessmentComponent implements OnInit {
     // Fetch the debtor list when cllient is selected
     this.noaForm.controls['client'].valueChanges.subscribe(value => {
       if (typeof value === 'object' && value?.ClientKey) {
-        this.documentsReportsService.getDebtorListByClientKey(parseInt(value.ClientKey)).subscribe(
+        this.documentsReportsService.getNOADebtorsListByClientKey(parseInt(value.ClientKey)).subscribe(
           (response: any) => {
+            console.log('Debtor list response:', response);
             this.debtorOptions = [{DebtorNo: 'All Debtors', DebtorName: 'All Debtors', DebtorKey: 'All Debtors'}].concat(response.data);
             this.debtorFilteredOptions = this.noaForm.controls['debtor'].valueChanges.pipe(
               startWith(''),
@@ -298,7 +304,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
         this.noaForm.controls['debtor'].setErrors({reqired: true});
         return;
       }
-      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'').subscribe(
+      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'','','').subscribe(
         (response: any) => {
           // Handle the response from the API
           this.openBase64Pdf(response.result, "NOA-"+this.noaForm.value.client?.ClientName+"-"+this.noaForm.value.debtor?.DebtorName);
@@ -347,9 +353,13 @@ export class NoticeOfAccessmentComponent implements OnInit {
           return;
         }
 
-        // Create an array of API call observables
+        // check validations of email contact name(user's name) and contact email(user's email)
+        if (this.userName === '' || this.userEmail === '') {
+          return; // stop sending emails when userName or userEmail is empty
+        }
+        // Create an array of NOA API call observables
         const apiCalls = debtorKeyArray.map((debtor) =>
-          this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '')
+          this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail)
             .pipe(
               tap((response: any) => {
                 // Handle the response from the API
@@ -391,19 +401,6 @@ export class NoticeOfAccessmentComponent implements OnInit {
           }
         );
 
-        // Call the API to send emails
-        // for (let debtor of debtorKeyArray){
-        //   this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature??false,true,false,true,false,true,false,false,'rsun@baron.finance').subscribe(
-        //     (response: any) => {
-        //       // Handle the response from the API
-        //       console.log('response:', response);
-        //     },
-        //     (error) => {
-        //       console.error('Error sending email:', error);
-        //     }
-        //   );
-
-        // }
       }
     }
 

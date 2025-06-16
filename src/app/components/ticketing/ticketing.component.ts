@@ -13,6 +13,7 @@ import { FilterService } from '../../services/filter.service';
 import * as XLSX from 'xlsx';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { ClientsService } from '../../services/clients.service';
+import { Subscription, interval } from 'rxjs';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -104,6 +105,8 @@ export class TicketingComponent {
     NavAccessRiskMonitoring: any;
     NavOptionRiskMonitoringRestricted: any;
     NavAccessRiskMonitoringRestricted: any;
+    
+    private autoReloadSub!: Subscription; // use for auto-reload subscription
 
     constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
@@ -125,7 +128,11 @@ export class TicketingComponent {
       }
 
       this.selectedValuesString = this.selectedValues.join(', ');      
-      this.loadData();      
+      this.loadData();     
+
+      // Auto-reload every 30 seconds
+      this.autoReloadSub = interval(30 * 1000).subscribe(() => this.loadData());
+   
     }
 
     ngAfterViewInit(): void {            
@@ -142,7 +149,14 @@ export class TicketingComponent {
       }                     
     }
 
+    ngOnDestroy(): void {
+      if (this.autoReloadSub) { // unsubscribe to prevent memory leaks when component is destroyed
+        this.autoReloadSub.unsubscribe();
+      }
+    }
+
     loadData(): void {
+      // console.log('loadData called');
       this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
         this.profile = profile;
         this.loginService.getData(this.profile.mail).subscribe(response => {                                
@@ -183,10 +197,17 @@ export class TicketingComponent {
         this.isLoading = true;              
         const mail = btoa(this.profile.mail);             
 
+        // stop load  data if there is row expended
+        if (this.expandedElement !== null) {
+          console.log('Row is expanded, no loading data');
+          return;
+        }
+
         this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
           this.isLoading = false;
           this.dataSource.data = response.data;                                              
         });
+
       });
     }
 

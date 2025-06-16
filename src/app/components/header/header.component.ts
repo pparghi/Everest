@@ -71,6 +71,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
 
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      localStorage.setItem('userId', (profile as any).mail.match(/^([^@]*)@/)[1].toUpperCase());
       this.profile = profile;     
       this.userName = this.profile.displayName.split(' ')[0]; // Get the first name from the display name
       this.dataService.getData(this.profile.mail).subscribe(response => {                                

@@ -15,6 +15,13 @@ export class CacheInterceptor implements HttpInterceptor {
             return next.handle(req)
         }
 
+        // console.log('CacheInterceptor: Intercepting request for URL:', req.url);
+        // except for GET requests, we do not cache
+        if (req.url.includes('creditRequests')) {
+            console.log('No caching for creditRequests');
+            return next.handle(req);
+        }
+
         const cachedResponse = this.cacheService.get(req.url);
         if (cachedResponse) {
             return of(cachedResponse);

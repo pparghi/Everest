@@ -660,18 +660,74 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     });
   }
 
+  // Generates an array of the 12 most recent periods 
+  generateRecentPeriods(periodChar: string): string[] {
+      const periodsArr: string[] = [];
+      const today = new Date();
+    if (periodChar === 'Q') {
+      // Get current quarter and year
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth();
+      let currentQuarter = Math.floor(currentMonth / 3) + 1;
+      let year = currentYear;
+      
+      // Generate last 12 quarters
+      for (let i = 0; i < 12; i++) {
+        periodsArr.push(`${year}-${currentQuarter}`);
+        
+        // Move to previous quarter
+        currentQuarter--;
+        if (currentQuarter === 0) {
+          currentQuarter = 4;
+          year--;
+        }
+      }
+    }
+    else if (periodChar === 'Y') {
+      // Generate last 12 years
+      const currentYear = today.getFullYear();
+      for (let i = 0; i < 12; i++) {
+        periodsArr.push(`${currentYear - i}`);
+      }
+    }
+    else {
+      for (let i = 0; i < 12; i++) {
+        const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        // Format as YYYY-MM
+        const month = date.toISOString().substring(0, 7);
+        periodsArr.push(month);
+      }
+    }
+    return periodsArr;
+  }
   // transfer the trend table data to vertical format
   transferTrendDataToVertical(tableData: any[]) {
     let tempData: TrendVerticalData[] = [{ Period: "Purchases" }, { Period: "Average" }, { Period: "Invoices" }, { Period: "Paid to zero" }, { Period: "Recoursed" }, { Period: "Avg Weighted Days" }];
-    let tempColumn = ['Period'];
-    for (let it of tableData) {
-      tempColumn.push(it.YearMonth); // make the table headers
-      tempData[0][it.YearMonth] = this._decimalPipe.transform(it.Purchases, '1.0-4');
-      tempData[1][it.YearMonth] = this._decimalPipe.transform(it.PurchasesAvg, '1.0-4');
-      tempData[2][it.YearMonth] = it.PurchasesNo;
-      tempData[3][it.YearMonth] = it.PaiTodZero;
-      tempData[4][it.YearMonth] = it.Recoursed;
-      tempData[5][it.YearMonth] = this._decimalPipe.transform(it.AvgWeightedDays, '1.0-0');
+    // initial columns headers
+    let tempColumn = ['Period', ...this.generateRecentPeriods(this.trendPeriodChar)];
+
+    for (let i = 1; i < tempColumn.length; i++) {
+      let hasValues = false;
+      for (let it of tableData.reverse()) {
+        if (it.YearMonth === tempColumn[i]) {
+          hasValues = true;
+          tempData[0][tempColumn[i]] = this._decimalPipe.transform(it.Purchases, '1.0-0');
+          tempData[1][tempColumn[i]] = this._decimalPipe.transform(it.PurchasesAvg, '1.0-0');
+          tempData[2][tempColumn[i]] = it.PurchasesNo;
+          tempData[3][tempColumn[i]] = it.PaiTodZero;
+          tempData[4][tempColumn[i]] = it.Recoursed;
+          tempData[5][tempColumn[i]] = this._decimalPipe.transform(it.AvgWeightedDays, '1.0-0');
+          break;
+        }
+      }
+      if (!hasValues) {
+        tempData[0][tempColumn[i]] = '';
+        tempData[1][tempColumn[i]] = '';
+        tempData[2][tempColumn[i]] = '';
+        tempData[3][tempColumn[i]] = '';
+        tempData[4][tempColumn[i]] = '';
+        tempData[5][tempColumn[i]] = '';
+      }
     }
     this.ticketingTrendDataVertical = tempData;
     this.displayedColumnsVertical = tempColumn;
