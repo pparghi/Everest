@@ -1,5 +1,40 @@
 
-<div class="example-container mat-elevation-z8" tabindex="0">                        
+<mat-drawer-container class="example-container" [hasBackdrop]="true">
+    <mat-drawer #drawer [mode]="'over'" positionBottom="bottom">
+        <!-- Drawer content -->
+        <div class="bottom-drawer-content">
+            <div class="drawer-header">
+                <h5>DUNS Search Results</h5>
+                <div class="search-actions">
+                    <button mat-raised-button color="primary" (click)="searchDunsByNameOnly()">
+                        <mat-icon>search</mat-icon> Search By Name Only
+                    </button>
+                    <button mat-icon-button (click)="drawer.close()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            </div>
+            <p><b>Company: </b>{{debtorName}}&nbsp;&nbsp;&nbsp;&nbsp;<b>Address: </b>{{debtorFullAddress}}</p>
+            <mat-divider></mat-divider>
+            <!-- Loading indicator -->
+            <div *ngIf="loadingDuns" class="loading-spinner">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Searching for debtor matches...</p>
+            </div>
+            <!-- Results area with cards -->
+            <div *ngIf="!loadingDuns" class="duns-results">
+                <h5 *ngIf="dunsMatches.length > 0">Matching Companies ({{dunsMatches.length}})</h5>
+                <p *ngIf="dunsMatches.length === 0">No matches found. Please try search by name only.</p>
+                
+                <div class="duns-cards-container">
+                    <app-duns-card *ngFor="let match of dunsMatches" [dunsInfo]="match" (selectDunsCompany)="updateDebtorWithDunsInfo(match)"></app-duns-card>
+                </div>
+            </div>
+            <!-- <div class="drawer-info">
+            </div> -->
+        </div>
+    </mat-drawer>  
+<div class="example-container mat-elevation-z8" tabindex="0">                      
     <div class="page-header">
         <div>
             <p></p>
@@ -266,7 +301,12 @@
                                 <td><a href="tel:{{ element.Phone2 }}">{{ element.Phone2 }}</a></td>                                    
                                 <td class="cell" (click)="openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
                                 <td class="cell">{{ element.Warning }}</td>
-                                <td class="cell">{{ element.DbDunsNo }}</td>
+                                <td class="cell">
+                                    <div class="duns-MC-cell">
+                                        {{ element.DbDunsNo }}
+                                        <mat-icon color="primary" (click)="searchDuns(element)" class="Duns-MC-button">find_replace</mat-icon>
+                                    </div>
+                                </td>
                                 <td class="cell">{{ element.MotorCarrNo }}</td>
                                 <td class="cell"><mat-icon color="primary" (click)="getReportLink(element)" class="report-button">link</mat-icon></td>
                                 <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>
@@ -293,3 +333,4 @@
         <mat-spinner class="custom-spinner"></mat-spinner>
     </div>
 </div>
+</mat-drawer-container>

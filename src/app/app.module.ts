@@ -24,7 +24,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortHeader, MatSortModule } from '@angular/material/sort';
 import { ThousandsPipe } from './thousands.pipe';
-import { MasterDebtorsComponent } from './components/master-debtors/master-debtors.component';
+import { MasterDebtorsComponent, DunsCardComponent } from './components/master-debtors/master-debtors.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -67,6 +67,7 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { DocumentsStatementsComponent } from './components/documents-statements/documents-statements.component';
 import { ReleaseLetterComponent } from './components/release-letter/release-letter.component';
+import {MatSidenavModule} from '@angular/material/sidenav';
 
 @NgModule({
   declarations: [
@@ -106,35 +107,27 @@ import { ReleaseLetterComponent } from './components/release-letter/release-lett
     BrowserModule,
     BrowserAnimationsModule,
     MatTableExporterModule,
-    MsalModule.forRoot(new PublicClientApplication(
-      {
+    MsalModule.forRoot(new PublicClientApplication({
         auth: {
-          clientId:'6abad1c1-70c7-4eaf-a4ee-3c4827ed050f',
-          redirectUri:'https://everest.revinc.com',
-          authority:'https://login.microsoftonline.com/1dfa1c9f-1ea3-4b25-a811-115259596ebb'
+            clientId: '6abad1c1-70c7-4eaf-a4ee-3c4827ed050f',
+            redirectUri: 'https://everest.revinc.com',
+            authority: 'https://login.microsoftonline.com/1dfa1c9f-1ea3-4b25-a811-115259596ebb'
         },
-        cache:{
-          // cacheLocation:'localStorage',
-          // storeAuthStateInCookie: isIE
+        cache: {
+        // cacheLocation:'localStorage',
+        // storeAuthStateInCookie: isIE
         }
-      }
-
-    ),
-    {
-      interactionType: InteractionType.Redirect,
-      authRequest: {
-        scopes: ['user.read']
-      }
-    },
-    {
-      interactionType: InteractionType.Redirect,
-      protectedResourceMap: new Map(
-        [
-          ['https://graph.microsoft.com/v1.0/me', ['user.read']]
-        ]
-      )
-    }
-    ),
+    }), {
+        interactionType: InteractionType.Redirect,
+        authRequest: {
+            scopes: ['user.read']
+        }
+    }, {
+        interactionType: InteractionType.Redirect,
+        protectedResourceMap: new Map([
+            ['https://graph.microsoft.com/v1.0/me', ['user.read']]
+        ])
+    }),
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
@@ -165,7 +158,9 @@ import { ReleaseLetterComponent } from './components/release-letter/release-lett
     MatAutocompleteModule,
     MatRadioModule,
     MatProgressBarModule,
-  ],
+    MatSidenavModule,
+    DunsCardComponent
+],
   providers: [
     CacheService,
     {

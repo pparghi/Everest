@@ -355,6 +355,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
 
         // check validations of email contact name(user's name) and contact email(user's email)
         if (this.userName === '' || this.userEmail === '') {
+          window.alert('Please check your user profile, contact name and email are required to send emails.');
           return; // stop sending emails when userName or userEmail is empty
         }
         // Create an array of NOA API call observables
@@ -366,7 +367,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
                 if (response.resultType==='email_sent' && response.result === 'success') {
                   successDebtors.push(debtor.DebtorName);
                 }
-                else if (response.resultType==='email_sent' && response.result === 'failed') {
+                else {
                   failedDebtors.push(debtor.DebtorName);
                 }
               }),

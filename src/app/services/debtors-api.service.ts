@@ -158,4 +158,20 @@ export class DebtorsApiService {
     );
   }
 
+  // search for debtor duns by debtor's name(required), address(optional), country(required)(CA or US)
+  searchDuns(debtorName: string, debtorAddress: string, country: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/searchDuns?Name=${debtorName}&Address=${debtorAddress}&Country=${country}`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  /**
+   * Updates debtor details in the database
+   * @param debtorData FormData containing all debtor fields to update
+   * @returns Observable with the API response
+   */
+  updateDebtorDetails(debtorData: FormData): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/updateDebtorDetails`;
+    return this.http.post<any>(url, debtorData);
+  }
+
 }

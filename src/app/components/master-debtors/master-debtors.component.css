@@ -175,3 +175,86 @@
 .report-button:hover {
   color:#061c80
 }
+
+.Duns-MC-button:hover {
+  color:#061c80
+}
+
+.duns-MC-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px; 
+}
+
+/* Bottom drawer styling */
+::ng-deep .mat-drawer[positionBottom="bottom"] {
+  /* Position at bottom instead of side */
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 60% !important;
+  box-shadow: 0px -2px 8px rgba(0,0,0,0.15);
+  border-radius: 8px 8px 0 0;
+  transform: translate3d(0, 100%, 0) !important;
+  visibility: visible !important;
+}
+
+::ng-deep .mat-drawer.mat-drawer-opened {
+  transform: translate3d(0, 0, 0) !important;
+}
+
+::ng-deep .mat-drawer-transition .mat-drawer {
+  transition: transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.bottom-drawer-content {
+  padding: 10px;
+  display: block;
+  height: 100%;
+}
+
+.drawer-info {
+  display: flex;
+  flex-direction: row;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.loading-spinner {
+  margin-top: 10px;
+}
+
+.duns-results {
+  margin-top: 10px;
+}
+
+.duns-cards-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.drawer-header {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.drawer-header h5 {
+  width: 50%;
+  font-weight: bold;
+}
+
+.search-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.search-actions button {
+  margin-right: 5px;
+}

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild, inject, AfterViewChecked  } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, inject, AfterViewChecked, Input, Output, EventEmitter  } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,9 +13,120 @@ import { LoginService } from '../../services/login.service';
 import { RoundThousandsPipe } from '../../round-thousands.pipe';
 import { FilterService } from '../../services/filter.service';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
+import { MatDrawer } from '@angular/material/sidenav';
+import { MatCardModule } from '@angular/material/card';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { CacheService } from '../../services/cache.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
+// #region Duns search cards
+interface DunsInfo {
+  companyName: string;
+  dunsNumber: string;
+  address: string;
+  city: string;
+  state: string;
+  phone?: string;
+  matchConfidence?: string;
+}
+@Component({
+  selector: 'app-duns-card',
+  template: `
+    <mat-card class="duns-card">
+      <mat-card-header>
+        <div mat-card-avatar class="duns-header-image">
+          <mat-icon>business</mat-icon>
+        </div>
+        <mat-card-title>{{ dunsInfo.companyName }}</mat-card-title>
+        <mat-card-subtitle [style.color]="'rgb(3, 37, 131)'">DUNS: {{ dunsInfo.dunsNumber }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="card-text"><strong>Address:</strong> {{ dunsInfo.address }}</p>
+        <p class="card-text"><strong>City/State:</strong> {{ dunsInfo.city }}, {{ dunsInfo.state }}</p>
+        <p class="card-text" *ngIf="dunsInfo.phone"><strong>Phone:</strong> {{ dunsInfo.phone }}</p>
+        <p class="card-text" *ngIf="dunsInfo.matchConfidence" class="match-confidence">
+          <strong>Match confidence code:</strong> {{ dunsInfo.matchConfidence }} / 10
+        </p>
+      </mat-card-content>
+      <mat-card-actions class="card-actions">
+        <button mat-button color="primary" (click)="viewDetails()">VIEW DETAILS</button>
+        <button mat-button color="accent" (click)="selectCompany()">SELECT</button>
+      </mat-card-actions>
+    </mat-card>
+  `,
+  styles: [`
+    .duns-card {
+      margin: 5px;
+      width: 350px;
+      min-height: 330px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .duns-header-image {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    }
+    
+    .duns-header-image mat-icon {
+      color: #3f51b5;
+    }
+    
+    .match-confidence {
+      margin-top: 10px;
+      font-style: italic;
+    }
+    
+    mat-card-content {
+      margin-bottom: 55px;
+    }
+
+    .card-text {
+      margin: 0.3rem 0;
+      line-height: 1.3;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      border-top: 1px solid #eeeeee;
+    }
+  `],
+  standalone: true,
+  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule]
+})
+export class DunsCardComponent {
+  @Input() dunsInfo!: DunsInfo;
+  @Output() selectDunsCompany = new EventEmitter<{ dunsInfo: DunsInfo }>();
+  
+  viewDetails() {
+    console.log('View details for:', this.dunsInfo.companyName);
+  }
+  
+  selectCompany() {
+    console.log('Selected company:', this.dunsInfo.companyName);
+    // Emit the selected company info and the original debtor key
+    this.selectDunsCompany.emit({ dunsInfo: this.dunsInfo});
+  }
+}
+
+// endregion
+
+
+// #region master-debtors.component
 interface DataItem {
   Debtor: string;
   DebtorKey: number;
@@ -44,6 +155,7 @@ interface DataItem {
   CredExpireMos: number;
   DotNo: string;
   expandedDetail: { detail: string };
+  ZipCode: string;
 }
 
 @Component({
@@ -94,8 +206,18 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   debtorAudit: any;
 
   isSortSubscribed = false; // flag of sort subscription, avoid multiple subscriptions
+  @ViewChild('drawer') drawer!: MatDrawer;
+  debtorName: string = '';
+  debtorFullAddress: string = '';
+  countryCode: string = '';
 
-    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService, private documentsReportsService: DocumentsReportsService) {      
+  dunsMatches: DunsInfo[] = []; // store DUNS search results and used for displaying duns search cards
+  loadingDuns = false;
+
+  // store selected debtor details
+  selectedDebtorDetails: DataItem | null = null;
+
+    constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService, private documentsReportsService: DocumentsReportsService, private cacheService: CacheService) {      
     }
     ngOnInit(): void {  
       const filterValues = this.filterService.getFilterState("master-debtors"); // get filter state from filter service
@@ -523,5 +645,193 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
       window.open(response.url, "_blank");
     });
   } 
+
+  // event of searching Duns number
+  searchDuns (element: DataItem){
+    // set the selected debtor details
+    this.selectedDebtorDetails = element;
+
+    if (this.drawer) {
+      this.drawer.toggle();
+    }
+
+    console.log("element--",element);
+    let fullAddress = "";
+    if (element.Addr1) {
+      fullAddress += element.Addr1 + ", ";
+    }
+    if (element.Addr2) {
+      fullAddress += element.Addr2 + ", ";
+    }
+    if (element.City) {
+      fullAddress += element.City + ", ";
+    }
+    if (element.State) {
+      fullAddress += element.State + ", ";
+    }
+    if (element.Country) {
+      fullAddress += element.Country + ", ";
+    }
+    if (element.ZipCode) {
+      fullAddress += element.ZipCode;
+    }
+    fullAddress = fullAddress.trim().replace(/^,+\s*|\s*,+$/g, "");
+    this.debtorName = element.Debtor;
+    this.debtorFullAddress = fullAddress;
+    this.countryCode = this.convertCountryToCode(element.Country);
+    // console.log("Name--", element.Debtor);
+    // console.log("fullAddress--", fullAddress);
+    
+    this.loadingDuns = true;
+
+    // setTimeout(() => {
+    //   this.loadingDuns = false;
+    //   this.dunsMatches = [
+    //     {
+    //       companyName: "GOVERNMENT OF THE DISTRICT OF COLUMBIA",
+    //       dunsNumber: element.DbDunsNo || '123456789',
+    //       address: element.Addr1 || '',
+    //       city: element.City || '',
+    //       state: element.State || '',
+    //       phone: '555-1234',
+    //       matchConfidence: '8'
+    //     },
+    //     {
+    //       companyName: "GOVERNMENT OF THE DISTRICT OF COLUMBIA",
+    //       dunsNumber: '123456789',
+    //       address: element.Addr1 || '',
+    //       city: element.City || '',
+    //       state: element.State || '',
+    //       phone: '555-1234',
+    //       matchConfidence: '8'
+    //     }
+    //   ];
+    // }, 1500);
+
+    this.dataService.searchDuns(this.debtorName, this.debtorFullAddress, this.countryCode).subscribe((response: any) => {
+      console.log('searchDuns response--', response);
+      this.loadingDuns = false;
+      this.dunsMatches = response.results.matchCandidates.map((match: any) => ({
+        companyName: match.organization.primaryName || 'N/A',
+        dunsNumber: match.organization.duns || 'N/A',
+        address: this.combineAddress(match.organization.primaryAddress.streetAddress.line1, match.organization.primaryAddress.streetAddress.line2) || 'N/A',
+        city: match.organization.primaryAddress.addressLocality.name || 'N/A',
+        state: match.organization.primaryAddress.addressRegion.abbreviatedName || 'N/A',
+        phone: match.organization.telephone.telephoneNumber || 'N/A',
+        matchConfidence: match.matchQualityInformation.confidenceCode || 'N/A'
+      }));
+    });
+  }
+
+  // conbine address line1 and line2
+  private combineAddress(address1: string, address2: string): string {
+    let combinedAddress = address1 || '';
+    if (address2) {
+      combinedAddress += ', ' + address2;
+    }
+    return combinedAddress.trim();
+  }
+
+  // convert country name to code, US and CA only
+  private convertCountryToCode(country: string): string {
+    if (country.toLowerCase() === 'united states' || country.toLowerCase() === 'us') {
+      return 'US';
+    } else if (country.toLowerCase() === 'canada' || country.toLowerCase() === 'ca') {
+      return 'CA';
+    }
+    return '';
+  }
+
+  // Add this method to your MasterDebtorsComponent class
+  searchDunsByNameOnly(): void {
+    if (!this.debtorName) {
+      return;
+    }
+    
+    this.loadingDuns = true;
+    
+    // Use only the company name for search, without address
+    this.dataService.searchDuns(this.debtorName, '', this.countryCode).subscribe({
+      next: (response: any) => {
+        console.log('searchDunsByNameOnly response--', response);
+        this.loadingDuns = false;
+        this.dunsMatches = response.results.matchCandidates.map((match: any) => ({
+          companyName: match.organization.primaryName || 'N/A',
+          dunsNumber: match.organization.duns || 'N/A',
+          address: this.combineAddress(match.organization.primaryAddress.streetAddress.line1, match.organization.primaryAddress.streetAddress.line2) || 'N/A',
+          city: match.organization.primaryAddress.addressLocality.name || 'N/A',
+          state: match.organization.primaryAddress.addressRegion.abbreviatedName || 'N/A',
+          phone: match.organization.telephone.telephoneNumber || 'N/A',
+          matchConfidence: match.matchQualityInformation.confidenceCode || 'N/A'
+        }));
+      },
+      error: (err) => {
+        console.error('Error searching by name only:', err);
+        this.loadingDuns = false;
+        this.dunsMatches = [];
+      }
+    });
+  }
+
+  // Add this method to handle the DUNS selection and update
+  updateDebtorWithDunsInfo(event: DunsInfo): void {
+    console.log('Selected DUNS info:', event);
+    console.log('Selected debtor details:', this.selectedDebtorDetails);
+    // User confirmed, proceed with update
+    const formData = new FormData();
+    if (this.selectedDebtorDetails) {
+      formData.append('DebtorKey', this.selectedDebtorDetails.DebtorKey.toString());
+      formData.append('Debtor', this.selectedDebtorDetails.Debtor);
+      formData.append('Duns', event.dunsNumber);
+      formData.append('Addr1', this.selectedDebtorDetails.Addr1);
+      formData.append('Addr2', this.selectedDebtorDetails.Addr2);
+      formData.append('Phone1', this.selectedDebtorDetails.Phone1.toString());
+      formData.append('Phone2', this.selectedDebtorDetails.Phone2.toString());
+      formData.append('City', this.selectedDebtorDetails.City);
+      formData.append('State', this.selectedDebtorDetails.State);
+      formData.append('TotalCreditLimit', this.selectedDebtorDetails.TotalCreditLimit.toString());
+      formData.append('IndivCreditLimit', this.selectedDebtorDetails.IndivCreditLimit.toString());
+      formData.append('AIGLimit', this.selectedDebtorDetails.AIGLimit);
+      formData.append('Terms', this.selectedDebtorDetails.Terms);
+      formData.append('MotorCarrNo', this.selectedDebtorDetails.MotorCarrNo.toString());
+      formData.append('Email', this.selectedDebtorDetails.Email);
+      formData.append('RateDate', this.selectedDebtorDetails.RateDate);
+      formData.append('CredExpireMos', this.selectedDebtorDetails.CredExpireMos.toString());
+      formData.append('Notes', this.selectedDebtorDetails.Notes);
+      formData.append('CredNote', this.selectedDebtorDetails.CredNote);
+      formData.append('Warning', this.selectedDebtorDetails.Warning);
+      formData.append('DotNo', this.selectedDebtorDetails.DotNo);
+    }
+    
+    // Get the logged in user for CredAppBy
+    this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      const userId = (profile as any).mail.match(/^([^@]*)@/)[1];
+      formData.append('CredAppBy', userId.toUpperCase());
+
+      // console.log('Form data to update debtor:');
+      // // Iterate through FormData to see its contents (TypeScript-safe)
+      // formData.forEach((value, key) => {
+      //   console.log(key + ': ' + value);
+      // });
+      
+      // Call the API service to update the debtor
+      this.dataService.updateDebtorDetails(formData).subscribe({
+        next: (response) => {
+          // Clear master debtors data cache for showing updated Duns
+          this.cacheService.removeByPattern('/api/debtors?');
+
+          // Show success message
+          Swal.fire('Success', 'Debtor information updated successfully with DUNS data.', 'success');
+          this.drawer.close(); // Close the drawer
+          this.loadData(); // Refresh the data
+        },
+        error: (error) => {
+          console.error('Error updating debtor details:', error);
+          Swal.fire('Error', 'Failed to update debtor information.', 'error');
+        }
+      });
+    });
+  }
+
 
 }
