@@ -188,4 +188,28 @@ export class RiskMonitoringService {
     formData.append('Hide', Hide);
     return this.http.post<any>(url, formData);
   }
+
+  /**
+   * Get client summary note from the API
+   * @param clientKey The client key
+   * @returns Observable with the client summary note
+   */
+  getClientSummaryNote(clientKey: number): Observable<any> {
+    return this.http.get<any>(`https://everest.revinc.com:4202/api/getClientSummaryNote?ClientKey=${clientKey}`);
+  }
+
+  /**
+   * Update client summary note
+   * @param clientKey The client key
+   * @param summaryText The summary text to save
+   * @returns Observable with the update result
+   */
+  setClientSummaryNote(clientKey: number, summaryText: string): Observable<any> {
+    const payload = {
+      ClientKey: clientKey,
+      SummaryText: summaryText
+    };
+    
+    return this.http.post<any>(`https://everest.revinc.com:4202/api/setClientSummaryNote`, payload);
+  }
 }

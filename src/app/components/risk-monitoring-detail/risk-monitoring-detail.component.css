@@ -25,3 +25,15 @@ td {
     margin-left: auto;
     padding-left: 10px; /* Adjust padding as needed */
   }
+
+.swal2-textarea-large {
+  min-height: 200px !important;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.swal2-wide-popup {
+  width: 600px !important;
+  max-width: 90% !important;
+}

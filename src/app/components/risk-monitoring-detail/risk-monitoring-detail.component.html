@@ -152,7 +152,19 @@
                         <mat-card-header>
                             <mat-card-title style="font-size: 20px;">Summary</mat-card-title>
                         </mat-card-header>
-                        <mat-card-content>                        
+                        <mat-card-content>
+                            <p>{{ extractSummaryText(clientSummary) }}</p>
+                            <table>  
+                                <tr>
+                                    <td style="vertical-align: middle;"><b>Created by: </b></td>
+                                    <td style="vertical-align: middle;">{{ clientSummary?extractUserId(clientSummary):'' }}</td>
+                                    <td style="vertical-align: middle; padding-left: 20px;"><b>Created on: </b></td>
+                                    <td style="vertical-align: middle;">{{ extractDate(clientSummary) }}</td>
+                                    <td style="vertical-align: middle; padding-left: 40px;">
+                                        <button (click)="updateClientSummary()" style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0); " [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;">Edit Summary</button>
+                                    </td>
+                                </tr>                                          
+                            </table>
                         </mat-card-content>
                     </mat-card>
                 </div>

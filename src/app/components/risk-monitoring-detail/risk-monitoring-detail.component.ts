@@ -6,6 +6,7 @@ import { LoginService } from '../../services/login.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { DataService } from '../../services/data.service';
+import Swal from 'sweetalert2';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 @Component({
@@ -62,6 +63,8 @@ export class RiskMonitoringDetailComponent {
   @ViewChild('spanHideElement') spanHideElement!: ElementRef;
   hiddenNotesSpanText = '';
   hideNoteSpanText = '';
+
+  clientSummary: string = '';
   
   constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService, private router: Router) { 
     
@@ -91,8 +94,6 @@ export class RiskMonitoringDetailComponent {
       this.ReserveNeg = Reserve*-1;     
       this.AvailabilityNeg = Availability*-1;                
       
-            
-
       if (this.checkLevel()) {        
         this.bgcolor = '2px solid red';
       }
@@ -145,6 +146,8 @@ export class RiskMonitoringDetailComponent {
     this.loadClientCRMList();
     this.loadClientGroupLevelList();
     this.checkLevel();
+    
+    this.loadClientSummary(this.ClientKey);
   }  
 
   ngAfterViewInit() {
@@ -392,4 +395,137 @@ export class RiskMonitoringDetailComponent {
       )
     }
   }
+
+  // Get client summary text from API
+  loadClientSummary(clientKey: number): void {
+    this.dataService.getClientSummaryNote(clientKey).subscribe({
+      next: (response) => {
+        // console.log('Client summary response:', response);
+        if (response && response.ClientSummaryNote && response.ClientSummaryNote[0].TermDesc.length > 0) {
+          this.clientSummary = response.ClientSummaryNote[0].TermDesc || '';
+        } else {
+          this.clientSummary = '';
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching client summary:', error);
+        this.clientSummary = '';
+      }
+    });
+  }
+
+  // Update client summary text
+  updateClientSummary(): void {
+    if (!this.ClientKey) {
+      console.error('Client key is missing');
+      return;
+    }
+
+    // Open SweetAlert2 dialog with textarea input
+    Swal.fire({
+      title: 'Update Client Summary',
+      input: 'textarea',
+      inputLabel: 'Client Summary',
+      inputValue: this.extractSummaryText(this.clientSummary) || '',
+      inputPlaceholder: 'Enter client summary text...',
+      showCancelButton: true,
+      confirmButtonText: 'Save',
+      cancelButtonText: 'Cancel',
+      inputAttributes: {
+        'aria-label': 'Client summary text',
+        'rows': '8'
+      },
+      customClass: {
+        input: 'swal2-textarea-large',
+        popup: 'swal2-wide-popup'
+      },
+      preConfirm: (summaryText) => {
+        // You can perform validation here if needed
+        return summaryText;
+      }
+    }).then((result) => {
+      // If user confirms the dialog and provides text
+      if (result.isConfirmed && result.value !== undefined) {
+        // Get current user info
+        this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+          this.profile = profile;          
+          const userId = this.profile.mail.match(/^([^@]*)@/)[1];
+          const currentDate = new Date().toISOString();
+          
+          // Format: "summaryText|userId|timestamp"
+          const formattedSummary = `${result.value}|${userId.toUpperCase()}|${currentDate}`;
+          this.clientSummary = formattedSummary;
+          
+          // Call API to update the summary
+          this.dataService.setClientSummaryNote(this.ClientKey, formattedSummary).subscribe({
+            next: (response) => {
+              console.log('Client summary updated successfully');
+              // Show success message with SweetAlert2
+              Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Client summary updated successfully',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            },
+            error: (error) => {
+              console.error('Error updating client summary:', error);
+              // Show error message with SweetAlert2
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to update client summary'
+              });
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // Helper method to extract summary text from the formatted string
+  extractSummaryText(formattedSummary: string): string {
+    if (!formattedSummary || formattedSummary === 'N/A') {
+      return '';
+    }
+    
+    const parts = formattedSummary.split('|');
+    if (parts.length >= 1) {
+      return parts[0];
+    }
+    return formattedSummary; // Return the whole string if it can't be parsed
+  }
+
+  // Helper method to extract user ID from the formatted string
+  extractUserId(formattedSummary: string): string {
+    if (!formattedSummary || formattedSummary === 'N/A') {
+      return 'Unknown';
+    }
+    
+    const parts = formattedSummary.split('|');
+    if (parts.length >= 2) {
+      return parts[1];
+    }
+    return 'Unknown';
+  }
+
+  // Helper method to extract and format date from the formatted string
+  extractDate(formattedSummary: string): string {
+    if (!formattedSummary || formattedSummary === 'N/A') {
+      return '';
+    }
+    
+    const parts = formattedSummary.split('|');
+    if (parts.length >= 3) {
+      try {
+        const date = new Date(parts[2]);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+      } catch (e) {
+        return '';
+      }
+    }
+    return '';
+  }
+
 }
