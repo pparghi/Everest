@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import Swal from 'sweetalert2';
@@ -18,6 +18,16 @@ import { DocumentsReportsService } from '../../services/documents-reports.servic
 import { TicketingService } from '../../services/ticketing.service';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
 import { DecimalPipe } from '@angular/common';
+import {
+  MAT_SNACK_BAR_DATA,
+  MatSnackBar,
+  MatSnackBarAction,
+  MatSnackBarActions,
+  MatSnackBarLabel,
+  MatSnackBarRef,
+} from '@angular/material/snack-bar';
+import {MatButtonModule} from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 Chart.register(
   BarController,
@@ -43,6 +53,102 @@ interface TrendVerticalData {
   Period: string;
   [key: string]: any;  // Allow any additional properties
 }
+
+
+// #region custom snackbar
+// Success snackbar component
+@Component({
+  selector: 'success-snackbar',
+  template: `
+    <span matSnackBarLabel>
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      Debtor details updated successfully
+    </span>
+    <span matSnackBarActions>
+      <button mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Close</button>
+    </span>
+  `,
+  styles: `
+    :host {
+      display: flex;
+      width: 100%;
+    }
+    .success-icon {
+      vertical-align: middle;
+      color: #4caf50;
+    }
+  `,
+  standalone: true,
+  imports: [MatButtonModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction, MatIconModule],
+})
+export class SuccessSnackbarComponent {
+  snackBarRef = inject(MatSnackBarRef);
+}
+
+// Warning snackbar component
+@Component({
+  selector: 'warning-snackbar',
+  template: `
+    <span matSnackBarLabel>
+      <mat-icon class="warning-icon">warning</mat-icon>
+      {{message}}
+    </span>
+    <span matSnackBarActions>
+      <button mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Close</button>
+    </span>
+  `,
+  styles: `
+    :host {
+      display: flex;
+      width: 100%;
+    }
+    .warning-icon {
+      vertical-align: middle;
+      color: #ff9800;
+    }
+  `,
+  standalone: true,
+  imports: [MatButtonModule, MatIconModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction],
+})
+export class WarningSnackbarComponent {
+  message: string = '';
+  snackBarRef = inject(MatSnackBarRef);
+  
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) {
+    this.message = data?.message || 'Warning';
+  }
+}
+
+// Error snackbar component
+@Component({
+  selector: 'error-snackbar',
+  template: `
+    <span matSnackBarLabel>
+      <mat-icon class="error-icon">error</mat-icon>
+      Error updating debtor details
+    </span>
+    <span matSnackBarActions>
+      <button mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Close</button>
+    </span>
+  `,
+  styles: `
+    :host {
+      display: flex;
+      width: 100%;
+    }
+    .error-icon {
+      vertical-align: middle;
+      color: #f44336;
+    }
+  `,
+  standalone: true,
+  imports: [MatButtonModule, MatIconModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction],
+})
+export class ErrorSnackbarComponent {
+  snackBarRef = inject(MatSnackBarRef);
+}
+
+
 
 @Component({
   selector: 'app-document-dialog',
@@ -132,6 +238,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   chart: any;
   @ViewChild('trendBarChart') chartCanvas!: ElementRef;
   trendColumn: string = 'Purchases';
+
+  private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
 
   constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService, private _decimalPipe: DecimalPipe, private cdr: ChangeDetectorRef) {
@@ -518,9 +626,33 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       formData.append('DotNo', this.editForm.value.DotNo);
 
       this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, formData)
-        .subscribe(response => {
-          console.log('Debtor data updated', response);
-          window.location.reload();
+        .subscribe((response: any) => {
+          console.log('Debtor detail update response:', response);
+          if (response[0]['Result'] === "The credit limit you have assigned exceeds your authorized maximum") {
+            this._snackBar.openFromComponent(WarningSnackbarComponent, 
+              {
+                data: { message: "The credit limit you have assigned exceeds your authorized maximum" },
+                duration: 10000,
+                verticalPosition: 'top',
+                horizontalPosition: 'center'
+              }
+            );
+          }
+          else if (response[0]['Result'] === "Success") {
+            this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+            window.location.reload();
+          }
+          else {
+            this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+          }
         }, error => {
           console.error('Error', error);
         });

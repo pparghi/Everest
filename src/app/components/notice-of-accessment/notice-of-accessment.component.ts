@@ -48,6 +48,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
   userID: string = '';
   userName: string = '';
   userEmail: string = '';
+  userExt: string = '';
 
 
   // constructor
@@ -56,10 +57,11 @@ export class NoticeOfAccessmentComponent implements OnInit {
   ngOnInit(): void {
     this.http.get(GRAPH_ENDPOINT)
     .subscribe(profile => {
-      // console.log('User profile:', profile);
+      console.log('User profile:', profile);
       this.userID = (profile as any).mail.match(/^([^@]*)@/)[1].toUpperCase();
       this.userName = (profile as any).displayName;
       this.userEmail = (profile as any).mail;
+      this.userExt = (profile as any).businessPhones[0].replace("e", "E").replace("=", ". ");
     });
     // Fetch the client list when the component is initialized
     this.documentsReportsService.getClientsList().subscribe(
@@ -304,7 +306,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
         this.noaForm.controls['debtor'].setErrors({reqired: true});
         return;
       }
-      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'','','').subscribe(
+      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'','','','').subscribe(
         (response: any) => {
           // Handle the response from the API
           this.openBase64Pdf(response.result, "NOA-"+this.noaForm.value.client?.ClientName+"-"+this.noaForm.value.debtor?.DebtorName);
@@ -360,7 +362,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
         }
         // Create an array of NOA API call observables
         const apiCalls = debtorKeyArray.map((debtor) =>
-          this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail)
+          this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail, this.userExt)
             .pipe(
               tap((response: any) => {
                 // Handle the response from the API
