@@ -169,97 +169,100 @@ export class RiskMonitoringComponent implements OnInit {
   }
 
   loadData(): void {
-    this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-      this.profile = profile;
-      this.loginService.getData(this.profile.mail).subscribe(response => {                                
-        response.data.forEach((element: any) => {
-          if (element.NavOption == 'Master Debtor') {            
-            this.NavOptionMasterDebtor = element.NavOption;          
-            this.NavAccessMasterDebtor = element.NavAccess;
-          } else if (element.NavOption == 'Client Risk Page'){
-            this.NavOptionClientRisk = element.NavOption;          
-            this.NavAccessClientRisk = element.NavAccess;
-          } else if (element.NavOption == 'Update Master Debtor'){
-            this.NavOptionUpdateMasterDebtor = element.NavOption;          
-            this.NavAccessUpdateMasterDebtor = element.NavAccess;
-          } else if (element.NavOption == 'Risk Monitoring'){
-            this.NavOptionRiskMonitoring = element.NavOption;          
-            this.NavAccessRiskMonitoring = element.NavAccess;
-          } else if (element.NavOption == 'Risk Monitoring Restricted'){
-            this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-            this.NavAccessRiskMonitoringRestricted = element.NavAccess;                        
-          } else {
-            this.NavOptionMasterDebtor = '';
-            this.NavAccessMasterDebtor = '';
-            this.NavOptionClientRisk = '';
-            this.NavAccessClientRisk = '';       
-            this.NavOptionUpdateMasterDebtor = '';       
-            this.NavAccessUpdateMasterDebtor = ''; 
-            this.NavOptionRiskMonitoring = '';
-            this.NavAccessRiskMonitoring = '';
-            this.NavOptionRiskMonitoringRestricted = '';
-            this.NavAccessRiskMonitoringRestricted = '';
-          }                                           
+    // this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+    //   this.profile = profile;
+    //   this.loginService.getData(this.profile.mail).subscribe(response => {                                
+    //     response.data.forEach((element: any) => {
+    //       if (element.NavOption == 'Master Debtor') {            
+    //         this.NavOptionMasterDebtor = element.NavOption;          
+    //         this.NavAccessMasterDebtor = element.NavAccess;
+    //       } else if (element.NavOption == 'Client Risk Page'){
+    //         this.NavOptionClientRisk = element.NavOption;          
+    //         this.NavAccessClientRisk = element.NavAccess;
+    //       } else if (element.NavOption == 'Update Master Debtor'){
+    //         this.NavOptionUpdateMasterDebtor = element.NavOption;          
+    //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
+    //       } else if (element.NavOption == 'Risk Monitoring'){
+    //         this.NavOptionRiskMonitoring = element.NavOption;          
+    //         this.NavAccessRiskMonitoring = element.NavAccess;
+    //       } else if (element.NavOption == 'Risk Monitoring Restricted'){
+    //         this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+    //         this.NavAccessRiskMonitoringRestricted = element.NavAccess;                        
+    //       } else {
+    //         this.NavOptionMasterDebtor = '';
+    //         this.NavAccessMasterDebtor = '';
+    //         this.NavOptionClientRisk = '';
+    //         this.NavAccessClientRisk = '';       
+    //         this.NavOptionUpdateMasterDebtor = '';       
+    //         this.NavAccessUpdateMasterDebtor = ''; 
+    //         this.NavOptionRiskMonitoring = '';
+    //         this.NavAccessRiskMonitoring = '';
+    //         this.NavOptionRiskMonitoringRestricted = '';
+    //         this.NavAccessRiskMonitoringRestricted = '';
+    //       }                                           
                       
-        });
-      }, error => {
-        console.error('error--', error);
-      });
+    //     });
+    //   }, error => {
+    //     console.error('error--', error);
+    //   });
+    // });
 
-      this.isLoading = true;      
-      let sort = this.sort && this.sort.active ? this.sort.active : 'Client';            
-      let order = this.sort && this.sort.direction ? this.sort.direction : 'ASC';  
-      
-      // const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
-      // const pageSize = this.paginator ? this.paginator.pageSize : 25;  
-      let page: number;
-      let pageSize: number; 
-      if (this.specificPage) {
-        page = this.specificPage;
+
+    this.isLoading = true;
+    let sort = this.sort && this.sort.active ? this.sort.active : 'Client';
+    let order = this.sort && this.sort.direction ? this.sort.direction : 'ASC';
+
+    // const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
+    // const pageSize = this.paginator ? this.paginator.pageSize : 25;  
+    let page: number;
+    let pageSize: number;
+    if (this.specificPage) {
+      page = this.specificPage;
+    }
+    else {
+      page = this.paginator ? this.paginator.pageIndex + 1 : 1;
+    }
+    if (this.pageSize) {
+      pageSize = this.pageSize;
+    }
+    else {
+      pageSize = this.paginator ? this.paginator.pageSize : 25;
+    }
+
+    // empty due date from and to if isDDSelect is N
+    if (this.isDDSelect == 'N') {
+      this.dueDateFromBack = '';
+      this.dueDateToBack = '';
+    }
+    else {
+      // set default date to recent 7 days
+      let currentDate = new Date();
+      let today = new Date();
+      currentDate.setDate(currentDate.getDate() - 6);
+
+      // set due date front to recent 7 days if at least one of both due date front from and to is empty
+      if (this.dueDateFromFront == '' || this.dueDateToFront == '') {
+        this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
+        this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
+        // save due date front to filter service
+        this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
+        this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
+      }
+      // set back due date to front due date
+      this.dueDateFromBack = this.dueDateFromFront;
+      this.dueDateToBack = this.dueDateToFront;
+    }
+
+    this.riskService.getData(page, pageSize, sort, order, this.isActive, this.dueDateFromBack, this.dueDateToBack, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {
+      this.isLoading = false;
+
+      this.dataSource.data = response.data;
+      if (response.data.length > 0) {
+        this.totalRecords = response.data[0].Total;
       }
       else {
-        page = this.paginator ? this.paginator.pageIndex + 1 : 1;
+        this.totalRecords = 0;
       }
-      if (this.pageSize) {
-        pageSize = this.pageSize;
-      }
-      else {
-        pageSize = this.paginator ? this.paginator.pageSize : 25;
-      }
-
-      // empty due date from and to if isDDSelect is N
-      if (this.isDDSelect == 'N') {
-        this.dueDateFromBack = '';            
-        this.dueDateToBack = '';
-      }
-      else {
-        // set default date to recent 7 days
-        let currentDate = new Date();
-        let today = new Date();
-        currentDate.setDate(currentDate.getDate() - 6);
-
-        // set due date front to recent 7 days if at least one of both due date front from and to is empty
-        if (this.dueDateFromFront == '' || this.dueDateToFront == '') {
-          this.dueDateFromFront = this.datePipe.transform(currentDate, 'yyyy-MM-dd');
-          this.dueDateToFront = this.datePipe.transform(today, 'yyyy-MM-dd');
-          // save due date front to filter service
-          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateFromFront": this.dueDateFromFront });
-          this.filterService.saveFiltersToSessionStorage('risk-monitoring', { "dueDateToFront": this.dueDateToFront });
-        }
-        // set back due date to front due date
-        this.dueDateFromBack = this.dueDateFromFront;
-        this.dueDateToBack = this.dueDateToFront;
-      }
-
-      this.riskService.getData(page, pageSize, sort, order, this.isActive, this.dueDateFromBack, this.dueDateToBack, this.isDDCreatedBy, this.filter, this.level, this.office, this.crm, this.isFuel).subscribe(response => {
-        this.isLoading = false;
-
-        this.dataSource.data = response.data;
-        response.data.forEach((element: any) => {
-          const total = element.Total;
-          this.totalRecords = total;
-        });
-      });
     });
   }
 

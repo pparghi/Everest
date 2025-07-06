@@ -18,16 +18,9 @@ import { DocumentsReportsService } from '../../services/documents-reports.servic
 import { TicketingService } from '../../services/ticketing.service';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
 import { DecimalPipe } from '@angular/common';
-import {
-  MAT_SNACK_BAR_DATA,
-  MatSnackBar,
-  MatSnackBarAction,
-  MatSnackBarActions,
-  MatSnackBarLabel,
-  MatSnackBarRef,
-} from '@angular/material/snack-bar';
-import {MatButtonModule} from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
+
 
 Chart.register(
   BarController,
@@ -53,101 +46,6 @@ interface TrendVerticalData {
   Period: string;
   [key: string]: any;  // Allow any additional properties
 }
-
-
-// #region custom snackbar
-// Success snackbar component
-@Component({
-  selector: 'success-snackbar',
-  template: `
-    <span matSnackBarLabel>
-      <mat-icon class="success-icon">check_circle</mat-icon>
-      Debtor details updated successfully
-    </span>
-    <span matSnackBarActions>
-      <button mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Close</button>
-    </span>
-  `,
-  styles: `
-    :host {
-      display: flex;
-      width: 100%;
-    }
-    .success-icon {
-      vertical-align: middle;
-      color: #4caf50;
-    }
-  `,
-  standalone: true,
-  imports: [MatButtonModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction, MatIconModule],
-})
-export class SuccessSnackbarComponent {
-  snackBarRef = inject(MatSnackBarRef);
-}
-
-// Warning snackbar component
-@Component({
-  selector: 'warning-snackbar',
-  template: `
-    <span matSnackBarLabel>
-      <mat-icon class="warning-icon">warning</mat-icon>
-      {{message}}
-    </span>
-    <span matSnackBarActions>
-      <button mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Close</button>
-    </span>
-  `,
-  styles: `
-    :host {
-      display: flex;
-      width: 100%;
-    }
-    .warning-icon {
-      vertical-align: middle;
-      color: #ff9800;
-    }
-  `,
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction],
-})
-export class WarningSnackbarComponent {
-  message: string = '';
-  snackBarRef = inject(MatSnackBarRef);
-  
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) {
-    this.message = data?.message || 'Warning';
-  }
-}
-
-// Error snackbar component
-@Component({
-  selector: 'error-snackbar',
-  template: `
-    <span matSnackBarLabel>
-      <mat-icon class="error-icon">error</mat-icon>
-      Error updating debtor details
-    </span>
-    <span matSnackBarActions>
-      <button mat-button matSnackBarAction (click)="snackBarRef.dismissWithAction()">Close</button>
-    </span>
-  `,
-  styles: `
-    :host {
-      display: flex;
-      width: 100%;
-    }
-    .error-icon {
-      vertical-align: middle;
-      color: #f44336;
-    }
-  `,
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatSnackBarLabel, MatSnackBarActions, MatSnackBarAction],
-})
-export class ErrorSnackbarComponent {
-  snackBarRef = inject(MatSnackBarRef);
-}
-
 
 
 @Component({
@@ -640,6 +538,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
           }
           else if (response[0]['Result'] === "Success") {
             this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+              data: { message: "Debtor details updated successfully" },
               duration: 5000,
               verticalPosition: 'top',
               horizontalPosition: 'center'
@@ -648,6 +547,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
           }
           else {
             this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+              data: { message: "Error updating debtor details" },
               duration: 5000,
               verticalPosition: 'top',
               horizontalPosition: 'center'
@@ -773,12 +673,12 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       this.ticketingTrendDataSource.data = response.data;
       // console.log('Trend Data:', this.ticketingTrendDataSource.data);
       this.transferTrendDataToVertical(response.data);
-      this.cdr.detectChanges(); // Force change detection
 
       // for loading the chart
       if (this.chartCanvas && this.chartCanvas.nativeElement) {
         const tempPeriod = trendPeriodChar==='M' ? 'Months' : trendPeriodChar==='Q' ? 'Quarters' : 'Years';
         this.createTrendBarChart(this.ticketingTrendDataSource.data, tempPeriod, this.trendColumn);
+        this.cdr.detectChanges(); // Force change detection
       }
       // deleyed loading of the chart
       else {
@@ -995,6 +895,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     if (confirmed) {
       this.ticketingService.approveCreditRequest(credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths, email).subscribe(response => {
         console.log('Credit Request Approved:', response);
+        // After dialog is closed, unlock the request
+        this.ticketingService.actionToCreditRequest(parseInt(credRequestKey), approveUser, 'U').subscribe(response => {
+          console.log('Request unlocked:', response);
+        });
         window.location.reload(); // reload the page to reflect changes
       }, error => {
         console.error('Error approving credit request:', error);

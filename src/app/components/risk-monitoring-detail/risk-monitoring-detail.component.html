@@ -25,8 +25,8 @@
                             <ng-template #elseBlockCRM>
                                 <td>
                                     <select (change)="onChangeCRM($event, client.ClientKey)" style="font-size: 13px;" class="dropdown">
-                                        <option value="{{ client.AcctExec }}">{{ client.AcctExec }}</option>
-                                        <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey">{{ crm.UserKey }}</option>
+                                        <!-- <option value="{{ client.AcctExec }}">{{ client.AcctExec }}</option> -->
+                                        <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey" [selected]="crm.UserKey === client.AcctExec">{{ crm.UserKey }}</option>
                                     </select> / {{ client.Office }}
                                 </td>
                             </ng-template>

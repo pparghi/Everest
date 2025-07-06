@@ -1,6 +1,6 @@
 
     <div *ngIf="currentPath.includes('master-debtors')" >
-      <app-master-debtors></app-master-debtors>
+      <app-master-debtors [userPermissions]="userPermissions"></app-master-debtors>
     </div>      
     <div *ngIf="currentPath.includes('edit-master-debtor')" >
       <app-master-debtor-edit></app-master-debtor-edit>

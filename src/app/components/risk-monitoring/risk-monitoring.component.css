@@ -78,13 +78,17 @@
 .custom-spinner ::ng-deep .mat-spinner circle, .mat-progress-spinner circle {
   stroke: #b3e5fc;
 }
- .spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px; 
-  background-color: #f5f5f5;
- }
+ 
+.spinner-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* height: 200px;  */
+}
  
  .bordered-table {
    

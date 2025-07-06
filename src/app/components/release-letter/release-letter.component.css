@@ -35,3 +35,12 @@ mat-label {
 .inline-radio-group mat-radio-button {
   margin-right: 16px;
 }
+
+.mat-secondary {
+    background-color: rgb(84, 0, 105) !important;
+    color: #fff;
+}
+.mat-secondary[disabled] {
+    background-color: rgba(227, 227, 227) !important; /* Same color but with opacity */
+    color: rgba(157, 152, 154) !important;
+}

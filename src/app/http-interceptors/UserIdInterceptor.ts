@@ -11,6 +11,8 @@ export class UserIdInterceptor implements HttpInterceptor {
     const allowedUrls = (
       (request.url.includes('callNOAIRISAPI') && request.method === 'GET')
       || (request.url.includes('searchDuns') && request.method === 'GET')
+      || (request.url.includes('callLORCreatePDFAPI') && request.method === 'GET')
+      || (request.url.includes('callLORCreatePDFsAPI') && request.method === 'GET')
     );
 
     if (allowedUrls) {

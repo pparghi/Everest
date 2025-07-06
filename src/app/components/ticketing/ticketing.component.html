@@ -97,7 +97,7 @@
                 </td>
             </ng-container>
 
-            <ng-container matColumnDef="RequestDate">
+            <ng-container matColumnDef="Age">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Date & time</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
                     <!-- {{ element.RequestDate | date:"MM/dd/yyyy HH:mm:ss" }} -->
@@ -105,14 +105,14 @@
                 </td>
             </ng-container>
 
-            <ng-container matColumnDef="ApprovedDate">
+            <ng-container matColumnDef="ApproveDate">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Approved Date & time</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
                     {{ element.ApproveDate | date:"MM/dd/yyyy HH:mm" }}
                 </td>
             </ng-container>
             
-            <ng-container matColumnDef="CreditType">
+            <ng-container matColumnDef="Source">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Credit Type</th>             
                 <td mat-cell *matCellDef="let element" style="text-align: end;">                
                     {{ element.Source }}
@@ -123,7 +123,7 @@
                 <th mat-header-cell *matHeaderCellDef style="text-align: end;">Action</th>
                 <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">
                     <span (click)="edit(element)">                        
-                        <mat-icon style="height: 20px; width: 20px; font-size: 15px; color: #3a8ada;"><i class="fa fa-edit"></i></mat-icon>
+                        <mat-icon [ngStyle]="{'color': element.InUseUser.toUpperCase() ? element.InUseUser.toUpperCase() === user.toUpperCase() ? '#3ada3d' : '#da823a' : '#3a8ada'}" style="height: 20px; width: 20px; font-size: 15px; "><i class="fa fa-edit"></i></mat-icon>
                     </span>                     
                 </td>
             </ng-container>
@@ -259,6 +259,9 @@
             </ng-container>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
         </table>
+        <div class="spinner-container" *ngIf="isLoading;">
+            <mat-spinner class="custom-spinner"></mat-spinner>
+        </div>
     </div>
   
 <!-- <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons></mat-paginator> -->

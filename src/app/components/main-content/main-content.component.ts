@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -9,6 +9,9 @@ import { filter } from 'rxjs/operators';
 })
 export class MainContentComponent {
   currentPath: string = '';
+  // Add input property to receive permissions
+  @Input() userPermissions: any[] = [];
+
   constructor(private router: Router) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)

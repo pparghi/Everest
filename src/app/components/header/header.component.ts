@@ -40,6 +40,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   NavOptionRiskMonitoringRestricted: any;
   NavAccessRiskMonitoringRestricted: any;
 
+  userPermissions: any;
+
   constructor(@Inject(MSAL_GUARD_CONFIG) 
   private msalGuardConfig: MsalGuardConfiguration, 
   private msalBroadcast: MsalBroadcastService,
@@ -74,7 +76,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       localStorage.setItem('userId', (profile as any).mail.match(/^([^@]*)@/)[1].toUpperCase());
       this.profile = profile;     
       this.userName = this.profile.displayName.split(' ')[0]; // Get the first name from the display name
-      this.dataService.getData(this.profile.mail).subscribe(response => {                                
+      this.dataService.getData(this.profile.mail).subscribe(response => {
+        this.userPermissions = response.data; // save for child components                              
         response.data.forEach((element: any) => {
           if (element.NavOption == 'Master Debtor') {            
             this.NavOptionMasterDebtor = element.NavOption;          

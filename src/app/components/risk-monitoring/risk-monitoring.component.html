@@ -150,9 +150,10 @@
         <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" id="detail-row" class="detail-row"></tr>
         
         </table>
+        <div class="spinner-container" *ngIf="isLoading;">
+            <mat-spinner class="custom-spinner"></mat-spinner>
+        </div>
     </div>    
     <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons style="background-color: white;"></mat-paginator>    
-    <div class="spinner-container" *ngIf="isLoading;">
-        <mat-spinner class="custom-spinner"></mat-spinner>
-    </div>
+    
 </div>

@@ -85,7 +85,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
       if (typeof value === 'object' && value?.ClientKey) {
         this.documentsReportsService.getNOADebtorsListByClientKey(parseInt(value.ClientKey)).subscribe(
           (response: any) => {
-            console.log('Debtor list response:', response);
+            // console.log('Debtor list response:', response);
             this.debtorOptions = [{DebtorNo: 'All Debtors', DebtorName: 'All Debtors', DebtorKey: 'All Debtors'}].concat(response.data);
             this.debtorFilteredOptions = this.noaForm.controls['debtor'].valueChanges.pipe(
               startWith(''),

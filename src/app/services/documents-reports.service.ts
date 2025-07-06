@@ -16,10 +16,17 @@ export class DocumentsReportsService {
     return this.http.get(url, {responseType: 'json'});
   }
 
-  // Call the API to get the list of debtors based on the selected client
+  // Call the API to get the list of debtors based on the selected client, excluding DEBTOR DOES NOT PAY FACTOR of nobuy debtors
   getNOADebtorsListByClientKey(ClientKey: number) {
     const clientKey = ClientKey ?? null;
     const url = `https://everest.revinc.com:4202/api/getNOADebtorsListByClientKey?clientKey=${clientKey}`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  // Call the API to get the list of debtors based on the selected client
+  getDebtorsListByClientKey(ClientKey: number) {
+    const clientKey = ClientKey ?? null;
+    const url = `https://everest.revinc.com:4202/api/getDebtorsListByClientKey?clientKey=${clientKey}`;
     return this.http.get(url, {responseType: 'json'});
   }
 
@@ -67,6 +74,24 @@ export class DocumentsReportsService {
         }
       })
     );
+  }
+
+  // Call the IRIS release letter API to get single LOR PDF
+  callLORCreatePDFAPI(ClientKey: number, DebtorKey: number, Marknobuy: boolean, Watermark:boolean) {
+    // Construct the URL with the parameters
+    const url = `https://everest.revinc.com:4202/api/callLORCreatePDFAPI?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}&Marknobuy=${Marknobuy?1:0}&Watermark=${Watermark?1:0}`;
+    
+    // Make the GET request
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  // Call the IRIS release letter API to create LOR PDF or send emails to all debtors
+  callLORCreatePDFsAPI(ClientKey: number, Marknobuy: boolean, Watermark: boolean, Sendemail: boolean) {
+    // Construct the URL with the parameters
+    const url = `https://everest.revinc.com:4202/api/callLORCreatePDFsAPI?ClientKey=${ClientKey}&Marknobuy=${Marknobuy?1:0}&Watermark=${Watermark?1:0}&Sendemail=${Sendemail?1:0}`;
+    
+    // Make the GET request
+    return this.http.get(url, {responseType: 'json'});
   }
 
 }

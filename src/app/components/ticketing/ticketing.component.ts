@@ -14,6 +14,8 @@ import * as XLSX from 'xlsx';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { ClientsService } from '../../services/clients.service';
 import { Subscription, interval } from 'rxjs';
+import Swal from 'sweetalert2';
+import { consumerPollProducersForChange } from '@angular/core/primitives/signals';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -58,11 +60,11 @@ interface clientDataItem {
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'RequestDate', 'ApprovedDate', 'CreditType', 'Edit', 'Email'];   
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'Edit', 'Email'];   
     clientDisplayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis']; 
     statusListOptions = [
       { label: 'Pending', value: '0' },
-      { label: 'Approved', value: '1' },
+      { label: 'Approved', value: '1, 6, 7' },
       { label: 'Declined', value: '2' },
       { label: 'Held', value: '3' }
     ];
@@ -115,6 +117,13 @@ export class TicketingComponent {
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {
+      this.http.get(GRAPH_ENDPOINT)
+      .subscribe(profile => {
+        this.profile = profile;
+        var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+        this.user = userId;
+      });
+
       // load filter state from filter service
       const filterValues = this.filterService.getFilterState('ticketing');
       if (filterValues?.selectedValues) {
@@ -136,17 +145,42 @@ export class TicketingComponent {
     }
 
     ngAfterViewInit(): void {            
-      if(this.paginator){
-        this.paginator.page.subscribe(() => this.loadData());  
-      }  
+      // if(this.paginator){
+      //   this.paginator.page.subscribe(() => this.loadData());  
+      // }  
+      // if (this.sort) {
+      //   this.sort.sortChange.subscribe(() => {  
+      //     if(this.paginator){
+      //       this.paginator.pageIndex = 0;  
+      //     }
+      //     this.loadData();  
+      //   });  
+      // }     
+      
+      // Set up client-side sorting
       if (this.sort) {
-        this.sort.sortChange.subscribe(() => {  
-          if(this.paginator){
-            this.paginator.pageIndex = 0;  
+        this.dataSource.sortingDataAccessor = (item, property) => {
+          switch (property) {
+            case 'TotalCreditLimit':
+            case 'IndivCreditLimit':
+            case 'RequestAmt':
+              return Number(item[property]);
+            case 'RequestDate':
+              return new Date(item[property]).getTime();
+            default:
+              return item[property];
           }
-          this.loadData();  
-        });  
-      }                     
+        };
+
+        this.dataSource.sort = this.sort;
+      }
+
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+
+      // Mark for check
+      // this.cdr.detectChanges();
     }
 
     ngOnDestroy(): void {
@@ -157,57 +191,58 @@ export class TicketingComponent {
 
     loadData(): void {
       // console.log('loadData called');
-      this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-        this.profile = profile;
-        this.loginService.getData(this.profile.mail).subscribe(response => {                                
-          response.data.forEach((element: any) => {
-            if (element.NavOption == 'Master Debtor') {            
-              this.NavOptionMasterDebtor = element.NavOption;          
-              this.NavAccessMasterDebtor = element.NavAccess;
-            } else if (element.NavOption == 'Client Risk Page'){
-              this.NavOptionClientRisk = element.NavOption;          
-              this.NavAccessClientRisk = element.NavAccess;
-            } else if (element.NavOption == 'Update Master Debtor'){
-              this.NavOptionUpdateMasterDebtor = element.NavOption;          
-              this.NavAccessUpdateMasterDebtor = element.NavAccess;
-            } else if (element.NavOption == 'Risk Monitoring'){
-              this.NavOptionRiskMonitoring = element.NavOption;          
-              this.NavAccessRiskMonitoring = element.NavAccess;
-            } else if (element.NavOption == 'Risk Monitoring Restricted'){
-              this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-              this.NavAccessRiskMonitoringRestricted = element.NavAccess;
-            } else {
-              this.NavOptionMasterDebtor = '';
-              this.NavAccessMasterDebtor = '';
-              this.NavOptionClientRisk = '';
-              this.NavAccessClientRisk = '';       
-              this.NavOptionUpdateMasterDebtor = '';       
-              this.NavAccessUpdateMasterDebtor = ''; 
-              this.NavOptionRiskMonitoring = '';
-              this.NavAccessRiskMonitoring = '';
-              this.NavOptionRiskMonitoringRestricted = '';
-              this.NavAccessRiskMonitoringRestricted = '';
-            }                                         
+      // this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      //   this.profile = profile;
+      //   this.loginService.getData(this.profile.mail).subscribe(response => {                                
+      //     response.data.forEach((element: any) => {
+      //       if (element.NavOption == 'Master Debtor') {            
+      //         this.NavOptionMasterDebtor = element.NavOption;          
+      //         this.NavAccessMasterDebtor = element.NavAccess;
+      //       } else if (element.NavOption == 'Client Risk Page'){
+      //         this.NavOptionClientRisk = element.NavOption;          
+      //         this.NavAccessClientRisk = element.NavAccess;
+      //       } else if (element.NavOption == 'Update Master Debtor'){
+      //         this.NavOptionUpdateMasterDebtor = element.NavOption;          
+      //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
+      //       } else if (element.NavOption == 'Risk Monitoring'){
+      //         this.NavOptionRiskMonitoring = element.NavOption;          
+      //         this.NavAccessRiskMonitoring = element.NavAccess;
+      //       } else if (element.NavOption == 'Risk Monitoring Restricted'){
+      //         this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+      //         this.NavAccessRiskMonitoringRestricted = element.NavAccess;
+      //       } else {
+      //         this.NavOptionMasterDebtor = '';
+      //         this.NavAccessMasterDebtor = '';
+      //         this.NavOptionClientRisk = '';
+      //         this.NavAccessClientRisk = '';       
+      //         this.NavOptionUpdateMasterDebtor = '';       
+      //         this.NavAccessUpdateMasterDebtor = ''; 
+      //         this.NavOptionRiskMonitoring = '';
+      //         this.NavAccessRiskMonitoring = '';
+      //         this.NavOptionRiskMonitoringRestricted = '';
+      //         this.NavAccessRiskMonitoringRestricted = '';
+      //       }                                         
                         
-          });
-        }, error => {
-          console.error('error--', error);
-        });
+      //     });
+      //   }, error => {
+      //     console.error('error--', error);
+      //   });
+             
+      //   // const mail = btoa(this.profile.mail);             
 
-        this.isLoading = true;              
-        const mail = btoa(this.profile.mail);             
+      // });
+      
+      this.isLoading = true; 
+      // stop load  data if there is row expended
+      if (this.expandedElement !== null) {
+        console.log('Row is expanded, no loading data');
+        return;
+      }
 
-        // stop load  data if there is row expended
-        if (this.expandedElement !== null) {
-          console.log('Row is expanded, no loading data');
-          return;
-        }
-
-        this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
-          this.isLoading = false;
-          this.dataSource.data = response.data;                                              
-        });
-
+      this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
+        this.isLoading = false;
+        this.dataSource.data = response.data;  
+        // console.log('Data loaded:', this.dataSource.data);                                            
       });
     }
 
@@ -306,49 +341,97 @@ export class TicketingComponent {
     window.open(url, '_blank');
   }
 
-  edit(row: DataItem){
+  // the method to show info message using SweetAlert2
+  showInfoMessage(title: string, message: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      Swal.fire({
+        title: title,
+        html: message,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Continue',
+        cancelButtonText: '  Close  ',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          resolve(true);  // User clicked Continue
+        } else {
+          resolve(false); // User clicked Close
+        }
+      });
+    });
+  }
+
+  edit(row: DataItem) {
     this.http.get(GRAPH_ENDPOINT)
-        .subscribe(profile => {
-          this.profile = profile;          
-          var userId = this.profile.mail.match(/^([^@]*)@/)[1];
-          this.user = userId
-          
-          const dialogRef = this.dialog.open(DocumentDialogComponent, {     
-            width: '1050px',   
-            maxWidth: 'none',   
-            height: 'auto',    
-            panelClass: 'custom-dialog-container',                       
-            data: {
-             ClientKey: row.ClientKey,
-             Client: row.Client,
-             ClientNo: row.ClientNo,
-             Office: row.Office,
-             BankAcctName: row.BankAcctName,
-             DebtorKey: row.DebtorKey,
-             Debtor: row.Debtor,
-             RequestNo: row.RequestNo,
-             RequestDate: row.RequestDate,
-             RequestAmt: row.RequestAmt,
-             Status: row.Status,
-             RequestUser: row.RequestUser,
-             Comments: row.Comments,
-             ApproveDate: row.ApproveDate,
-             ApproveAmt: row.ApproveAmt,
-             Response: row.Response,
-             Source: row.Source,
-             TotalCreditLimit: row.TotalCreditLimit,
-             IndivCreditLimit: row.IndivCreditLimit,
-             Balance: row.Balance,
-             PastDue: row.PastDue,
-             Available: row.Available,
-             openTicketForm: 'editTicketForm',  
-             CredRequestKey: row.CredRequestKey,    
-             userID : this.user,           
-           }
-          });
-          dialogRef.afterClosed().subscribe(result => {
-              
-          });
+      .subscribe(profile => {
+        this.profile = profile;
+        var userId = this.profile.mail.match(/^([^@]*)@/)[1];
+        this.user = userId;
+
+        const dialogObj = {
+          width: '1050px',
+          maxWidth: 'none',
+          height: 'auto',
+          panelClass: 'custom-dialog-container',
+          data: {
+            ClientKey: row.ClientKey,
+            Client: row.Client,
+            ClientNo: row.ClientNo,
+            Office: row.Office,
+            BankAcctName: row.BankAcctName,
+            DebtorKey: row.DebtorKey,
+            Debtor: row.Debtor,
+            RequestNo: row.RequestNo,
+            RequestDate: row.RequestDate,
+            RequestAmt: row.RequestAmt,
+            Status: row.Status,
+            RequestUser: row.RequestUser,
+            Comments: row.Comments,
+            ApproveDate: row.ApproveDate,
+            ApproveAmt: row.ApproveAmt,
+            Response: row.Response,
+            Source: row.Source,
+            TotalCreditLimit: row.TotalCreditLimit,
+            IndivCreditLimit: row.IndivCreditLimit,
+            Balance: row.Balance,
+            PastDue: row.PastDue,
+            Available: row.Available,
+            openTicketForm: 'editTicketForm',
+            CredRequestKey: row.CredRequestKey,
+            userID: this.user,
+          }
+        }
+
+        // before opening the dialog, check if the request is locked by another user
+        // console.log('edit row.CredRequestKey:', row.CredRequestKey);
+        this.dataService.actionToCreditRequest(parseInt(row.CredRequestKey), userId.toUpperCase(), 'L').subscribe(response => {
+          // console.log('actionToCreditRequest response:', response);
+          // Check if request is locked by another user
+          if (response.result[0].Result.includes('Credit Request Ticket already locked by user')) {
+            this.showInfoMessage(
+              'Request Locked',
+              response.result[0].Result
+            ).then(continueAnyway => {
+              if (continueAnyway) {
+                // User clicked Continue - proceed with opening the dialog
+                const dialogRef = this.dialog.open(DocumentDialogComponent, dialogObj);
+              }
+            });
+          }
+          else { // If not locked, proceed to open the dialog
+            const dialogRef = this.dialog.open(DocumentDialogComponent, dialogObj);
+            dialogRef.afterClosed().subscribe(result => { 
+              // console.log('Dialog closed with result:', result);
+              // After dialog is closed, unlock the request
+              this.dataService.actionToCreditRequest(parseInt(row.CredRequestKey), userId.toUpperCase(), 'U').subscribe(response => {
+                console.log('Request unlocked:', response);
+              });
+            });
+          }
+
+        });
       });
   }
 

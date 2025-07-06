@@ -7,6 +7,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { DataService } from '../../services/data.service';
 import Swal from 'sweetalert2';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 @Component({
@@ -48,6 +50,7 @@ export class RiskMonitoringDetailComponent {
   clientCRMList: any;
   clientGroupLevelList: any;
   Level!: any;
+  CRM!: any;
   bgcolor = '2px solid green';
   LevelHistory: any;
   note_category: any = '';
@@ -65,6 +68,9 @@ export class RiskMonitoringDetailComponent {
   hideNoteSpanText = '';
 
   clientSummary: string = '';
+
+  // Inject the MatSnackBar service
+  private _snackBar = inject(MatSnackBar);
   
   constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService, private router: Router) { 
     
@@ -100,44 +106,44 @@ export class RiskMonitoringDetailComponent {
     });           
     
 
-    this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+    // this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       
-      this.profile = profile;      
-      this.loginService.getData(this.profile.mail).subscribe(response => {                                
-        response.data.forEach((element: any) => {
-          if (element.NavOption == 'Master Debtor') {            
-            this.NavOptionMasterDebtor = element.NavOption;          
-            this.NavAccessMasterDebtor = element.NavAccess;
-          } else if (element.NavOption == 'Client Risk Page'){
-            this.NavOptionClientRisk = element.NavOption;          
-            this.NavAccessClientRisk = element.NavAccess;
-          } else if (element.NavOption == 'Update Master Debtor'){
-            this.NavOptionUpdateMasterDebtor = element.NavOption;          
-            this.NavAccessUpdateMasterDebtor = element.NavAccess;
-          } else if (element.NavOption == 'Risk Monitoring'){
-            this.NavOptionRiskMonitoring = element.NavOption;          
-            this.NavAccessRiskMonitoring = element.NavAccess;
-          } else if (element.NavOption == 'Risk Monitoring Restricted'){
-            this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-            this.NavAccessRiskMonitoringRestricted = element.NavAccess;                        
-          } else {
-            this.NavOptionMasterDebtor = '';
-            this.NavAccessMasterDebtor = '';
-            this.NavOptionClientRisk = '';
-            this.NavAccessClientRisk = '';       
-            this.NavOptionUpdateMasterDebtor = '';       
-            this.NavAccessUpdateMasterDebtor = ''; 
-            this.NavOptionRiskMonitoring = '';
-            this.NavAccessRiskMonitoring = '';
-            this.NavOptionRiskMonitoringRestricted = '';
-            this.NavAccessRiskMonitoringRestricted = '';
-          }                                           
+    //   this.profile = profile;      
+    //   this.loginService.getData(this.profile.mail).subscribe(response => {                                
+    //     response.data.forEach((element: any) => {
+    //       if (element.NavOption == 'Master Debtor') {            
+    //         this.NavOptionMasterDebtor = element.NavOption;          
+    //         this.NavAccessMasterDebtor = element.NavAccess;
+    //       } else if (element.NavOption == 'Client Risk Page'){
+    //         this.NavOptionClientRisk = element.NavOption;          
+    //         this.NavAccessClientRisk = element.NavAccess;
+    //       } else if (element.NavOption == 'Update Master Debtor'){
+    //         this.NavOptionUpdateMasterDebtor = element.NavOption;          
+    //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
+    //       } else if (element.NavOption == 'Risk Monitoring'){
+    //         this.NavOptionRiskMonitoring = element.NavOption;          
+    //         this.NavAccessRiskMonitoring = element.NavAccess;
+    //       } else if (element.NavOption == 'Risk Monitoring Restricted'){
+    //         this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+    //         this.NavAccessRiskMonitoringRestricted = element.NavAccess;                        
+    //       } else {
+    //         this.NavOptionMasterDebtor = '';
+    //         this.NavAccessMasterDebtor = '';
+    //         this.NavOptionClientRisk = '';
+    //         this.NavAccessClientRisk = '';       
+    //         this.NavOptionUpdateMasterDebtor = '';       
+    //         this.NavAccessUpdateMasterDebtor = ''; 
+    //         this.NavOptionRiskMonitoring = '';
+    //         this.NavAccessRiskMonitoring = '';
+    //         this.NavOptionRiskMonitoringRestricted = '';
+    //         this.NavAccessRiskMonitoringRestricted = '';
+    //       }                                           
                       
-        });
-      }, error => {
-        console.error('error--', error);
-      });
-    });
+    //     });
+    //   }, error => {
+    //     console.error('error--', error);
+    //   });
+    // });
 
     this.loadClientDetails(this.ClientKey); 
     this.loadClientContactsDetails(this.ClientKey);
@@ -185,7 +191,8 @@ export class RiskMonitoringDetailComponent {
     this.dataService.getClientDetails(ClientKey).subscribe(data => {            
       this.client = data.ClientDetails[0];      
       this.LevelHistory = data.LevelHistory;      
-      this.Level = data.ClientLevelDetail[0].GroupValue;                      
+      this.Level = data.ClientLevelDetail[0].GroupValue;
+      this.CRM = data.ClientDetails[0].AcctExec; // store CRM value
     });
   }
 
@@ -226,13 +233,38 @@ export class RiskMonitoringDetailComponent {
     });
 
     this.dataService.addNotesRisk(this.ClientKey, this.note_category===''?'Other':this.note_category, this.note, '', '1', this.user, this.due_date).subscribe(response => {      
-      window.location.reload();
+      // window.location.reload();
+      if (response.result){
+        this.loadMonitoringNotes(this.ClientKey); // reload tasks after added note
+        this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+          data: { message: "Note added successfully" },
+          duration: 5000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      }
+      else {
+        this._snackBar.openFromComponent(WarningSnackbarComponent, {
+          data: { message: "Failed to add note" },
+          duration: 10000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      }
     }, error => {
-      alert('Failed');
+      // alert('Failed');
+      this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+        data: { message: "Error adding note: " + error.error.message },
+        duration: 10000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
     });
   }
 
   onChangeCRM(event: Event, ClientKey: string){
+    const originalCRM = this.CRM; // Store the original CRM
+    const selectElement = event.target as HTMLSelectElement; 
     const confirmed = window.confirm('Are you sure you want to update the CRM?');
     if (confirmed) {
       this.http.get(GRAPH_ENDPOINT)
@@ -240,26 +272,52 @@ export class RiskMonitoringDetailComponent {
         this.profile = profile;          
         var userId = this.profile.mail.match(/^([^@]*)@/)[1];
         this.user = userId 
-      });
-      const selectElement = event.target as HTMLSelectElement;          
+      });         
       let crm = selectElement.value;
       let UserKey = this.user;
 
       this.dataService.updateCRMRisk(ClientKey, crm, UserKey).subscribe(
         response => {           
-          window.location.reload();
+          if (response.result){
+            this.CRM = crm; // Update local state
+            this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+              data: { message: "CRM updated successfully" },
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+          }
+          else {
+            selectElement.value = originalCRM; // Update failed, revert the dropdown
+            this._snackBar.openFromComponent(WarningSnackbarComponent, {
+              data: { message: "Failed to update CRM" },
+              duration: 10000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+          }
         },
         error => {
-          alert("error");
+          // alert("error");
+          selectElement.value = originalCRM; // Update failed, revert the dropdown
+          this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+            data: { message: "Error updating CRM: " + error.error.message },
+            duration: 10000,
+            verticalPosition: 'top',
+            horizontalPosition: 'center'
+          });
         }              
       )
     } else {      
-      window.location.reload();
+      // window.location.reload();
+      selectElement.value = originalCRM; // Update failed, revert the dropdown
       console.log('Update cancelled');
     }
   };
 
   onChangeLevel(event: Event, ClientKey: string){
+    const originalLevel = this.Level; // Store the original level
+    const selectElement = event.target as HTMLSelectElement;  
     const confirmed = window.confirm('Are you sure you want to update the Level?');
     if (confirmed) {
       this.http.get(GRAPH_ENDPOINT)
@@ -268,20 +326,47 @@ export class RiskMonitoringDetailComponent {
         var userId = this.profile.mail.match(/^([^@]*)@/)[1];
         this.user = userId 
       });
-      const selectElement = event.target as HTMLSelectElement;          
+              
       let GroupValue = selectElement.value;
       let UserKey = this.user;
   
       this.dataService.updateLevelRisk(ClientKey, GroupValue, UserKey).subscribe(
-        response => {           
-          window.location.reload();
+        response => {
+          if (response.result){
+            this.loadMonitoringNotes(this.ClientKey); // reload tasks after updated level
+            this.Level = GroupValue; // Update local state
+            this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+              data: { message: "Level updated successfully" },
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+          }
+          else {
+            selectElement.value = originalLevel; // Update failed, revert the dropdown
+            this._snackBar.openFromComponent(WarningSnackbarComponent, {
+              data: { message: "Failed to update level" },
+              duration: 10000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+          }    
+          // window.location.reload();
         },
         error => {
-          alert("error");
+          // alert("error");
+          selectElement.value = originalLevel; // Update failed, revert the dropdown
+          this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+            data: { message: "Error updating level: " + error.error.message },
+            duration: 10000,
+            verticalPosition: 'top',
+            horizontalPosition: 'center'
+          });
         }              
       )
     } else {      
-      window.location.reload();
+      // window.location.reload();
+      selectElement.value = originalLevel; // Update failed, revert the dropdown
       console.log('Update cancelled');
     }    
   };

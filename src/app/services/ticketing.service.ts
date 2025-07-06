@@ -47,4 +47,15 @@ export class TicketingService {
 
     return this.http.post<any>(url, formData);
   }
+
+  // function to get or modify a credit request current user
+  actionToCreditRequest(credRequestKey: number, inUseUser: string, lockUnlock: string): Observable<any> {
+    const params = new HttpParams()
+    .set('CredRequestKey', credRequestKey)
+    .set('InUseUser', inUseUser)
+    .set('LockUnlock', lockUnlock); // valid value: U or L
+  
+  // Use GET method with params
+  return this.http.get<any>('https://everest.revinc.com:4202/api/actionToCreditRequest', { params });
+}
 }

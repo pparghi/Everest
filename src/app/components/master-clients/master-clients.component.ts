@@ -91,45 +91,45 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     constructor(private dataService: MasterClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService) {}
     ngOnInit(): void {  
-      this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      // this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       
-        this.profile = profile;     
-        this.loginService.getData(this.profile.mail).subscribe(response => {                                
-          response.data.forEach((element: any) => {
-            if (element.NavOption == 'Master Debtor') {            
-              this.NavOptionMasterDebtor = element.NavOption;          
-              this.NavAccessMasterDebtor = element.NavAccess;
-            } else if (element.NavOption == 'Client Risk Page'){
-              this.NavOptionClientRisk = element.NavOption;          
-              this.NavAccessClientRisk = element.NavAccess;
-            } else if (element.NavOption == 'Update Master Debtor'){
-              this.NavOptionUpdateMasterDebtor = element.NavOption;          
-              this.NavAccessUpdateMasterDebtor = element.NavAccess;
-            } else if (element.NavOption == 'Risk Monitoring'){
-              this.NavOptionRiskMonitoring = element.NavOption;          
-              this.NavAccessRiskMonitoring = element.NavAccess;
-            } else if (element.NavOption == 'Risk Monitoring Restricted'){
-              this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-              this.NavAccessRiskMonitoringRestricted = element.NavAccess;
-            } else {
-              this.NavOptionMasterDebtor = '';
-              this.NavAccessMasterDebtor = '';
-              this.NavOptionClientRisk = '';
-              this.NavAccessClientRisk = '';       
-              this.NavOptionUpdateMasterDebtor = '';       
-              this.NavAccessUpdateMasterDebtor = ''; 
-              this.NavOptionRiskMonitoring = '';
-              this.NavAccessRiskMonitoring = '';
-              this.NavOptionRiskMonitoringRestricted = '';
-              this.NavAccessRiskMonitoringRestricted = '';
-            }                                  
+      //   this.profile = profile;     
+      //   this.loginService.getData(this.profile.mail).subscribe(response => {                                
+      //     response.data.forEach((element: any) => {
+      //       if (element.NavOption == 'Master Debtor') {            
+      //         this.NavOptionMasterDebtor = element.NavOption;          
+      //         this.NavAccessMasterDebtor = element.NavAccess;
+      //       } else if (element.NavOption == 'Client Risk Page'){
+      //         this.NavOptionClientRisk = element.NavOption;          
+      //         this.NavAccessClientRisk = element.NavAccess;
+      //       } else if (element.NavOption == 'Update Master Debtor'){
+      //         this.NavOptionUpdateMasterDebtor = element.NavOption;          
+      //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
+      //       } else if (element.NavOption == 'Risk Monitoring'){
+      //         this.NavOptionRiskMonitoring = element.NavOption;          
+      //         this.NavAccessRiskMonitoring = element.NavAccess;
+      //       } else if (element.NavOption == 'Risk Monitoring Restricted'){
+      //         this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+      //         this.NavAccessRiskMonitoringRestricted = element.NavAccess;
+      //       } else {
+      //         this.NavOptionMasterDebtor = '';
+      //         this.NavAccessMasterDebtor = '';
+      //         this.NavOptionClientRisk = '';
+      //         this.NavAccessClientRisk = '';       
+      //         this.NavOptionUpdateMasterDebtor = '';       
+      //         this.NavAccessUpdateMasterDebtor = ''; 
+      //         this.NavOptionRiskMonitoring = '';
+      //         this.NavAccessRiskMonitoring = '';
+      //         this.NavOptionRiskMonitoringRestricted = '';
+      //         this.NavAccessRiskMonitoringRestricted = '';
+      //       }                                  
                         
-          });
-        }, error => {
-          console.error('error--', error);
-        });    
+      //     });
+      //   }, error => {
+      //     console.error('error--', error);
+      //   });    
         
-      });    
+      // });    
       
       
       // load filter state from filter service
@@ -193,7 +193,8 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       }                     
     }
 
-    loadData(): void {            
+    loadData(): void {    
+      this.isLoading = true;        
       let sort = this.sort ? this.sort.active : 'Balance';
       let order = this.sort ? this.sort.direction : 'DESC';
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;

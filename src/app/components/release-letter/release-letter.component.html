@@ -1,11 +1,11 @@
 <h2>Release Letter</h2>
-<form class="LOR-form" [formGroup]="noaForm" (ngSubmit)="onSubmit($event)">
-    <mat-label>Division:</mat-label>
+<form class="LOR-form" [formGroup]="releaseLetterForm" (ngSubmit)="onSubmit($event)">
+    <!-- <mat-label>Division:</mat-label>
     <mat-radio-group aria-label="Division" formControlName="division">
         <mat-radio-button [value]="'factor'">Factor</mat-radio-button>
         <mat-radio-button [value]="'construction'">Construction</mat-radio-button>
         <mat-radio-button [value]="'both'">Both</mat-radio-button>
-    </mat-radio-group>
+    </mat-radio-group> -->
 
     <mat-form-field appearance="fill">
         <mat-label>Client</mat-label>
@@ -24,7 +24,7 @@
         }
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <!-- <mat-form-field appearance="fill">
         <mat-label>Contact</mat-label>
         <input type="text" placeholder="Pick one" aria-label="Contact" matInput formControlName="contact"
             [matAutocomplete]="contactAuto" (keydown.enter)="$event.preventDefault()">
@@ -39,7 +39,7 @@
         @if (errorTypeClient === 'error') {
             <mat-error>Wrong input, please select from list</mat-error>
         }
-    </mat-form-field>
+    </mat-form-field> -->
 
     
     <mat-form-field appearance="fill">
@@ -51,21 +51,14 @@
             <mat-option [value]="option">{{option.DebtorName}}</mat-option>
             }
         </mat-autocomplete>
-        @if (errorTypeDebtor === 'notAll') {
-            <mat-error>Please select a single debtor</mat-error>
-        }
-        @if (errorTypeDebtor === 'required') {
-            <mat-error>Debtor is needed</mat-error>
-        }
         @if (errorTypeDebtor === 'error') {
             <mat-error>Wrong input, please select from list</mat-error>
         }
     </mat-form-field>
 
     
-    <mat-label>If No Debtor Selection</mat-label>
+    <mat-label>Mark Debtor(s) as No Buy</mat-label>
     <div class="inline-radio-group">
-        <p>Mark All Debtors as No Buy: </p>
         <mat-radio-group aria-label="If No Debtor Selection" formControlName="ifNoBuySelection">
             <mat-radio-button [value]="'false'">No</mat-radio-button>
             <mat-radio-button [value]="'true'">Yes</mat-radio-button>
@@ -74,14 +67,15 @@
     
     <mat-label>Report Format</mat-label>
     <mat-radio-group aria-label="ReportFormat" formControlName="reportFormat">
-        <mat-radio-button [value]="'DOC'">DOC</mat-radio-button>
+        <!-- <mat-radio-button [value]="'DOC'">DOC</mat-radio-button> -->
         <mat-radio-button [value]="'PDF'">PDF</mat-radio-button>
-        <mat-radio-button [value]="'PDFWithWatermark'">PDF with Watermark</mat-radio-button>
+        <mat-radio-button [value]="'PDFWithWatermark'" [disabled]="isWatermarkDisabled()">PDF with Watermark</mat-radio-button>
     </mat-radio-group>
 
     <br>
     <div class="buttons-in-row">
-        <button mat-flat-button color="success" type="submit" value="createSingleReleaseLetter">Create Single Release Letter</button>
+        <button mat-flat-button color="primary" type="submit" value="createSingleReleaseLetter" >Create Single Release Letter</button>
+        <button *ngIf="showEmailAllButton" mat-flat-button color="secondary" type="submit" value="emailReleaseLettersToDebtors" [disabled]="!isEmailButtonEnabled">Email Release Letters to Debtors</button>
     </div>
 
 </form>

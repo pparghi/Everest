@@ -17,13 +17,15 @@ export class CacheInterceptor implements HttpInterceptor {
 
         // console.log('CacheInterceptor: Intercepting request for URL:', req.url);
         // cache exceptions, we do not cache
-        if (req.url.includes('creditRequests') || req.url.includes('getClientSummaryNote')) {
-            console.log('No caching for creditRequests');
+        if ( req.url.includes('creditRequests') || req.url.includes('getClientSummaryNote') || req.url.includes('MonitoringNotes') || 
+            req.url.includes('actionToCreditRequest')) {
+            console.log('No caching for URL: ', req.url);
             return next.handle(req);
         }
 
         const cachedResponse = this.cacheService.get(req.url);
         if (cachedResponse) {
+            // console.log('Got cache data for URL: ', req.url);
             return of(cachedResponse);
         }
 
