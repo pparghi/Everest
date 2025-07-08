@@ -159,8 +159,8 @@ export class DebtorsApiService {
   }
 
   // search for debtor duns by debtor's name(required), address(optional), country(required)(CA or US)
-  searchDuns(debtorName: string, debtorAddress: string, country: string): Observable<any> {
-    const url = `https://everest.revinc.com:4202/api/searchDuns?Name=${debtorName}&Address=${debtorAddress}&Country=${country}`;
+  searchDuns(debtorName: string, debtorAddress: string, addressLine2: string, city: string, state: string, zipCode: string, country: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/searchDuns?Name=${debtorName}&Address=${debtorAddress}&AddressLine2=${addressLine2}&City=${city}&State=${state}&ZipCode=${zipCode}&Country=${country}`;
     return this.http.get(url, {responseType: 'json'});
   }
 

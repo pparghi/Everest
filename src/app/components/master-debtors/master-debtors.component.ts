@@ -239,11 +239,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
       }
     }
 
-    if (this.userPermissions && Array.isArray(this.userPermissions) && this.userPermissions.length > 0) {
-      this.processPermissions();
-      this.permissionsReady = true;
-      this.loadData();
-    }
+    // if (this.userPermissions && Array.isArray(this.userPermissions) && this.userPermissions.length > 0) {
+    //   this.processPermissions();
+    //   this.permissionsReady = true;
+    //   this.loadData();
+    // }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -349,6 +349,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
         sort = 'Balance';
         order = 'DESC';
       }
+
+      console.log('Loading data: sort--', sort, 'order--', order, 'page--', page, 'pageSize--', pageSize, 'filterByBalance--', filterByBalance);
 
       this.dataService.getData(mail, page, pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {
         this.isLoading = false;
@@ -694,7 +696,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
       this.drawer.toggle();
     }
 
-    console.log("element--", element);
+    // console.log("element--", element);
     let fullAddress = "";
     if (element.Addr1) {
       fullAddress += element.Addr1 + ", ";
@@ -723,31 +725,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
 
     this.loadingDuns = true;
 
-    // setTimeout(() => {
-    //   this.loadingDuns = false;
-    //   this.dunsMatches = [
-    //     {
-    //       companyName: "GOVERNMENT OF THE DISTRICT OF COLUMBIA",
-    //       dunsNumber: element.DbDunsNo || '123456789',
-    //       address: element.Addr1 || '',
-    //       city: element.City || '',
-    //       state: element.State || '',
-    //       phone: '555-1234',
-    //       matchConfidence: '8'
-    //     },
-    //     {
-    //       companyName: "GOVERNMENT OF THE DISTRICT OF COLUMBIA",
-    //       dunsNumber: '123456789',
-    //       address: element.Addr1 || '',
-    //       city: element.City || '',
-    //       state: element.State || '',
-    //       phone: '555-1234',
-    //       matchConfidence: '8'
-    //     }
-    //   ];
-    // }, 1500);
-
-    this.dataService.searchDuns(this.debtorName, this.debtorFullAddress, this.countryCode).subscribe((response: any) => {
+    this.dataService.searchDuns(this.debtorName, element.Addr1, element.Addr2, element.City, element.State, element.ZipCode, this.countryCode).subscribe((response: any) => {
       console.log('searchDuns response--', response);
       this.loadingDuns = false;
       this.dunsMatches = response.results.matchCandidates.map((match: any) => ({
@@ -790,7 +768,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
     this.loadingDuns = true;
 
     // Use only the company name for search, without address
-    this.dataService.searchDuns(this.debtorName, '', this.countryCode).subscribe({
+    this.dataService.searchDuns(this.debtorName, '', '', '', '', '', this.countryCode).subscribe({
       next: (response: any) => {
         console.log('searchDunsByNameOnly response--', response);
         this.loadingDuns = false;
