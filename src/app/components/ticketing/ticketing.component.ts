@@ -242,7 +242,7 @@ export class TicketingComponent {
       this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
         this.isLoading = false;
         this.dataSource.data = response.data;  
-        // console.log('Data loaded:', this.dataSource.data);                                            
+        console.log('Data loaded:', this.dataSource.data);                                            
       });
     }
 

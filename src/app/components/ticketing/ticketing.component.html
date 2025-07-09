@@ -122,7 +122,7 @@
             <ng-container matColumnDef="Edit">
                 <th mat-header-cell *matHeaderCellDef style="text-align: end;">Action</th>
                 <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">
-                    <span (click)="edit(element)">                        
+                    <span (click)="edit(element)" [matTooltip]="element.InUseUser?'Locked by '+element.InUseUser : 'Unlocked'" [matTooltipPosition]="'above'" class="icon-container">                        
                         <mat-icon [ngStyle]="{'color': element.InUseUser.toUpperCase() ? element.InUseUser.toUpperCase() === user.toUpperCase() ? '#3ada3d' : '#da823a' : '#3a8ada'}" style="height: 20px; width: 20px; font-size: 15px; "><i class="fa fa-edit"></i></mat-icon>
                     </span>                     
                 </td>

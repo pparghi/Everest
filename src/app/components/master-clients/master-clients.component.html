@@ -21,7 +21,7 @@
                 <option *ngFor="let group of clientGroupValueList" [value]="group.GroupValue">{{ group.Name }}</option>
             </select>
             <label>&nbsp;
-                <input type="radio" name="filterByBalance" value="Show All" (change)="onChange($event)" [attr.checked]="true">&nbsp; <b>Show All</b>
+                <input type="radio" name="filterByBalance" value="Show All" (change)="onChange($event)">&nbsp; <b>Show All</b>
             </label>&nbsp;
             <label>
                 <input type="radio" name="filterByBalance" value="Balance" (change)="onChange($event)"> &nbsp;<b>Balance</b> 

@@ -72,7 +72,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
   accountStatusDilution!: string;
   accountStatusIneligible!: string;
   accountStatusAvailable!: string;
-  filterByBalance!: string;
+  filterByBalance: string = 'Balance';
   clientGroupLevelList: any;
   clientGroupList: any;
   clientCRMList: any;
@@ -137,7 +137,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       if (filterValues){
         // get filter values from filter state
         this.filter = filterValues.filter || '';
-        this.filterByBalance = filterValues.filterByBalance || 'Show All';
+        this.filterByBalance = filterValues.filterByBalance || 'Balance';
         this.filterByGroup = filterValues.filterByGroup || '';
         if (this.filterByGroup) {
           this.loadClientGroupValueList(); // load client group value list based on filterByGroup
@@ -148,11 +148,14 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
         if (this.filter){
           document.getElementsByName('searchBar')[0].setAttribute('value', this.filter);
         }
-        // set html filterByBalance states
-        if (this.filterByBalance == 'Balance') {
-          document.getElementsByName('filterByBalance')[0].setAttribute('checked', 'false');
-          document.getElementsByName('filterByBalance')[1].setAttribute('checked', 'true');
-        }
+      }
+
+      // set html filterByBalance states
+      if (this.filterByBalance == 'Balance') {
+        document.getElementsByName('filterByBalance')[1].setAttribute('checked', 'true');
+      }
+      else {
+        document.getElementsByName('filterByBalance')[0].setAttribute('checked', 'true');
       }
 
       this.loadData();
@@ -207,7 +210,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       if (this.filterByBalance == 'Balance') {
         filterByBalance = 'balance';
       } 
-
+      // console.log('sort--', sort, ' order--', order, ' filterByBalance--', filterByBalance);
       this.dataService.getData(page ,pageSize, this.filter, sort, order, filterByBalance, filterByGroup, filterByGroupValue, filterByCRM).subscribe(response => {                                                              
         this.isLoading = false;
         this.dataSource.data = response.data;

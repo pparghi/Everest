@@ -186,7 +186,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   editedElement: DataItem | null = null;
   DebtorContactsData: any;
 
-  filterByBalance!: string;
+  filterByBalance: string = 'Balance'; // default filter by balance
 
   NavOptionMasterDebtor: any;
   NavAccessMasterDebtor: any;
@@ -225,18 +225,12 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
   ngOnInit(): void {
     const filterValues = this.filterService.getFilterState("master-debtors"); // get filter state from filter service
+    console.log('filterValues--', filterValues);
     if (filterValues) {
       this.filter = filterValues.filter || ''; // get filter value from filter state
-      this.filterByBalance = filterValues.filterByBalance || 'Show All'; // get filter value from filter state
-      // set html filter state
-      if (this.filter) {
-        document.getElementsByName('searchBar')[0].setAttribute('value', this.filter);
-      }
-      // set html filterByBalance states
-      if (this.filterByBalance == 'Balance') {
-        document.getElementsByName('filterByBalance')[0].setAttribute('checked', 'false');
-        document.getElementsByName('filterByBalance')[1].setAttribute('checked', 'true');
-      }
+      this.filterByBalance = filterValues.filterByBalance || 'Balance'; // get filter value from filter state
+      console.log('filter--', this.filter, 'filterByBalance--', this.filterByBalance);
+      
     }
 
     // if (this.userPermissions && Array.isArray(this.userPermissions) && this.userPermissions.length > 0) {
@@ -247,6 +241,14 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    const filterValues = this.filterService.getFilterState("master-debtors"); // get filter state from filter service
+    console.log('filterValues--', filterValues);
+    if (filterValues) {
+      this.filter = filterValues.filter || ''; // get filter value from filter state
+      this.filterByBalance = filterValues.filterByBalance || 'Balance'; // get filter value from filter state
+      console.log('filter--', this.filter, 'filterByBalance--', this.filterByBalance);
+      
+    }
     if (changes['userPermissions'] && changes['userPermissions'].currentValue) {
       // Only process and load data if permissions have changed and are available
       if (Array.isArray(changes['userPermissions'].currentValue) &&
@@ -266,6 +268,19 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   ngAfterViewInit(): void {
+    // set html filter state
+    if (this.filter) {
+      document.getElementsByName('searchBar')[0].setAttribute('value', this.filter);
+    }
+    // set html filterByBalance states
+    if (this.filterByBalance == 'Balance') {
+      console.log('here in selecting Balance--');
+      document.getElementsByName('filterByBalance')[1].setAttribute('checked', 'true');
+    }
+    else {
+      console.log('here in selecting show all--');
+      document.getElementsByName('filterByBalance')[0].setAttribute('checked', 'true');
+    }
     if (this.paginator) {
       this.paginator.page.subscribe(() => {
         this.loadData();
@@ -335,8 +350,8 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
       this.profile = profile;
 
       this.isLoading = true;
-      let sort = this.sort ? this.sort.active : 'Balance';
-      let order = this.sort ? this.sort.direction : 'DESC';
+      let sort = this.sort?.active ? this.sort.active : 'Balance';
+      let order = this.sort?.direction ? this.sort.direction : 'DESC';
       const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
       const pageSize = this.paginator ? this.paginator.pageSize : 25;
 
@@ -346,11 +361,13 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
 
       if (this.filterByBalance == 'Balance') {
         filterByBalance = 'balance';
-        sort = 'Balance';
-        order = 'DESC';
+        if (!this.sort?.active) {
+          sort = 'Balance';
+          order = 'DESC';
+        }
       }
 
-      console.log('Loading data: sort--', sort, 'order--', order, 'page--', page, 'pageSize--', pageSize, 'filterByBalance--', filterByBalance);
+      console.log('Loading data: sort--', sort, 'order--', order, 'page--', page, 'pageSize--', pageSize, 'filterByBalance--', filterByBalance, 'filter--', this.filter);
 
       this.dataService.getData(mail, page, pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {
         this.isLoading = false;
