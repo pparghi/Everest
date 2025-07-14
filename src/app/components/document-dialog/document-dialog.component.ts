@@ -211,15 +211,15 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Debtor: [data.Debtor || ''],
         RequestNo: [data.RequestNo || ''],
         RequestDate: [data.RequestDate || ''],
-        RequestAmt: [data.RequestAmt || ''],
+        RequestAmt: [this.formatCurrency(data.RequestAmt) || ''],
         Status: [data.Status || ''],
         RequestUser: [data.RequestUser || ''],
         Comments: [data.Comments || ''],
         ApproveDate: [data.ApproveDate || ''],
-        ApproveAmt: [data.ApproveAmt || ''],
+        ApproveAmt: [this.formatCurrency(data.ApproveAmt) || ''],
         Response: [data.Response || ''],
         Source: [data.Source || ''],
-        TotalCreditLimit: [data.TotalCreditLimit || ''],
+        TotalCreditLimit: [this.formatCurrency(data.TotalCreditLimit) || ''],
         IndivCreditLimit: [data.IndivCreditLimit || ''],
         Balance: [data.Balance || ''],
         PastDue: [data.PastDue || ''],
@@ -666,6 +666,19 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   //region ticketPG functions
+  // Add this method to your component for number formatting
+  private formatCurrency(value: any): string {
+    if (value === null || value === undefined || value === '') {
+      return '';
+    }
+    
+    // Convert to number and format with 2 decimal places if needed
+    const numValue = Number(value);
+    if (isNaN(numValue)) return '';
+    
+    // Format with up to 2 decimal places, but don't show .00 for whole numbers
+    return numValue.toString();
+  }
   // function for fetching api data for the trend dialog and save to ticketingTrendDataSource
   loadTrendDialogData(DebtorKey:number, ClientNo:string, trendPeriodChar:string) {
     // console.log('loadTrendDialogData called');
