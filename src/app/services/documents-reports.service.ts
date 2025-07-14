@@ -86,9 +86,9 @@ export class DocumentsReportsService {
   }
 
   // Call the IRIS release letter API to create LOR PDF or send emails to all debtors
-  callLORCreatePDFsAPI(ClientKey: number, Marknobuy: boolean, Watermark: boolean, Sendemail: boolean) {
+  callLORCreatePDFsAPI(ClientKey: number, Marknobuy: boolean, Watermark: boolean, Sendemail: boolean, userExtension: string) {
     // Construct the URL with the parameters
-    const url = `https://everest.revinc.com:4202/api/callLORCreatePDFsAPI?ClientKey=${ClientKey}&Marknobuy=${Marknobuy?1:0}&Watermark=${Watermark?1:0}&Sendemail=${Sendemail?1:0}`;
+    const url = `https://everest.revinc.com:4202/api/callLORCreatePDFsAPI?ClientKey=${ClientKey}&Marknobuy=${Marknobuy?1:0}&Watermark=${Watermark?1:0}&Sendemail=${Sendemail?1:0}&UserExtension=${userExtension}`;
     
     // Make the GET request
     return this.http.get(url, {responseType: 'json'});

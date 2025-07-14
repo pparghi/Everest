@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { map, startWith, tap } from 'rxjs/operators';
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 export interface ClientInterface {
   ClientId: string;
@@ -53,12 +54,18 @@ export class ReleaseLetterComponent implements OnInit {
   showEmailAllButton: boolean = false; // show email all button when all debtors are selected
   isEmailButtonEnabled: boolean = true; // disable email all button when waiting for response
 
+  // user profile
+  userExt: string = '';
 
   // constructor
   constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService) { }
 
   // #region onInit
   ngOnInit(): void {
+    this.http.get(GRAPH_ENDPOINT)
+    .subscribe(profile => {
+      this.userExt = (profile as any).businessPhones[0].replace("e", "E").replace("=", ". ");
+    });
     // Fetch the client list when the component is initialized
     this.documentsReportsService.getClientsList().subscribe(
       (response: any) => {
@@ -344,8 +351,11 @@ export class ReleaseLetterComponent implements OnInit {
       );
     }
     else if (buttonValue === 'emailReleaseLettersToDebtors') {
-      this.documentsReportsService.callLORCreatePDFsAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, true).subscribe(
+      this.isEmailButtonEnabled = false;
+      // console.log('callLORCreatePDFsAPI: ', parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''),' , ', this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false,' , ', this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, ' , ', true);
+      this.documentsReportsService.callLORCreatePDFsAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, true, this.userExt).subscribe(
         (response: any) => {
+          this.isEmailButtonEnabled = true;
           // Handle the response from the API
           if (response.status === 'success') {
             window.alert('All emails have been sent!\n'
