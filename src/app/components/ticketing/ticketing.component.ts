@@ -12,6 +12,7 @@ import { MatTableExporterDirective } from 'mat-table-exporter';
 import { FilterService } from '../../services/filter.service';
 import * as XLSX from 'xlsx';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { TicketingAnalysisDialogComponent } from '../ticketing-analysis-dialog/ticketing-analysis-dialog.component';
 import { ClientsService } from '../../services/clients.service';
 import { Subscription, interval } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -45,6 +46,12 @@ interface DataItem {
     ClientNo: string;
     CredRequestKey:string;
     CRMmail: string;
+    MasterDebtor: string;
+    MasterIndivCreditLimit: string;
+    MasterTotalCreditLimit: string;
+    Type: string;
+    Terms: string;
+    DateCreated: string;
 }
 
 interface clientDataItem {
@@ -60,7 +67,7 @@ interface clientDataItem {
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'Edit', 'Email'];   
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Analytics', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'Edit', 'Email'];   
     clientDisplayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis']; 
     statusListOptions = [
       { label: 'Pending', value: '0' },
@@ -114,6 +121,7 @@ export class TicketingComponent {
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
+      // yesterdayDate.setDate(today.getDate() - 105);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {
@@ -235,14 +243,15 @@ export class TicketingComponent {
       this.isLoading = true; 
       // stop load  data if there is row expended
       if (this.expandedElement !== null) {
-        console.log('Row is expanded, no loading data');
+        console.log('Row is expanded, no loading data');             
+        this.isLoading = false;
         return;
       }
 
       this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
         this.isLoading = false;
         this.dataSource.data = response.data;  
-        console.log('Data loaded:', this.dataSource.data);                                            
+        // console.log('Data loaded:', this.dataSource.data);                                            
       });
     }
 
@@ -369,6 +378,7 @@ export class TicketingComponent {
         this.profile = profile;
         var userId = this.profile.mail.match(/^([^@]*)@/)[1];
         this.user = userId;
+        console.log('row:', row);
 
         const dialogObj = {
           width: '1050px',
@@ -401,6 +411,12 @@ export class TicketingComponent {
             openTicketForm: 'editTicketForm',
             CredRequestKey: row.CredRequestKey,
             userID: this.user,
+            MasterDebtor:row.MasterDebtor,
+            MasterIndivCreditLimit:row.MasterIndivCreditLimit,
+            MasterTotalCreditLimit:row.MasterTotalCreditLimit,
+            Type:row.Type,
+            Terms: row.Terms,
+            EstablishedDate: row.DateCreated,
           }
         }
 
@@ -428,11 +444,25 @@ export class TicketingComponent {
               this.dataService.actionToCreditRequest(parseInt(row.CredRequestKey), userId.toUpperCase(), 'U').subscribe(response => {
                 console.log('Request unlocked:', response);
               });
+              // refresh the request list after dialog is closed
+              console.log('Dialog closed, reloading data');
+              this.loadData();
             });
           }
 
         });
       });
+  }
+
+  // function to click on Analytics icon and open the analytics dialog
+  openAnalyticsDialog(row: DataItem) {
+    const dialogRef = this.dialog.open(TicketingAnalysisDialogComponent, {
+      width: '1400px',
+      maxWidth: 'none',
+      height: 'auto',
+      panelClass: 'custom-dialog-container',
+      data: row
+    });
   }
 
   addNew(){

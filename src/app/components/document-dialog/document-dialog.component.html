@@ -771,13 +771,17 @@
                   </div>
                 </div>
                 <div class="row" style="padding-top: 10px;">
-                  <div class="col-md-6">
+                  <!-- <div class="col-md-6">
                     <label for="PONumber" class="form-label">PO #</label>
                     <input type="text" id="PONumber" class="form-control" formControlName="PONumber" readonly>
-                  </div>
+                  </div> -->
                   <div class="col-md-6">
                     <label for="EstablishedDate" class="form-label">Established date</label>
-                    <input type="date" id="EstablishedDate" class="form-control" formControlName="EstablishedDate" readonly>
+                    <input type="string" id="EstablishedDate" class="form-control" formControlName="EstablishedDate" readonly>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="Terms" class="form-label">Terms</label>
+                    <input type="text" id="Terms" class="form-control" formControlName="Terms" readonly>
                   </div>
                 </div>
                 <!-- <div class="row" style="padding-top: 10px;">
@@ -792,16 +796,55 @@
                 </div> -->
                 <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
-                    <label for="Terms" class="form-label">Terms</label>
-                    <input type="text" id="Terms" class="form-control" formControlName="Terms" readonly>
-                  </div>
-                </div>
-                <div class="row" style="padding-top: 10px;">
-                  <div class="col-md-12">
                     <label for="Comments" class="form-label">Comments</label>
                     <textarea id="Comments" class="form-control" formControlName="Comments" cols="30" rows="3" readonly></textarea>
                   </div>
                 </div>
+                <!-- member and master's total and single credit limit -->
+                <hr class="solid">
+                <div class="row" style="padding-top: 10px; margin-bottom: 10px;">
+                  <!-- Left column -->
+                  <div class="col-md-6" style="padding-right: 15px; border-right: 1px solid rgba(0,0,0,0.12);">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <label class="form-label"><b>Ticket Debtor</b></label>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <input type="text" id="Type" class="form-control" formControlName="Type" readonly>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <input type="text" id="MasterDebtor" class="form-control" formControlName="MasterDebtor" readonly>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Total limit</label>
+                        <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A" readonly>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">S.C. limit</label>
+                        <input type="text" id="IndivCreditLimit" class="form-control" formControlName="IndivCreditLimit" placeholder="N/A" readonly>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Right column -->
+                  <div class="col-md-6" style="padding-left: 15px;">
+                    <div class="row">
+                      <div class="col-md-12 mb-3">
+                        <label class="form-label"><b>Master Debtor</b></label>
+                        <input type="text" id="MasterDebtor" class="form-control" formControlName="MasterDebtor" readonly>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Master's total limit</label>
+                        <input type="text" id="MasterTotalCreditLimit" class="form-control" formControlName="MasterTotalCreditLimit" placeholder="N/A" readonly>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Master's S.C. limit</label>
+                        <input type="text" id="MasterIndivCreditLimit" class="form-control" formControlName="MasterIndivCreditLimit" placeholder="N/A" readonly>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr class="solid">
                 <div class="row" style="padding-top: 10px;">
                   <div class="col-md-3">
                     <label for="TotalCreditLimit" class="form-label">House line</label>
@@ -821,7 +864,7 @@
                     </select>
                   </div>
                   <div class="col-md-3">
-                    <label for="ExpiresInMonths" class="form-label">Expires In Months</label>
+                    <label for="ExpiresInMonths" class="form-label">Expires In months</label>
                     <input type="text" id="ExpiresInMonths" class="form-control" formControlName="ExpiresInMonths">
                   </div>
                 </div>
@@ -845,44 +888,34 @@
                     <input type="text" id="RequestAmt" class="form-control" formControlName="RequestAmt" placeholder="N/A" readonly>
                   </div>
                   <div class="col-md-3">
-                    <label for="ApproveAmt" class="form-label">Approved</label>
+                    <label for="ApproveAmt" class="form-label">New total credit limit</label>
                     <input type="text" id="ApproveAmt" class="form-control" formControlName="ApproveAmt" placeholder="N/A">
                   </div>
                   <div class="col-md-3">
-                    <label for="NewLimit" class="form-label">New limit will be</label>
+                    <label for="NewLimit" class="form-label">New individual credit limit</label>
                     <input type="text" id="NewLimit" class="form-control" formControlName="NewLimit">
                   </div>
                   <div class="col-md-3">
-                    <label for="SendDecisionToClient" class="form-label">Send decision ticket to client</label>
-                    <div class="checkbox-container">
-                      <input type="checkbox" id="SendDecisionToClient" class="formCheckBox" formControlName="SendDecisionToClient">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label for="SendDecisionToClient" class="form-label" matTooltip="Send decision ticket to client">Decision email</label>
+                        <div class="checkbox-container">
+                          <input type="checkbox" id="SendDecisionToClient" class="formCheckBox" formControlName="SendDecisionToClient">
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="ChangeMaster" class="form-label" matTooltip="Update master's limits">Update Master</label>
+                        <div class="checkbox-container">
+                          <input type="checkbox" id="ChangeMaster" class="formCheckBox" formControlName="ChangeMaster">
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
-                    <label for="FreeTextInput" class="form-label">Text Input</label>
+                    <label for="FreeTextInput" class="form-label">Text input</label>
                     <textarea id="FreeTextInput" class="form-control" formControlName="FreeTextInput" rows="3"></textarea>
-                  </div>
-                </div>
-                <!-- member and master's total and single credit limit -->
-                <hr class="solid">
-                <div class="row" style="padding-top: 10px; margin-bottom: 10px;">
-                  <div class="col-md-3">
-                    <label class="form-label">Member's S.C. limit</label>
-                    <input type="text" id="RequestAmt" class="form-control" placeholder="N/A">
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label">Member's total limit</label>
-                    <input type="text" id="ApproveAmt" class="form-control" placeholder="N/A">
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label">Master's S.C. limit</label>
-                    <input type="text" id="RequestAmt" class="form-control" placeholder="N/A">
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label">Master's total limit</label>
-                    <input type="text" id="ApproveAmt" class="form-control" placeholder="N/A">
                   </div>
                 </div>
               </div>

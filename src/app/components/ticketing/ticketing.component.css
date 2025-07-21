@@ -39,6 +39,11 @@
   width: 30px !important;
 }
 
+.mat-mdc-header-cell.Analytics-column,
+.mat-mdc-cell.Analytics-column {
+  width: 30px !important;
+}
+
 .element-row {
   border: 0;
   height: 10px;

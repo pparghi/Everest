@@ -220,21 +220,26 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Response: [data.Response || ''],
         Source: [data.Source || ''],
         TotalCreditLimit: [this.formatCurrency(data.TotalCreditLimit) || ''],
-        IndivCreditLimit: [data.IndivCreditLimit || ''],
+        IndivCreditLimit: [this.formatCurrency(data.IndivCreditLimit) || ''],
         Balance: [data.Balance || ''],
         PastDue: [data.PastDue || ''],
         Available: [data.Available || ''],
         CredRequestKey: [data.CredRequestKey || ''],
         PONumber: '',
         ShipDate: '',
-        EstablishedDate: '',
-        Terms: '',
+        EstablishedDate: this.convertDateToMMDDYYYY(data.EstablishedDate) || '',
+        Terms: data.Terms || '',
         ExpiresDate: '',
         Action: '',
         NewLimit: '',
         ExpiresInMonths: '6',
         FreeTextInput: '',
         SendDecisionToClient: false,
+        ChangeMaster: false,
+        MasterDebtor:data.MasterDebtor,
+        MasterIndivCreditLimit: this.formatCurrency(data.MasterIndivCreditLimit) || '',
+        MasterTotalCreditLimit: this.formatCurrency(data.MasterTotalCreditLimit) || '',
+        Type:data.Type,
       })
 
       this.debtor = data.Debtor
@@ -666,18 +671,33 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   //region ticketPG functions
+  // convert YYYY-MM-DD HH:mm:ss to MM/DD/YYYY format
+  private convertDateToMMDDYYYY(dateString: string): string {
+    // check if dateString is empty or null
+    if (!dateString) {
+      return '';
+    }
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  }
   // Add this method to your component for number formatting
   private formatCurrency(value: any): string {
     if (value === null || value === undefined || value === '') {
       return '';
     }
-    
+
     // Convert to number and format with 2 decimal places if needed
     const numValue = Number(value);
     if (isNaN(numValue)) return '';
-    
+
     // Format with up to 2 decimal places, but don't show .00 for whole numbers
-    return numValue.toString();
+    return numValue.toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
   }
   // function for fetching api data for the trend dialog and save to ticketingTrendDataSource
   loadTrendDialogData(DebtorKey:number, ClientNo:string, trendPeriodChar:string) {
@@ -796,7 +816,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   onTicketEdit() {
     console.log('editTicketForm value--', this.editTicketForm.value);
     // console.log('userID--', this.data.userID.toUpperCase());
-    this.onApproveCreditRequest(this.editTicketForm.value.CredRequestKey, this.data.userID.toUpperCase(), this.editTicketForm.value.Action, this.editTicketForm.value.FreeTextInput, this.editTicketForm.value.ApproveAmt, this.editTicketForm.value.NewLimit, this.editTicketForm.value.ExpiresInMonths, this.editTicketForm.value.SendDecisionToClient?"Y":"N");
+    this.onApproveCreditRequest(this.editTicketForm.value.CredRequestKey, this.data.userID.toUpperCase(), this.editTicketForm.value.Action, this.editTicketForm.value.FreeTextInput, this.parseCurrencyValue(this.editTicketForm.value.ApproveAmt).toString(), this.parseCurrencyValue(this.editTicketForm.value.NewLimit).toString(), this.editTicketForm.value.ExpiresInMonths, this.editTicketForm.value.SendDecisionToClient?"Y":"N", this.editTicketForm.value.ChangeMaster?"Y":"N");
   }
 
   // generate the trend chart
@@ -902,21 +922,78 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   // approve the credit request
-  onApproveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string, email: string) {
+  onApproveCreditRequest(credRequestKey: string, approveUser: string, status: string, response: string, approvedLimit: string, newLimitAmt: string, expMonths: string, email: string, changeMaster: string) {
     // confirm approval
     const confirmed = window.confirm('Are you sure you want to approve the credit request?');
     if (confirmed) {
-      this.ticketingService.approveCreditRequest(credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths, email).subscribe(response => {
-        console.log('Credit Request Approved:', response);
-        // After dialog is closed, unlock the request
-        this.ticketingService.actionToCreditRequest(parseInt(credRequestKey), approveUser, 'U').subscribe(response => {
-          console.log('Request unlocked:', response);
-        });
-        window.location.reload(); // reload the page to reflect changes
+      console.log('Approving credit request with values:', {
+        credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths, email, changeMaster
+      });
+      this.ticketingService.approveCreditRequest2(credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths, email, changeMaster).subscribe(response => {
+        console.log('Credit Request Approved 2:', response);
+
+        // condition of input value exceed user limit
+        if (response.response[0]['Result'] === "User Max Credit Limit Excedeed - Ticket not closed") {
+          this._snackBar.openFromComponent(WarningSnackbarComponent,
+            {
+              data: { message: "The credit limit you have assigned exceeds your authorized maximum" },
+              duration: 10000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            }
+          );
+        }
+        // condition of request is locked by someone else
+        else if (response.response[0]['Result'].includes("Ticket Locked by user:")) {
+          this._snackBar.openFromComponent(WarningSnackbarComponent,
+            {
+              data: { message: response.response[0]['Result'] },
+              duration: 10000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            }
+          );
+        }
+        // condition of request is approved by someone else
+        else if (response.response[0]['Result'].includes("Ticket already closed by")) {
+          this._snackBar.openFromComponent(WarningSnackbarComponent,
+            {
+              data: { message: response.response[0]['Result'] },
+              duration: 10000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            }
+          );
+        }
+        // condition of request is approved and ticket is closed
+        else if (response.response[0]['Result'] === "Ticket closed") {
+          this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+            data: { message: "Credit request closed successfully" },
+            duration: 5000,
+            verticalPosition: 'top',
+            horizontalPosition: 'center'
+          });
+          // close the dislog and refresh the request list
+          this.dialogRef.close();
+
+        }
+
       }, error => {
-        console.error('Error approving credit request:', error);
+        console.error('Error approving credit request 2:', error);
       }
       );
+
+      // this.ticketingService.approveCreditRequest(credRequestKey, approveUser, status, response, approvedLimit, newLimitAmt, expMonths, email).subscribe(response => {
+      //   console.log('Credit Request Approved:', response);
+      //   // After dialog is closed, unlock the request
+      //   this.ticketingService.actionToCreditRequest(parseInt(credRequestKey), approveUser, 'U').subscribe(response => {
+      //     console.log('Request unlocked:', response);
+      //   });
+      //   window.location.reload(); // reload the page to reflect changes
+      // }, error => {
+      //   console.error('Error approving credit request:', error);
+      // }
+      // );
     }
   }
 
@@ -930,21 +1007,32 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       // change approved equal to requested amount
       this.editTicketForm.patchValue({
         ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
-        NewLimit: '0'
+        NewLimit: this.editTicketForm.get('RequestAmt')?.value
+        // ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
+        // NewLimit: '0'
       });
     } else if (selectedAction === '7') { // SOA selection
       // change approved = requested amount and new limit = house line(current limit) + requested
       this.editTicketForm.patchValue({
         ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
-        NewLimit: (parseFloat(this.editTicketForm.value.RequestAmt) + parseFloat(this.editTicketForm.value.TotalCreditLimit)).toString()
+        NewLimit: this.editTicketForm.get('RequestAmt')?.value
+        // NewLimit: this.formatCurrency(this.parseCurrencyValue(this.editTicketForm.value.RequestAmt) + this.parseCurrencyValue(this.editTicketForm.value.TotalCreditLimit))
       });
     }
     else {
       this.editTicketForm.patchValue({
-        ApproveAmt: '0',
-        NewLimit: '0'
+        ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
+        NewLimit: this.editTicketForm.get('RequestAmt')?.value
+        // ApproveAmt: '0',
+        // NewLimit: '0'
       });
     }
+  }
+  // Add this method to parse formatted currency strings back to numbers
+  private parseCurrencyValue(value: string): number {
+    if (!value) return 0;
+    // Remove any non-numeric characters except decimal point
+    return Number(value.replace(/[^\d.-]/g, ''));
   }
 
   // #endregion

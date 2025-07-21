@@ -1,0 +1,67 @@
+.dialog-header {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    /* Ensure the background is visible while scrolling */
+    z-index: 1;
+    /* Ensure it stays above the content */
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    /* Optional: to distinguish header */
+}
+
+.dialog-container {
+	margin: 20px;
+	max-height: 700px;
+	overflow: auto;
+}
+
+.card-container{
+	padding: 10px;
+    margin: 10px;
+    margin-bottom: 20px;
+	background-color: #ffffff;
+    height: 100%;
+    width: 100%;
+}
+
+.centered-label {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.centered-input {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.mat-card-trend-table {
+	margin-top: 20px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 10px;
+	background-color: #ffffff;
+	
+    overflow-x: auto; 
+    overflow-y: hidden;
+}
+
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 8px 12px; */
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.close-button {
+    color: #666;
+    transition: color 0.3s ease;
+    margin-right: 10px;
+}
+
+.close-button:hover {
+    color: #333;
+}

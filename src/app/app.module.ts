@@ -68,6 +68,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { DocumentsStatementsComponent } from './components/documents-statements/documents-statements.component';
 import { ReleaseLetterComponent } from './components/release-letter/release-letter.component';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import { TicketingAnalysisDialogComponent } from './components/ticketing-analysis-dialog/ticketing-analysis-dialog.component';
+import {MatGridListModule} from '@angular/material/grid-list';
 
 @NgModule({
   declarations: [
@@ -100,7 +102,8 @@ import {MatSidenavModule} from '@angular/material/sidenav';
     MinutesToDHMPipe,
     NoticeOfAccessmentComponent,
     DocumentsStatementsComponent,
-    ReleaseLetterComponent,    
+    ReleaseLetterComponent,
+    TicketingAnalysisDialogComponent,    
   ],
   imports: [
     MatDatepickerModule,
@@ -159,7 +162,8 @@ import {MatSidenavModule} from '@angular/material/sidenav';
     MatRadioModule,
     MatProgressBarModule,
     MatSidenavModule,
-    DunsCardComponent
+    DunsCardComponent,
+    MatGridListModule
 ],
   providers: [
     CacheService,

@@ -1,0 +1,196 @@
+<div class="dialog-header">
+    <h3 mat-dialog-title>Credit Request Analytics</h3>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+<div class="dialog-container">
+    <mat-grid-list cols="2" rowHeight="300px">
+        <mat-grid-tile>
+            <mat-card appearance="raised" class="card-container">
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label centered-label"><strong>Debtor name</strong></label>
+                    </div>
+                    <div class="col-md-9">
+                        <input id="StatisticsForInput" value={{ticketData.Debtor}} class="form-control" readonly>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label centered-label"><strong>Client name</strong></label>
+                    </div>
+                    <div class="col-md-9">
+                        <input id="StatisticsForInput" value={{ticketData.Client}} class="form-control" readonly>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label centered-label"><strong>Overall credit limit / AIG
+                                limit</strong></label>
+                    </div>
+                    <div class="col-md-9  ">
+                        <div class="d-flex align-items-center w-100">
+                            <input id="creditLimitInput" value={{formatCurrency(ticketData.TotalCreditLimit)}}
+                                class="form-control" readonly>
+                            <span class="mx-2" style="font-size: 16px; font-weight: bold;">/</span>
+                            <input id="aigLimitInput" value={{formatCurrency(debtorDetails?.AIGLimit)}}
+                                class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+                <!-- outstanding balance -->
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label centered-label"><strong>Outstanding balance</strong></label>
+                    </div>
+                    <div class="col-md-9 centered-input">
+                        <div class="d-flex align-items-center w-100">
+                            <input id="outstandingBalanceInput" value={{formatCurrency(debtorDetails?.Balance)}} class="form-control" readonly>
+                            <mat-icon class="input-icon ms-2" style="color: #666; cursor: pointer;" (click)="onMoreDetailsClick('balance')">more_horiz</mat-icon>
+                        </div>
+                    </div>
+                </div>
+                <!-- utilization -->
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <label class="form-label centered-label"><strong>Credit linit utilization</strong></label>
+                    </div>
+                    <div class="col-md-9 centered-input">
+                        <input id="utilizationInput" value={{formatPercentage(debtorDetails?.PctUtilized)}} class="form-control" readonly>
+                    </div>
+                </div>
+            </mat-card>
+        </mat-grid-tile>
+        <mat-grid-tile>
+            <mat-card appearance="raised" class="card-container">
+                <div *ngIf="showDetailedView === 'default'">
+                    <p>Here you can view more detail data by clicking left buttons.</p>
+                </div>
+                <div *ngIf="showDetailedView === 'balance'">
+                    <p>AR aging details</p>
+                </div>
+            </mat-card>
+        </mat-grid-tile>
+    </mat-grid-list>
+    <!-- trend analysis table and chart 1 -->
+    <mat-grid-list cols="1" rowHeight="auto">
+        <mat-card appearance="raised" class="mat-card-trend-table">
+            <div class="col-md-12">
+                <!-- <label class="form-label"><strong>Periods</strong></label>
+                <br> -->
+                <mat-form-field class="periods-selection">
+                <mat-label>Periods</mat-label>
+                <select [(ngModel)]="trendPeriodChar" (change)="onTrendPeriodChange($event)" matNativeControl required>
+                    <option value="M">Months</option>
+                    <option value="Q">Quarters</option>
+                    <option value="Y">Years</option>
+                </select>
+                </mat-form-field>
+
+                <div class="table-title-section" style="text-align: center; margin-bottom: 20px; padding: 10px;">
+                    <h5 style="margin: 0; color: #333; font-weight: bold;">
+                        Trend Analysis for {{ticketData.Debtor}} - {{ticketData.Client}}
+                    </h5>
+                </div>
+
+                <table mat-table [dataSource]="ticketingTrendDataVertical" matTableExporter #exporter="matTableExporter"
+                    class="mat-elevation-z8 trend-table">
+                    @for (it of displayedColumnsVertical; track it) {
+                    <ng-container matColumnDef={{it}}>
+                        <th mat-header-cell *matHeaderCellDef> {{it}} </th>
+                        <td mat-cell *matCellDef="let element"> {{element[it]}} </td>
+                    </ng-container>
+                    }
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsVertical"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsVertical;"></tr>
+                </table>
+
+                <mat-accordion>
+                    <mat-expansion-panel (opened)="panel1OpenState.set(true)" (closed)="panel1OpenState.set(false)"  style="background-color: rgb(224, 226, 236);">
+                        <mat-expansion-panel-header>
+                        <mat-panel-title> Trend Chart </mat-panel-title>
+                        <mat-panel-description>
+                            Click to {{!panel1OpenState() ? 'open' : 'closed'}}
+                        </mat-panel-description>
+                        </mat-expansion-panel-header>
+                            <div class="col-md-12">
+                                <select class="form-column-selection" [(ngModel)]="trendColumn" (change)="onTrendColumnChange()">
+                                <option value="Purchases">Purchases</option>
+                                <option value="PurchasesAvg">Average</option>
+                                <option value="PurchasesNo">Invoices</option>
+                                <option value="PaiTodZero">Paid to zero</option>
+                                <option value="Recoursed">Recoursed</option>
+                                <option value="AvgWeightedDays">Average Weighted Days</option>
+                                </select>
+                                
+                                <div style="width: 100%; height: 500px;">
+                                <canvas #trendBarChart></canvas>
+                                </div>
+                            </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+
+            </div>
+        </mat-card>
+    </mat-grid-list>
+    <!-- trend analysis table and chart 2 -->
+    <mat-grid-list cols="1" rowHeight="auto">
+        <mat-card appearance="raised" class="mat-card-trend-table">
+            <div class="col-md-12">
+                <mat-form-field class="periods-selection">
+                <mat-label>Periods</mat-label>
+                <select [(ngModel)]="trendPeriodChar2" (change)="onTrendPeriod2Change($event)" matNativeControl required>
+                    <option value="M">Months</option>
+                    <option value="Q">Quarters</option>
+                    <option value="Y">Years</option>
+                </select>
+                </mat-form-field>
+
+                <div class="table-title-section" style="text-align: center; margin-bottom: 20px; padding: 10px;">
+                    <h5 style="margin: 0; color: #333; font-weight: bold;">
+                        Trend Analysis for {{ticketData.Debtor}} - All Clients
+                    </h5>
+                </div>
+
+                <table mat-table [dataSource]="ticketingTrendDataVertical2" matTableExporter #exporter="matTableExporter"
+                    class="mat-elevation-z8 trend-table">
+                    @for (it of displayedColumnsVertical2; track it) {
+                    <ng-container matColumnDef={{it}}>
+                        <th mat-header-cell *matHeaderCellDef> {{it}} </th>
+                        <td mat-cell *matCellDef="let element"> {{element[it]}} </td>
+                    </ng-container>
+                    }
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsVertical2"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsVertical2;"></tr>
+                </table>
+
+                <mat-accordion>
+                    <mat-expansion-panel (opened)="pane21OpenState.set(true)" (closed)="pane21OpenState.set(false)"  style="background-color: rgb(224, 226, 236);">
+                        <mat-expansion-panel-header>
+                        <mat-panel-title> Trend Chart </mat-panel-title>
+                        <mat-panel-description>
+                            Click to {{!pane21OpenState() ? 'open' : 'closed'}}
+                        </mat-panel-description>
+                        </mat-expansion-panel-header>
+                            <div class="col-md-12">
+                                <select class="form-column-selection" [(ngModel)]="trendColumn2" (change)="onTrendColumnChange2()">
+                                <option value="Purchases">Purchases</option>
+                                <option value="PurchasesAvg">Average</option>
+                                <option value="PurchasesNo">Invoices</option>
+                                <option value="PaiTodZero">Paid to zero</option>
+                                <option value="Recoursed">Recoursed</option>
+                                <option value="AvgWeightedDays">Average Weighted Days</option>
+                                </select>
+                                
+                                <div style="width: 100%; height: 500px;">
+                                <canvas #trendBarChart2></canvas>
+                                </div>
+                            </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+
+            </div>
+        </mat-card>
+    </mat-grid-list>
+</div>

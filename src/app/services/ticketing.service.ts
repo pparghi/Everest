@@ -48,6 +48,24 @@ export class TicketingService {
     return this.http.post<any>(url, formData);
   }
 
+  // function to approve a credit request version 2
+  approveCreditRequest2(credRequestKey: string, approveUser: string, status: string, response: string, newTotalCreditLimit: string, newIndivCreditLimit: string, expMonths: string, email: string, changeMaster:string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/approveCreditRequest2`;
+    
+    const formData = new FormData();
+    formData.append('CredRequestKey', credRequestKey);
+    formData.append('ApproveUser', approveUser);
+    formData.append('Status', status);
+    formData.append('Response', response);
+    formData.append('NewTotalCreditLimit', newTotalCreditLimit);
+    formData.append('NewIndivCreditLimit', newIndivCreditLimit);
+    formData.append('ExpMonths', expMonths);
+    formData.append('Email', email);
+    formData.append('ChangeMaster', changeMaster);
+
+    return this.http.post<any>(url, formData);
+  }
+
   // function to get or modify a credit request current user
   actionToCreditRequest(credRequestKey: number, inUseUser: string, lockUnlock: string): Observable<any> {
     const params = new HttpParams()
