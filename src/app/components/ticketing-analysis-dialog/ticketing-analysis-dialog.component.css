@@ -64,4 +64,28 @@
 
 .close-button:hover {
     color: #333;
+}.table-container {
+    overflow-y: auto;
+}
+
+.bordered-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+.bordered-table th,
+.bordered-table td {
+
+    border: 0;
+
+    padding: 3px;
+
+}
+
+.table-row .cell {
+  border-bottom: 1px solid #dee2e6;
+  
 }

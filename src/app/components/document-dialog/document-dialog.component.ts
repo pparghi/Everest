@@ -216,7 +216,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         RequestUser: [data.RequestUser || ''],
         Comments: [data.Comments || ''],
         ApproveDate: [data.ApproveDate || ''],
-        ApproveAmt: [this.formatCurrency(data.ApproveAmt) || ''],
+        ApproveAmt: [this.formatCurrency(data.ApproveAmt) || '', Validators.required], // Required
         Response: [data.Response || ''],
         Source: [data.Source || ''],
         TotalCreditLimit: [this.formatCurrency(data.TotalCreditLimit) || ''],
@@ -229,13 +229,13 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         ShipDate: '',
         EstablishedDate: this.convertDateToMMDDYYYY(data.EstablishedDate) || '',
         Terms: data.Terms || '',
-        ExpiresDate: '',
-        Action: '',
-        NewLimit: '',
-        ExpiresInMonths: '6',
+        ExpiresDate: this.addMonths(1),
+        Action: ['', Validators.required], // Required
+        NewLimit: ['0', Validators.required], // Required
+        ExpiresInMonths: ['1', Validators.required], // Required
         FreeTextInput: '',
         SendDecisionToClient: false,
-        ChangeMaster: false,
+        ChangeMaster: data.Type === "Non-Grouped"?false:true,
         MasterDebtor:data.MasterDebtor,
         MasterIndivCreditLimit: this.formatCurrency(data.MasterIndivCreditLimit) || '',
         MasterTotalCreditLimit: this.formatCurrency(data.MasterTotalCreditLimit) || '',
@@ -671,6 +671,64 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   //region ticketPG functions
+  // Method to check if a form control has errors and has been touched
+  hasFieldError(fieldName: string): boolean {
+    const field = this.editTicketForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+  // Method to get error message for a field
+  getFieldErrorMessage(fieldName: string): string {
+    const field = this.editTicketForm.get(fieldName);
+    if (field?.errors) {
+      if (field.errors['required']) {
+        return `Required`;
+      }
+    }
+    return '';
+  }
+  // method to compare ApproveAmt with MasterTotalCreditLimit
+  getApproveAmtValidationClass(): string {
+    const approveAmt = this.parseCurrencyValue(this.editTicketForm.get('ApproveAmt')?.value || '0');
+    const masterTotalLimit = this.parseCurrencyValue(this.editTicketForm.get('MasterTotalCreditLimit')?.value || '0');
+
+    if (approveAmt < masterTotalLimit) {
+      return 'input-error'; // Red border
+    } else if (approveAmt >= masterTotalLimit) {
+      return 'input-success'; // Green border
+    }
+    return ''; // Default styling
+  }
+
+  // Helper method to check if ApproveAmt is valid
+  isApproveAmtValid(): boolean {
+    const approveAmt = this.parseCurrencyValue(this.editTicketForm.get('ApproveAmt')?.value || '0');
+    const masterTotalLimit = this.parseCurrencyValue(this.editTicketForm.get('MasterTotalCreditLimit')?.value || '0');
+    return approveAmt >= masterTotalLimit;
+  }
+  // when ExpiresInMonths changed, updaste expires date too
+  onExpiresInMonthsChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const months = parseInt(inputElement.value);
+
+    if (!isNaN(months) && months > 0) {
+      // Calculate the new expiry date
+      const newExpiryDate = this.addMonths(months);
+
+      // Update the ExpiresDate form control
+      this.editTicketForm.get('ExpiresDate')?.setValue(newExpiryDate);
+    }
+  }
+  // method to add months to current date
+  private addMonths(months: number): string {
+    let newDate = new Date();
+    // add days of months times 30 to the current date
+    newDate.setDate(newDate.getDate() + 30 * months);
+    // return string in mm/dd/yyyy format
+    const month = String(newDate.getMonth()+1).padStart(2, '0'); // Months are zero-based
+    const day = String(newDate.getDate()).padStart(2, '0');
+    const year = String(newDate.getFullYear());
+    return `${month}/${day}/${year}`;
+  }
   // convert YYYY-MM-DD HH:mm:ss to MM/DD/YYYY format
   private convertDateToMMDDYYYY(dateString: string): string {
     // check if dateString is empty or null
@@ -814,6 +872,12 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
   // submit the ticketing request tab form and save
   onTicketEdit() {
+    // Mark all fields as touched to show validation errors
+    this.editTicketForm.markAllAsTouched();
+    if (this.editTicketForm.invalid) {
+      console.log('Form is invalid, please check required fields');
+      return;
+    }
     console.log('editTicketForm value--', this.editTicketForm.value);
     // console.log('userID--', this.data.userID.toUpperCase());
     this.onApproveCreditRequest(this.editTicketForm.value.CredRequestKey, this.data.userID.toUpperCase(), this.editTicketForm.value.Action, this.editTicketForm.value.FreeTextInput, this.parseCurrencyValue(this.editTicketForm.value.ApproveAmt).toString(), this.parseCurrencyValue(this.editTicketForm.value.NewLimit).toString(), this.editTicketForm.value.ExpiresInMonths, this.editTicketForm.value.SendDecisionToClient?"Y":"N", this.editTicketForm.value.ChangeMaster?"Y":"N");
@@ -1003,28 +1067,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     const selectedAction = event.target.value;
     
     // You can update other form controls based on the selection
-    if (selectedAction === '6') { // W/L line selection
+    if (['1', '6', '7'].includes(selectedAction)) { // when selected approval selections
       // change approved equal to requested amount
       this.editTicketForm.patchValue({
-        ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
-        NewLimit: this.editTicketForm.get('RequestAmt')?.value
-        // ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
-        // NewLimit: '0'
-      });
-    } else if (selectedAction === '7') { // SOA selection
-      // change approved = requested amount and new limit = house line(current limit) + requested
-      this.editTicketForm.patchValue({
-        ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
-        NewLimit: this.editTicketForm.get('RequestAmt')?.value
-        // NewLimit: this.formatCurrency(this.parseCurrencyValue(this.editTicketForm.value.RequestAmt) + this.parseCurrencyValue(this.editTicketForm.value.TotalCreditLimit))
-      });
-    }
-    else {
-      this.editTicketForm.patchValue({
-        ApproveAmt: this.editTicketForm.get('RequestAmt')?.value,
-        NewLimit: this.editTicketForm.get('RequestAmt')?.value
-        // ApproveAmt: '0',
-        // NewLimit: '0'
+        ApproveAmt: this.formatCurrency(this.parseCurrencyValue(this.editTicketForm.value.RequestAmt) + this.parseCurrencyValue(this.editTicketForm.value.MasterTotalCreditLimit))
       });
     }
   }

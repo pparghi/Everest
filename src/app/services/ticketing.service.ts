@@ -63,7 +63,17 @@ export class TicketingService {
     formData.append('Email', email);
     formData.append('ChangeMaster', changeMaster);
 
+    console.log('server got values:', {
+        credRequestKey, approveUser, status, response, newTotalCreditLimit, newIndivCreditLimit, expMonths, email, changeMaster
+      });
+
     return this.http.post<any>(url, formData);
+
+    // return fake response for testing
+    // return of({
+    //   success: true,
+    //   message: 'Credit request approved tested',
+    // });
   }
 
   // function to get or modify a credit request current user

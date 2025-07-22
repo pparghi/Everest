@@ -847,25 +847,29 @@
                 <hr class="solid">
                 <div class="row" style="padding-top: 10px;">
                   <div class="col-md-3">
-                    <label for="TotalCreditLimit" class="form-label">House line</label>
-                    <!-- <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A" readonly> -->
-                    <input type="text" id="TotalCreditLimit" class="form-control" formControlName="TotalCreditLimit" placeholder="N/A" readonly>
+                    <label for="ExpiresInMonths" class="form-label">Expires In months *</label>
+                    <input type="text" id="ExpiresInMonths" class="form-control" formControlName="ExpiresInMonths" 
+                      [class.is-invalid]="hasFieldError('ExpiresInMonths')" (change)="onExpiresInMonthsChange($event)">
+                    <div class="invalid-feedback" *ngIf="hasFieldError('ExpiresInMonths')">
+                      {{getFieldErrorMessage('ExpiresInMonths')}}
+                    </div>
                   </div>
                   <div class="col-md-3">
                     <label for="ExpiresDate" class="form-label">Expires date</label>
-                    <input type="date" id="ExpiresDate" class="form-control" formControlName="ExpiresDate" readonly>
+                    <input type="text" id="ExpiresDate" class="form-control" formControlName="ExpiresDate" readonly>
                   </div>
-                  <div class="col-md-3">
-                    <label for="Action" class="form-label">Action</label>
-                    <select id="Action" class="form-control" formControlName="Action" (change)="onActionChange($event)">
+                  <div class="col-md-6">
+                    <label for="Action" class="form-label">Action *</label>
+                    <select id="Action" class="form-control" formControlName="Action" (change)="onActionChange($event)" 
+                      [class.is-invalid]="hasFieldError('Action')">
+                      <option value="">Select an action...</option>
                       @for (actionStr of actionList; track actionStr.Name) {
                         <option value={{actionStr.Status}}>{{actionStr.Name}}</option>
                       }
                     </select>
-                  </div>
-                  <div class="col-md-3">
-                    <label for="ExpiresInMonths" class="form-label">Expires In months</label>
-                    <input type="text" id="ExpiresInMonths" class="form-control" formControlName="ExpiresInMonths">
+                    <div class="invalid-feedback" *ngIf="hasFieldError('Action')">
+                      {{getFieldErrorMessage('Action')}}
+                    </div>
                   </div>
                 </div>
                 <!-- <div class="row" style="padding-top: 10px;">
@@ -888,12 +892,24 @@
                     <input type="text" id="RequestAmt" class="form-control" formControlName="RequestAmt" placeholder="N/A" readonly>
                   </div>
                   <div class="col-md-3">
-                    <label for="ApproveAmt" class="form-label">New total credit limit</label>
-                    <input type="text" id="ApproveAmt" class="form-control" formControlName="ApproveAmt" placeholder="N/A">
+                      <label for="ApproveAmt" class="form-label">New total credit limit *</label>
+                      <input type="text" 
+                            id="ApproveAmt" 
+                            class="form-control" 
+                            [class]="'form-control ' + getApproveAmtValidationClass()"
+                            [class.is-invalid]="hasFieldError('ApproveAmt')"
+                            formControlName="ApproveAmt" 
+                            placeholder="N/A">
+                      <div class="invalid-feedback" *ngIf="hasFieldError('ApproveAmt')">
+                        {{getFieldErrorMessage('ApproveAmt')}}
+                      </div>
                   </div>
                   <div class="col-md-3">
-                    <label for="NewLimit" class="form-label">New individual credit limit</label>
-                    <input type="text" id="NewLimit" class="form-control" formControlName="NewLimit">
+                    <label for="NewLimit" class="form-label">New individual credit limit *</label>
+                    <input type="text" id="NewLimit" class="form-control" formControlName="NewLimit" [class.is-invalid]="hasFieldError('NewLimit')">
+                    <div class="invalid-feedback" *ngIf="hasFieldError('NewLimit')">
+                      {{getFieldErrorMessage('NewLimit')}}
+                    </div>
                   </div>
                   <div class="col-md-3">
                     <div class="row">
