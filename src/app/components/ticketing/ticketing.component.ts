@@ -119,8 +119,8 @@ export class TicketingComponent {
     constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
       const yesterdayDate = new Date(today);
-      // yesterdayDate.setDate(today.getDate() - 1);
-      yesterdayDate.setDate(today.getDate() - 110);
+      yesterdayDate.setDate(today.getDate() - 1);
+      // yesterdayDate.setDate(today.getDate() - 110);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {
@@ -137,7 +137,7 @@ export class TicketingComponent {
         this.selectedValues = filterValues.selectedValues;
       }
       else {
-        this.selectedValues = ['2']; // Default value
+        this.selectedValues = ['0']; // Default value
       }
       if (filterValues?.requestDate) {
         this.requestDate = filterValues.requestDate;
