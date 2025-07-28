@@ -59,6 +59,11 @@
 	z-index: 1; /* Ensure it stays above the content */
 	padding: 5px;
 	border-bottom: 1px solid #ddd; /* Optional: to distinguish header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 8px 12px; */
+    border-bottom: 1px solid #e0e0e0;
    }
    .dialog-footer {
 	position: sticky;
@@ -299,4 +304,21 @@
 
 .form-label {
   font-weight: 500;
+}
+
+.close-button {
+    color: #666;
+    transition: color 0.3s ease;
+    margin-right: 10px;
+}
+
+.close-button:hover {
+    color: #333;
+}.table-container {
+    overflow-y: auto;
+}
+
+.aging-tab {
+	margin: 20px;
+	overflow: auto;
 }

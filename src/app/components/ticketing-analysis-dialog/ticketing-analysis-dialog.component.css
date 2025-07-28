@@ -10,9 +10,9 @@
     /* Optional: to distinguish header */
 }
 
-.dialog-container {
-	margin: 20px;
-	max-height: 700px;
+.analysis-container {
+	/* margin: 20px;
+	max-height: 700px; */
 	overflow: auto;
 }
 
@@ -23,6 +23,7 @@
 	background-color: #ffffff;
     height: 100%;
     width: 100%;
+    overflow: auto;
 }
 
 .centered-label {
@@ -87,5 +88,9 @@
 
 .table-row .cell {
   border-bottom: 1px solid #dee2e6;
-  
+  font-size: 14px;
+}
+
+.bordered-table .cell {
+  font-size: 14px;
 }

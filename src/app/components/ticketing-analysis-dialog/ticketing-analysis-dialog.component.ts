@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { DecimalPipe } from '@angular/common';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
+import { of } from 'rxjs';
 
 interface TrendVerticalData {
   Period: string;
@@ -22,15 +23,15 @@ Chart.register(
 );
 
 @Component({
-  selector: 'app-ticketing-analysis-dialog',
+  selector: 'app-ticketing-analysis',
   templateUrl: './ticketing-analysis-dialog.component.html',
   styleUrl: './ticketing-analysis-dialog.component.css',
   providers: [DecimalPipe]
 })
-export class TicketingAnalysisDialogComponent implements OnInit {
+export class TicketingAnalysisComponent implements OnInit {
 
   // variables for analysis dialog
-  ticketData: any;
+  @Input() ticketData: any;
   debtorDetails: any;
   trendPeriodChar: string = 'M';
   trendPeriodChar2: string = 'M';
@@ -46,6 +47,7 @@ export class TicketingAnalysisDialogComponent implements OnInit {
   readonly pane21OpenState = signal(false);
   
   showDetailedView: string = 'default'; // default view for top right panel
+  math = Math;
 
   // charts
   chart: any;
@@ -54,17 +56,18 @@ export class TicketingAnalysisDialogComponent implements OnInit {
   @ViewChild('trendBarChart2') chartCanvas2!: ElementRef;
 
   constructor(
-    private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
+    // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
     private memberDebtorsService: MemberDebtorsService,
     private dataService: DebtorsApiService,
-    private _decimalPipe: DecimalPipe
+    private _decimalPipe: DecimalPipe,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     // Load analysis data
-    console.log('Analysis Dialog data:', this.data);
-    this.ticketData = this.data;
+    console.log('Analysis Dialog data:', this.ticketData);
+    // this.ticketData = this.data; // removebecause the data is used by dialog
 
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
@@ -81,17 +84,28 @@ export class TicketingAnalysisDialogComponent implements OnInit {
   }
 
   // convert string number to currency format
-  formatCurrency(value: any): string {
-    if (value === null || value === undefined || value === '') {
-      return '';
+  formatCurrency(inputValue: any, numStringArr?: any[]): string {
+    let value: number;
+    
+    if (inputValue === null || inputValue === undefined || inputValue === '') {
+      value = 0;
+    }
+    else {
+      value = Number(inputValue);
     }
 
-    // Convert to number and format with 2 decimal places if needed
-    const numValue = Number(value);
-    if (isNaN(numValue)) return '';
+    if (typeof numStringArr !== 'undefined') {
+      for (let it of numStringArr) {
+        if (it !== null && it !== undefined && it !== '') {
+          value = value + Number(it);
+        }
+      }
+    }
+
+    if (isNaN(value)) return '';
 
     // Format with up to 2 decimal places, but don't show .00 for whole numbers
-    return numValue.toLocaleString('en-US', {
+    return value.toLocaleString('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
     });
@@ -116,6 +130,16 @@ export class TicketingAnalysisDialogComponent implements OnInit {
    
   }
 
+  // method to format email addresses
+  formatEmail(email: string): string {
+    let emails = email.split(';');
+    let formattedEmail = '';
+    for (let e of emails) {
+      formattedEmail += e.trim() + '\n';
+    }
+    return formattedEmail.trim();
+  }
+
   // event handler for the trend doalog period change
   onTrendPeriodChange(event: Event) {
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1);
@@ -136,12 +160,15 @@ export class TicketingAnalysisDialogComponent implements OnInit {
       }
       // console.log('Trend Data:', this.ticketingTrendDataSource.data);
       this.transferTrendDataToVertical(response.data, chartNumber);
+    
+      this.cdr.detectChanges(); // Trigger change detection
 
       // for loading the chart 1
       if (chartNumber === 1){
         if (this.chartCanvas && this.chartCanvas.nativeElement) {
           const tempPeriod = trendPeriodChar === 'M' ? 'Months' : trendPeriodChar === 'Q' ? 'Quarters' : 'Years';
           this.createTrendBarChart(this.ticketingTrendDataSource.data, tempPeriod, this.trendColumn);
+          this.cdr.detectChanges(); // Trigger change detection
         }
         // deleyed loading of the chart
         else {
@@ -149,6 +176,7 @@ export class TicketingAnalysisDialogComponent implements OnInit {
             // console.log('Reloading the chart');
             const tempPeriod = trendPeriodChar === 'M' ? 'Months' : trendPeriodChar === 'Q' ? 'Quarters' : 'Years';
             this.createTrendBarChart(this.ticketingTrendDataSource.data, tempPeriod, this.trendColumn);
+            this.cdr.detectChanges(); // Trigger change detection
           }, 500);
         }
       }
@@ -156,6 +184,7 @@ export class TicketingAnalysisDialogComponent implements OnInit {
         if (this.chartCanvas2 && this.chartCanvas2.nativeElement) {
           const tempPeriod = trendPeriodChar === 'M' ? 'Months' : trendPeriodChar === 'Q' ? 'Quarters' : 'Years';
           this.createTrendBarChart(this.ticketingTrendDataSource2.data, tempPeriod, this.trendColumn2, 2);
+          this.cdr.detectChanges(); // Trigger change detection
         }
         // deleyed loading of the chart
         else {
@@ -163,6 +192,7 @@ export class TicketingAnalysisDialogComponent implements OnInit {
             // console.log('Reloading the chart');
             const tempPeriod = trendPeriodChar === 'M' ? 'Months' : trendPeriodChar === 'Q' ? 'Quarters' : 'Years';
             this.createTrendBarChart(this.ticketingTrendDataSource2.data, tempPeriod, this.trendColumn2, 2);
+            this.cdr.detectChanges(); // Trigger change detection
           }, 500);
         }
       }
@@ -409,14 +439,18 @@ export class TicketingAnalysisDialogComponent implements OnInit {
     return periodsArr;
   }
 
-  onClose(): void {
-    this.dialogRef.close();
-  }
+  // Remove the onClose method since it's no longer a dialog
+  // onClose(): void {
+  //   this.dialogRef.close();
+  // }
 
   // method to show detailed view
   onMoreDetailsClick(name: string): void {
-    if (name){
+    if (name && name !== this.showDetailedView) {
       this.showDetailedView = name;
+    }
+    else {
+      this.showDetailedView = 'default'; // reset to default view
     }
   }
 

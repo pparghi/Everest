@@ -12,7 +12,6 @@ import { MatTableExporterDirective } from 'mat-table-exporter';
 import { FilterService } from '../../services/filter.service';
 import * as XLSX from 'xlsx';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
-import { TicketingAnalysisDialogComponent } from '../ticketing-analysis-dialog/ticketing-analysis-dialog.component';
 import { ClientsService } from '../../services/clients.service';
 import { Subscription, interval } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -67,7 +66,7 @@ interface clientDataItem {
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'RequestNo', 'Analytics', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'Edit', 'Email'];   
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'Edit', 'Email'];   
     clientDisplayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis']; 
     statusListOptions = [
       { label: 'Pending', value: '0' },
@@ -120,8 +119,8 @@ export class TicketingComponent {
     constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
       const yesterdayDate = new Date(today);
-      yesterdayDate.setDate(today.getDate() - 1);
-      // yesterdayDate.setDate(today.getDate() - 110);
+      // yesterdayDate.setDate(today.getDate() - 1);
+      yesterdayDate.setDate(today.getDate() - 110);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {
@@ -138,7 +137,7 @@ export class TicketingComponent {
         this.selectedValues = filterValues.selectedValues;
       }
       else {
-        this.selectedValues = ['0']; // Default value
+        this.selectedValues = ['2']; // Default value
       }
       if (filterValues?.requestDate) {
         this.requestDate = filterValues.requestDate;
@@ -381,11 +380,12 @@ export class TicketingComponent {
         console.log('row:', row);
 
         const dialogObj = {
-          width: '1050px',
+          width: '1300px',
           maxWidth: 'none',
           height: 'auto',
           panelClass: 'custom-dialog-container',
           data: {
+            row: row,
             ClientKey: row.ClientKey,
             Client: row.Client,
             ClientNo: row.ClientNo,
@@ -455,15 +455,15 @@ export class TicketingComponent {
   }
 
   // function to click on Analytics icon and open the analytics dialog
-  openAnalyticsDialog(row: DataItem) {
-    const dialogRef = this.dialog.open(TicketingAnalysisDialogComponent, {
-      width: '1400px',
-      maxWidth: 'none',
-      height: 'auto',
-      panelClass: 'custom-dialog-container',
-      data: row
-    });
-  }
+  // openAnalyticsDialog(row: DataItem) {
+  //   const dialogRef = this.dialog.open(TicketingAnalysisDialogComponent, {
+  //     width: '1400px',
+  //     maxWidth: 'none',
+  //     height: 'auto',
+  //     panelClass: 'custom-dialog-container',
+  //     data: row
+  //   });
+  // }
 
   addNew(){
     this.http.get(GRAPH_ENDPOINT)

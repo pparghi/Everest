@@ -1,10 +1,11 @@
-<div class="dialog-header">
+<!-- Remove dialog header -->
+<!-- <div class="dialog-header">
     <h3 mat-dialog-title>Credit Request Analytics</h3>
     <button mat-icon-button (click)="onClose()" class="close-button">
         <mat-icon>close</mat-icon>
     </button>
-</div>
-<div class="dialog-container">
+</div> -->
+<div class="analysis-container">
     <mat-grid-list cols="2" rowHeight="300px">
         <mat-grid-tile>
             <mat-card appearance="raised" class="card-container">
@@ -82,22 +83,173 @@
                             <td class="cell" style="width: 25%;">
                                 <div class="d-flex align-items-center w-100">
                                     {{ formatCurrency(debtorDetails?.Balance) }} 
-                                    <mat-icon class="input-icon ms-2" style="color: #666; cursor: pointer;" (click)="onMoreDetailsClick('balance')">more_horiz</mat-icon>
+                                    <mat-icon class="input-icon ms-2" 
+                                    style="cursor: pointer; color: rgb(58, 138, 218)"
+                                    (click)="onMoreDetailsClick('balance')">
+                                        {{showDetailedView === 'balance' ? 'visibility' : 'more_horiz'}}
+                                    </mat-icon>
                                 </div>
                             </td>
                             <td class="cell" style="width: 25%;">{{ formatPercentage(debtorDetails?.PctUtilized) }}</td>
                         </tr>                                
-                    </table>                        
+                    </table>
+                    <table class="bordered-table">
+                        <tr>                                
+                            <th class="header" style="width: 25%;">Credit rating</th>
+                            <th class="header" style="width: 25%;">Credit Ansonia</th>
+                            <th class="header" style="width: 25%;">Dilution %</th>
+                            <th class="header" style="width: 25%;">Concentration</th>
+                        </tr>                               
+                        <tr class="table-row">
+                            <td class="cell" style="width: 25%;">
+                                <mat-icon class="input-icon ms-2" 
+                                style="cursor: pointer; color: rgb(58, 138, 218)"
+                                (click)="onMoreDetailsClick('creditRating')">
+                                    {{showDetailedView === 'creditRating' ? 'visibility' : 'more_horiz'}}
+                                </mat-icon>
+                            </td>
+                            <td class="cell" style="width: 25%;">
+                                <mat-icon class="input-icon ms-2" 
+                                style="cursor: pointer; color: rgb(58, 138, 218)"
+                                (click)="onMoreDetailsClick('creditAnsonia')">
+                                    {{showDetailedView === 'creditAnsonia' ? 'visibility' : 'more_horiz'}}
+                                </mat-icon>
+                            </td>
+                            <td class="cell" style="width: 25%;">{{ '' }}</td>
+                            <td class="cell" style="width: 25%;">{{ '' }}</td>
+                        </tr>                                
+                    </table> 
                 </div> 
             </mat-card>
         </mat-grid-tile>
         <mat-grid-tile>
             <mat-card appearance="raised" class="card-container">
                 <div *ngIf="showDetailedView === 'default'">
-                    <p>Here you can view more detail data by clicking left buttons.</p>
+                    <div class="table-container">
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 100%;">Warning</th>          
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 100%;">{{ debtorDetails?.Warning || "N/A" }}</td>                                             
+                            </tr>                                
+                        </table>
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 100%;">Instructions</th>
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 100%;">{{ debtorDetails?.Notes || "Debtor's instructions and notes will be shown here" }}</td>
+                            </tr>                                
+                        </table>
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 100%;">Credit Information</th>
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 100%;">{{ debtorDetails?.CredNote || "Debtor's Credit information and notes will be shown here" }}</td> 
+                            </tr>                                
+                        </table>
+                    </div> 
                 </div>
+                <!-- Blance details -->
                 <div *ngIf="showDetailedView === 'balance'">
-                    <p>AR aging details</p>
+                    <div class="table-container">
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 20%;">Total AR</th>
+                                <th class="header" style="width: 20%;">0-30</th>
+                                <th class="header" style="width: 20%;">31-60</th>
+                                <th class="header" style="width: 20%;">61-90</th>
+                                <th class="header" style="width: 20%;">91 and above</th>             
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Balance) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age0to30) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age31to60) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age61to90) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age91to120, [debtorDetails.Age121to150, debtorDetails.Age151to180, debtorDetails.AgeOver180]) }}</td>                                                
+                            </tr>                                
+                        </table>
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 40%;">Address</th>
+                                <th class="header" style="width: 20%;">Alternate address</th>  
+                                <th class="header" style="width: 13.33%;">DUNS</th>  
+                                <th class="header" style="width: 13.33%;">MC#</th>    
+                                <th class="header" style="width: 13.33%;">Insutructions</th>
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 40%;">{{ debtorDetails.Addr1 }}</td>
+                                <td class="cell" style="width: 20%;">{{ debtorDetails.Addr2 }}</td>
+                                <td class="cell" style="width: 13.33%;">{{ debtorDetails.DbDunsNo }}</td> 
+                                <td class="cell" style="width: 13.33%;">{{ debtorDetails.MotorCarrNo }}</td>     
+                                <td class="cell" style="width: 13.33%;">{{ ticketData.Industry }}</td>
+                            </tr>                                
+                        </table>
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 60%;">Email</th>
+                                <th class="header" style="width: 20%;">Phone1</th>
+                                <th class="header" style="width: 20%;">Phone2</th> 
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 60%;">{{ formatEmail(debtorDetails.Email) }}</td>
+                                <td class="cell" style="width: 20%;">{{ debtorDetails.Phone1 }}</td>
+                                <td class="cell" style="width: 20%;">{{ debtorDetails.Phone2 }}</td> 
+                            </tr>                                
+                        </table>
+                    </div> 
+                </div>
+                <!-- Credit Rating details -->
+                <div *ngIf="showDetailedView === 'creditRating'">
+                    <div class="table-container">
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 20%;">DSO All</th>
+                                <th class="header" style="width: 20%;">DSO 90</th>
+                                <th class="header" style="width: 20%;">DSO 60</th>
+                                <th class="header" style="width: 20%;">DSO 30</th>
+                                <th class="header" style="width: 20%;">Rate code</th>             
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSOAll) }}</td>
+                                <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSO90) }}</td>
+                                <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSO60) }}</td>
+                                <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSO30) }}</td>
+                                <td class="cell" style="width: 20%;">{{ debtorDetails.CalcRateCode }}</td>                                                
+                            </tr>                                
+                        </table>
+                    </div> 
+                </div>
+                <!-- Credit Ansonia details -->
+                <div *ngIf="showDetailedView === 'creditAnsonia'">
+                    <div class="table-container">
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 33.33%;">Last updated</th>
+                                <th class="header" style="width: 33.33%;">Risk score</th>
+                                <th class="header" style="width: 33.33%;">Rating</th>
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaLastUpdate || "N/A" }}</td>
+                                <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaRiskScore || "N/A" }}</td>
+                                <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaRating || "N/A" }}</td>
+                            </tr>                                
+                        </table>
+                        <table class="bordered-table">
+                            <tr>
+                                <th class="header" style="width: 33.33%;">Average days to pay</th>
+                                <th class="header" style="width: 33.33%;">Average balance</th>
+                                <th class="header" style="width: 33.33%;">High balance</th>
+                            </tr>                               
+                            <tr class="table-row">
+                                <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaAvgDaysToPay || "N/A" }}</td>
+                                <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaAvgBalance ? formatCurrency(debtorDetails?.AnsoniaAvgBalance) : "N/A" }}</td>
+                                <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaHighBalance ? formatCurrency(debtorDetails?.AnsoniaHighBalance) : "N/A" }}</td>
+                            </tr>                                
+                        </table>
+                    </div> 
                 </div>
             </mat-card>
         </mat-grid-tile>
@@ -136,7 +288,7 @@
                 </table>
 
                 <mat-accordion>
-                    <mat-expansion-panel (opened)="panel1OpenState.set(true)" (closed)="panel1OpenState.set(false)"  style="background-color: rgb(224, 226, 236);">
+                    <mat-expansion-panel (opened)="panel1OpenState.set(true)" (closed)="panel1OpenState.set(false)"  style="background-color: rgb(239, 240, 245);">
                         <mat-expansion-panel-header>
                         <mat-panel-title> Trend Chart </mat-panel-title>
                         <mat-panel-description>
@@ -195,7 +347,7 @@
                 </table>
 
                 <mat-accordion>
-                    <mat-expansion-panel (opened)="pane21OpenState.set(true)" (closed)="pane21OpenState.set(false)"  style="background-color: rgb(224, 226, 236);">
+                    <mat-expansion-panel (opened)="pane21OpenState.set(true)" (closed)="pane21OpenState.set(false)"  style="background-color: rgb(239, 240, 245);">
                         <mat-expansion-panel-header>
                         <mat-panel-title> Trend Chart </mat-panel-title>
                         <mat-panel-description>

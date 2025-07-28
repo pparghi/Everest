@@ -252,6 +252,11 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       this.trendClientNo = data.ClientNo;
       this.loadTrendDialogData(data.DebtorKey, data.ClientNo, this.trendPeriodChar);
 
+      // aging tab
+      this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
+        this.statementsDataSource.data = response.debtorStatementsDetails;
+      });
+
       // endregion
     } else if (data.documentsList) {
       this.data.documentsList.forEach((document: { FileName: string; Path: any; DocHdrKey: { toString: () => string; }; Link: string; }, index: any) => {
@@ -671,6 +676,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   //region ticketPG functions
+  // method to close the dialog
+  onCloseDialog(): void {
+    this.dialogRef.close();
+  }
   // Method to check if a form control has errors and has been touched
   hasFieldError(fieldName: string): boolean {
     const field = this.editTicketForm.get(fieldName);

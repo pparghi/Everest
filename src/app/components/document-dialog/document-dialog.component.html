@@ -742,6 +742,9 @@
 <div *ngIf="data.openTicketForm">
   <div class="dialog-header">
     <h3 mat-dialog-title>Approve/Deny Credit Request</h3>
+    <button mat-icon-button (click)="onCloseDialog()" class="close-button">
+        <mat-icon>close</mat-icon>
+    </button>
   </div>
   <mat-tab-group>
     <mat-tab label="Request">
@@ -758,28 +761,19 @@
                   </div>
                 </div>
                 <div class="row" style="padding-top: 10px;">
-                  <div class="col-md-12">
+                  <div class="col-md-3">
                     <label for="Client" class="form-label">Client</label>
                     <input type="text" id="Client" class="form-control" formControlName="Client" placeholder="N/A" readonly>
                   </div>
-                </div>
-                <div class="row" style="padding-top: 10px;">
-                  <div class="col-md-12">
+                  <div class="col-md-3">
                     <label for="Debtor" class="form-label">Debtor</label>
                     <input type="text" id="Debtor" class="form-control" formControlName="Debtor" placeholder="N/A" readonly>
-                    <!-- <textarea id="Debtor" class="form-control" cols="30" rows="2"></textarea> -->
                   </div>
-                </div>
-                <div class="row" style="padding-top: 10px;">
-                  <!-- <div class="col-md-6">
-                    <label for="PONumber" class="form-label">PO #</label>
-                    <input type="text" id="PONumber" class="form-control" formControlName="PONumber" readonly>
-                  </div> -->
-                  <div class="col-md-6">
+                  <div class="col-md-3">
                     <label for="EstablishedDate" class="form-label">Established date</label>
                     <input type="string" id="EstablishedDate" class="form-control" formControlName="EstablishedDate" readonly>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-3">
                     <label for="Terms" class="form-label">Terms</label>
                     <input type="text" id="Terms" class="form-control" formControlName="Terms" readonly>
                   </div>
@@ -948,7 +942,8 @@
     </mat-tab>
     <mat-tab label="Trend">
       <div class="trend-tab">
-        <mat-card appearance="raised" class="mat-card-trend-input">
+        <app-ticketing-analysis [ticketData]="data.row"></app-ticketing-analysis>
+        <!-- <mat-card appearance="raised" class="mat-card-trend-input">
           <div class="col-md-12">
             <label class="form-label"><strong>Statistics For</strong></label>
             <input id="StatisticsForInput" [readonly]="true" value={{trendDabtorName}} class="form-control">
@@ -988,7 +983,7 @@
             </button>
           </div>
         </mat-card>
-        <!-- trend bar chart -->
+        
         <mat-card appearance="raised" class="mat-card-trend-chart">
           <div class="col-md-12">
             <select class="form-column-selection" [(ngModel)]="trendColumn" (change)="onTrendColumnChange()">
@@ -1004,10 +999,87 @@
               <canvas #trendBarChart></canvas>
             </div>
           </div>
-        </mat-card>
+        </mat-card> -->
       </div>
     </mat-tab>
-    <mat-tab label="Aging"> Aging Content </mat-tab>
+    <mat-tab label="Aging">
+      <div class="aging-tab">
+        <div class="dialog-content">
+          <div class="main-table-container">
+            <table mat-table [dataSource]="statementsDataSource" multiTemplateDataRows class="mat-table">
+
+              <ng-container matColumnDef="Debtor">
+                <th mat-header-cell *matHeaderCellDef>Debtor</th>
+                <td mat-cell *matCellDef="let element">{{ element.DtrName }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Client">
+                <th mat-header-cell *matHeaderCellDef>Vendor/Carrier</th>
+                <td mat-cell *matCellDef="let element">{{ element.CliName }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="PO/LOAD">
+                <th mat-header-cell *matHeaderCellDef>PO/Load#</th>
+                <td mat-cell *matCellDef="let element">{{ element.PurchOrd }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Invoice#">
+                <th mat-header-cell *matHeaderCellDef>Invoice#</th>
+                <td mat-cell *matCellDef="let element" class="invoiceNumberClickable" (click)="clickInvoiceNumber(element)">{{ element.InvNo }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="InvDate">
+                <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
+                <td mat-cell *matCellDef="let element">{{ element.InvDate | date:"MM/dd/yyyy" }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Age">
+                <th mat-header-cell *matHeaderCellDef>Age</th>
+                <td mat-cell *matCellDef="let element">{{ element.Age }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Currency">
+                <th mat-header-cell *matHeaderCellDef>Currency</th>
+                <td mat-cell *matCellDef="let element">{{ element.CurrencyType }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Amt">
+                <th mat-header-cell *matHeaderCellDef>Amount</th>
+                <td mat-cell *matCellDef="let element">{{ element.Amt | number:'1.2-2' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Balance">
+                <th mat-header-cell *matHeaderCellDef>Balance</th>
+                <td mat-cell *matCellDef="let element">{{ element.Balance | number:'1.2-2' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="expand">
+                <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
+                <td mat-cell *matCellDef="let element" class="expand-column">
+                  <span (click)="toggleRow(element)">
+                    <mat-icon onMouseOver="this.style.cursor='pointer'" style="height: 20px; width: 20px; font-size: 20px;">{{ isExpanded(element) ?
+                      'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+                  </span>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row class="mat-header-row" *matHeaderRowDef="statementsColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: statementsColumns;" class="element-row"></tr>
+
+              <ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="statementsColumns.length">
+                  <div *ngIf="isExpanded(element)" style="padding-top: 10px; padding-bottom: 10px;">
+                    <b>Note: </b> {{ element.LastNote }}
+                  </div>
+                </td>
+              </ng-container>
+              <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row">
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
   </mat-tab-group>
 </div>
 
