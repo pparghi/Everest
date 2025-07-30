@@ -94,3 +94,7 @@
 .bordered-table .cell {
   font-size: 14px;
 }
+
+.trend-table {
+    background-color: #ffffff;
+}

@@ -113,6 +113,10 @@ export class ClientsComponent implements OnInit, AfterViewInit {
         this.dataSource.data = response.data.slice(1);
       });
     } else {
+      // prameter validation
+      if (!DebtorKey || isNaN(DebtorKey)) {
+        return;
+      }
       this.dataService.getClients(DebtorKey).subscribe(response => {
         this.dataSource.data = response.data;
         this.dataSource.sort = this.sort; // Re-attach sort after new data

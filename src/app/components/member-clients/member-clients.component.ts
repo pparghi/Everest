@@ -28,7 +28,8 @@ interface DataItem {
   styleUrl: './member-clients.component.css'
 })
 export class MemberClientsComponent implements OnInit {
-  displayedColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
+  // displayedColumns: string[] = ['expandDebtor','Client', 'CreditLimit', 'CreditUtilization','dsc'];
+  displayedColumns: string[] = ['expandDebtor','Client','dsc'];
     isLoading = true;
     dataSource = new MatTableDataSource<any>([]);
     totalRecords = 0;
@@ -104,5 +105,17 @@ export class MemberClientsComponent implements OnInit {
     }
 
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
+
+    // function to show correct Month names base on current date, last, last-2, last-3 months
+    // input values how many months back from current date
+    getMonthNameByDiffMonths(monthIndex: number): string {
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const currentDate = new Date();
+      const month = (currentDate.getMonth() - monthIndex + 12) % 12; // Adjust for negative indices
+      return monthNames[month];
+    }
 }
 

@@ -5,7 +5,8 @@ import { DebtorsApiService } from '../../services/debtors-api.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { DecimalPipe } from '@angular/common';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
-import { of } from 'rxjs';
+import { ClientsService } from '../../services/clients.service';
+import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 
 interface TrendVerticalData {
   Period: string;
@@ -43,8 +44,12 @@ export class TicketingAnalysisComponent implements OnInit {
   ticketingTrendDataVertical2: TrendVerticalData[] = []; // this is used for displaying trend data in vertical format
   displayedColumnsVertical2: string[] = [];
   trendColumn2: string = 'Purchases';
+  readonly table1OpenState = signal(false);
   readonly panel1OpenState = signal(false);
-  readonly pane21OpenState = signal(false);
+  readonly table2OpenState = signal(false);
+  readonly panel2OpenState = signal(false);
+  ClientConcentrationPercentage: string = 'N/A';
+  DebtorConcentrationPercentage: string = 'N/A';
   
   showDetailedView: string = 'default'; // default view for top right panel
   math = Math;
@@ -60,6 +65,8 @@ export class TicketingAnalysisComponent implements OnInit {
     // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
     private memberDebtorsService: MemberDebtorsService,
     private dataService: DebtorsApiService,
+    private clientService: ClientsService,
+    private clientsDebtorsService: ClientsDebtorsService,
     private _decimalPipe: DecimalPipe,
     private cdr: ChangeDetectorRef
   ) {}
@@ -81,6 +88,11 @@ export class TicketingAnalysisComponent implements OnInit {
         console.error('Error fetching member debtors:', error);
       });
     }
+
+    // fetch client concentration percentage
+    this.loadClientConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
+    // fetch debtor concentration percentage
+    this.loadDebtorConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
   }
 
   // convert string number to currency format
@@ -198,6 +210,49 @@ export class TicketingAnalysisComponent implements OnInit {
       }
 
     });
+  }
+
+  // load concentration percentage number of a client related to a debtor
+  loadClientConcentrationPercentage(DebtorKey: number, ClientKey: number): void {
+    this.clientService.getClients(DebtorKey).subscribe(response => {
+      // console.log("client concentration number: ", response.data);
+      for (let it of response.data) {
+        if (parseInt(it.ClientKey) === ClientKey) {
+          this.ClientConcentrationPercentage = Math.round(parseFloat(it.Concentration) * 10000) / 100 + '%';
+          break;
+        }
+      }
+    });
+  }
+
+  // load concentration percentage number of a debtor related to a client
+  loadDebtorConcentrationPercentage(DebtorKey: number, ClientKey: number): void {
+    this.clientsDebtorsService.getClientsDebtors(ClientKey).subscribe(response => {
+      // console.log("debtor concentration number: ", response.data);
+      for (let it of response.data) {
+        if (parseInt(it.DebtorKey) === DebtorKey) {
+          this.DebtorConcentrationPercentage = Math.round(parseFloat(it.Concentration) * 10000) / 100 + '%';
+          break;
+        }
+      }
+    });
+  }
+
+  // calculate percentage and return formatted string
+  calculatePercentage(valueStr: string, totalStr: string): string {
+    let total = parseFloat(totalStr);
+    let value = parseFloat(valueStr);
+    if (total === 0) return '0%';
+    const percentage = Math.round((value / total) * 10000) / 100;
+    return percentage + '%';
+  }
+
+  // get sum of array of string numbers
+  getSumOfArray(arr: string[]): number {
+    return arr.reduce((sum, value) => {
+      const numValue = parseFloat(value);
+      return sum + (isNaN(numValue) ? 0 : numValue);
+    }, 0);
   }
 
   // transfer the trend table data to vertical format

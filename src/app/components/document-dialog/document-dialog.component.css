@@ -322,3 +322,27 @@
 	margin: 20px;
 	overflow: auto;
 }
+
+.aging-tab-table {
+	background-color: #ffffff;
+}
+
+.filter-container {
+  padding: 10px 0;
+  background-color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.debtor-filter {
+  width: 300px;
+  margin-bottom: 10px;
+}
+
+/* Add responsive styles for smaller screens */
+@media (max-width: 600px) {
+  .debtor-filter {
+    width: 100%;
+  }
+}

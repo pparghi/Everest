@@ -20,6 +20,7 @@ import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, T
 import { DecimalPipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 
 
 Chart.register(
@@ -132,6 +133,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   trendClientNo: string = '';
   trendPeriodChar: string = 'M';
   actionList: any[] = [];
+  @ViewChild(MatSort) sort!: MatSort;
+  AgingTabSelectedDebtor: string = '';
+  AgingTabDebtorList: string[] = [];
+  originalStatementsData: any[] = [];
   // charts
   chart: any;
   @ViewChild('trendBarChart') chartCanvas!: ElementRef;
@@ -254,7 +259,14 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
       // aging tab
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
+        // Store original data
+        this.originalStatementsData = response.debtorStatementsDetails;
+        // Set data source
         this.statementsDataSource.data = response.debtorStatementsDetails;
+        // Extract unique debtor names for filter dropdown
+        this.extractUniqueDebtors(response.debtorStatementsDetails);
+        // Force change detection to update the view
+        this.cdr?.detectChanges();
       });
 
       // endregion
@@ -412,6 +424,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngAfterViewInit(): void {
+    this.statementsDataSource.sort = this.sort;
+
     // if (typeof pca !== 'undefined') {
     //   pca.setup({
     //     key: 'dy85-mj85-wx29-nn39',
@@ -676,6 +690,37 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   //region ticketPG functions
+  // Add this method to extract unique debtor names
+  private extractUniqueDebtors(data: any[]): void {
+    // Use Set to get unique values
+    const debtorSet = new Set<string>(
+      data.map(item => item.DtrName).filter(name => name && name.trim() !== '')
+    );
+
+    // Convert Set to sorted array
+    this.AgingTabDebtorList = Array.from(debtorSet).sort();
+  }
+
+  // Add this method to handle filter changes
+  onAgingTabDebtorFilterChange(): void {
+    // If "All Debtors" is selected (empty string)
+    if (!this.AgingTabSelectedDebtor) {
+      this.statementsDataSource.data = [...this.originalStatementsData];
+    } else {
+      // Filter data by selected debtor
+      this.statementsDataSource.data = this.originalStatementsData.filter(
+        item => item.DtrName === this.AgingTabSelectedDebtor
+      );
+    }
+
+    // If using expandable rows, reset expanded state
+    this.expandedElement = null;
+
+    // Apply sort if available
+    if (this.statementsDataSource.sort) {
+      this.statementsDataSource.sort.sortChange.emit();
+    }
+  }
   // method to close the dialog
   onCloseDialog(): void {
     this.dialogRef.close();

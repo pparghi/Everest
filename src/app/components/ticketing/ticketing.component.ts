@@ -120,7 +120,7 @@ export class TicketingComponent {
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
-      // yesterdayDate.setDate(today.getDate() - 110);
+      // yesterdayDate.setDate(today.getDate() - 117);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {
@@ -380,7 +380,7 @@ export class TicketingComponent {
         console.log('row:', row);
 
         const dialogObj = {
-          width: '1300px',
+          width: '1350px',
           maxWidth: 'none',
           height: 'auto',
           panelClass: 'custom-dialog-container',

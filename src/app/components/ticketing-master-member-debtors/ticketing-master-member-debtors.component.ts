@@ -76,6 +76,10 @@ export class TicketingMasterMemberDebtorsComponent implements OnInit {
     }
 
     loadMemberDebtorDetails(DebtorKey: number): void {    
+      // prameter validation
+      if (!DebtorKey || isNaN(DebtorKey)) {
+        return;
+      }
       this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
         this.profile = profile;
         this.loginService.getData(this.profile.mail).subscribe(response => {                                

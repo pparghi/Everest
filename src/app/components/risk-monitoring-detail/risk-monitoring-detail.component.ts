@@ -188,7 +188,8 @@ export class RiskMonitoringDetailComponent {
   }
 
   loadClientDetails(ClientKey: number){
-    this.dataService.getClientDetails(ClientKey).subscribe(data => {            
+    this.dataService.getClientDetails(ClientKey).subscribe(data => {    
+      console.log('Client Details: ', data);        
       this.client = data.ClientDetails[0];      
       this.LevelHistory = data.LevelHistory;      
       this.Level = data.ClientLevelDetail[0].GroupValue;
@@ -338,21 +339,31 @@ export class RiskMonitoringDetailComponent {
   
       this.dataService.updateLevelRisk(ClientKey, GroupValue, UserKey).subscribe(
         response => {
+          console.log('response: ', response);
           if (response.result){
             this.loadMonitoringNotes(this.ClientKey); // reload tasks after updated level
             this.Level = GroupValue; // Update local state
 
+            // update CRM for new value
+            this.loadClientDetails(parseInt(ClientKey));
+            this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+              data: { message: "Level updated successfully" },
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+
              // Check if level is changed to "Inactive" and auto-set CRM to "FALI"
-            if (GroupValue.toLowerCase() === 'inactive') {
-              this.autoSetCRMToFALI(ClientKey);
-            } else {
-              this._snackBar.openFromComponent(SuccessSnackbarComponent, {
-                data: { message: "Level updated successfully" },
-                duration: 5000,
-                verticalPosition: 'top',
-                horizontalPosition: 'center'
-              });
-            }
+            // if (GroupValue.toLowerCase() === 'inactive') {
+            //   this.autoSetCRMToFALI(ClientKey);
+            // } else {
+            //   this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+            //     data: { message: "Level updated successfully" },
+            //     duration: 5000,
+            //     verticalPosition: 'top',
+            //     horizontalPosition: 'center'
+            //   });
+            // }
           }
           else {
             selectElement.value = originalLevel; // Update failed, revert the dropdown
@@ -383,63 +394,63 @@ export class RiskMonitoringDetailComponent {
     }    
   };
 
-  private autoSetCRMToFALI(ClientKey: string): void {
-    // Check if "FALI" exists in the CRM list
-    const faliCRM = this.clientCRMList?.find((crm: any) => crm.UserKey === 'FALI');
+  // private autoSetCRMToFALI(ClientKey: string): void {
+  //   // Check if "FALI" exists in the CRM list
+  //   const faliCRM = this.clientCRMList?.find((crm: any) => crm.UserKey === 'FALI');
 
-    if (faliCRM && this.client && this.client.AcctExec !== 'FALI') {
-      // Update CRM to FALI using existing API call
-      this.dataService.updateCRMRisk(ClientKey, 'FALI', this.user).subscribe(
-        response => {
-          if (response.result) {
-            // Update local client object
-            this.client.AcctExec = 'FALI';
-            this.CRM = 'FALI';
+  //   if (faliCRM && this.client && this.client.AcctExec !== 'FALI') {
+  //     // Update CRM to FALI using existing API call
+  //     this.dataService.updateCRMRisk(ClientKey, 'FALI', this.user).subscribe(
+  //       response => {
+  //         if (response.result) {
+  //           // Update local client object
+  //           this.client.AcctExec = 'FALI';
+  //           this.CRM = 'FALI';
 
-            this._snackBar.openFromComponent(SuccessSnackbarComponent, {
-              data: { message: "Level updated to Inactive. CRM automatically set to FALI." },
-              duration: 6000,
-              verticalPosition: 'top',
-              horizontalPosition: 'center'
-            });
-          } else {
-            // Level was updated but CRM update failed
-            this._snackBar.openFromComponent(WarningSnackbarComponent, {
-              data: { message: "Level updated successfully, but failed to set CRM to FALI" },
-              duration: 6000,
-              verticalPosition: 'top',
-              horizontalPosition: 'center'
-            });
-          }
-        },
-        error => {
-          console.error('Error auto-setting CRM to FALI:', error);
-          this._snackBar.openFromComponent(WarningSnackbarComponent, {
-            data: { message: "Level updated successfully, but error setting CRM to FALI" },
-            duration: 6000,
-            verticalPosition: 'top',
-            horizontalPosition: 'center'
-          });
-        }
-      );
-    } else if (!faliCRM) {
-      // FALI doesn't exist in CRM list
-      this._snackBar.openFromComponent(WarningSnackbarComponent, {
-        data: { message: "Level updated successfully. FALI not available in CRM list." },
-        duration: 6000,
-        verticalPosition: 'top',
-        horizontalPosition: 'center'
-      });
-    } else {
-      // CRM is already FALI or no client data
-      this._snackBar.openFromComponent(SuccessSnackbarComponent, {
-        data: { message: "Level updated successfully" },
-        duration: 5000,
-        verticalPosition: 'top',
-        horizontalPosition: 'center'
-      });
-    }
-  }
+  //           this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+  //             data: { message: "Level updated to Inactive. CRM automatically set to FALI." },
+  //             duration: 6000,
+  //             verticalPosition: 'top',
+  //             horizontalPosition: 'center'
+  //           });
+  //         } else {
+  //           // Level was updated but CRM update failed
+  //           this._snackBar.openFromComponent(WarningSnackbarComponent, {
+  //             data: { message: "Level updated successfully, but failed to set CRM to FALI" },
+  //             duration: 6000,
+  //             verticalPosition: 'top',
+  //             horizontalPosition: 'center'
+  //           });
+  //         }
+  //       },
+  //       error => {
+  //         console.error('Error auto-setting CRM to FALI:', error);
+  //         this._snackBar.openFromComponent(WarningSnackbarComponent, {
+  //           data: { message: "Level updated successfully, but error setting CRM to FALI" },
+  //           duration: 6000,
+  //           verticalPosition: 'top',
+  //           horizontalPosition: 'center'
+  //         });
+  //       }
+  //     );
+  //   } else if (!faliCRM) {
+  //     // FALI doesn't exist in CRM list
+  //     this._snackBar.openFromComponent(WarningSnackbarComponent, {
+  //       data: { message: "Level updated successfully. FALI not available in CRM list." },
+  //       duration: 6000,
+  //       verticalPosition: 'top',
+  //       horizontalPosition: 'center'
+  //     });
+  //   } else {
+  //     // CRM is already FALI or no client data
+  //     this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+  //       data: { message: "Level updated successfully" },
+  //       duration: 5000,
+  //       verticalPosition: 'top',
+  //       horizontalPosition: 'center'
+  //     });
+  //   }
+  // }
 
   onChangeCompleteStatus(event: Event){
     const confirmed = window.confirm('Are you sure you want to update the Complete Status?');
