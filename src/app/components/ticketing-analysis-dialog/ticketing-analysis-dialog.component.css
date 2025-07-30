@@ -98,3 +98,19 @@
 .trend-table {
     background-color: #ffffff;
 }
+
+/* Make panel title wider */
+.mat-expansion-panel-header {
+  padding: 0 16px 0 16px;
+}
+
+.mat-expansion-panel-header-title {
+  flex: 3 !important; /* Allocate more space to title */
+  white-space: normal; /* Allow text to wrap */
+  min-width: 60%; /* Ensure title gets more width */
+}
+
+.mat-expansion-panel-header-description {
+  flex: 1 !important; /* Give less space to description */
+  justify-content: flex-end;
+}
