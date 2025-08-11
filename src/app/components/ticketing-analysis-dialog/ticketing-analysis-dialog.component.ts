@@ -752,7 +752,7 @@ export class TicketingAnalysisComponent implements OnInit {
       this.dataService.updateDebtorDetails(formData).subscribe({
         next: (response) => {
           // Clear master debtors data cache for showing updated Duns
-          this.cacheService.removeByPattern('/api/debtors?');
+          this.cacheService.removeByPattern('/api/memberDebtors?');
 
           // Show success message
           Swal.fire('Success', 'Debtor information updated successfully with DUNS data.', 'success');
