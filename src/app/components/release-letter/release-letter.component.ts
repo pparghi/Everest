@@ -362,7 +362,7 @@ export class ReleaseLetterComponent implements OnInit {
               + response.message + '\n'
             );
           } else {
-            window.alert('An error occurred while sending emails.');
+            window.alert("Email sending is taking long time, please check the client's notes for result in couple minutes.");
           }
         }
       );

@@ -588,7 +588,13 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Cheque Search</h3>
   </div>
-  <div class="dialog-content">
+  <div class="spinner-container" *ngIf="isChequeSearchLoading && !isChequeSearchEmpty">
+      <mat-spinner class="custom-spinner"></mat-spinner>
+  </div>
+  <div class="spinner-container" *ngIf="isChequeSearchLoading && isChequeSearchEmpty">
+      <p>No Data Found</p>
+  </div>
+  <div class="dialog-content" *ngIf="!isChequeSearchLoading;">
     <form [formGroup]="chequeSearchForm" (ngSubmit)="onChequeSearch()">
       <mat-dialog-content>
 
@@ -637,42 +643,44 @@
               </div>
             </div> -->
 
-        <table mat-table [dataSource]="paymentsDataSource" class="mat-elevation-z8">
+        <mat-card appearance="raised" class="cheque-searchcard-container">
+          <table mat-table [dataSource]="paymentsDataSource" class="mat-elevation-z8 cheque-search-tab-table">
 
-          <ng-container matColumnDef="CheckNo">
-            <th mat-header-cell *matHeaderCellDef>Cheque#</th>
-            <td mat-cell *matCellDef="let element" style="color: #3a8ada;" (click)="getPaymentsImage(element)">{{
-              element.CheckNo }}</td>
-          </ng-container>
+            <ng-container matColumnDef="CheckNo">
+              <th mat-header-cell *matHeaderCellDef>Cheque#</th>
+              <td mat-cell *matCellDef="let element" style="color: #3a8ada;" (click)="getPaymentsImage(element)">{{
+                element.CheckNo }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="ClientName">
-            <th mat-header-cell *matHeaderCellDef>Client Name</th>
-            <td mat-cell *matCellDef="let element">{{ element.ClientName }}</td>
-          </ng-container>
+            <ng-container matColumnDef="ClientName">
+              <th mat-header-cell *matHeaderCellDef>Client Name</th>
+              <td mat-cell *matCellDef="let element">{{ element.ClientName }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="DebtorName">
-            <th mat-header-cell *matHeaderCellDef>Debtor Name</th>
-            <td mat-cell *matCellDef="let element">{{ element.DebtorName }}</td>
-          </ng-container>
+            <ng-container matColumnDef="DebtorName">
+              <th mat-header-cell *matHeaderCellDef>Debtor Name</th>
+              <td mat-cell *matCellDef="let element">{{ element.DebtorName }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="PostDate">
-            <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let element">{{ element.PostDate | date:"MM/dd/yyyy" }}</td>
-          </ng-container>
+            <ng-container matColumnDef="PostDate">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let element">{{ element.PostDate | date:"MM/dd/yyyy" }}</td>
+            </ng-container>
 
-          <ng-container matColumnDef="Buy">
-            <th mat-header-cell *matHeaderCellDef>Buy</th>
-            <td mat-cell *matCellDef="let element"></td>
-          </ng-container>
+            <ng-container matColumnDef="Buy">
+              <th mat-header-cell *matHeaderCellDef>Buy</th>
+              <td mat-cell *matCellDef="let element"></td>
+            </ng-container>
 
-          <ng-container matColumnDef="PayAmt">
-            <th mat-header-cell *matHeaderCellDef>Amount</th>
-            <td mat-cell *matCellDef="let element">{{ element.PayAmt | roundThousands }}</td>
-          </ng-container>
+            <ng-container matColumnDef="PayAmt">
+              <th mat-header-cell *matHeaderCellDef>Amount</th>
+              <td mat-cell *matCellDef="let element">{{ element.PayAmt | roundThousands }}</td>
+            </ng-container>
 
-          <tr mat-header-row class="mat-header-row" *matHeaderRowDef="paymentsColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: paymentsColumns;"></tr>
-        </table>
+            <tr mat-header-row class="mat-header-row" *matHeaderRowDef="paymentsColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: paymentsColumns;"></tr>
+          </table>
+        </mat-card>
       </mat-dialog-content>
       <mat-dialog-actions align="end">
         <button mat-button mat-dialog-close>Cancel</button>
@@ -800,14 +808,13 @@
                   <!-- Left column -->
                   <div class="col-md-6" style="padding-right: 15px; border-right: 1px solid rgba(0,0,0,0.12);">
                     <div class="row">
-                      <div class="col-md-12">
+                      <div class="col-md-9 mb-3">
                         <label class="form-label"><b>Ticket Debtor</b></label>
-                      </div>
-                      <div class="col-md-6 mb-3">
-                        <input type="text" id="Type" class="form-control" formControlName="Type" readonly>
-                      </div>
-                      <div class="col-md-6 mb-3">
                         <input type="text" id="MasterDebtor" class="form-control" formControlName="MasterDebtor" readonly>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label class="form-label">Type</label>
+                        <input type="text" id="Type" class="form-control" formControlName="Type" readonly>
                       </div>
                       <div class="col-md-6 mb-3">
                         <label class="form-label">Total limit</label>
@@ -823,9 +830,13 @@
                   <!-- Right column -->
                   <div class="col-md-6" style="padding-left: 15px;">
                     <div class="row">
-                      <div class="col-md-12 mb-3">
+                      <div class="col-md-9 mb-3">
                         <label class="form-label"><b>Master Debtor</b></label>
                         <input type="text" id="MasterDebtor" class="form-control" formControlName="MasterDebtor" readonly>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label class="form-label">Limit set by</label>
+                        <input type="text" id="CredAppBy" class="form-control" formControlName="CredAppBy" readonly>
                       </div>
                       <div class="col-md-6 mb-3">
                         <label class="form-label">Master's total limit</label>
@@ -1009,13 +1020,32 @@
           <div class="filter-container">
             <mat-form-field appearance="outline" class="debtor-filter">
               <mat-label>Filter by Debtor</mat-label>
-              <mat-select [(ngModel)]="AgingTabSelectedDebtor" (selectionChange)="onAgingTabDebtorFilterChange()">
+              <mat-select [(ngModel)]="AgingTabSelectedDebtor" (selectionChange)="onAgingTabFilterChange()">
                 <mat-option value="">All Debtors</mat-option>
                 <mat-option *ngFor="let debtor of AgingTabDebtorList" [value]="debtor">
                   {{ debtor }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
+
+            <mat-form-field appearance="outline" class="status-filter">
+              <mat-label>Filter by Status</mat-label>
+              <mat-select [(ngModel)]="AgingTabSelectedStatuses" multiple (selectionChange)="onAgingTabFilterChange()">
+                <mat-option *ngFor="let status of AgingTabStatusList" [value]="status">
+                  {{ status }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- two text feild for showing total numbers -->
+            <div class="totals-display">
+              <div class="total-invoices">
+                <b>Total Balance: </b>{{ totalBalance || 'N/A' }}
+              </div>
+              <div class="total-balance">
+                <b>Balance shown: </b>{{ balanceShown || 'N/A' }}
+              </div>
+            </div>
           </div>
 
           <div class="main-table-container">
@@ -1065,6 +1095,11 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
                 <td mat-cell *matCellDef="let element">{{ element.Balance | number:'1.2-2' }}</td>
               </ng-container>
+              
+              <!-- <ng-container matColumnDef="Status">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                <td mat-cell *matCellDef="let element">{{ element.Status }}</td>
+              </ng-container> -->
 
               <ng-container matColumnDef="expand">
                 <th mat-header-cell *matHeaderCellDef class="expand-column"></th>
@@ -1089,6 +1124,11 @@
               <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row">
               </tr>
             </table>
+          </div>
+          <div class="totals-display">
+            <div class="total-quantity">
+              <b>Total Quantity Shown: </b>{{ totalQuantityShown }}
+            </div>
           </div>
         </div>
       </div>

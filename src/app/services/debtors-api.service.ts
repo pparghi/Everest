@@ -174,4 +174,21 @@ export class DebtorsApiService {
     return this.http.post<any>(url, debtorData);
   }
 
+  // Call the API to get debtor no buy Code List
+  getDebtorNoBuyCodeList() {
+    const url = `https://everest.revinc.com:4202/api/getDebtorNoBuyCodeList`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  // update debtor's no buy code
+  updateDebtorNoBuyCode(noBuyDisputeKey: number, debtorKey: number, credAppBy: string) {
+    const url = `https://everest.revinc.com:4202/api/updateDebtorNoBuyCode`;
+    const body = {
+      NoBuyDisputeKey: noBuyDisputeKey,
+      DebtorKey: debtorKey,
+      CredAppBy: credAppBy
+    };
+    return this.http.post<any>(url, body);
+  }
+
 }

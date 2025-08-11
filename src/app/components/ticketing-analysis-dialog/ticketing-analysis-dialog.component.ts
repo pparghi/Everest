@@ -7,6 +7,28 @@ import { DecimalPipe } from '@angular/common';
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
 import { ClientsService } from '../../services/clients.service';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { MatDrawer } from '@angular/material/sidenav';
+import { HttpClient } from '@angular/common/http';
+import { CacheService } from '../../services/cache.service';
+import Swal from 'sweetalert2';
+import { DocumentsReportsService } from '../../services/documents-reports.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
+
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
+
+// #region Duns search cards
+interface DunsInfo {
+  companyName: string;
+  dunsNumber: string;
+  address: string;
+  city: string;
+  state: string;
+  phone?: string;
+  matchConfidence?: string;
+}
 
 interface TrendVerticalData {
   Period: string;
@@ -22,6 +44,9 @@ Chart.register(
   Title,
   Tooltip
 );
+// #endregion 
+
+
 
 @Component({
   selector: 'app-ticketing-analysis',
@@ -33,6 +58,7 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // variables for analysis dialog
   @Input() ticketData: any;
+  currentUser: string = '';
   debtorDetails: any;
   trendPeriodChar: string = 'M';
   trendPeriodChar2: string = 'M';
@@ -60,6 +86,24 @@ export class TicketingAnalysisComponent implements OnInit {
   chart2: any;
   @ViewChild('trendBarChart2') chartCanvas2!: ElementRef;
 
+  // last payment date
+  readonly dialog = inject(MatDialog);
+
+  // for duns and Ansonia APIs
+  @ViewChild('drawer') drawer!: MatDrawer;
+  debtorName: string = '';
+  debtorFullAddress: string = '';
+  countryCode: string = '';
+  dunsMatches: DunsInfo[] = []; // store DUNS search results and used for displaying duns search cards
+  loadingDuns = false;
+
+  // nobuy code
+  noBuyCodeList: any;
+  selectedNoBuyKey: string = '';
+
+  // snackbars
+  private _snackBar = inject(MatSnackBar);
+
   constructor(
     // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
     // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
@@ -68,13 +112,22 @@ export class TicketingAnalysisComponent implements OnInit {
     private clientService: ClientsService,
     private clientsDebtorsService: ClientsDebtorsService,
     private _decimalPipe: DecimalPipe,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient,
+    private cacheService: CacheService,
+    private documentsReportsService: DocumentsReportsService,
   ) {}
 
   ngOnInit() {
     // Load analysis data
     console.log('Analysis Dialog data:', this.ticketData);
     // this.ticketData = this.data; // removebecause the data is used by dialog
+
+    // Get the logged in user for CredAppBy
+    this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      this.currentUser = (profile as any).mail.match(/^([^@]*)@/)[1];
+      
+    });
 
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
@@ -84,6 +137,9 @@ export class TicketingAnalysisComponent implements OnInit {
       this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
         this.debtorDetails = response.data[0];
         console.log('Member Debtors Response:', this.debtorDetails);
+        
+        // fetch no buy code list and set the default no buy code after debtor details are loaded
+        this.getNoBuyCodeList();
       }, error => {
         console.error('Error fetching member debtors:', error);
       });
@@ -93,6 +149,7 @@ export class TicketingAnalysisComponent implements OnInit {
     this.loadClientConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
     // fetch debtor concentration percentage
     this.loadDebtorConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
+
   }
 
   // convert string number to currency format
@@ -243,7 +300,8 @@ export class TicketingAnalysisComponent implements OnInit {
     let total = parseFloat(totalStr);
     let value = parseFloat(valueStr);
     if (total === 0) return '0%';
-    const percentage = Math.round((value / total) * 10000) / 100;
+    // const percentage = Math.round((value / total) * 10000) / 100; // Calculate percentage with 2 decimal places
+    const percentage = Math.round((value / total) * 100); // Calculate percentage with 0 decimal places
     return percentage + '%';
   }
 
@@ -308,7 +366,9 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // generate the trend chart
   createTrendBarChart(data: any, period: string, column: string, chartNumber: number = 1) {
-    // console.log("data--", data);
+    // console.log("chart data--", data);
+    let periodChar = period.charAt(0).toUpperCase();
+    // console.log("chart recent periods--", this.generateRecentPeriods(period));
     // convert column to readable word
     let columnName = '';
     switch (column) {
@@ -335,12 +395,30 @@ export class TicketingAnalysisComponent implements OnInit {
         break;
     }
     // filter the data base on parameters
-    let tempLabels: string[] = [];
+    // let tempLabels: string[] = [];
+    // let tempData: number[] = [];
+    // for (let it of data) {
+    //   tempLabels.push(it.YearMonth);
+    //   tempData.push(parseFloat(it[column]));
+    // }
+
+    // setup data base on recent periods which is same with table periods
+    let recentPeriods = this.generateRecentPeriods(periodChar);
     let tempData: number[] = [];
-    for (let it of data) {
-      tempLabels.push(it.YearMonth);
-      tempData.push(parseFloat(it[column]));
+    for (let it of recentPeriods) {
+      let found = false;
+      for (let item of data) {
+        if (item.YearMonth === it) {
+          tempData.push(parseFloat(item[column]));
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        tempData.push(0); // or any default value you want to use
+      }
     }
+
 
     if (chartNumber === 1){
       if (!this.chartCanvas) {
@@ -356,7 +434,7 @@ export class TicketingAnalysisComponent implements OnInit {
         type: 'bar',
         data: {
           // labels: ['January', 'February', 'March', 'April', 'May'],
-          labels: tempLabels,
+          labels: recentPeriods,
           datasets: [
             // {
             //   label: 'Dataset 1',
@@ -410,7 +488,7 @@ export class TicketingAnalysisComponent implements OnInit {
         type: 'bar',
         data: {
           // labels: ['January', 'February', 'March', 'April', 'May'],
-          labels: tempLabels,
+          labels: recentPeriods,
           datasets: [
             // {
             //   label: 'Dataset 1',
@@ -507,6 +585,340 @@ export class TicketingAnalysisComponent implements OnInit {
     else {
       this.showDetailedView = 'default'; // reset to default view
     }
+  }
+
+  // method to click on last pament date and open cheque search dialog
+  openChecqueSearchDialog(DebtorKey: number) {
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {
+      width: 'auto',
+      maxWidth: 'none',
+      height: 'auto',
+      panelClass: 'custom-dialog-container',
+      data: {
+        DebtorKey: DebtorKey,
+        openChequeSearchForm: 'chequeSearchForm',
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+    });
+  }
+
+  // event of searching Duns number
+  searchDuns(element: any) {
+    // set the selected debtor details
+    // this.selectedDebtorDetails = element;
+
+    if (this.drawer) {
+      this.drawer.toggle();
+    }
+
+    // console.log("element--", element);
+    let fullAddress = "";
+    // if (element.Addr1) {
+    //   fullAddress += element.Addr1 + ", ";
+    // }
+    // if (element.Addr2) {
+    //   fullAddress += element.Addr2 + ", ";
+    // }
+    // if (element.City) {
+    //   fullAddress += element.City + ", ";
+    // }
+    // if (element.State) {
+    //   fullAddress += element.State + ", ";
+    // }
+    // if (element.Country) {
+    //   fullAddress += element.Country + ", ";
+    // }
+    // if (element.ZipCode) {
+    //   fullAddress += element.ZipCode;
+    // }
+    // fullAddress = fullAddress.trim().replace(/^,+\s*|\s*,+$/g, "");
+    fullAddress = this.formatAddress([element.Addr1, element.Addr2, element.City, element.State, element.Country, element.ZipCode]);
+    this.debtorName = element.Debtor;
+    this.debtorFullAddress = fullAddress;
+    this.countryCode = this.convertCountryToCode(element.Country);
+
+    this.loadingDuns = true;
+
+    this.dataService.searchDuns(this.debtorName, element.Addr1, element.Addr2, element.City, element.State, element.ZipCode, this.countryCode).subscribe((response: any) => {
+      console.log('searchDuns response--', response);
+      this.loadingDuns = false;
+      this.dunsMatches = response.results.matchCandidates.map((match: any) => ({
+        companyName: match.organization.primaryName || 'N/A',
+        dunsNumber: match.organization.duns || 'N/A',
+        address: this.combineAddress(match.organization.primaryAddress.streetAddress.line1, match.organization.primaryAddress.streetAddress.line2) || 'N/A',
+        city: match.organization.primaryAddress.addressLocality.name || 'N/A',
+        state: match.organization.primaryAddress.addressRegion.abbreviatedName || 'N/A',
+        phone: match.organization.telephone.telephoneNumber || 'N/A',
+        matchConfidence: match.matchQualityInformation.confidenceCode || 'N/A'
+      }));
+      this.cdr.detectChanges(); // Trigger change detection
+    });
+  }
+
+  // method to take in address and return a formatted address, array pareameter in this order: [Addr1, Addr2, City, State, Country, ZipCode]
+  formatAddress(addresses: string[]): string {
+    return addresses.join(', ').trim().replace(/^,+\s*|\s*,+$/g, "");
+  }
+
+  // convert country name to code, US and CA only
+  private convertCountryToCode(country: string): string {
+    if (country.toLowerCase() === 'united states' || country.toLowerCase() === 'us') {
+      return 'US';
+    } else if (country.toLowerCase() === 'canada' || country.toLowerCase() === 'ca') {
+      return 'CA';
+    }
+    return '';
+  }
+
+  // conbine address line1 and line2
+  private combineAddress(address1: string, address2: string): string {
+    let combinedAddress = address1 || '';
+    if (address2) {
+      combinedAddress += ', ' + address2;
+    }
+    return combinedAddress.trim();
+  }
+
+  // Add this method to your MasterDebtorsComponent class
+  searchDunsByNameOnly(): void {
+    if (!this.debtorName) {
+      return;
+    }
+
+    this.loadingDuns = true;
+
+    // Use only the company name for search, without address
+    this.dataService.searchDuns(this.debtorName, '', '', '', '', '', this.countryCode).subscribe({
+      next: (response: any) => {
+        console.log('searchDunsByNameOnly response--', response);
+        this.loadingDuns = false;
+        this.dunsMatches = response.results.matchCandidates.map((match: any) => ({
+          companyName: match.organization.primaryName || 'N/A',
+          dunsNumber: match.organization.duns || 'N/A',
+          address: this.combineAddress(match.organization.primaryAddress.streetAddress.line1, match.organization.primaryAddress.streetAddress.line2) || 'N/A',
+          city: match.organization.primaryAddress.addressLocality.name || 'N/A',
+          state: match.organization.primaryAddress.addressRegion.abbreviatedName || 'N/A',
+          phone: match.organization.telephone.telephoneNumber || 'N/A',
+          matchConfidence: match.matchQualityInformation.confidenceCode || 'N/A'
+        }));
+      },
+      error: (err) => {
+        console.error('Error searching by name only:', err);
+        this.loadingDuns = false;
+        this.dunsMatches = [];
+      }
+    });
+  }
+
+  // Add this method to handle the DUNS selection and update
+  updateDebtorWithDunsInfo(event: DunsInfo): void {
+    console.log('Selected DUNS info:', event);
+    console.log('Selected debtor details:', this.debtorDetails);
+    // User confirmed, proceed with update  
+    const formData = new FormData();
+    if (this.debtorDetails) {
+      formData.append('DebtorKey', this.debtorDetails.DebtorKey.toString());
+      formData.append('Debtor', this.debtorDetails.Debtor);
+      formData.append('Duns', event.dunsNumber);
+      formData.append('Addr1', this.debtorDetails.Addr1);
+      formData.append('Addr2', this.debtorDetails.Addr2);
+      formData.append('Phone1', this.debtorDetails.Phone1.toString());
+      formData.append('Phone2', this.debtorDetails.Phone2.toString());
+      formData.append('City', this.debtorDetails.City);
+      formData.append('State', this.debtorDetails.State);
+      formData.append('TotalCreditLimit', this.debtorDetails.TotalCreditLimit.toString());
+      formData.append('IndivCreditLimit', this.debtorDetails.IndivCreditLimit.toString());
+      formData.append('AIGLimit', this.debtorDetails.AIGLimit);
+      formData.append('Terms', this.debtorDetails.Terms);
+      formData.append('MotorCarrNo', this.debtorDetails.MotorCarrNo.toString());
+      formData.append('Email', this.debtorDetails.Email);
+      formData.append('RateDate', this.debtorDetails.RateDate);
+      formData.append('CredExpireMos', this.debtorDetails.CredExpireMos.toString());
+      formData.append('Notes', this.debtorDetails.Notes);
+      formData.append('CredNote', this.debtorDetails.CredNote);
+      formData.append('Warning', this.debtorDetails.Warning);
+      formData.append('DotNo', this.debtorDetails.DotNo);
+    }
+
+    // Get the logged in user for CredAppBy
+    this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+      const userId = (profile as any).mail.match(/^([^@]*)@/)[1];
+      formData.append('CredAppBy', userId.toUpperCase());
+
+      // Call the API service to update the debtor
+      this.dataService.updateDebtorDetails(formData).subscribe({
+        next: (response) => {
+          // Clear master debtors data cache for showing updated Duns
+          this.cacheService.removeByPattern('/api/debtors?');
+
+          // Show success message
+          Swal.fire('Success', 'Debtor information updated successfully with DUNS data.', 'success');
+          this.drawer.close(); // Close the drawer
+          this.debtorDetails.DbDunsNo = event.dunsNumber; // Refresh the duns number
+          this.cdr.detectChanges(); // Trigger change detection
+        },
+        error: (error) => {
+          console.error('Error updating debtor details:', error);
+          Swal.fire('Error', 'Failed to update debtor information.', 'error');
+        }
+      });
+    });
+  }
+
+  // event of clicking Ansonia report button 
+  getAnsoniaReportLink(element: any) {
+    // console.log("element--",element);
+    this.documentsReportsService.callAnsoniaAPI(element?.MotorCarrNo ?? '', element.Debtor ?? '', element.Addr1 ?? '', element.City ?? '', element.State ?? '', element.Country ?? '').subscribe((response: { url: string }) => {
+      // console.log('response--', response);
+      window.open(response.url, "_blank");
+    });
+  }
+
+  // Call the API to get the no buy Code List
+  getNoBuyCodeList() {
+    this.dataService.getDebtorNoBuyCodeList().subscribe((response: any) => {
+      this.noBuyCodeList = response.data;
+      this.setDefaultNoBuyCode();
+    });
+  }
+
+  // method to set the default No Buy Code and check if in the list
+  setDefaultNoBuyCode() {
+    if (!this.debtorDetails || !this.noBuyCodeList) {
+      console.log('Debtor details or No Buy Code list not available: ', this.debtorDetails, this.noBuyCodeList);
+      return;
+    }
+    // Find the matching DisputeCodeKey for the debtor's NoBuyCode
+    const matchingCode = this.noBuyCodeList.find(
+      (code: { DisputeCode: string; DisputeCodeKey: string }) => code.DisputeCode === this.debtorDetails.NoBuyCode
+    );
+    
+    if (matchingCode) {
+      this.selectedNoBuyKey = matchingCode.DisputeCodeKey;
+    } else {
+      this.selectedNoBuyKey = '-1'; // Default to 'No Buy Code' if not found
+    }
+    this.cdr.detectChanges(); // Trigger change detection
+  }
+
+  // Event handler for No Buy Code changes
+  onNoBuyCodeChange(event: any) {
+    // when user want to clear no buy code
+    if (event.value === '') {
+      this.saveNoBuyCode('', 'Clear No Buy Code');
+    }
+    else {
+      // find the selected code object
+      const selectedCode = this.noBuyCodeList.find(
+        (code: { DisputeCodeKey: string; DisputeCode: string }) => code.DisputeCodeKey === event.value
+      );
+      // If you need to save the change to the server
+      this.saveNoBuyCode(selectedCode.DisputeCodeKey, selectedCode.DisputeCode);
+    }
+  }
+
+  // Method to save No Buy Code changes
+  saveNoBuyCode(codeKey: string, code: string) {
+    if (!this.debtorDetails || !this.debtorDetails.DebtorKey || !this.currentUser) return;
+
+    // ask for confirmation before saving
+    Swal.fire({
+      title: 'Confirm No Buy Code Change',
+      text: code==='Clear No Buy Code' ? 'Do you want to remove the current No Buy Code?' : 'Do you want to update the No Buy Code to' + code + '?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Call the service to update the No Buy Code
+        this.dataService.updateDebtorNoBuyCode(parseInt(codeKey),parseInt(this.debtorDetails.DebtorKey), this.currentUser).subscribe({
+          next: (response) => {
+            console.log(response);
+
+            this.debtorDetails.NoBuyCode = code==="Clear No Buy Code"?'':code; // Update the debtor details with the new No Buy Code
+            this.setDefaultNoBuyCode(); // Reset the selected code to the updated one
+            // after successful update, clear the master debtors cache to show updated no buy code
+            this.cacheService.removeByPattern('/api/memberDebtors?');
+
+            this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+              data: { message: "No buy code updated successfully" },
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+          },
+          error: (error) => {
+            console.error('Error updating No Buy Code:', error);
+            this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+              data: { message: "Error updating no buy code: " + error.error.message },
+              duration: 10000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+            // Reset the selected code if error
+            this.setDefaultNoBuyCode();
+          }
+        });
+      } else {
+        // Reset the selected code if cancelled
+        this.setDefaultNoBuyCode();
+      }
+    });
+    
+  }
+
+  // event handler for the edit debtor button
+  editDebtor(row: any) {
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {
+      width: '1050px',
+      maxWidth: 'none',
+      height: 'auto',
+      panelClass: 'custom-dialog-container',
+      data: {
+        DebtorKey: row.DebtorKey,
+        Debtor: row.Debtor,
+        Duns: row.DbDunsNo,
+        Addr1: row.Addr1,
+        Addr2: row.Addr2,
+        City: row.City,
+        State: row.State,
+        Phone1: row.Phone1,
+        Phone2: row.Phone2,
+        PctUtilized: row.PctUtilized,
+        PastDuePct: row.PastDuePct,
+        TotalCreditLimit: row.TotalCreditLimit,
+        IndivCreditLimit: row.IndivCreditLimit,
+        AIGLimit: row.AIGLimit,
+        Terms: row.Terms,
+        MotorCarrNo: row.MotorCarrNo,
+        Email: row.Email,
+        RateDate: row.RateDate,
+        CredExpireDate: row.CredExpireDate,
+        openForm: 'editForm',
+        CredAppBy: this.currentUser,
+        CredNote: row.CredNote,
+        Notes: row.Notes,
+        Warning: row.Warning,
+        CredExpireMos: row.CredExpireMos,
+        DotNo: row.DotNo,
+        ReloadPage: 'N'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.cacheService.removeByPattern('/api/memberDebtors?');
+      this.memberDebtorsService.getMemberDebtors(parseInt(this.debtorDetails.DebtorKey)).subscribe(response => {
+        this.debtorDetails = response.data[0];
+        this.cdr.detectChanges(); // Trigger change detection
+        console.log('New Member Debtor details:', this.debtorDetails);
+        
+      }, error => {
+        console.error('Error refresh member debtor details:', error);
+      });
+    });
   }
 
 }

@@ -1,5 +1,5 @@
 
-<mat-drawer-container class="example-container" [hasBackdrop]="true">
+<mat-drawer-container class="full-screen-drawer-container" [hasBackdrop]="true">
     <mat-drawer #drawer [mode]="'over'" positionBottom="bottom">
         <!-- Drawer content -->
         <div class="bottom-drawer-content">
@@ -48,9 +48,12 @@
                 <input type="radio" name="filterByBalance" value="Balance" (change)="onChange($event)"> &nbsp;<b>Balance</b> 
               </label>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
-            &nbsp;&nbsp;
-            <input name="searchBar" (keyup.enter)="applyFilter($event)" class="search-bar">
+            <form (ngSubmit)="applyFilter($event)" class="search-form">
+                <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
+                &nbsp;&nbsp;
+                <input name="searchBar" class="search-bar" #searchInput>
+                <button type="submit" style="height: 29px; margin-left: 3px;"><mat-icon fontIcon="search"></mat-icon></button>
+            </form>
         </div>
     </div>       
     
@@ -174,7 +177,7 @@
 
         <ng-container matColumnDef="CredExpireDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">CredExpireDate</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.CredExpireDate | date:'yyyy-MM-dd' }}</td>
+            <td mat-cell *matCellDef="let element" style="text-align: end;" [ngClass]="{'expired-date': isDateExpired(element.CredExpireDate)}">{{ element.CredExpireDate | date:'yyyy-MM-dd' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="RateDate">

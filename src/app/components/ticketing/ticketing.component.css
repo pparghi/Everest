@@ -15,7 +15,7 @@
 .example-container {
   height: 820px;
   overflow: auto;
-  padding: 7px;
+  background-color: #ffffff;
 }
 
 .element-row .mat-mdc-cell {

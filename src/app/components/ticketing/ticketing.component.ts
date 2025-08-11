@@ -120,7 +120,7 @@ export class TicketingComponent {
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
-      // yesterdayDate.setDate(today.getDate() - 117);
+      // yesterdayDate.setDate(today.getDate() - 10);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {

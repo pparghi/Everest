@@ -114,3 +114,76 @@
   flex: 1 !important; /* Give less space to description */
   justify-content: flex-end;
 }
+
+.full-screen-drawer-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.full-screen-drawer-container.mat-drawer-opened {
+  pointer-events: auto;
+}
+
+/* Bottom drawer styling */
+::ng-deep .mat-drawer[positionBottom="bottom"] {
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 520px !important;
+  box-shadow: 0px -2px 8px rgba(0,0,0,0.15);
+  border-radius: 8px 8px 0 0;
+  transform: translate3d(0, 100%, 0) !important;
+  visibility: visible !important;
+}
+
+::ng-deep .mat-drawer.mat-drawer-opened {
+  transform: translate3d(0, 0, 0) !important;
+}
+
+::ng-deep .mat-drawer-transition .mat-drawer {
+  transition: transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.bottom-drawer-content {
+  padding: 10px;
+  display: block;
+  height: 100%;
+}
+
+.drawer-header {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.search-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.loading-spinner, .duns-results {
+  margin-top: 10px;
+}
+
+.duns-cards-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.icon-hover-effect:hover {
+  color:#061c80;
+  cursor: pointer;
+}
+
+#DisputeCode {
+    width: 90%;
+    border: 1px solid #767676;
+    border-radius: 2px;
+}

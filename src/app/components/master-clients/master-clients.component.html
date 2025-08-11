@@ -27,9 +27,12 @@
                 <input type="radio" name="filterByBalance" value="Balance" (change)="onChange($event)"> &nbsp;<b>Balance</b> 
             </label>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
-            &nbsp;&nbsp;
-            <input name="searchBar" (keyup.enter)="applyFilter($event)" class="search-bar">
+            <form (ngSubmit)="applyFilter($event)" class="search-form">
+                <b style="font-family: Arial, Helvetica, sans-serif;">Search:</b>
+                &nbsp;&nbsp;
+                <input name="searchBar" class="search-bar">
+                <button type="submit" style="height: 29px; margin-left: 3px;"><mat-icon fontIcon="search"></mat-icon></button>
+            </form>
         </div>
     </div>       
     

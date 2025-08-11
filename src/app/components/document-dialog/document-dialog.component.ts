@@ -105,6 +105,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   Payment60: any;
   Payment90: any;
   Payment120: any;
+  isChequeSearchLoading: boolean = true;
+  isChequeSearchEmpty: boolean = false;
   currentMonth!: string;
   lastThreeMonths: string[] = [];
   lastThreeMonths30!: string;
@@ -141,6 +143,13 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   chart: any;
   @ViewChild('trendBarChart') chartCanvas!: ElementRef;
   trendColumn: string = 'Purchases';
+  // For Status filter
+  AgingTabStatusList: string[] = [];
+  AgingTabSelectedStatuses: string[] = [];
+  // for Aging tab
+  totalBalance: string = 'N/A';
+  balanceShown: string = 'N/A';
+  totalQuantityShown: string = 'N/A';
 
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
@@ -245,6 +254,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         MasterIndivCreditLimit: this.formatCurrency(data.MasterIndivCreditLimit) || '',
         MasterTotalCreditLimit: this.formatCurrency(data.MasterTotalCreditLimit) || '',
         Type:data.Type,
+        CredAppBy: data.row.CredAppBy || '',
       })
 
       this.debtor = data.Debtor
@@ -259,14 +269,22 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
       // aging tab
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
+        console.log("Aging Tab Debtor Contacts Response:", response);
         // Store original data
         this.originalStatementsData = response.debtorStatementsDetails;
         // Set data source
         this.statementsDataSource.data = response.debtorStatementsDetails;
         // Extract unique debtor names for filter dropdown
         this.extractUniqueDebtors(response.debtorStatementsDetails);
-        // Force change detection to update the view
-        this.cdr?.detectChanges();
+        // Extract unique status values for filter dropdown
+        this.extractUniqueStatuses(response.debtorStatementsDetails);
+        // calculate default total numbers
+        let tempTotal = 0;
+        for (let myBalance of response.debtorStatementsDetails) {
+          tempTotal += Number(myBalance.Balance);
+        }
+        this.totalBalance = this.formatCurrency(tempTotal);
+        this.updateTotalShown(); // update totalShown and totalQuantityShown
       });
 
       // endregion
@@ -567,7 +585,13 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
               verticalPosition: 'top',
               horizontalPosition: 'center'
             });
-            window.location.reload();
+            if ( !(this.data?.ReloadPage && this.data?.ReloadPage === 'N') ) {
+              window.location.reload();
+            }
+            else {
+              this.dialogRef.close();
+            }
+            
           }
           else {
             this._snackBar.openFromComponent(ErrorSnackbarComponent, {
@@ -640,11 +664,19 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       // }
 
       this.dataService.getDebtorsPayments(DebtorKey, CheckNo, Amt, PostDateStart, PostDateEnd, LastPayments).subscribe(response => {
-        this.paymentsDataSource.data = response.payments;
-        this.Payment30 = response.payments[0].Payments30;
-        this.Payment60 = response.payments[0].Payments60;
-        this.Payment90 = response.payments[0].Payments90;
-        this.Payment120 = response.payments[0].Payments120;
+        // console.log('Cheque Search Response:', response);
+        if (response.payments.length === 0) {
+          this.isChequeSearchEmpty = true;
+        } 
+        else {
+          this.isChequeSearchLoading = false;
+          this.paymentsDataSource.data = response.payments;
+          this.Payment30 = response.payments[0].Payments30;
+          this.Payment60 = response.payments[0].Payments60;
+          this.Payment90 = response.payments[0].Payments90;
+          this.Payment120 = response.payments[0].Payments120;
+        }
+        this.cdr.markForCheck(); // Manually trigger change detection
       });
 
     }
@@ -690,6 +722,60 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   //region ticketPG functions
+  // method to caculate balanceShown number
+  private updateTotalShown(): void {
+    // Calculate total from filtered data
+    let filteredTotal = 0;
+    for (let item of this.statementsDataSource.data) {
+      filteredTotal += Number(item.Balance) || 0;
+    }
+    this.balanceShown = this.formatCurrency(filteredTotal);
+    this.totalQuantityShown = this.statementsDataSource.data.length.toString();
+    
+  }
+  // method to handle status filter change
+  onAgingTabFilterChange(): void {
+    // Start with all data
+    let filteredData = [...this.originalStatementsData];
+    
+    // Apply debtor filter if selected
+    if (this.AgingTabSelectedDebtor) {
+      filteredData = filteredData.filter(
+        item => item.DtrName === this.AgingTabSelectedDebtor
+      );
+    }
+    
+    // Apply status filters if any selected
+    if (this.AgingTabSelectedStatuses && this.AgingTabSelectedStatuses.length > 0) {
+      filteredData = filteredData.filter(
+        item => this.AgingTabSelectedStatuses.includes(item.Status)
+      );
+    }
+    
+    // Update data source
+    this.statementsDataSource.data = filteredData;
+    
+    // Update balance totals
+    this.updateTotalShown();
+    
+    // Reset expanded state
+    this.expandedElement = null;
+    
+    // Apply sort if available
+    if (this.statementsDataSource.sort) {
+      this.statementsDataSource.sort.sortChange.emit();
+    }
+  }
+  // method to get distinct credit request status list
+  private extractUniqueStatuses(data: any[]): void {
+    // Use Set to get unique values
+    const statusSet = new Set<string>(
+      data.map(item => item.Status).filter(status => status && status.trim() !== '')
+    );
+    
+    // Convert Set to sorted array
+    this.AgingTabStatusList = Array.from(statusSet).sort();
+  }
   // Add this method to extract unique debtor names
   private extractUniqueDebtors(data: any[]): void {
     // Use Set to get unique values
@@ -702,25 +788,29 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   // Add this method to handle filter changes
-  onAgingTabDebtorFilterChange(): void {
-    // If "All Debtors" is selected (empty string)
-    if (!this.AgingTabSelectedDebtor) {
-      this.statementsDataSource.data = [...this.originalStatementsData];
-    } else {
-      // Filter data by selected debtor
-      this.statementsDataSource.data = this.originalStatementsData.filter(
-        item => item.DtrName === this.AgingTabSelectedDebtor
-      );
-    }
+  // onAgingTabDebtorFilterChange(): void {
+  //   // If "All Debtors" is selected (empty string)
+  //   if (!this.AgingTabSelectedDebtor) {
+  //     this.statementsDataSource.data = [...this.originalStatementsData];
+  //   } else {
+  //     // Filter data by selected debtor
+  //     this.statementsDataSource.data = this.originalStatementsData.filter(
+  //       item => item.DtrName === this.AgingTabSelectedDebtor
+  //     );
+  //   }
+    
+  //   // Update balance totals
+  //   this.updateBalanceShown();
 
-    // If using expandable rows, reset expanded state
-    this.expandedElement = null;
+  //   // If using expandable rows, reset expanded state
+  //   this.expandedElement = null;
 
-    // Apply sort if available
-    if (this.statementsDataSource.sort) {
-      this.statementsDataSource.sort.sortChange.emit();
-    }
-  }
+  //   // Apply sort if available
+  //   if (this.statementsDataSource.sort) {
+  //     this.statementsDataSource.sort.sortChange.emit();
+  //   }
+  // }
+
   // method to close the dialog
   onCloseDialog(): void {
     this.dialogRef.close();

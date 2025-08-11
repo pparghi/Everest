@@ -1,4 +1,4 @@
-<div class="example-container mat-elevation-z8" tabindex="0">                        
+<div class="example-container mat-elevation-z8" tabindex="0">
     <div class="page-header">        
         <div *ngFor="let option of statusListOptions">
             <input type="checkbox" [value]="option.value" (change)="onCheckboxChange($event)" [checked]="isChecked(option.value)" id={{option.value}}>
@@ -274,5 +274,4 @@
     </div>
   
 <!-- <mat-paginator [length]="totalRecords" [pageSizeOptions]="[10, 25, 50, 100]" [pageSize]="25" showFirstLastButtons></mat-paginator> -->
-  
 </div>

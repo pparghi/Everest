@@ -241,8 +241,23 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
       window.open(url, '_blank');
     }
 
-    applyFilter(event: Event): void {
-      const filterValue = (event.target as HTMLInputElement).value;
+    applyFilter(event: any): void {
+      let filterValue: string;
+    
+      if (event.target && event.target.value !== undefined) {
+        // For keyup.enter events or direct input references
+        filterValue = event.target.value;
+      } else if (event.submitter) {
+        // For form submissions, find the input within the form
+        const form = event.target as HTMLFormElement;
+        const input = form.querySelector('input[name="searchBar"]') as HTMLInputElement;
+        filterValue = input ? input.value : '';
+      } else {
+        // Fallback
+        filterValue = '';
+      }
+      
+      // const filterValue = (event.target as HTMLInputElement).value;
       this.filterService.setFilterState('master-clients', { "filter": filterValue.trim().toLowerCase() }); // save search value to filter service
       this.filter = filterValue.trim().toLowerCase(); 
       this.paginator.pageIndex = 0; 

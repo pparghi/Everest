@@ -23,7 +23,12 @@
 .example-container {
   height: 820px;
   overflow: auto;
-  padding: 7px;
+  background-color: #ffffff;
+}
+
+.full-screen-drawer-container {
+  height: 820px;
+  overflow: auto;
 }
 
 .element-row .mat-mdc-cell {
@@ -261,4 +266,15 @@
 
 .search-actions button {
   margin-right: 5px;
+}
+
+.expired-date {
+    background-color: #fff3cd; /* Light yellow */
+    color: #856404; /* Darker yellow/brown text for contrast */
+    font-weight: 500;
+}
+
+.search-form {
+  display: inline-flex;
+  align-items: center;
 }

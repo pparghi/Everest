@@ -47,23 +47,34 @@ export class MemberClientsComponent implements OnInit {
   constructor(private route: ActivatedRoute, private dataService: MemberClientsService, private router: Router){}
     
     ngOnInit(): void {
-      this.route.queryParams.subscribe(params => {        
-        const MasterClientKey = +params['MasterClientKey'];        
-        this.MasterClientKey = MasterClientKey            
-        this.loadMemberClientDetails(this.MasterClientKey);
-      });
-    }
+      // this.route.queryParams.subscribe(params => {        
+      //   const MasterClientKey = +params['MasterClientKey'];        
+      //   this.MasterClientKey = MasterClientKey            
+      //   this.loadMemberClientDetails(this.MasterClientKey);
+      // });
 
-    ngOnChanges(changes: SimpleChanges) {
-      if (changes['MasterClientKey']) {
+      if (this.MasterClientKey) {
         this.loadMemberClientDetails(this.MasterClientKey);
       }
     }
 
-    loadMemberClientDetails(MasterClientKey: number): void {            
-      this.dataService.getMemberClients(MasterClientKey).subscribe(response => {        
-        this.dataSource.data = response.data;
-      });
+    // no need to use ngOnChanges here as we are using ngOnInit to load data based on MasterClientKey
+    // ngOnChanges(changes: SimpleChanges) {
+    //   if (changes['MasterClientKey']) {
+    //     this.loadMemberClientDetails(this.MasterClientKey);
+    //   }
+    // }
+
+    loadMemberClientDetails(MasterClientKey: number): void {  
+      if (!MasterClientKey || isNaN(MasterClientKey)) {
+        console.error('Invalid MasterClientKey:', MasterClientKey);
+        return;
+      }
+      else {
+        this.dataService.getMemberClients(MasterClientKey).subscribe(response => {        
+          this.dataSource.data = response.data;
+        });
+      }
     }
 
     openClientsDebtorWindow(DebtorKey: number): void {

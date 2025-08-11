@@ -20,8 +20,11 @@ import { TicketingMasterMemberDebtorsComponent } from './components/ticketing-ma
 import { NoticeOfAccessmentComponent } from './components/notice-of-accessment/notice-of-accessment.component';
 import { DocumentsStatementsComponent } from './components/documents-statements/documents-statements.component';
 import { ReleaseLetterComponent } from './components/release-letter/release-letter.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 const routes: Routes = [  
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Add default route
+  { path: 'dashboard', component: DashboardComponent, canActivate:[MsalGuard] },
   { path: 'master-debtors', component: MainContentComponent, canActivate:[MsalGuard] },  
   { path: 'edit-master-debtor', component: MasterDebtorEditComponent },  
   { path: 'members', component: MembersComponent },

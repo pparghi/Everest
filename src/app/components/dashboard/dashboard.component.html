@@ -1,0 +1,95 @@
+<!-- filepath: c:\inetpub\wwwroot\Tony_repo\everest-app\src\app\components\dashboard\dashboard.component.html -->
+<div class="example-container mat-elevation-z8" tabindex="0">
+    <div class="dashboard-container">
+        <!-- Dashboard content goes here -->
+        <div class="row">
+            <div class="col-md-6">
+                <mat-card appearance="raised" class="card-container">
+                    <mat-card-header>
+                        <mat-card-title>CREDIT TEAM MONTHLY METRICS</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <!-- Dashboard summary content -->
+                         <div class="table-container">
+                            <table mat-table [dataSource]="metricsData" class="metrics-table">
+                                
+                                <!-- Category/Description Column -->
+                                <ng-container matColumnDef="category">
+                                    <th mat-header-cell *matHeaderCellDef class="first-column"> </th>
+                                    <td mat-cell *matCellDef="let row" [ngClass]="{'header-row': row.isHeader, 'summary-row': row.isSummary}">
+                                        <div class="category-cell">
+                                            <span *ngIf="!row.isSubcategory" class="main-category">{{row.category}}</span>
+                                            <span *ngIf="row.isSubcategory" class="subcategory">{{row.subcategory}}</span>
+                                        </div>
+                                    </td>
+                                </ng-container>
+
+                                <!-- March Column -->
+                                <ng-container matColumnDef="march">
+                                    <th mat-header-cell *matHeaderCellDef class="month-column">March</th>
+                                    <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'march')">
+                                        {{row.march !== undefined ? row.march : ''}}
+                                    </td>
+                                </ng-container>
+
+                                <!-- March % Column -->
+                                <ng-container matColumnDef="marchPct">
+                                    <th mat-header-cell *matHeaderCellDef class="percent-column">%</th>
+                                    <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'marchPct')">
+                                        {{row.marchPct !== undefined ? row.marchPct + '%' : ''}}
+                                    </td>
+                                </ng-container>
+
+                                <!-- April Column -->
+                                <ng-container matColumnDef="april">
+                                    <th mat-header-cell *matHeaderCellDef class="month-column">April</th>
+                                    <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'april')">
+                                        {{row.april !== undefined ? row.april : ''}}
+                                    </td>
+                                </ng-container>
+
+                                <!-- April % Column -->
+                                <ng-container matColumnDef="aprilPct">
+                                    <th mat-header-cell *matHeaderCellDef class="percent-column">%</th>
+                                    <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'aprilPct')">
+                                        {{row.aprilPct !== undefined ? row.aprilPct + '%' : ''}}
+                                    </td>
+                                </ng-container>
+
+                                <!-- May Column -->
+                                <ng-container matColumnDef="may">
+                                    <th mat-header-cell *matHeaderCellDef class="month-column">May</th>
+                                    <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'may')">
+                                        {{row.may !== undefined ? row.may : ''}}
+                                    </td>
+                                </ng-container>
+
+                                <!-- May % Column -->
+                                <ng-container matColumnDef="mayPct">
+                                    <th mat-header-cell *matHeaderCellDef class="percent-column">%</th>
+                                    <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'mayPct')">
+                                        {{row.mayPct !== undefined ? row.mayPct + '%' : ''}}
+                                    </td>
+                                </ng-container>
+
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+                                    [ngClass]="{'header-data-row': row.isHeader, 'summary-data-row': row.isSummary, 'subcategory-row': row.isSubcategory}"></tr>
+                            </table>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+            <div class="col-md-6">
+                <mat-card appearance="raised" class="card-container">
+                    <mat-card-header>
+                        <mat-card-title>Key Metrics</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <!-- Dashboard metrics content -->
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+    </div>
+</div>

@@ -323,11 +323,17 @@
 	overflow: auto;
 }
 
-.aging-tab-table {
+.aging-tab-table, .cheque-search-tab-table {
 	background-color: #ffffff;
+	width: 100%;
 }
 
 .filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   padding: 10px 0;
   background-color: white;
   position: sticky;
@@ -335,9 +341,33 @@
   z-index: 10;
 }
 
-.debtor-filter {
-  width: 300px;
-  margin-bottom: 10px;
+.debtor-filter,
+.status-filter {
+  flex: 1;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.totals-display {
+  margin-left: auto; /* Push to the end */
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Style for selected options in multiple select */
+::ng-deep .mat-option.mat-selected:not(.mat-option-disabled) {
+  color: #3f51b5;
+  background-color: rgba(63, 81, 181, 0.08);
+}
+
+/* Badge to show number of selected statuses */
+.status-count {
+  background-color: #3f51b5;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  margin-left: 8px;
 }
 
 /* Add responsive styles for smaller screens */
@@ -345,4 +375,27 @@
   .debtor-filter {
     width: 100%;
   }
+}
+
+.total-quantity {
+	margin-top: 3px;
+}
+
+.custom-spinner ::ng-deep .mat-spinner circle, .mat-progress-spinner circle {
+  stroke: #b3e5fc;
+}
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+	width: 400px;
+}
+
+.cheque-searchcard-container{
+	background-color: #ffffff;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
 }

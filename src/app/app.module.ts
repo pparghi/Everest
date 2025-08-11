@@ -70,6 +70,7 @@ import { ReleaseLetterComponent } from './components/release-letter/release-lett
 import {MatSidenavModule} from '@angular/material/sidenav';
 import { TicketingAnalysisComponent } from './components/ticketing-analysis-dialog/ticketing-analysis-dialog.component';
 import {MatGridListModule} from '@angular/material/grid-list';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -103,7 +104,8 @@ import {MatGridListModule} from '@angular/material/grid-list';
     NoticeOfAccessmentComponent,
     DocumentsStatementsComponent,
     ReleaseLetterComponent,
-    TicketingAnalysisComponent,    
+    TicketingAnalysisComponent,
+    DashboardComponent,    
   ],
   imports: [
     MatDatepickerModule,
