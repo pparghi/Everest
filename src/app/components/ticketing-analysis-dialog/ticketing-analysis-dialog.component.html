@@ -100,7 +100,7 @@
                             <tr class="table-row">
                                 <td class="cell" style="width: 33.33%;">{{ debtorDetails?.DilutionPct| percent: '1.0-2' }}</td>
                                 <td class="cell" style="width: 33.33%;">{{ this.ClientConcentrationPercentage + ' | ' + this.DebtorConcentrationPercentage }}</td>
-                                <td class="cell" style="width: 33.33%; cursor: pointer; color: rgb(58, 138, 218);" (click)="openChecqueSearchDialog(debtorDetails.DebtorKey)">{{ debtorDetails?.LastPmtDate ? (debtorDetails.LastPmtDate | date:"MM/dd/yyyy") : 'N/A' }}</td>
+                                <td class="cell" style="width: 33.33%; cursor: pointer; color: rgb(58, 138, 218);" (click)="openChecqueSearchDialog(debtorDetails?.DebtorKey)">{{ debtorDetails?.LastPmtDate ? (debtorDetails?.LastPmtDate | date:"MM/dd/yyyy") : 'N/A' }}</td>
                             </tr>                                
                         </table> 
                     </div> 
@@ -176,11 +176,11 @@
                                     <td class="cell" style="width: 25%;">{{ ticketData.Industry }}</td>
                                     <td class="cell" style="width: 25%;">
                                         <div class="d-flex align-items-center w-100">
-                                            {{ debtorDetails.DbDunsNo }}
+                                            {{ debtorDetails?.DbDunsNo }}
                                             <mat-icon color="primary" (click)="searchDuns(debtorDetails)" class="input-icon ms-2 icon-hover-effect">find_replace</mat-icon>
                                         </div>
                                     </td>
-                                    <td class="cell" style="width: 25%;">{{ debtorDetails.MotorCarrNo }}</td>
+                                    <td class="cell" style="width: 25%;">{{ debtorDetails?.MotorCarrNo }}</td>
                                     <td class="cell" style="width: 25%;"><mat-icon color="primary" (click)="getAnsoniaReportLink(debtorDetails)" class="input-icon ms-2 icon-hover-effect">link</mat-icon></td>
                                 </tr>                                
                             </table>
@@ -191,9 +191,9 @@
                                     <th class="header" style="width: 25%;">Phone2</th> 
                                 </tr>                               
                                 <tr class="table-row">
-                                    <td class="cell" style="width: 50%;">{{ formatEmail(debtorDetails.Email) }}</td>
-                                    <td class="cell" style="width: 25%;">{{ debtorDetails.Phone1 }}</td>
-                                    <td class="cell" style="width: 25%;">{{ debtorDetails.Phone2 }}</td> 
+                                    <td class="cell" style="width: 50%;">{{ formatEmail(debtorDetails?.Email) }}</td>
+                                    <td class="cell" style="width: 25%;">{{ debtorDetails?.Phone1 }}</td>
+                                    <td class="cell" style="width: 25%;">{{ debtorDetails?.Phone2 }}</td> 
                                 </tr>                                
                             </table>
                             <table class="bordered-table">
@@ -231,11 +231,11 @@
                                     <th class="header" style="width: 20%;">Rate code</th>             
                                 </tr>                               
                                 <tr class="table-row">
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSOAll) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSO90) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSO60) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails.DSO30) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ debtorDetails.CalcRateCode }}</td>                                                
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSOAll) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO90) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO60) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO30) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ debtorDetails?.CalcRateCode }}</td>                                                
                                 </tr>                                
                             </table>
                         </div> 
