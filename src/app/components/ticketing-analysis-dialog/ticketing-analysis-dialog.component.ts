@@ -201,6 +201,7 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // method to format email addresses
   formatEmail(email: string): string {
+    if (!email) return '';
     let emails = email.split(';');
     let formattedEmail = '';
     for (let e of emails) {
