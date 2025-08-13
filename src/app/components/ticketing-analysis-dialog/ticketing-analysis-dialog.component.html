@@ -148,11 +148,11 @@
                                     <th class="header" style="width: 20%;">≥ 91 | %</th>             
                                 </tr>                               
                                 <tr class="table-row">
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age0to30) + ' | ' +  calculatePercentage(debtorDetails.Age0to30, debtorDetails.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age31to60) + ' | ' +  calculatePercentage(debtorDetails.Age31to60, debtorDetails.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age61to90) + ' | ' +  calculatePercentage(debtorDetails.Age61to90, debtorDetails.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails.Age91to120, [debtorDetails.Age121to150, debtorDetails.Age151to180, debtorDetails.AgeOver180]) + ' | ' +  calculatePercentage(getSumOfArray([debtorDetails.Age91to120, debtorDetails.Age121to150, debtorDetails.Age151to180, debtorDetails.AgeOver180])+'', debtorDetails.Balance) }}</td>                                                
+                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Balance) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age0to30) + ' | ' +  calculatePercentage(debtorDetails?.Age0to30, debtorDetails?.Balance) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age31to60) + ' | ' +  calculatePercentage(debtorDetails?.Age31to60, debtorDetails?.Balance) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age61to90) + ' | ' +  calculatePercentage(debtorDetails?.Age61to90, debtorDetails?.Balance) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age91to120, [debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180]) + ' | ' +  calculatePercentage(getSumOfArray([debtorDetails?.Age91to120, debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180])+'', debtorDetails?.Balance) }}</td>                                                
                                 </tr>                                
                             </table>
                             <table class="bordered-table">
@@ -161,8 +161,8 @@
                                     <th class="header" style="width: 25%;">Alternate address</th>    
                                 </tr>                               
                                 <tr class="table-row">
-                                    <td class="cell" style="width: 75%;">{{ formatAddress([debtorDetails.Addr1, debtorDetails.City, debtorDetails.State, debtorDetails.Country, debtorDetails.ZipCode]) }}</td>
-                                    <td class="cell" style="width: 25%;">{{ debtorDetails.Addr2 }}</td>  
+                                    <td class="cell" style="width: 75%;">{{ formatAddress([debtorDetails?.Addr1, debtorDetails?.City, debtorDetails?.State, debtorDetails?.Country, debtorDetails?.ZipCode]) }}</td>
+                                    <td class="cell" style="width: 25%;">{{ debtorDetails?.Addr2 }}</td>  
                                 </tr>                                
                             </table>
                             <table class="bordered-table">
