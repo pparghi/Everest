@@ -136,6 +136,12 @@ export class TicketingAnalysisComponent implements OnInit {
     if (this.ticketData.DebtorKey) {
       this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
         this.debtorDetails = response.data[0];
+        for (let it of response.data) {
+          if (it.debtorKey === this.ticketData.DebtorKey) {
+            this.debtorDetails = it;
+            break;
+          }
+        }
         console.log('Member Debtors Response:', this.debtorDetails);
         
         // fetch no buy code list and set the default no buy code after debtor details are loaded
