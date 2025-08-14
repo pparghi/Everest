@@ -136,8 +136,9 @@ export class TicketingAnalysisComponent implements OnInit {
     if (this.ticketData.DebtorKey) {
       this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
         this.debtorDetails = response.data[0];
+        console.log('all debtor details:', response.data);
         for (let it of response.data) {
-          if (it.debtorKey === this.ticketData.DebtorKey) {
+          if (it.DebtorKey === this.ticketData.DebtorKey) {
             this.debtorDetails = it;
             break;
           }
