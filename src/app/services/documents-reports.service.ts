@@ -94,4 +94,19 @@ export class DocumentsReportsService {
     return this.http.get(url, {responseType: 'json'});
   }
 
+  //region client documents
+  //call the API to get list of client document categories
+  getClientDocumentCategory() {
+    const url = `https://everest.revinc.com:4202/api/getClientDocumentCategory`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  // get the list of client documents based on client name, category, and file name
+  getClientDocumentList(client: string, category: string, fileNameContains: string) {
+    const url = `https://everest.revinc.com:4202/api/getClientDocumentList?ClientName=${client}&DocCatKey=${category}&FileName=${fileNameContains}`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  //endregion client documents
+
 }

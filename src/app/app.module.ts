@@ -71,6 +71,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import { TicketingAnalysisComponent } from './components/ticketing-analysis-dialog/ticketing-analysis-dialog.component';
 import {MatGridListModule} from '@angular/material/grid-list';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ClientDocumentsComponent } from './components/client-documents/client-documents.component';
 
 @NgModule({
   declarations: [
@@ -105,7 +106,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     DocumentsStatementsComponent,
     ReleaseLetterComponent,
     TicketingAnalysisComponent,
-    DashboardComponent,    
+    DashboardComponent,
+    ClientDocumentsComponent,    
   ],
   imports: [
     MatDatepickerModule,

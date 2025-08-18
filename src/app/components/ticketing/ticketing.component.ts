@@ -120,7 +120,7 @@ export class TicketingComponent {
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
-      // yesterdayDate.setDate(today.getDate() - 10);
+      // yesterdayDate.setDate(today.getDate() - 18);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
     }
     ngOnInit(): void {
@@ -138,6 +138,7 @@ export class TicketingComponent {
       }
       else {
         this.selectedValues = ['0']; // Default value
+        // this.selectedValues = ['0', '1, 6, 7', '2'];
       }
       if (filterValues?.requestDate) {
         this.requestDate = filterValues.requestDate;

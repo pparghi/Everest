@@ -863,7 +863,14 @@
                     <label for="ExpiresDate" class="form-label">Expires date</label>
                     <input type="text" id="ExpiresDate" class="form-control" formControlName="ExpiresDate" readonly>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-3">
+                    <label for="RateDate" class="form-label">Research date</label>
+                    <div class="input-icon-container">
+                      <input type="date" id="RateDate" class="form-control" formControlName="RateDate"  (keydown.enter)="$event.preventDefault()">
+                      <mat-icon class='save-icon' fontIcon="save" (click)="onSaveResearchDate()"></mat-icon>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
                     <label for="Action" class="form-label">Action *</label>
                     <select id="Action" class="form-control" formControlName="Action" (change)="onActionChange($event)" 
                       [class.is-invalid]="hasFieldError('Action')">
@@ -953,7 +960,7 @@
     </mat-tab>
     <mat-tab label="Trend">
       <div class="trend-tab">
-        <app-ticketing-analysis [ticketData]="data.row"></app-ticketing-analysis>
+        <app-ticketing-analysis [ticketData]="data.row" (debtorDetailsChanged)="updateDebtorDetails($event)"></app-ticketing-analysis>
         <!-- <mat-card appearance="raised" class="mat-card-trend-input">
           <div class="col-md-12">
             <label class="form-label"><strong>Statistics For</strong></label>

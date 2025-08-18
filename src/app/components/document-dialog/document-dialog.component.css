@@ -399,3 +399,24 @@
     width: 100%;
     overflow: auto;
 }
+
+.input-icon-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.input-icon-container input {
+  flex: 1;
+}
+
+.input-icon-container .save-icon {
+  color: #1c81d3;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* Optional: Add hover effect */
+.input-icon-container .save-icon:hover {
+  color: #135286;
+}
