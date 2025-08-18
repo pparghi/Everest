@@ -303,7 +303,7 @@ export class ReleaseLetterComponent implements OnInit {
     // Create a temporary link element
     const downloadLink = document.createElement('a');
     downloadLink.href = blobUrl;
-    downloadLink.download = `${fileName}.pdf`; // Set the download filename
+    downloadLink.download = `${fileName}`; // Set the download filename
 
     // Append to the document, click it to trigger download, then remove
     document.body.appendChild(downloadLink);
