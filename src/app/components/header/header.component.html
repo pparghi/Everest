@@ -17,7 +17,7 @@
         </ul>
     </nav>        
 </header>
-<div class="container-fluid ml-4" style="width: 99%; cursor: pointer;" *ngIf="isUserLoggedIn">
+<div class="container-fluid ml-4" style="width: 100%; cursor: pointer; height: 100%; overflow: auto; padding-bottom: 20px;" *ngIf="isUserLoggedIn">
     <div class="nav-container">
         <ul class="nav nav-tabs justify-content-end" style="border: 0;">
             <li class="nav-item" style="padding-top: 0px;">
@@ -51,11 +51,12 @@
                     <a mat-menu-item routerLink="/notice-of-accessment">NOA</a>
                     <a mat-menu-item routerLink="/release-letter">Release Letter</a>
                     <a mat-menu-item routerLink="/documents-statements">Statements</a>
+                    <a mat-menu-item routerLink="/client-documents">Client Documents</a>
                 </mat-menu>
             </li>
         </ul>
     </div>
-    <div class="container-fluid w-100 shadow p-2" style="height: 830px; background-color: white; border-top-left-radius: 5px; border-top-right-radius: 0px; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">    
+    <div class="container-fluid w-100 shadow p-2" style="height: 100%; min-height: 830px; background-color: white; border-top-left-radius: 5px; border-top-right-radius: 0px; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">    
         <app-main-content [userPermissions]="userPermissions"></app-main-content>
     </div>
 </div>

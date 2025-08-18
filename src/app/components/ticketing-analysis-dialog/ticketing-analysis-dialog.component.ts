@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, Inject, OnInit, signal, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef, inject, Output, EventEmitter } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { DebtorsApiService } from '../../services/debtors-api.service';
@@ -101,6 +101,9 @@ export class TicketingAnalysisComponent implements OnInit {
   noBuyCodeList: any;
   selectedNoBuyKey: string = '';
 
+  // send debtor details to parent component
+  @Output() debtorDetailsChanged = new EventEmitter<any>();
+
   // snackbars
   private _snackBar = inject(MatSnackBar);
 
@@ -136,7 +139,6 @@ export class TicketingAnalysisComponent implements OnInit {
     if (this.ticketData.DebtorKey) {
       this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
         this.debtorDetails = response.data[0];
-        console.log('all debtor details:', response.data);
         for (let it of response.data) {
           if (it.DebtorKey === this.ticketData.DebtorKey) {
             this.debtorDetails = it;
@@ -144,6 +146,9 @@ export class TicketingAnalysisComponent implements OnInit {
           }
         }
         console.log('Member Debtors Response:', this.debtorDetails);
+        
+        // Emit the debtor details to the parent component
+        this.debtorDetailsChanged.emit(this.debtorDetails);
         
         // fetch no buy code list and set the default no buy code after debtor details are loaded
         this.getNoBuyCodeList();

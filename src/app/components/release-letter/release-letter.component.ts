@@ -289,6 +289,33 @@ export class ReleaseLetterComponent implements OnInit {
     }, 1000);
   }
 
+  // #region download PDF
+  downloadBase64Pdf(base64String: string, fileName: string): void {
+    // Decode the Base64 string and create a Blob
+    const byteCharacters = atob(base64String);
+    const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+    // Create a URL for the Blob
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Create a temporary link element
+    const downloadLink = document.createElement('a');
+    downloadLink.href = blobUrl;
+    downloadLink.download = `${fileName}.pdf`; // Set the download filename
+
+    // Append to the document, click it to trigger download, then remove
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    // Clean up by revoking the object URL
+    setTimeout(() => {
+      URL.revokeObjectURL(blobUrl);
+    }, 100);
+  }
+
   // #region submit Form
   onSubmit(event: Event): void {
     // check form inputs
@@ -346,7 +373,8 @@ export class ReleaseLetterComponent implements OnInit {
         (response: any) => {
           // console.log('LOR API response:', response);
           // Handle the response from the API
-          this.openBase64Pdf(response.pdfb64, response.pdfname);
+          // this.openBase64Pdf(response.pdfb64, response.pdfname);
+          this.downloadBase64Pdf(response.pdfb64, response.pdfname);
         }
       );
     }

@@ -150,6 +150,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   totalBalance: string = 'N/A';
   balanceShown: string = 'N/A';
   totalQuantityShown: string = 'N/A';
+  // get debtor details from child component trend tab
+  debtorDetails: any = {};
 
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
@@ -194,7 +196,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Email: [data.Email || ''],
         MotorCarrNo: [data.MotorCarrNo || ''],
         CredExpireMos: [data.CredExpireMos || ''],
-        RateDate: [data.RateDate || ''],
+        RateDate: [data?.RateDate.split(' ')[0] || ''],
         Notes: [data.Notes || ''],
         CredNote: [data.CredNote || ''],
         IndivCreditLimit: [data.IndivCreditLimit || ''],
@@ -255,10 +257,13 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         MasterTotalCreditLimit: this.formatCurrency(data.MasterTotalCreditLimit) || '',
         Type:data.Type,
         CredAppBy: data.row.CredAppBy || '',
+        RateDate: '',
       })
 
       this.debtor = data.Debtor
       this.getCreditRequestStatusList();
+
+      this.debtorDetails = null;
 
       // trend tab
       this.trendDabtorName = data.Debtor;
@@ -722,6 +727,117 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   //region ticketPG functions
+  // method to save research date
+  onSaveResearchDate() {
+    const rateDate = this.editTicketForm.get('RateDate')?.value;
+    if (!rateDate ||  rateDate === this.debtorDetails?.RateDate?.split(' ')[0]) {
+      return; // Don't proceed if empty
+    }
+    
+    if (!this.debtorDetails) {
+      console.warn('Cannot save research date: Debtor details not available');
+      return;
+    }
+
+    const confirmed = window.confirm('Are you sure you want to update the research date?'); // Add confirmation popup
+    if (confirmed && this.debtorDetails) {
+
+      const formData = new FormData();
+      formData.append('DebtorKey', this.debtorDetails.DebtorKey);
+      formData.append('Debtor', this.debtorDetails.Debtor);
+      formData.append('Duns', this.debtorDetails.Duns);
+      formData.append('Addr1', this.debtorDetails.Addr1);
+      formData.append('Addr2', this.debtorDetails.Addr2);
+      formData.append('Phone1', this.debtorDetails.Phone1);
+      formData.append('Phone2', this.debtorDetails.Phone2);
+      formData.append('City', this.debtorDetails.City);
+      formData.append('State', this.debtorDetails.State);
+      formData.append('TotalCreditLimit', this.debtorDetails.TotalCreditLimit);
+      formData.append('IndivCreditLimit', this.debtorDetails.IndivCreditLimit);
+      formData.append('AIGLimit', this.debtorDetails.AIGLimit);
+      formData.append('Terms', this.debtorDetails.Terms);
+      formData.append('MotorCarrNo', this.debtorDetails.MotorCarrNo);
+      formData.append('CredAppBy', this.debtorDetails.CredAppBy);
+      formData.append('Email', this.debtorDetails.Email);
+      formData.append('RateDate', this.editTicketForm.value.RateDate); // get the RateDate from editTicketForm, others are keep the same
+      formData.append('CredExpireMos', this.debtorDetails.CredExpireMos);
+      formData.append('Notes', this.debtorDetails.Notes);
+      formData.append('CredNote', this.debtorDetails.CredNote);
+      formData.append('Warning', this.debtorDetails.Warning);
+      formData.append('DotNo', this.debtorDetails.DotNo);
+// console.log('formData:', this.debtorDetails, this.editTicketForm.value.RateDate);
+      this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, formData)
+        .subscribe((response: any) => {
+          console.log('Debtor detail update response:', response);
+          if (response[0]['Result'] === "The credit limit you have assigned exceeds your authorized maximum") {
+            this._snackBar.openFromComponent(WarningSnackbarComponent, 
+              {
+                // data: { message: "The credit limit you have assigned exceeds your authorized maximum" },
+                data: { message: "Research data update failed" },
+                duration: 10000,
+                verticalPosition: 'top',
+                horizontalPosition: 'center'
+              }
+            );
+          }
+          else if (response[0]['Result'] === "Success") {
+            this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+              data: { message: "Research date updated successfully" },
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+            if ( !(this.data?.ReloadPage && this.data?.ReloadPage === 'N') ) {
+              window.location.reload();
+            }
+            else {
+              this.dialogRef.close();
+            }
+            
+          }
+          else {
+            this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+              data: { message: "Error updating research data" },
+              duration: 5000,
+              verticalPosition: 'top',
+              horizontalPosition: 'center'
+            });
+          }
+        }, error => {
+          console.error('Error', error);
+        });
+    }
+    // don't update the form if the user cancels the update nor if the form is invalid
+    else {
+      this.editTicketForm.patchValue({
+        RateDate: this.debtorDetails.RateDate.split(' ')[0],
+      });
+      this.cdr.markForCheck();
+      console.log('Update cancelled');
+    }
+  }
+  // method the get debtor details from child component of trend tab
+  updateDebtorDetails(debtorDetails: any) {
+    console.log('Received debtor details from child component:', debtorDetails);
+    
+    // Store the debtor details in the component
+    if (!this.debtorDetails) {
+      this.debtorDetails = debtorDetails;
+    }
+    
+    // Update any form fields or other data as needed
+    if (this.editTicketForm) {
+      // Update ticket form with fresh debtor details
+      this.editTicketForm.patchValue({
+        RateDate: debtorDetails?.RateDate.split(' ')[0] || '',
+        ExpiresInMonths: debtorDetails?.CredExpireMos || '1',
+        ExpiresDate: debtorDetails?.CredExpireDate ? this.formateDate(debtorDetails?.CredExpireDate) : this.addMonths(debtorDetails?.CredExpireMos || '1'),
+      });
+    }
+    
+    // Trigger change detection to update the view
+    this.cdr.markForCheck();
+  }
   // method to caculate balanceShown number
   private updateTotalShown(): void {
     // Calculate total from filtered data
@@ -872,6 +988,19 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     const day = String(newDate.getDate()).padStart(2, '0');
     const year = String(newDate.getFullYear());
     return `${month}/${day}/${year}`;
+  }
+  // method to formate date to MM/DD/YYYY
+  private formateDate(date: string): string {
+    if (!date) {
+      return '';
+    }
+    const dateParts = date.split(' ')[0].split('-');
+    if (dateParts.length === 3) {
+      return dateParts[1] + '/' + dateParts[2] + '/' + dateParts[0]; // MM/DD/YYYY
+    }
+    else {
+      return date; // Return original if format is unexpected
+    }
   }
   // convert YYYY-MM-DD HH:mm:ss to MM/DD/YYYY format
   private convertDateToMMDDYYYY(dateString: string): string {

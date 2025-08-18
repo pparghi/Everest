@@ -21,6 +21,7 @@ import { NoticeOfAccessmentComponent } from './components/notice-of-accessment/n
 import { DocumentsStatementsComponent } from './components/documents-statements/documents-statements.component';
 import { ReleaseLetterComponent } from './components/release-letter/release-letter.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ClientDocumentsComponent } from './components/client-documents/client-documents.component';
 
 const routes: Routes = [  
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Add default route
@@ -42,6 +43,7 @@ const routes: Routes = [
   { path: 'monitoring', component: RiskMonitoringComponent },
   { path: 'ticketing', component: TicketingComponent },
   { path: 'debtorsTicketing', component: TicketingMasterMemberDebtorsComponent },
+  { path: 'client-documents', component: ClientDocumentsComponent },
   { path: 'test', component: TestComponent },
 ];
 
