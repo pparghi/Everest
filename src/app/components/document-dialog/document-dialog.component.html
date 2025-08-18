@@ -1036,7 +1036,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="status-filter">
-              <mat-label>Filter by Status</mat-label>
+              <mat-label>Filter by Invoice Status</mat-label>
               <mat-select [(ngModel)]="AgingTabSelectedStatuses" multiple (selectionChange)="onAgingTabFilterChange()">
                 <mat-option *ngFor="let status of AgingTabStatusList" [value]="status">
                   {{ status }}
