@@ -77,9 +77,9 @@ export class DocumentsReportsService {
   }
 
   // Call the IRIS release letter API to get single LOR PDF
-  callLORCreatePDFAPI(ClientKey: number, DebtorKey: number, Marknobuy: boolean, Watermark:boolean) {
+  callLORCreatePDFAPI(ClientKey: number, DebtorKey: number, Marknobuy: boolean, Watermark:boolean, EmailDebtor:boolean) {
     // Construct the URL with the parameters
-    const url = `https://everest.revinc.com:4202/api/callLORCreatePDFAPI?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}&Marknobuy=${Marknobuy?1:0}&Watermark=${Watermark?1:0}`;
+    const url = `https://everest.revinc.com:4202/api/callLORCreatePDFAPI?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}&Marknobuy=${Marknobuy?1:0}&Watermark=${Watermark?1:0}&EmailDebtor=${EmailDebtor?1:0}`;
     
     // Make the GET request
     return this.http.get(url, {responseType: 'json'});
@@ -91,7 +91,7 @@ export class DocumentsReportsService {
     const url = `https://everest.revinc.com:4202/api/callLORCreatePDFsAPI?ClientKey=${ClientKey}&Marknobuy=${Marknobuy?1:0}&Watermark=${Watermark?1:0}&Sendemail=${Sendemail?1:0}&UserExtension=${userExtension}`;
     
     // Make the GET request
-    return this.http.get(url, {responseType: 'json'});
+    this.http.get(url).subscribe();
   }
 
   //region client documents
@@ -104,6 +104,12 @@ export class DocumentsReportsService {
   // get the list of client documents based on client name, category, and file name
   getClientDocumentList(client: string, category: string, fileNameContains: string) {
     const url = `https://everest.revinc.com:4202/api/getClientDocumentList?ClientName=${client}&DocCatKey=${category}&FileName=${fileNameContains}`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  //call the API to get both master and memeber client list
+  getClientFullList() {
+    const url = `https://everest.revinc.com:4202/api/getClientFullList`;
     return this.http.get(url, {responseType: 'json'});
   }
 

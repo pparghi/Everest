@@ -72,6 +72,7 @@ import { TicketingAnalysisComponent } from './components/ticketing-analysis-dial
 import {MatGridListModule} from '@angular/material/grid-list';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ClientDocumentsComponent } from './components/client-documents/client-documents.component';
+import { FileUploadDialogComponent } from './components/file-upload-dialog/file-upload-dialog.component';
 
 @NgModule({
   declarations: [
@@ -107,7 +108,8 @@ import { ClientDocumentsComponent } from './components/client-documents/client-d
     ReleaseLetterComponent,
     TicketingAnalysisComponent,
     DashboardComponent,
-    ClientDocumentsComponent,    
+    ClientDocumentsComponent,
+    FileUploadDialogComponent,    
   ],
   imports: [
     MatDatepickerModule,

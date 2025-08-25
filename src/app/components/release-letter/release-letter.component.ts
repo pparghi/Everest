@@ -52,7 +52,9 @@ export class ReleaseLetterComponent implements OnInit {
   errorTypeDebtor: string = 'required';
 
   showEmailAllButton: boolean = false; // show email all button when all debtors are selected
+  showEmailOneButton: boolean = false; // show email all button when all debtors are selected
   isEmailButtonEnabled: boolean = true; // disable email all button when waiting for response
+  isEmailOneButtonEnabled: boolean = true; // disable email one button when waiting for response
 
   // user profile
   userExt: string = '';
@@ -111,8 +113,12 @@ export class ReleaseLetterComponent implements OnInit {
       if (typeof value === 'object' && value?.DebtorKey === 'All Debtors') {
         this.showEmailAllButton = true;
       }
+      else if (typeof value === 'object' && value?.DebtorKey && value?.DebtorKey !== '' && value?.DebtorKey !== 'All Debtors') {
+        this.showEmailOneButton = true;
+      }
       else {
         this.showEmailAllButton = false;
+        this.showEmailOneButton = false;
       }
       if (this.isWatermarkDisabled() && 
         this.releaseLetterForm.controls['reportFormat'].value === 'PDFWithWatermark') {
@@ -290,6 +296,49 @@ export class ReleaseLetterComponent implements OnInit {
   }
 
   // #region download PDF
+  async downloadBase64PdfWithFileChooser(base64String: string, fileName: string): Promise<void> {
+    // Decode the Base64 string and create a Blob
+    const byteCharacters = atob(base64String);
+    const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+    // Check if the File System Access API is supported
+    if ('showSaveFilePicker' in window) {
+      try {
+        // @ts-ignore - TypeScript might not recognize this API yet
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: `${fileName}`,
+          types: [{
+            description: 'PDF Files',
+            accept: { 'application/pdf': ['.pdf'] },
+          }],
+        });
+
+        // Create a writable stream
+        // @ts-ignore
+        const writable = await fileHandle.createWritable();
+
+        // Write the blob to the file
+        // @ts-ignore
+        await writable.write(blob);
+
+        // Close the file
+        // @ts-ignore
+        await writable.close();
+
+        console.log('File saved successfully');
+      } catch (error) {
+        console.error('Error saving file:', error);
+        // Fall back to regular download if user cancels or there's an error
+        // this.downloadBase64Pdf(base64String, fileName);
+      }
+    } else {
+      // Fall back to regular download for browsers that don't support the API
+      console.warn('File System Access API not supported by this browser. Using standard download.');
+      this.downloadBase64Pdf(base64String, fileName);
+    }
+  }
   downloadBase64Pdf(base64String: string, fileName: string): void {
     // Decode the Base64 string and create a Blob
     const byteCharacters = atob(base64String);
@@ -369,31 +418,64 @@ export class ReleaseLetterComponent implements OnInit {
     const buttonValue = (target.querySelector('button[type="submit"]:focus') as HTMLButtonElement)?.value;
 
     if (buttonValue === 'createSingleReleaseLetter') {
-      this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false).subscribe(
+      this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, false).subscribe(
         (response: any) => {
           // console.log('LOR API response:', response);
           // Handle the response from the API
           // this.openBase64Pdf(response.pdfb64, response.pdfname);
-          this.downloadBase64Pdf(response.pdfb64, response.pdfname);
+          this.downloadBase64PdfWithFileChooser(response.pdfb64, response.pdfname);
+        }
+      );
+    }
+    else if (buttonValue === 'emailReleaseLetterToSingleDebtor') {
+      this.isEmailOneButtonEnabled = false;
+      this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, true).subscribe(
+        (response: any) => {
+          console.log('LOR Email Single Debtor API response:', response);
+          this.isEmailOneButtonEnabled = true;
+          if (response.status === 'success') {
+            window.alert('Email has been sent!\n'
+            );
+          }
+          else {
+            window.alert("Email sending failed.");
+          }
         }
       );
     }
     else if (buttonValue === 'emailReleaseLettersToDebtors') {
+      let confirmed = false;
+      confirmed = window.confirm('Are you sure you want to send release letters to all debtors?');
+      if (!confirmed) {
+        return;
+      }
       this.isEmailButtonEnabled = false;
       // console.log('callLORCreatePDFsAPI: ', parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''),' , ', this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false,' , ', this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, ' , ', true);
-      this.documentsReportsService.callLORCreatePDFsAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, true, this.userExt).subscribe(
-        (response: any) => {
-          this.isEmailButtonEnabled = true;
-          // Handle the response from the API
-          if (response.status === 'success') {
-            window.alert('All emails have been sent!\n'
-              + response.message + '\n'
-            );
-          } else {
-            window.alert("Email sending is taking long time, please check the client's notes for result in couple minutes.");
-          }
-        }
-      );
+      this.documentsReportsService.callLORCreatePDFsAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), this.releaseLetterForm.value.ifNoBuySelection === "true" ? true : false, this.releaseLetterForm.value.reportFormat === "PDFWithWatermark" ? true : false, true, this.userExt);
+      // .subscribe({
+      //   next: () => {
+      //     this.isEmailButtonEnabled = true;
+      //     // Since the API doesn't return a response, we'll always show a message about checking inbox
+      //     window.alert(
+      //       "Your request has been submitted successfully.\n" +
+      //       "Please check your inbox for result and the client's notes for results in a few minutes."
+      //     );
+      //   },
+      //   error: (error) => {
+      //     console.error('Error initiating email process:', error);
+      //     this.isEmailButtonEnabled = true;
+      //     window.alert(
+      //       "There was an error processing your request.\n" +
+      //       "Please try again or contact support if the issue persists."
+      //     );
+      //   }
+      // });
+      this.isEmailButtonEnabled = true;
+          // Since the API doesn't return a response, we'll always show a message about checking inbox
+          window.alert(
+            "Your request has been submitted successfully.\n" +
+            "Please check your inbox for result and the client's notes for results in a few minutes."
+          );
     }
 
 

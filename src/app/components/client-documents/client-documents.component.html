@@ -1,15 +1,20 @@
 <div class="page-container">
     <form class="filter-form" [formGroup]="filterForm">
-        <div class="filter-container">
-            <div class="filter-unit">
+        <div class="filter-container">            <div class="filter-unit">
                 <label for="Client"><b>Client</b></label> <br>
-                <input id="Client" type="text" placeholder="Search Client Name" aria-label="Client" formControlName="Client" class="client-input">
+                <input id="Client" type="text" placeholder="Search Client Name" aria-label="Client" formControlName="Client" class="client-input"
+                    [matAutocomplete]="auto" (keydown.enter)="$event.preventDefault()" [ngClass]="{'error-input': clientRequiredError}">
+                <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayClientName">
+                    <mat-option *ngFor="let client of filteredClientOptions" [value]="client.ClientName">
+                        {{client.ClientName}}
+                    </mat-option>
+                </mat-autocomplete>
+                <div *ngIf="clientRequiredError" class="error-message">Client selection is required</div>
             </div>
 
             <div class="filter-unit">
                 <label for="category"><b>Category</b></label> <br>
-                <select id="category" style="width: 120px;" formControlName="category">
-                    <option value=""></option>
+                <select id="category" style="width: 200px;" formControlName="category">
                     @for (category of categoryList; track category.DocCatKey) {
                     <option value={{category.DocCatKey}}>{{category.Descr}}</option>
                     }
@@ -17,20 +22,24 @@
             </div>
             
             <div class="filter-unit">
-                <label for="searchFileName"><b>File Name Contains</b></label> <br>
-                <input type="text" id="searchFileName" class="filter-input" style="width: 200px;"
-                    formControlName="searchFileName" (keydown.enter)="$event.preventDefault()">
+                <label for="fileNameContains"><b>File Name Contains</b></label> <br>
+                <input type="text" id="fileNameContains" class="filter-input" style="width: 300px;"
+                    formControlName="fileNameContains" (keydown.enter)="$event.preventDefault()">
             </div>
             
             <!-- <div class="filter-unit">
                 <label for="RowsNumber"><b>Rows</b></label> <br>
                 <input type="text" id="RowsNumber" class="filter-input" style="width: 100px;"
                     formControlName="RowsNumber" (keydown.enter)="$event.preventDefault()">
-            </div> -->
-
-            <div class="filter-unit">
+            </div> -->            <div class="filter-unit">
                 <button class="search-button" (click)="onSubmitFilters()">
                     <mat-icon fontIcon="search" class="button-icon"></mat-icon>Search
+                </button>
+            </div>
+
+            <div class="filter-unit">
+                <button class="upload-button" (click)="openUploadDialog()">
+                    <mat-icon fontIcon="upload_file" class="button-icon"></mat-icon>Upload
                 </button>
             </div>
         </div>
@@ -39,6 +48,32 @@
     <!-- mat table -->
     <div class="main-table-container">
         <table mat-table [dataSource]="clientDocumentListSource" class="mat-elevation-z8" class="mat-table">
+
+            <ng-container matColumnDef="View">
+                <th mat-header-cell *matHeaderCellDef> View </th>
+                <td mat-cell *matCellDef="let element">
+                    @if (element.FileType === 'PDF'){
+                        <span (click)="viewFile(element)" class="icon-container">                        
+                            <mat-icon class="viewFileIcon">file_open</mat-icon>
+                        </span>
+                    }
+                    @else {
+                        <span class="icon-container">                        
+                            <mat-icon style="color: #535353;" matTooltip="File type is not supported">file_open</mat-icon>
+                        </span>
+                    }
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ClientNo">
+                <th mat-header-cell *matHeaderCellDef> Client No. </th>
+                <td mat-cell *matCellDef="let element"> {{element.ClientNo}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Client">
+                <th mat-header-cell *matHeaderCellDef> Client </th>
+                <td mat-cell *matCellDef="let element"> {{element.Client}} </td>
+            </ng-container>
 
             <ng-container matColumnDef="FileName">
                 <th mat-header-cell *matHeaderCellDef> File Name </th>
@@ -53,6 +88,11 @@
             <ng-container matColumnDef="DropDate">
                 <th mat-header-cell *matHeaderCellDef class="dropDate-column"> Drop Date </th>
                 <td mat-cell *matCellDef="let element" class="dropDate-column"> {{element.DropDate | date:'yyyy-MM-dd'}} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="FileType">
+                <th mat-header-cell *matHeaderCellDef> File Type </th>
+                <td mat-cell *matCellDef="let element" > {{element.FileType}} </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="clientDocumentColumns"></tr>

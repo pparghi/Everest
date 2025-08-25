@@ -10,6 +10,18 @@
     justify-content:flex-start;
 }
 
+/* Error styles */
+.error-input {
+    border: 1px solid #f44336;
+    /* background-color: rgba(244, 67, 54, 0.05); */
+}
+
+.error-message {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
 .filter-input {
     font-size: small;
 }
@@ -49,7 +61,7 @@
     color: white;
 }
 
-.download-button {
+.upload-button {
     display: flex;
     align-items:center; 
     justify-content: center;
@@ -63,7 +75,7 @@
     color: white;
     font-size: 14px;
 }
-.download-button:hover {
+.upload-button:hover {
     background-color: #252763;
     color: white;
 }
@@ -73,7 +85,7 @@
 }
 
 .client-input {
-    width: 350px !important;
+    width: 400px !important;
     height: 25px !important;
 }
 
@@ -103,4 +115,11 @@
     justify-content: center;
     align-items: center;
     /* height: 200px;  */
+}
+
+.viewFileIcon {
+    color: #3a8ada;
+}
+.viewFileIcon:hover  {
+    color: #195188;
 }
