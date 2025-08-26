@@ -7,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { FilterService } from '../../services/filter.service';
 import { MatDialog } from '@angular/material/dialog';
 import { FileUploadDialogComponent } from '../file-upload-dialog/file-upload-dialog.component';
+import { CacheService } from '../../services/cache.service';
 
 @Component({
   selector: 'app-client-documents',
@@ -19,7 +20,8 @@ export class ClientDocumentsComponent implements OnInit {
     private http: HttpClient, 
     private documentsReportsService: DocumentsReportsService,
     private filterService: FilterService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cacheService: CacheService
   ) {}
 
   // Define a FormGroup for filters
@@ -64,7 +66,9 @@ export class ClientDocumentsComponent implements OnInit {
       // console.log('Client Document Category:', response);                                       
       this.categoryList = response.data;
     });
-  }  onSubmitFilters() {
+  }  
+  
+  onSubmitFilters() {
     // Get client value from form
     const clientValue = this.filterForm.get('Client')?.value;
     
@@ -97,7 +101,8 @@ export class ClientDocumentsComponent implements OnInit {
     console.log('Client:', Client, 'Category:', category, 'FileNameContains:', fileNameContains);
     this.documentsReportsService.getClientDocumentList(Client, category, fileNameContains).subscribe((response: any) => {
       // split file name to name and type
-      response.data.forEach((element: any) => {
+      let temp = response.data.map((item: any) => ({...item}));
+      temp.forEach((element: any) => {
         if (element.FileName) {
           const fileParts = element.FileName.split('.');
           element.FileType = fileParts.length > 1 ? fileParts.pop().toUpperCase() : '';
@@ -106,8 +111,8 @@ export class ClientDocumentsComponent implements OnInit {
           element.FileType = '';
         }
       });
-      this.clientDocumentListSource.data = response.data;
-      console.log('clientDocumentListSource--', response.data);
+      this.clientDocumentListSource.data = temp;
+      // console.log('clientDocumentListSource--', temp);
       this.isLoading = false;
     });
   }
@@ -121,8 +126,10 @@ export class ClientDocumentsComponent implements OnInit {
     const path = element.Path;
     const fullPath = path + "\\" + docHdrKey + "." + fileType;
     const fullPathBase64 = btoa(fullPath); // Convert to base64 if needed
+
+    console.log('Viewing file:', fileName, ' | Full Path:', fullPath, ' | File Type:', fileType);
     
-    const apiUrl = `https://everest.revinc.com:4202/api/showPdf?title=${fileNameBase64}&pdf=${fullPathBase64}`;
+    const apiUrl = `https://everest.revinc.com:4202/api/showFile?title=${fileNameBase64}&encodeFilePath=${fullPathBase64}&fileType=${fileType}`;
     window.open(apiUrl, '_blank');
   }
 
@@ -137,26 +144,29 @@ export class ClientDocumentsComponent implements OnInit {
           Array.isArray(response.memberClients)) {
         
         // Combine both arrays into one
-        this.clientFullList = [
-          ...response.masterClients,
-          ...response.memberClients
-        ];
+        // this.clientFullList = [
+        //   ...response.masterClients,
+        //   ...response.memberClients
+        // ];
         
         // Sort the combined array by ClientName
-        this.clientFullList.sort((a, b) => {
-          // Handle null or undefined values
-          const nameA = a.ClientName ? a.ClientName.toUpperCase() : '';
-          const nameB = b.ClientName ? b.ClientName.toUpperCase() : '';
+        // this.clientFullList.sort((a, b) => {
+        //   // Handle null or undefined values
+        //   const nameA = a.ClientName ? a.ClientName.toUpperCase() : '';
+        //   const nameB = b.ClientName ? b.ClientName.toUpperCase() : '';
           
-          // Compare the names for sorting
-          if (nameA < nameB) {
-            return -1;
-          }
-          if (nameA > nameB) {
-            return 1;
-          }
-          return 0;
-        });
+        //   // Compare the names for sorting
+        //   if (nameA < nameB) {
+        //     return -1;
+        //   }
+        //   if (nameA > nameB) {
+        //     return 1;
+        //   }
+        //   return 0;
+        // });
+
+        // use master client list only for now
+        this.clientFullList = response.masterClients;
         
         this.filteredClientOptions = this.clientFullList; // Initialize filtered options
       } 
@@ -204,7 +214,9 @@ export class ClientDocumentsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
+        console.log('Dialog closed with success uploading files');
         // Refresh the document list if upload was successful
+        this.cacheService.removeByPattern('/api/getClientDocumentList?');
         this.getClientDocumentListByFilters();
       }
     });

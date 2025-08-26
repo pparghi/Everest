@@ -6,17 +6,17 @@
     
     <!-- Client Type Selection -->
     <form [formGroup]="searchForm" class="search-form">
-      <div class="client-type-selector">
+      <!-- <div class="client-type-selector">
         <mat-radio-group formControlName="clientType" aria-label="Client Type">
           <mat-radio-button value="master">Master</mat-radio-button>
           <mat-radio-button value="member">Member</mat-radio-button>
         </mat-radio-group>
-      </div>
+      </div> -->
       
       <!-- Client Search Input -->
       <div class="search-container">
         <mat-form-field appearance="outline" class="search-input">
-          <mat-label>Search Client</mat-label>
+          <mat-label>Search Master Client</mat-label>
           <input 
             matInput 
             formControlName="clientSearch" 
@@ -79,16 +79,25 @@
           <mat-icon>attach_file</mat-icon> Select Files
         </button>
         <div class="file-types">
-          <small>Accepted file types: Word, PDF, images</small>
+          <small>Accepted file types: {{acceptedFileTypeArray.join(', ')}}</small>
         </div>
       </div>      <!-- File Cards List -->
       <div class="file-cards-container" *ngIf="uploadedFiles.length > 0">
         <div class="file-card" *ngFor="let file of uploadedFiles; let i = index">
           <div class="file-card-header">
             <div class="file-type-icon" [ngClass]="file.type">
-              <mat-icon *ngIf="file.type.includes('image')">image</mat-icon>
-              <mat-icon *ngIf="file.type.includes('pdf')">picture_as_pdf</mat-icon>
-              <mat-icon *ngIf="file.type.includes('word') || file.type.includes('document')">description</mat-icon>
+                @if (file.type.includes('image')){
+                    <mat-icon>image</mat-icon>
+                }
+                @else if (file.type.includes('pdf')) {
+                    <mat-icon>picture_as_pdf</mat-icon>
+                }
+                @else if (file.type.includes('word') || file.type.includes('document')){
+                    <mat-icon>description</mat-icon>
+                }
+                @else {
+                    <mat-icon>insert_drive_file</mat-icon>
+                }
             </div>
             <div class="file-info">
               <div class="file-name">{{file.name.split('.')[0]}}</div>
@@ -125,6 +134,7 @@
                 <mat-label>Description</mat-label>
                 <input matInput [(ngModel)]="file.description" [ngModelOptions]="{standalone: true}" 
                        placeholder="Enter a description (optional)">
+                <mat-hint align="start"><strong>If left blank then uploaded file name will be used as the Description</strong></mat-hint>
               </mat-form-field>
             </div>
           </div>

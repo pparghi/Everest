@@ -31,7 +31,9 @@
                 <label for="RowsNumber"><b>Rows</b></label> <br>
                 <input type="text" id="RowsNumber" class="filter-input" style="width: 100px;"
                     formControlName="RowsNumber" (keydown.enter)="$event.preventDefault()">
-            </div> -->            <div class="filter-unit">
+            </div> -->            
+            
+            <div class="filter-unit">
                 <button class="search-button" (click)="onSubmitFilters()">
                     <mat-icon fontIcon="search" class="button-icon"></mat-icon>Search
                 </button>
@@ -57,9 +59,14 @@
                             <mat-icon class="viewFileIcon">file_open</mat-icon>
                         </span>
                     }
+                    @else if (['JPG', 'JPEG', 'PNG', 'GIF', 'BMP', 'SVG'].includes(element.FileType)){
+                        <span (click)="viewFile(element)" class="icon-container">                        
+                            <mat-icon class="viewFileIcon">image</mat-icon>
+                        </span>
+                    }
                     @else {
-                        <span class="icon-container">                        
-                            <mat-icon style="color: #535353;" matTooltip="File type is not supported">file_open</mat-icon>
+                        <span (click)="viewFile(element)" class="icon-container">                        
+                            <mat-icon class="viewFileIcon">download</mat-icon>
                         </span>
                     }
                 </td>

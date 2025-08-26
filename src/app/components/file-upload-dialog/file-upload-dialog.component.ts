@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
+
 export interface DialogData {
   clientName: string;
   categories: any[];
@@ -45,12 +47,21 @@ export class FileUploadDialogComponent implements OnInit {
   
   // New properties for multiple file upload
   uploadedFiles: FileUploadItem[] = [];
-  acceptedFileTypes = '.doc,.docx,.pdf,.jpg,.jpeg,.png,.gif';
-
+  acceptedFileTypeArray: string[] = [
+      "JPG", "JPEG", "PNG", "GIF", "TIFF", "BMP", "RAW", "SVG", 
+      "TXT", "DOC", "DOCX", "PDF", "PAGES", "XLS", "XLSX", "PPT", "PPTX", "RTF", "CSV", "XML", "ODT",
+      "EML", "MSG", "MBOX"
+    ];
+  acceptedFileTypes = this.acceptedFileTypeArray.map(ext => '.' + ext.toLowerCase()).join(',');
+  
   memberClientList: clientListElement[] = [];
   masterClientList: clientListElement[] = [];
   filteredClients: clientListElement[] = [];
-  selectedClient: clientListElement | null = null;  constructor(
+  selectedClient: clientListElement | null = null;  
+
+  userID: string = '';
+  
+  constructor(
     public dialogRef: MatDialogRef<FileUploadDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     private fb: FormBuilder,
@@ -88,7 +99,17 @@ export class FileUploadDialogComponent implements OnInit {
         this.searchClients(searchValue);
       }
     });
+
+    // get userID
+    this.http.get<{ mail?: string }>(GRAPH_ENDPOINT).subscribe(profile => {
+      if (profile.mail) {
+        this.userID = profile.mail.match(/^([^@]*)@/)?.[1] || '';
+      } else {
+        this.userID = 'Unkown';
+      }
+    });
   }
+
   onFileSelected(event: any): void {
     const files = event.target.files;
     if (files && files.length > 0) {
@@ -158,7 +179,7 @@ export class FileUploadDialogComponent implements OnInit {
       'image/gif'
     ];
     
-    return supportedTypes.includes(file.type);
+    return supportedTypes.includes(file.type) || this.acceptedFileTypeArray.includes(file.name.split('.').pop()?.toUpperCase() || '');
   }
   
   /**
@@ -350,7 +371,8 @@ export class FileUploadDialogComponent implements OnInit {
       formData.append('clientKey', this.selectedClient!.ClientKey);
       formData.append('clientId', this.selectedClient!.ClientId);
       formData.append('category', fileItem.category);
-      formData.append('description', fileItem.description);
+      formData.append('description', fileItem.description.trim() !== '' ? fileItem.description.trim() : fileItem.name);
+      formData.append('userID', this.userID);
 
       console.log('clientName', this.selectedClient!.ClientName);
       console.log('clientKey', this.selectedClient!.ClientKey);
@@ -358,43 +380,44 @@ export class FileUploadDialogComponent implements OnInit {
       console.log('fileName', fileItem.name);
       console.log('category', fileItem.category);
       console.log('description', fileItem.description);
+      console.log('userID', this.userID);
       
       // Upload the file
-      // this.http.post('https://everest.revinc.com:4202/api/uploadClientDocument', formData, {
-      //   reportProgress: true,
-      //   observe: 'events'
-      // }).subscribe({
-      //   next: (event: any) => {
-      //     // Handle upload progress
-      //     if (event.type === HttpEventType.UploadProgress) {
-      //       fileItem.progress = Math.round(100 * event.loaded / event.total);
-      //     } else if (event.type === HttpEventType.Response) {
-      //       // Upload complete
-      //       fileItem.progress = 100;
-      //       fileItem.isUploading = false;
-      //       completedUploads++;
+      this.http.post('https://everest.revinc.com:4202/api/uploadClientDocument', formData, {
+        reportProgress: true,
+        observe: 'events'
+      }).subscribe({
+        next: (event: any) => {
+          // Handle upload progress
+          if (event.type === HttpEventType.UploadProgress) {
+            fileItem.progress = Math.round(100 * event.loaded / event.total);
+          } else if (event.type === HttpEventType.Response) {
+            // Upload complete
+            fileItem.progress = 100;
+            fileItem.isUploading = false;
+            completedUploads++;
             
-      //       // Check if all uploads are completed
-      //       if (completedUploads + failedUploads === this.uploadedFiles.length) {
-      //         this.isUploading = false;
-      //         if (failedUploads === 0) {
-      //           this.dialogRef.close(true);
-      //         }
-      //       }
-      //     }
-      //   },
-      //   error: (error) => {
-      //     console.error(`Upload failed for ${fileItem.name}:`, error);
-      //     fileItem.isUploading = false;
-      //     fileItem.error = error.message || 'Upload failed';
-      //     failedUploads++;
+            // Check if all uploads are completed
+            if (completedUploads + failedUploads === this.uploadedFiles.length) {
+              this.isUploading = false;
+              if (failedUploads === 0) {
+                this.dialogRef.close(true);
+              }
+            }
+          }
+        },
+        error: (error) => {
+          console.error(`Upload failed for ${fileItem.name}:`, error);
+          fileItem.isUploading = false;
+          fileItem.error = error.message || 'Upload failed';
+          failedUploads++;
           
-      //     // Check if all uploads are completed
-      //     if (completedUploads + failedUploads === this.uploadedFiles.length) {
-      //       this.isUploading = false;
-      //     }
-      //   }
-      // });
+          // Check if all uploads are completed
+          if (completedUploads + failedUploads === this.uploadedFiles.length) {
+            this.isUploading = false;
+          }
+        }
+      });
     });
   }
 
