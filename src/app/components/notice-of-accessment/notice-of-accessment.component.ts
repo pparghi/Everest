@@ -306,7 +306,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
         this.noaForm.controls['debtor'].setErrors({reqired: true});
         return;
       }
-      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(this.noaForm.value.debtor?.DebtorKey ?? ''), this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'','','','').subscribe(
+      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), this.noaForm.value.debtor?.DebtorKey ?? '', this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'','','','').subscribe(
         (response: any) => {
           // Handle the response from the API
           this.openBase64Pdf(response.result, "NOA-"+this.noaForm.value.client?.ClientName+"-"+this.noaForm.value.debtor?.DebtorName);
@@ -361,49 +361,57 @@ export class NoticeOfAccessmentComponent implements OnInit {
           return; // stop sending emails when userName or userEmail is empty
         }
         // Create an array of NOA API call observables
-        const apiCalls = debtorKeyArray.map((debtor) =>
-          this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail, this.userExt)
-            .pipe(
-              tap((response: any) => {
-                // Handle the response from the API
-                if (response.resultType==='email_sent' && response.result === 'success') {
-                  successDebtors.push(debtor.DebtorName);
-                }
-                else {
-                  failedDebtors.push(debtor.DebtorName);
-                }
-              }),
-              catchError((error) => {
-                console.error(`Error sending email to debtor ${debtor.DebtorName}:`, error);
-                return of(null); // Return a null value to continue processing other calls
-              })
-            )
-        );
-        // Use forkJoin to wait for all API calls to complete
-        forkJoin(apiCalls).subscribe(
-          (responses) => {
-            // Handle all responses here
-            // #region add notes
-            const noteMessage = ''+this.noaForm.value.client?.ClientName + ": NOA PDFs Created " + debtorKeyArray.length + ", Emailed " + successDebtors.length;
-            this.addNoteService.addNotesRisk(this.noaForm.value.client?.MasterClientKey??'', 'Other', noteMessage, '', '1', this.userID, '').subscribe(response => {      
-              console.log('Note added successfully:', response);
-            }, error => {
-              alert('Failed adding note');
-            });
+        // const apiCalls = debtorKeyArray.map((debtor) =>
+        //   this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), parseInt(debtor.DebtorKey), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail, this.userExt)
+        //     .pipe(
+        //       tap((response: any) => {
+        //         // Handle the response from the API
+        //         if (response.resultType==='email_sent' && response.result === 'success') {
+        //           successDebtors.push(debtor.DebtorName);
+        //         }
+        //         else {
+        //           failedDebtors.push(debtor.DebtorName);
+        //         }
+        //       }),
+        //       catchError((error) => {
+        //         console.error(`Error sending email to debtor ${debtor.DebtorName}:`, error);
+        //         return of(null); // Return a null value to continue processing other calls
+        //       })
+        //     )
+        // );
+        // // Use forkJoin to wait for all API calls to complete
+        // forkJoin(apiCalls).subscribe(
+        //   (responses) => {
+        //     // Handle all responses here
+        //     // #region add notes
+        //     const noteMessage = ''+this.noaForm.value.client?.ClientName + ": NOA PDFs Created " + debtorKeyArray.length + ", Emailed " + successDebtors.length;
+        //     this.addNoteService.addNotesRisk(this.noaForm.value.client?.MasterClientKey??'', 'Other', noteMessage, '', '1', this.userID, '').subscribe(response => {      
+        //       console.log('Note added successfully:', response);
+        //     }, error => {
+        //       alert('Failed adding note');
+        //     });
 
-            console.log('All responses received:', responses);
-            window.alert('All emails have been sent!\n' +
-              'Success: ' + successDebtors.join(', ') + '\n' + 
-              'Failed: ' + failedDebtors.join(', '));
-              this.isEmailButtonEnabled = true; // Re-enable the button
-          },
-          (error) => {
-            console.error('Error sending emails:', error);
-            window.alert('An error occurred while sending emails.');
-            this.isEmailButtonEnabled = true; // Re-enable the button
-          }
-        );
+        //     console.log('All responses received:', responses);
+        //     window.alert('All emails have been sent!\n' +
+        //       'Success: ' + successDebtors.join(', ') + '\n' + 
+        //       'Failed: ' + failedDebtors.join(', '));
+        //       this.isEmailButtonEnabled = true; // Re-enable the button
+        //   },
+        //   (error) => {
+        //     console.error('Error sending emails:', error);
+        //     window.alert('An error occurred while sending emails.');
+        //     this.isEmailButtonEnabled = true; // Re-enable the button
+        //   }
+        // );
 
+        let tempDebtorKeyArr = debtorKeyArray.map(debtor => debtor.DebtorKey.trim());
+
+        this.documentsReportsService.callNOAIRISAPISendBulkEmail(parseInt(this.noaForm.value.client?.ClientKey ?? ''), tempDebtorKeyArr.join(','), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail, this.userExt);
+        window.alert(
+          "Your request has been submitted successfully.\n" +
+          "Please check your inbox for result and the client's notes for results in a few minutes."
+        );
+        this.isEmailButtonEnabled = true; // Re-enable the button
       }
     }
 
