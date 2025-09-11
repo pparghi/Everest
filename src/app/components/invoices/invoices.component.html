@@ -67,9 +67,11 @@
                         class="button-icon"></mat-icon>Search</button>
             </div>
             <div class="filter-unit">
-                <button class="download-button" (click)="exportSelectedToExcel()">
-                    <mat-icon fontIcon="download" class="button-icon"></mat-icon>Download
-                </button>
+                @if (userAccessLevel() === 'View Full'){
+                    <button class="download-button" (click)="exportSelectedToExcel()">
+                        <mat-icon fontIcon="download" class="button-icon"></mat-icon>Download
+                    </button>
+                }
             </div>
         </div>
     </form>
@@ -106,7 +108,9 @@
 
             <ng-container matColumnDef="InvNo">
                 <th mat-header-cell *matHeaderCellDef> Invoice# </th>
-                <td mat-cell *matCellDef="let element" class="invoiceNumberClickable" (click)="clickInvoiceNumber(element)"> {{element.InvNo}} </td>
+                <td mat-cell *matCellDef="let element" class="invoiceNumberClickable" 
+                    [style.cursor]="userAccessLevel() === 'View Full' ? 'pointer' : 'not-allowed'"
+                    (click)="clickInvoiceNumber(element)"> {{element.InvNo}} </td>
             </ng-container>
 
             <ng-container matColumnDef="PurchOrd">

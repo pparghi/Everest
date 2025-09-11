@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
@@ -50,6 +50,20 @@ export class NoticeOfAccessmentComponent implements OnInit {
   userEmail: string = '';
   userExt: string = '';
 
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+
+  // Helper method to get user access level, only two levels in this page which are PDF and Full
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Documents NOA']?.['Full'] === 1) {
+      return 'Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Documents NOA']?.['PDF'] === 1) {
+      return 'PDF';
+    }
+    else {
+      return 'No Access';
+    }
+  }
 
   // constructor
   constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService, private addNoteService: RiskMonitoringService) {}
@@ -314,7 +328,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
         }
       );
     }
-    if (buttonValue === 'emailAllDebtors') {
+    if (buttonValue === 'emailAllDebtors' && this.userAccessLevel() === 'Full') {
       let debtorKeyArray = [];
       if (this.noaForm.value.debtor.DebtorKey === 'All Debtors') {
         debtorKeyArray = this.debtorOptions.filter((debtor) => debtor.DebtorKey !== 'All Debtors');

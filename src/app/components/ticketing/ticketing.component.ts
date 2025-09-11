@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, inject, signal, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -115,6 +115,35 @@ export class TicketingComponent {
     NavAccessRiskMonitoringRestricted: any;
     
     private autoReloadSub!: Subscription; // use for auto-reload subscription
+
+    
+    @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+  
+    // Helper method to get user access level
+    public userAccessLevel(): string {
+      if (this.userPermissionsDisctionary['Everest Credit Requests']?.['Full'] === 1) {
+        return 'Full';
+      }
+      else if (this.userPermissionsDisctionary['Everest Credit Requests']?.['View Full'] === 1) {
+        return 'View Full';
+      }
+      else if (this.userPermissionsDisctionary['Everest Credit Requests']?.['View Restricted'] === 1) {
+        return 'View Restricted';
+      }
+      else {
+        return 'No Access';
+      }
+    }
+
+    // Helper method to check if user can perform actions that require view access
+    public canView(): boolean {
+      return this.userAccessLevel() === 'Full' || this.userAccessLevel() === 'View Full';
+    }
+
+    // Helper method to check if user can edit
+    public canEdit(): boolean {
+      return this.userAccessLevel() === 'Full';
+    }
 
     constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
@@ -373,6 +402,11 @@ export class TicketingComponent {
   }
 
   edit(row: DataItem) {
+    // Check user permissions before allowing edit
+    if (this.userAccessLevel() !== 'Full') {
+      return;
+    }
+
     this.http.get(GRAPH_ENDPOINT)
       .subscribe(profile => {
         this.profile = profile;
@@ -381,11 +415,12 @@ export class TicketingComponent {
         console.log('row:', row);
 
         const dialogObj = {
-          width: '1350px',
+          width: '1080px',
           maxWidth: 'none',
           height: 'auto',
           panelClass: 'custom-dialog-container',
           data: {
+            userAccessLevel: this.userAccessLevel(),
             row: row,
             ClientKey: row.ClientKey,
             Client: row.Client,
@@ -467,6 +502,11 @@ export class TicketingComponent {
   // }
 
   addNew(){
+    // Check user permissions before allowing add new
+    if (this.userAccessLevel() !== 'Full') {
+      return;
+    }
+
     this.http.get(GRAPH_ENDPOINT)
       .subscribe(profile => {
         this.profile = profile;          
@@ -487,6 +527,11 @@ export class TicketingComponent {
   }
 
   emailTo(row: DataItem) {
+    // Check user permissions before allowing email action
+    if (this.userAccessLevel() === 'No Access' || this.userAccessLevel() === 'View Restricted') {
+      return;
+    }
+
     // console.log('emailTo called');
     // console.log('row:', row);
     const subject = "Credit request #" + row.RequestNo;

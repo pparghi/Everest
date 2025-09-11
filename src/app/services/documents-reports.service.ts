@@ -125,4 +125,12 @@ export class DocumentsReportsService {
 
   //endregion client documents
 
+  
+  //region dashboard reports
+  //call the API to get list of debtors for report
+  getFullDebtorListForReport() {
+    const url = `https://everest.revinc.com:4202/api/getFullDebtorListForReport`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
 }

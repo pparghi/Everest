@@ -925,6 +925,12 @@ export class TicketingAnalysisComponent implements OnInit {
       this.cacheService.removeByPattern('/api/memberDebtors?');
       this.memberDebtorsService.getMemberDebtors(parseInt(this.debtorDetails.DebtorKey)).subscribe(response => {
         this.debtorDetails = response.data[0];
+        for (let it of response.data) {
+          if (it.DebtorKey === this.ticketData.DebtorKey) {
+            this.debtorDetails = it;
+            break;
+          }
+        }
         this.cdr.detectChanges(); // Trigger change detection
         console.log('New Member Debtor details:', this.debtorDetails);
         

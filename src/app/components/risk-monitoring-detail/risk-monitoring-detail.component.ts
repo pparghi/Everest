@@ -71,12 +71,23 @@ export class RiskMonitoringDetailComponent {
 
   // Inject the MatSnackBar service
   private _snackBar = inject(MatSnackBar);
+
+  userAccessLevel: string = 'No Access'; // Add userAccessLevel property
+
+  // Helper method to check if user can edit
+  canEdit(): boolean {
+    return this.userAccessLevel === 'Full';
+  }
   
   constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService, private router: Router) { 
     
   }
 
   ngOnInit(): void {    
+    // Get userAccessLevel from DataService (passed from risk-monitoring component)
+    const dataServiceData = this.riskService.getData();
+    this.userAccessLevel = dataServiceData['userAccessLevel'] || 'No Access';
+
     this.route.queryParams.subscribe(params => {
       const ClientKey = +params['ClientKey'];
       this.ClientKey = ClientKey;
@@ -226,6 +237,16 @@ export class RiskMonitoringDetailComponent {
   }
 
   addNote(){
+    if (this.userAccessLevel !== 'Full') {
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "You don't have permission to add notes. Full access required." },
+        duration: 5000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     this.http.get(GRAPH_ENDPOINT)
     .subscribe(profile => {
       this.profile = profile;          
@@ -270,6 +291,18 @@ export class RiskMonitoringDetailComponent {
   }
 
   onChangeCRM(event: Event, ClientKey: string){
+    if (this.userAccessLevel !== 'Full') {
+      const selectElement = event.target as HTMLSelectElement;
+      selectElement.value = this.CRM; // Revert to original value
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "You don't have permission to change CRM. Full access required." },
+        duration: 5000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     const originalCRM = this.CRM; // Store the original CRM
     const selectElement = event.target as HTMLSelectElement; 
     const confirmed = window.confirm('Are you sure you want to update the CRM?');
@@ -323,6 +356,18 @@ export class RiskMonitoringDetailComponent {
   };
 
   onChangeLevel(event: Event, ClientKey: string){
+    if (this.userAccessLevel !== 'Full') {
+      const selectElement = event.target as HTMLSelectElement;
+      selectElement.value = this.Level; // Revert to original value
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "You don't have permission to change Level. Full access required." },
+        duration: 5000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     const originalLevel = this.Level; // Store the original level
     const selectElement = event.target as HTMLSelectElement;  
     const confirmed = window.confirm('Are you sure you want to update the Level?');
@@ -453,6 +498,16 @@ export class RiskMonitoringDetailComponent {
   // }
 
   onChangeCompleteStatus(event: Event){
+    if (this.userAccessLevel !== 'Full') {
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "You don't have permission to change complete status. Full access required." },
+        duration: 5000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     const confirmed = window.confirm('Are you sure you want to update the Complete Status?');
     if (confirmed) {
       const target = event.target as HTMLElement;
@@ -475,6 +530,16 @@ export class RiskMonitoringDetailComponent {
   }
 
   onChangeNotCompleteStatus(event: Event){
+    if (this.userAccessLevel !== 'Full') {
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "You don't have permission to change complete status. Full access required." },
+        duration: 5000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     const confirmed = window.confirm('Are you sure you want to update the Complete Status?');
     if (confirmed) {
       const target = event.target as HTMLElement;
@@ -533,6 +598,16 @@ export class RiskMonitoringDetailComponent {
   }
 
   hideNote(ClientNoteKey: string){
+    if (this.userAccessLevel !== 'Full') {
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "You don't have permission to hide/unhide notes. Full access required." },
+        duration: 5000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     this.http.get(GRAPH_ENDPOINT)
     .subscribe(profile => {
       this.profile = profile;          
@@ -582,6 +657,16 @@ export class RiskMonitoringDetailComponent {
 
   // Update client summary text
   updateClientSummary(): void {
+    if (this.userAccessLevel !== 'Full') {
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "You don't have permission to update client summary. Full access required." },
+        duration: 5000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
     if (!this.ClientKey) {
       console.error('Client key is missing');
       return;

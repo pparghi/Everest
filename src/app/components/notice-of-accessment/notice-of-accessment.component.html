@@ -44,7 +44,9 @@
     <br>
     <div class="buttons-in-row">
         <button mat-flat-button color="primary" type="submit" value="createIndividualPDF">Create Individual NOA PDF</button>
-        <button mat-flat-button color="secondary" type="submit" value="emailAllDebtors" [disabled]="!isEmailButtonEnabled">Email NOA To Selected Debtor(s)</button>
+        @if (userAccessLevel() === 'Full'){
+            <button mat-flat-button color="secondary" type="submit" value="emailAllDebtors" [disabled]="!isEmailButtonEnabled">Email NOA To Selected Debtor(s)</button>
+        }
     </div>
     
 </form>

@@ -188,21 +188,21 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
 
   filterByBalance: string = 'Balance'; // default filter by balance
 
-  NavOptionMasterDebtor: any;
-  NavAccessMasterDebtor: any;
-  NavOptionClientRisk: any;
-  NavAccessClientRisk: any;
+  // NavOptionMasterDebtor: any;
+  // NavAccessMasterDebtor: any;
+  // NavOptionClientRisk: any;
+  // NavAccessClientRisk: any;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  NavOptionMasterDebtorUpdate: any;
-  NavAccessMasterDebtorUpdate: any;
-  NavOptionUpdateMasterDebtor: any;
-  NavAccessUpdateMasterDebtor: any;
-  NavOptionRiskMonitoring: any;
-  NavAccessRiskMonitoring: any;
-  NavOptionRiskMonitoringRestricted: any;
-  NavAccessRiskMonitoringRestricted: any;
+  // NavOptionMasterDebtorUpdate: any;
+  // NavAccessMasterDebtorUpdate: any;
+  // NavOptionUpdateMasterDebtor: any;
+  // NavAccessUpdateMasterDebtor: any;
+  // NavOptionRiskMonitoring: any;
+  // NavAccessRiskMonitoring: any;
+  // NavOptionRiskMonitoringRestricted: any;
+  // NavAccessRiskMonitoringRestricted: any;
   debtorAudit: any;
 
   isSortSubscribed = false; // flag of sort subscription, avoid multiple subscriptions
@@ -217,15 +217,32 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   // store selected debtor details
   selectedDebtorDetails: DataItem | null = null;
 
-  @Input() userPermissions: any[] = []; // get user permissions from parent component
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
   permissionsReady = false;  // Flag to track if permissions are ready
   initialLoadComplete = false;  // Flag to avoid redundant loads
 
   constructor(private dataService: DebtorsApiService, private router: Router, private http: HttpClient, private loginService: LoginService, private filterService: FilterService, private documentsReportsService: DocumentsReportsService, private cacheService: CacheService) {
   }
+
+  // method to get user access level
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Master Debtors']?.['Full'] === 1){
+      return 'Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Master Debtors']?.['View Full'] === 1){
+      return 'View Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Master Debtors']?.['View Restricted'] === 1){
+      return 'View Restricted';
+    }
+    else {
+      return 'No Access';
+    }
+  }
+
   ngOnInit(): void {
     const filterValues = this.filterService.getFilterState("master-debtors"); // get filter state from filter service
-    console.log('filterValues--', filterValues);
+    // console.log('filterValues--', filterValues);
     if (filterValues) {
       this.filter = filterValues.filter || ''; // get filter value from filter state
       this.filterByBalance = filterValues.filterByBalance || 'Balance'; // get filter value from filter state
@@ -242,24 +259,23 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
 
   ngOnChanges(changes: SimpleChanges): void {
     const filterValues = this.filterService.getFilterState("master-debtors"); // get filter state from filter service
-    console.log('filterValues--', filterValues);
+    // console.log('filterValues--', filterValues);
     if (filterValues) {
       this.filter = filterValues.filter || ''; // get filter value from filter state
       this.filterByBalance = filterValues.filterByBalance || 'Balance'; // get filter value from filter state
       console.log('filter--', this.filter, 'filterByBalance--', this.filterByBalance);
       
     }
-    if (changes['userPermissions'] && changes['userPermissions'].currentValue) {
+    if (changes['userPermissionsDisctionary'] && changes['userPermissionsDisctionary'].currentValue) {
       // Only process and load data if permissions have changed and are available
-      if (Array.isArray(changes['userPermissions'].currentValue) &&
-        changes['userPermissions'].currentValue.length > 0) {
+      if (this.userPermissionsDisctionary && Object.keys(this.userPermissionsDisctionary).length > 0) {
 
-        this.processPermissions();
+        // this.processPermissions();
         this.permissionsReady = true;
 
         // Only load data if this is the first time or if permissions actually changed
         if (!this.initialLoadComplete ||
-          !changes['userPermissions'].firstChange) {
+          !changes['userPermissionsDisctionary'].firstChange) {
           this.loadData();
           this.initialLoadComplete = true;
         }
@@ -274,11 +290,9 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
     }
     // set html filterByBalance states
     if (this.filterByBalance == 'Balance') {
-      console.log('here in selecting Balance--');
       document.getElementsByName('filterByBalance')[1].setAttribute('checked', 'true');
     }
     else {
-      console.log('here in selecting show all--');
       document.getElementsByName('filterByBalance')[0].setAttribute('checked', 'true');
     }
     if (this.paginator) {
@@ -301,43 +315,43 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   // method to process permissions
-  private processPermissions(): void {
-    // Reset all permission flags
-    this.NavOptionMasterDebtor = '';
-    this.NavAccessMasterDebtor = '';
-    this.NavOptionClientRisk = '';
-    this.NavAccessClientRisk = '';
-    this.NavOptionUpdateMasterDebtor = '';
-    this.NavAccessUpdateMasterDebtor = '';
-    this.NavOptionRiskMonitoring = '';
-    this.NavAccessRiskMonitoring = '';
-    this.NavOptionRiskMonitoringRestricted = '';
-    this.NavAccessRiskMonitoringRestricted = '';
+  // private processPermissions(): void {
+  //   // Reset all permission flags
+  //   this.NavOptionMasterDebtor = '';
+  //   this.NavAccessMasterDebtor = '';
+  //   this.NavOptionClientRisk = '';
+  //   this.NavAccessClientRisk = '';
+  //   this.NavOptionUpdateMasterDebtor = '';
+  //   this.NavAccessUpdateMasterDebtor = '';
+  //   this.NavOptionRiskMonitoring = '';
+  //   this.NavAccessRiskMonitoring = '';
+  //   this.NavOptionRiskMonitoringRestricted = '';
+  //   this.NavAccessRiskMonitoringRestricted = '';
 
-    // Only process if permissions exist
-    if (this.userPermissions && Array.isArray(this.userPermissions)) {
-      this.userPermissions.forEach((element: any) => {
-        if (element.NavOption === 'Master Debtor') {
-          this.NavOptionMasterDebtor = element.NavOption;
-          this.NavAccessMasterDebtor = element.NavAccess;
-        } else if (element.NavOption === 'Client Risk Page') {
-          this.NavOptionClientRisk = element.NavOption;
-          this.NavAccessClientRisk = element.NavAccess;
-        } else if (element.NavOption === 'Update Master Debtor') {
-          this.NavOptionUpdateMasterDebtor = element.NavOption;
-          this.NavAccessUpdateMasterDebtor = element.NavAccess;
-        } else if (element.NavOption === 'Risk Monitoring') {
-          this.NavOptionRiskMonitoring = element.NavOption;
-          this.NavAccessRiskMonitoring = element.NavAccess;
-        } else if (element.NavOption === 'Risk Monitoring Restricted') {
-          this.NavOptionRiskMonitoringRestricted = element.NavOption;
-          this.NavAccessRiskMonitoringRestricted = element.NavAccess;
-        }
-      });
+  //   // Only process if permissions exist
+  //   if (this.userPermissions && Array.isArray(this.userPermissions)) {
+  //     this.userPermissions.forEach((element: any) => {
+  //       if (element.NavOption === 'Master Debtor') {
+  //         this.NavOptionMasterDebtor = element.NavOption;
+  //         this.NavAccessMasterDebtor = element.NavAccess;
+  //       } else if (element.NavOption === 'Client Risk Page') {
+  //         this.NavOptionClientRisk = element.NavOption;
+  //         this.NavAccessClientRisk = element.NavAccess;
+  //       } else if (element.NavOption === 'Update Master Debtor') {
+  //         this.NavOptionUpdateMasterDebtor = element.NavOption;
+  //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
+  //       } else if (element.NavOption === 'Risk Monitoring') {
+  //         this.NavOptionRiskMonitoring = element.NavOption;
+  //         this.NavAccessRiskMonitoring = element.NavAccess;
+  //       } else if (element.NavOption === 'Risk Monitoring Restricted') {
+  //         this.NavOptionRiskMonitoringRestricted = element.NavOption;
+  //         this.NavAccessRiskMonitoringRestricted = element.NavAccess;
+  //       }
+  //     });
 
-      console.log('Permissions processed successfully');
-    }
-  }
+  //     console.log('Permissions processed successfully');
+  //   }
+  // }
 
   loadData(): void {
     // Only load data if permissions are ready
@@ -372,7 +386,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
       this.dataService.getData(mail, page, pageSize, this.filter, sort, order, filterByBalance).subscribe(response => {
         this.isLoading = false;
         this.dataSource.data = response.data;
-        const total = response.data[0].total;
+        const total = response.data[0]?.total || 0;
         this.totalRecords = total;
         this.DebtoNoBuyDisputeList = response.noBuyDisputeList;
       });
@@ -460,6 +474,10 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   openDocumentsDialog(DebtorKey: number) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening dialog for restricted users
+    }
 
     this.dataService.getDebtorsDocuments(DebtorKey).subscribe(response => {
       this.DocumentsList = response.documentsList;
@@ -476,9 +494,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
           documentsList: this.DocumentsList,
           documentCategory: this.DocumentsCat,
           documentsFolder: this.documentsFolder,
-          NavOptionUpdateMasterDebtor: this.NavOptionUpdateMasterDebtor,
-          NavAccessUpdateMasterDebtor: this.NavAccessUpdateMasterDebtor
-
+          userAccessLevel: this.userAccessLevel()
         }
       });
 
@@ -607,6 +623,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   openDSODialog(DSO30: number, DSO60: number, DSO90: number, Debtor: string) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening dialog for restricted users
+    }
+
     const roundThousandsPipe = new RoundThousandsPipe();
     var DSO_30 = roundThousandsPipe.transform(DSO30);
     var DSO_60 = roundThousandsPipe.transform(DSO60);
@@ -632,6 +653,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   openDebtorContactsDialog(DebtorKey: number) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening dialog for restricted users
+    }
+
     this.dataService.getDebtorsContacts(DebtorKey).subscribe(response => {
       this.DebtorContactsData = response.debtorContactsData;
 
@@ -653,6 +679,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   openDebtorAuditDialog(DebtorKey: number) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening dialog for restricted users
+    }
+
     const dialogRef = this.dialog.open(DocumentDialogComponent, {
       width: 'auto',
       maxWidth: 'none',
@@ -670,6 +701,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   openDebtorStatementsDialog(DebtorKey: number) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening dialog for restricted users
+    }
+
     const dialogRef = this.dialog.open(DocumentDialogComponent, {
       width: 'auto',
       maxWidth: 'none',
@@ -687,6 +723,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   openChecqueSearchDialog(DebtorKey: number) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening dialog for restricted users
+    }
+
     const dialogRef = this.dialog.open(DocumentDialogComponent, {
       width: 'auto',
       maxWidth: 'none',
@@ -712,6 +753,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
 
   // event of clicking report button 
   getReportLink(element: DataItem) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening new tab for restricted users
+    }
+
     // console.log("element--",element);
     this.documentsReportsService.callAnsoniaAPI(element?.MotorCarrNo.toString() ?? '', element.Debtor ?? '', element.Addr1 ?? '', element.City ?? '', element.State ?? '', element.Country ?? '').subscribe((response: { url: string }) => {
       // console.log('response--', response);
@@ -721,6 +767,11 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
 
   // event of searching Duns number
   searchDuns(element: DataItem) {
+    // Check if user has only restricted view access
+    if (this.userAccessLevel() === 'View Restricted') {
+      return; // Prevent opening drawer for restricted users
+    }
+
     // set the selected debtor details
     this.selectedDebtorDetails = element;
 

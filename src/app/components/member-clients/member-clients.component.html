@@ -82,7 +82,7 @@
                     <div *ngIf="isExpanded(memberElement)">
                         <br>                                
                         <div class="table-container" style="background-color: #f5fbff;">                                                          
-                            <app-clients-debtors [MasterClientKey]="memberElement.ClientKey"></app-clients-debtors>
+                            <app-clients-debtors [MasterClientKey]="memberElement.ClientKey" [userAccessLevel]="userAccessLevel"></app-clients-debtors>
                         </div>
                         <br>                    
                     </div>                                      

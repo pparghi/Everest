@@ -41,14 +41,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   NavAccessRiskMonitoringRestricted: any;
 
   userPermissions: any;
+  userPermissionsDisctionary: { [key: string]: {[key: string]: number} } = {
+    "Everest Dashboard": {}, "Everest Master Debtors": {}, "Everest Client Risk": {}, "Everest Risk Monitoring": {}, "Everest Credit Requests": {},
+    "Everest Invoices": {}, "Everest Documents NOA": {}, "Everest Documents Release": {}, "Everest Documents Statements": {}, "Everest Documents Client Documents": {}
+  };
 
   constructor(@Inject(MSAL_GUARD_CONFIG) 
-  private msalGuardConfig: MsalGuardConfiguration, 
-  private msalBroadcast: MsalBroadcastService,
-  private authService: MsalService,
-  private http: HttpClient,
-  private dataService: LoginService,
-  private router: Router
+    private msalGuardConfig: MsalGuardConfiguration, 
+    private msalBroadcast: MsalBroadcastService,
+    private authService: MsalService,
+    private http: HttpClient,
+    private dataService: LoginService,
+    private router: Router
   ) {}
 
   // #region documents tab
@@ -77,36 +81,43 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.profile = profile;     
       this.userName = this.profile.displayName.split(' ')[0]; // Get the first name from the display name
       this.dataService.getData(this.profile.mail).subscribe(response => {
+        // console.log('response--', response);
         this.userPermissions = response.data; // save for child components                              
         response.data.forEach((element: any) => {
-          if (element.NavOption == 'Master Debtor') {            
-            this.NavOptionMasterDebtor = element.NavOption;          
-            this.NavAccessMasterDebtor = element.NavAccess;
-          } else if (element.NavOption == 'Client Risk Page'){
-            this.NavOptionClientRisk = element.NavOption;          
-            this.NavAccessClientRisk = element.NavAccess;
-          } else if (element.NavOption == 'Update Master Debtor'){
-            this.NavOptionUpdateMasterDebtor = element.NavOption;          
-            this.NavAccessUpdateMasterDebtor = element.NavAccess;
-          } else if (element.NavOption == 'Risk Monitoring'){
-            this.NavOptionRiskMonitoring = element.NavOption;          
-            this.NavAccessRiskMonitoring = element.NavAccess;
-          } else if (element.NavOption == 'Risk Monitoring Restricted'){
-            this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-            this.NavAccessRiskMonitoringRestricted = element.NavAccess;
-          } else {
-            this.NavOptionMasterDebtor = '';
-            this.NavAccessMasterDebtor = '';
-            this.NavOptionClientRisk = '';
-            this.NavAccessClientRisk = '';       
-            this.NavOptionUpdateMasterDebtor = '';       
-            this.NavAccessUpdateMasterDebtor = ''; 
-            this.NavOptionRiskMonitoring = '';
-            this.NavAccessRiskMonitoring = '';
-            this.NavOptionRiskMonitoringRestricted = '';
-            this.NavAccessRiskMonitoringRestricted = '';
-          }          
+          if (["Everest Dashboard", "Everest Master Debtors", "Everest Client Risk", "Everest Risk Monitoring", "Everest Credit Requests",
+            "Everest Invoices", "Everest Documents NOA", "Everest Documents Release", "Everest Documents Statements", "Everest Documents Client Documents"].includes(element.NavMenu)) {
+            this.userPermissionsDisctionary[element.NavMenu][element.NavOption] = Number(element.NavAccess);
+          }
+
+          // if (element.NavOption == 'Master Debtor') {            
+          //   this.NavOptionMasterDebtor = element.NavOption;          
+          //   this.NavAccessMasterDebtor = element.NavAccess;
+          // } else if (element.NavOption == 'Client Risk Page'){
+          //   this.NavOptionClientRisk = element.NavOption;          
+          //   this.NavAccessClientRisk = element.NavAccess;
+          // } else if (element.NavOption == 'Update Master Debtor'){
+          //   this.NavOptionUpdateMasterDebtor = element.NavOption;          
+          //   this.NavAccessUpdateMasterDebtor = element.NavAccess;
+          // } else if (element.NavOption == 'Risk Monitoring'){
+          //   this.NavOptionRiskMonitoring = element.NavOption;          
+          //   this.NavAccessRiskMonitoring = element.NavAccess;
+          // } else if (element.NavOption == 'Risk Monitoring Restricted'){
+          //   this.NavOptionRiskMonitoringRestricted = element.NavOption;          
+          //   this.NavAccessRiskMonitoringRestricted = element.NavAccess;
+          // } else {
+          //   this.NavOptionMasterDebtor = '';
+          //   this.NavAccessMasterDebtor = '';
+          //   this.NavOptionClientRisk = '';
+          //   this.NavAccessClientRisk = '';       
+          //   this.NavOptionUpdateMasterDebtor = '';       
+          //   this.NavAccessUpdateMasterDebtor = ''; 
+          //   this.NavOptionRiskMonitoring = '';
+          //   this.NavAccessRiskMonitoring = '';
+          //   this.NavOptionRiskMonitoringRestricted = '';
+          //   this.NavAccessRiskMonitoringRestricted = '';
+          // }          
         });
+        // console.log('this.userPermissionsDisctionary--', this.userPermissionsDisctionary);
       }, error => {
         console.error('error--', error);
       });    
@@ -168,6 +179,54 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }, error => {
       console.error('error--', error);
     });
+  }
+
+  getFirstNavItemStyle(currentRoute: string): any {
+    // Define the navigation items in order of appearance
+    const navItems = [
+      {
+        route: 'dashboard',
+        condition: () => this.userPermissionsDisctionary['Everest Dashboard']['View Full'] + this.userPermissionsDisctionary['Everest Dashboard']['Full'] >= 1
+      },
+      {
+        route: 'master-debtors',
+        condition: () => this.userPermissionsDisctionary['Everest Master Debtors']['View Restricted'] + this.userPermissionsDisctionary['Everest Master Debtors']['View Full'] + this.userPermissionsDisctionary['Everest Master Debtors']['Full'] >= 1
+      },
+      {
+        route: 'risk-client',
+        condition: () => this.userPermissionsDisctionary['Everest Client Risk']['View Restricted'] + this.userPermissionsDisctionary['Everest Client Risk']['View Full'] + this.userPermissionsDisctionary['Everest Client Risk']['Full'] >= 1
+      },
+      {
+        route: 'monitoring',
+        condition: () => this.userPermissionsDisctionary['Everest Risk Monitoring']['View Restricted'] + this.userPermissionsDisctionary['Everest Risk Monitoring']['View Full'] + this.userPermissionsDisctionary['Everest Risk Monitoring']['Full'] >= 1
+      },
+      {
+        route: 'ticketing',
+        condition: () => this.userPermissionsDisctionary['Everest Credit Requests']['View Restricted'] + this.userPermissionsDisctionary['Everest Credit Requests']['View Full'] + this.userPermissionsDisctionary['Everest Credit Requests']['Full'] >= 1
+      },
+      {
+        route: 'invoice-search',
+        condition: () => this.userPermissionsDisctionary['Everest Invoices']['View Restricted'] + this.userPermissionsDisctionary['Everest Invoices']['View Full'] >= 1
+      }
+    ];
+
+    // Find the first visible nav item
+    const firstVisibleItem = navItems.find(item => item.condition());
+    
+    // Base style that all nav items should have
+    const baseStyle = {
+      'background-color': '#e5e5e5'
+    };
+
+    // If this is the first visible item, add the border-top-left-radius
+    if (firstVisibleItem && firstVisibleItem.route === currentRoute) {
+      return {
+        ...baseStyle,
+        'border-top-left-radius': '10px'
+      };
+    }
+
+    return baseStyle;
   }
 
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -58,6 +58,21 @@ export class ReleaseLetterComponent implements OnInit {
 
   // user profile
   userExt: string = '';
+
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+
+  // Helper method to get user access level, only two levels in this page which are PDF and Full
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Documents Release']?.['Full'] === 1) {
+      return 'Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Documents Release']?.['PDF'] === 1) {
+      return 'PDF';
+    }
+    else {
+      return 'No Access';
+    }
+  }
 
   // constructor
   constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService) { }
@@ -427,7 +442,7 @@ export class ReleaseLetterComponent implements OnInit {
         }
       );
     }
-    else if (buttonValue === 'emailReleaseLetterToSingleDebtor') {
+    else if (buttonValue === 'emailReleaseLetterToSingleDebtor' && this.userAccessLevel() === 'Full') {
       this.isEmailOneButtonEnabled = false;
       this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, true).subscribe(
         (response: any) => {
@@ -443,7 +458,7 @@ export class ReleaseLetterComponent implements OnInit {
         }
       );
     }
-    else if (buttonValue === 'emailReleaseLettersToDebtors') {
+    else if (buttonValue === 'emailReleaseLettersToDebtors' && this.userAccessLevel() === 'Full') {
       let confirmed = false;
       confirmed = window.confirm('Are you sure you want to send release letters to all debtors?');
       if (!confirmed) {

@@ -7,7 +7,7 @@
       <ul *ngFor="let item of data.documentsList">
         <li (click)="openFile()" style="cursor: pointer;">{{ item.FileName }}</li>
       </ul>
-      <div *ngIf="data.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && data.NavAccessUpdateMasterDebtor == 1">
+      <div *ngIf="data.userAccessLevel === 'Full'">
         <hr>
         <label for="documentCategory"> <b>Category</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
         <select class="dropdown" [(ngModel)]="documentCategory" id="documentCategory">
@@ -30,7 +30,7 @@
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
       <button mat-button [mat-dialog-close]="true"
-        *ngIf="data.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && data.NavAccessUpdateMasterDebtor == 1"
+        *ngIf="data.userAccessLevel === 'Full'"
         (click)="onSubmit()" cdkFocusInitial>Upload</button>
     </mat-dialog-actions>
   </div>
@@ -866,7 +866,7 @@
                   <div class="col-md-3">
                     <label for="RateDate" class="form-label">Research date</label>
                     <div class="input-icon-container">
-                      <input type="date" id="RateDate" class="form-control" formControlName="RateDate"  (keydown.enter)="$event.preventDefault()">
+                      <input type="date" id="RateDate" class="form-control" formControlName="RateDate"  (keydown.enter)="$event.preventDefault()" (blur)="onSaveResearchDate()">
                       <mat-icon class='save-icon' fontIcon="save" (click)="onSaveResearchDate()"></mat-icon>
                     </div>
                   </div>

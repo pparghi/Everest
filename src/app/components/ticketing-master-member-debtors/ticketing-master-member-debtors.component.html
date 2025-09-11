@@ -38,7 +38,10 @@
 
         <ng-container matColumnDef="CalcRateCode">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Rating</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end; color: #3a8ada;" (click)="openDSODialog(element.DSO30, element.DSO60, element.DSO90, element.Debtor)">{{ element.CalcRateCode }}</td>
+            <td mat-cell *matCellDef="let element" 
+                style="text-align: end; color: #3a8ada;" 
+                [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                (click)="canView() && openDSODialog(element.DSO30, element.DSO60, element.DSO90, element.Debtor)">{{ element.CalcRateCode }}</td>
         </ng-container>        
 
         <ng-container matColumnDef="RateDate">
@@ -91,7 +94,10 @@
                                     <th class="header" style="width: 10%;">DSOAll</th>              
                                 </tr>                               
                                 <tr class="table-row">
-                                    <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openDebtorStatementsDialog(element.DebtorKey)">{{ element.Balance | roundThousands }}</td>
+                                    <td class="cell" 
+                                        style="width: 10%; color: #3a8ada;" 
+                                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                                        (click)="canView() && openDebtorStatementsDialog(element.DebtorKey)">{{ element.Balance | roundThousands }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
@@ -118,9 +124,13 @@
                                     <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td> 
                                     <td class="cell" style="width: 10%;">-</td>                                  
                                     <td class="cell" style="width: 20%;">{{ element.NoInvoices }}</td>
-                                    <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openChecqueSearchDialog(element.DebtorKey)">{{ element.LastPmtDate | date:"MM/dd/yyyy" }}</td>
+                                    <td class="cell" style="width: 10%; color: #3a8ada;" 
+                                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                                        (click)="canView() && openChecqueSearchDialog(element.DebtorKey)">{{ element.LastPmtDate | date:"MM/dd/yyyy" }}</td>
                                     <td class="cell" style="width: 10%;">{{ element.DisputesPct | roundThousands }}</td>
-                                    <td class="cell" style="width: 10%;" (click)="openDebtorAuditDialog(element.DebtorKey)"><i class="fa-solid fa-list-check" style="color: #3a8ada;"></i></td>
+                                    <td class="cell" style="width: 10%;" 
+                                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                                        (click)="canView() && openDebtorAuditDialog(element.DebtorKey)"><i class="fa-solid fa-list-check" style="color: #3a8ada;"></i></td>
                                     <td class="cell" style="width: 20%;">{{ element.Addr1 }}</td>                                    
                                     <td class="cell" style="width: 20%;">{{ element.Addr2 }}</td>                                                                        
                                 </tr>
@@ -141,12 +151,19 @@
                                     <td>{{ element.Email }}</td>                                  
                                     <td><a href="tel:{{ element.Phone1 }}">{{ element.Phone1 }}</a></td>                                    
                                     <td><a href="tel:{{ element.Phone1 }}">{{ element.Phone2 }}</a></td>                                    
-                                    <td class="cell" (click)="openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
+                                    <td class="cell" 
+                                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                                        (click)="canView() && openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
                                     <td class="cell">{{ element.Warning }}</td>
                                     <td class="cell">{{ element.DbDunsNo }}</td>
                                     <td class="cell">{{ element.MotorCarrNo }}</td>    
-                                    <td class="cell"><mat-icon color="primary" (click)="getReportLink(element)" class="report-button">link</mat-icon></td>
-                                    <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)"style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>                                                                   
+                                    <td class="cell"><mat-icon color="primary" 
+                                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                                        (click)="canView() && getReportLink(element)" class="report-button">link</mat-icon></td>
+                                    <td class="cell" 
+                                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                                        (click)="canView() && openDebtorContactsDialog(element.DebtorKey)"
+                                        style="color: #005cbb; font-weight: Medium;">Debtor Contacts</td>                                                                   
                                 </tr>                    
                             </table>                            
                         </div>                    

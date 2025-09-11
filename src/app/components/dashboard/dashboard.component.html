@@ -80,13 +80,35 @@
                     </mat-card-content>
                 </mat-card>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <mat-card appearance="raised" class="card-container">
                     <mat-card-header>
                         <mat-card-title>Key Metrics</mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
                         <!-- Dashboard metrics content -->
+                    </mat-card-content>
+                </mat-card>
+            </div>
+            <div class="col-md-1">
+                <mat-card appearance="raised" class="card-container">
+                    <mat-card-header>
+                        <mat-card-title>Reports</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="file-item" (click)="downloadReport('debtor-list')"
+                             [ngClass]="{'file-item-hover': false, 'file-item-loading': isLoadingDebtorList}">
+                            <!-- Show spinner when loading, otherwise show Excel icon -->
+                            <mat-spinner *ngIf="isLoadingDebtorList" diameter="32" color="primary"></mat-spinner>
+                            <i *ngIf="!isLoadingDebtorList" class="fa fa-file-excel"></i>
+                            <span style="font-size: 12px; font-weight: 500; color: #495057; 
+                                         line-height: 1.3; word-break: break-word; max-width: 120px;">
+                                Debtor List - Credit Dept
+                                <span *ngIf="isLoadingDebtorList" style="display: block; font-size: 10px; color: #6c757d;">
+                                    Loading...
+                                </span>
+                            </span>
+                        </div>
                     </mat-card-content>
                 </mat-card>
             </div>

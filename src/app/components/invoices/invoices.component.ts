@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, Input } from '@angular/core';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
 import { InvoiceService } from '../../services/invoice.service';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -84,6 +84,21 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
 
   // invoice list table columns
   invoceColumns: string[] = ['select', 'InvDate', 'OpenDays', 'InvNo', 'PurchOrd', 'Client', 'Debtor', 'Status', 'AcctExec', 'DisputeCode', 'BatchNo', 'Amt', 'Balance'];
+
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+
+  // Helper method to get user access level, only two levels in this page which are View Restricted and View Full
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Invoices']?.['View Full'] === 1) {
+      return 'View Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Invoices']?.['View Restricted'] === 1) {
+      return 'View Restricted';
+    }
+    else {
+      return 'No Access';
+    }
+  }
 
   constructor(private riskMonitoringService: RiskMonitoringService, private invoiceService: InvoiceService, private documentsReportsService: DocumentsReportsService, private filterService: FilterService) { };
 
@@ -245,6 +260,10 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
   // #region export excel
   /** Export selected rows to Excel */
   exportSelectedToExcel(): void {
+    if (this.userAccessLevel() !== 'View Full') {
+      return;
+    }
+
     if (this.selection.selected.length === 0) {
       alert('Please select at least one row to export');
       return;
@@ -308,7 +327,11 @@ export class InvoicesComponent implements OnInit, AfterViewInit  {
 
   // #region show invoice PDF
   clickInvoiceNumber(element: any) {// Open a blank tab immediately
-    console.log('element--', element);
+    
+    if (this.userAccessLevel() !== 'View Full') {
+      return; // Prevent restricted users from opening new tabs
+    }
+
     const newTab = window.open('', '_blank');
 
     if (!newTab) {

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
@@ -68,7 +68,25 @@ export class RiskMonitoringComponent implements OnInit {
   NotesNoDate = false;
   NotesFutureDate = false;
   NotesPastDue = false
-  
+
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+
+  // Helper method to get user access level
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['Full'] === 1) {
+      return 'Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['View Full'] === 1) {
+      return 'View Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['View Restricted'] === 1) {
+      return 'View Restricted';
+    }
+    else {
+      return 'No Access';
+    }
+  }
+
   constructor(private riskService: RiskMonitoringService, private http: HttpClient, private datePipe: DatePipe, private router: Router, private loginService: LoginService, private dataService: DataService, private filterService: FilterService) { 
     
     
@@ -413,7 +431,11 @@ export class RiskMonitoringComponent implements OnInit {
   }
 
   openDetailWindow(ClientKey: number, ARGrossBalance: number, Ineligible: number, NFE: number, Reserve: number, Availability: number, Level: string){
+    if (this.userAccessLevel() === 'View Restricted' || this.userAccessLevel() === 'No Access') {
+      return; // Prevent restricted users from opening detail pages
+    }
     this.dataService.setData('Level', Level);
+    this.dataService.setData('userAccessLevel', this.userAccessLevel()); // Pass userAccessLevel securely via service
     this.router.navigate(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level }  });    
   }
 

@@ -57,9 +57,11 @@
                 </button>
             </div>
             <div class="filter-unit">
-                <button class="download-button" (click)="exportTableToExcel()">
-                    <mat-icon fontIcon="download" class="button-icon"></mat-icon>Download
-                </button>
+                @if (userAccessLevel() === 'Full'){
+                    <button class="download-button" (click)="exportTableToExcel()">
+                        <mat-icon fontIcon="download" class="button-icon"></mat-icon>Download
+                    </button>
+                }
             </div>
         </div>
     </form>

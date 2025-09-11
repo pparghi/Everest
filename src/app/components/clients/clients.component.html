@@ -21,7 +21,9 @@
         
             <ng-container matColumnDef="Client">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
-                <td (click)="openClientsInvoicesWindow(element.ClientKey, element.Client)" style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Client }}</u></td>
+                <td (click)="canView() && openClientsInvoicesWindow(element.ClientKey, element.Client)" 
+                    [style.cursor]="canView() ? 'pointer' : 'not-allowed'"
+                    style="color: #005cbb; cursor: pointer; font-weight: Medium;" mat-cell *matCellDef="let element"><u>{{ element.Client }}</u></td>
             </ng-container>
 
             <ng-container matColumnDef="TotalAR">
@@ -86,7 +88,7 @@
                     <div *ngIf="isExpanded(memberElement)">
                         <br>                                
                         <div class="table-container" style="background-color: #f5fbff;">                                                          
-                            <app-clients-debtors [MasterClientKey]="memberElement.ClientKey"></app-clients-debtors>
+                            <app-clients-debtors [MasterClientKey]="memberElement.ClientKey" [userAccessLevel]="userAccessLevel"></app-clients-debtors>
                         </div>
                         <br>                    
                     </div>                                      

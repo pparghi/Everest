@@ -1,60 +1,60 @@
 
-    <div *ngIf="currentPath.includes('master-debtors')" >
-      <app-master-debtors [userPermissions]="userPermissions"></app-master-debtors>
+    <div *ngIf="showChildComponent('master-debtors')" >
+      <app-master-debtors [userPermissionsDisctionary]="userPermissionsDisctionary"></app-master-debtors>
     </div>      
-    <div *ngIf="currentPath.includes('edit-master-debtor')" >
+    <!-- <div *ngIf="currentPath.includes('edit-master-debtor')" >
       <app-master-debtor-edit></app-master-debtor-edit>
-    </div>      
-    <div *ngIf="currentPath.includes('members')">
+    </div>       -->
+    <!-- <div *ngIf="currentPath.includes('members')">
         <app-members></app-members>
-    </div>
+    </div> -->
     <div *ngIf="currentPath.includes('clients')">
         <app-clients></app-clients>
     </div>
     <div *ngIf="currentPath.includes('invoices')">
         <app-clients-invoices></app-clients-invoices>
     </div>
-    <div *ngIf="currentPath.includes('risk-client')">
-        <app-master-clients></app-master-clients>
+    <div *ngIf="showChildComponent('risk-client')">
+        <app-master-clients [userPermissionsDisctionary]="userPermissionsDisctionary"></app-master-clients>
     </div>
-    <div *ngIf="currentPath.includes('member-client')">
+    <!-- <div *ngIf="currentPath.includes('member-client')">
         <app-member-clients></app-member-clients>
+    </div> -->
+    <div *ngIf="showChildComponent('invoice-search')">
+        <app-invoices [userPermissionsDisctionary]="userPermissionsDisctionary"></app-invoices>
     </div>
-    <div *ngIf="currentPath.includes('invoice-search')">
-        <app-invoices></app-invoices>
+    <div *ngIf="showChildComponent('notice-of-accessment')">
+        <app-notice-of-accessment [userPermissionsDisctionary]="userPermissionsDisctionary"></app-notice-of-accessment>
     </div>
-    <div *ngIf="currentPath.includes('notice-of-accessment')">
-        <app-notice-of-accessment></app-notice-of-accessment>
+    <div *ngIf="showChildComponent('documents-statements')">
+        <app-documents-statements [userPermissionsDisctionary]="userPermissionsDisctionary"></app-documents-statements>
     </div>
-    <div *ngIf="currentPath.includes('documents-statements')">
-        <app-documents-statements></app-documents-statements>
+    <div *ngIf="showChildComponent('release-letter')">
+        <app-release-letter [userPermissionsDisctionary]="userPermissionsDisctionary"></app-release-letter>
     </div>
-    <div *ngIf="currentPath.includes('release-letter')">
-        <app-release-letter></app-release-letter>
-    </div>
-    <div *ngIf="currentPath.includes('client-debtor')">
+    <!-- <div *ngIf="currentPath.includes('client-debtor')">
         <app-clients-debtors></app-clients-debtors>
-    </div>
-    <div *ngIf="currentPath.includes('memberMasterdebtor')">
+    </div> -->
+    <!-- <div *ngIf="currentPath.includes('memberMasterdebtor')">
         <app-member-master-debtor></app-member-master-debtor>
-    </div>
+    </div> -->
     <div *ngIf="currentPath.includes('detail')">
         <app-risk-monitoring-detail></app-risk-monitoring-detail>
     </div>
-    <div *ngIf="currentPath.includes('monitoring')">
-        <app-risk-monitoring></app-risk-monitoring>
+    <div *ngIf="showChildComponent('monitoring')">
+        <app-risk-monitoring [userPermissionsDisctionary]="userPermissionsDisctionary"></app-risk-monitoring>
     </div>
-    <div *ngIf="currentPath.includes('ticketing')">
-        <app-ticketing></app-ticketing>
+    <div *ngIf="showChildComponent('ticketing')">
+        <app-ticketing [userPermissionsDisctionary]="userPermissionsDisctionary"></app-ticketing>
     </div>
-    <div *ngIf="currentPath.includes('debtorsTicketing')">
+    <!-- <div *ngIf="currentPath.includes('debtorsTicketing')">
         <app-ticketing-master-member-debtors></app-ticketing-master-member-debtors>
-    </div>
-    <div *ngIf="currentPath.includes('dashboard')">
+    </div> -->
+    <div *ngIf="showChildComponent('dashboard')">
         <app-dashboard></app-dashboard>
     </div>
-    <div *ngIf="currentPath.includes('client-documents')">
-        <app-client-documents></app-client-documents>
+    <div *ngIf="showChildComponent('client-documents')">
+        <app-client-documents [userPermissionsDisctionary]="userPermissionsDisctionary"></app-client-documents>
     </div>
     <div *ngIf="currentPath.includes('test')">
         <app-test></app-test>

@@ -21,10 +21,10 @@
                         </tr>
                         <tr>
                             <td style="vertical-align: top;"><b>CRM/Office</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td *ngIf="this.NavAccessRiskMonitoringRestricted == 1; else elseBlockCRM" >{{ client.AcctExec }} / {{ client.Office }}</td>
+                            <td *ngIf="!canEdit(); else elseBlockCRM" >{{ client.AcctExec }} / {{ client.Office }}</td>
                             <ng-template #elseBlockCRM>
                                 <td>
-                                    <select (change)="onChangeCRM($event, client.ClientKey)" style="font-size: 13px;" class="dropdown">
+                                    <select (change)="onChangeCRM($event, client.ClientKey)" style="font-size: 13px;" class="dropdown" [disabled]="!canEdit()">
                                         <!-- <option value="{{ client.AcctExec }}">{{ client.AcctExec }}</option> -->
                                         <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey" [selected]="crm.UserKey === client.AcctExec">{{ crm.UserKey }}</option>
                                     </select> / {{ client.Office }}
@@ -75,17 +75,41 @@
                     </mat-card>
                 </div>
                 <div class="col-md-6">
-                    <mat-card appearance="outlined">
+                    <mat-card style="height: 100%;" appearance="outlined">
+                        <mat-card-header>
+                            <mat-card-title style="font-size: 20px;">Summary</mat-card-title>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <p>{{ extractSummaryText(clientSummary) }}</p>
+                            <table>  
+                                <tr>
+                                    <td style="vertical-align: middle;"><b>Created by: </b></td>
+                                    <td style="vertical-align: middle;">{{ clientSummary?extractUserId(clientSummary):'' }}</td>
+                                    <td style="vertical-align: middle; padding-left: 20px;"><b>Created on: </b></td>
+                                    <td style="vertical-align: middle;">{{ extractDate(clientSummary) }}</td>
+                                    <td style="vertical-align: middle; padding-left: 40px;">
+                                        <button (click)="updateClientSummary()" style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0); " [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;" [disabled]="!canEdit()" [style.opacity]="canEdit() ? '1' : '0.6'" [style.cursor]="canEdit() ? 'pointer' : 'not-allowed'">Edit Summary</button>
+                                    </td>
+                                </tr>                                          
+                            </table>
+                        </mat-card-content>
+                    </mat-card>
+                </div>
+            </div>
+            <br>
+            <div class="row" style="justify-content: space-between;">
+                <div class="col-md-6">
+                    <mat-card style="height: 100%;" appearance="outlined">
                         <mat-card-header>
                             <mat-card-title style="font-size: 20px;">Concern</mat-card-title>
                         </mat-card-header>
                         <mat-card-content *ngIf="client">
                             <tr>
                                 <td><b>Level</b></td> 
-                                <td *ngIf="this.NavAccessRiskMonitoringRestricted == 1; else elseBlockLevel" >{{ this.Level }}</td>
+                                <td *ngIf="!canEdit(); else elseBlockLevel" >{{ this.Level }}</td>
                                     <ng-template #elseBlockLevel>
                                         <td>                            
-                                            <select (change)="onChangeLevel($event, client.ClientKey)" [ngStyle]="{'font-size': '13px', 'border': bgcolor}" class="dropdown">                                
+                                            <select (change)="onChangeLevel($event, client.ClientKey)" [ngStyle]="{'font-size': '13px', 'border': bgcolor}" class="dropdown" [disabled]="!canEdit()">                                
                                                 <option *ngFor="let level of clientGroupLevelList" [value]="level.GroupValue" [selected]="level.GroupValue === this.Level">
                                                     {{ level.GroupValue }}
                                                   </option>
@@ -144,65 +168,48 @@
                         </mat-card-content>
                     </mat-card>
                 </div>
-            </div>
-            <br>
-            <div class="row" style="justify-content: space-between;">
-                <div class="col-md-12">
-                    <mat-card appearance="outlined">
+                <div class="col-md-6">
+                    <mat-card style="height: 100%;" appearance="outlined">
                         <mat-card-header>
-                            <mat-card-title style="font-size: 20px;">Summary</mat-card-title>
-                        </mat-card-header>
+                            <mat-card-title style="font-size: 20px;">Add New Note</mat-card-title>
+                        </mat-card-header><br>
                         <mat-card-content>
-                            <p>{{ extractSummaryText(clientSummary) }}</p>
-                            <table>  
-                                <tr>
-                                    <td style="vertical-align: middle;"><b>Created by: </b></td>
-                                    <td style="vertical-align: middle;">{{ clientSummary?extractUserId(clientSummary):'' }}</td>
-                                    <td style="vertical-align: middle; padding-left: 20px;"><b>Created on: </b></td>
-                                    <td style="vertical-align: middle;">{{ extractDate(clientSummary) }}</td>
-                                    <td style="vertical-align: middle; padding-left: 40px;">
-                                        <button (click)="updateClientSummary()" style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0); " [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;">Edit Summary</button>
-                                    </td>
-                                </tr>                                          
-                            </table>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for=""><b>Category</b></label><br>
+                                    <select class="form-control" style="font-size: 13px;" [(ngModel)]="note_category"
+                                        [disabled]="!canEdit()">
+                                        <option value="">Select Category</option>
+                                        <option *ngFor="let category of MonitoringCategories" [value]="category">{{ category }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="due_date"><b>Due Date </b></label><br>
+                                    <input type="date" class="form-control" style="font-size: 13px;" [(ngModel)]="due_date"
+                                        [value]="" name="" id="due_date" [disabled]="!canEdit()">
+                                </div>
+                                <div class="col-md-9">
+                                    <label for="note"><b>Note </b></label><br>
+                                    <textarea name="" id="" cols="110" class="form-control-sm w-100" [(ngModel)]="note" rows="3"
+                                        [disabled]="!canEdit()"></textarea>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for=""></label><br>
+                                    <button (click)="addNote()"
+                                        style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0);"
+                                        [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;"
+                                        [disabled]="!canEdit()" [style.opacity]="canEdit() ? '1' : '0.6'"
+                                        [style.cursor]="canEdit() ? 'pointer' : 'not-allowed'">Add Note</button>
+                                </div>
+                            </div>
                         </mat-card-content>
                     </mat-card>
                 </div>
             </div>
         </div>
     </div><br>
-    <div class="row">
-        <div class="col">
-            <mat-card appearance="outlined">
-                <mat-card-header>
-                    <mat-card-title style="font-size: 20px;">Add New Note</mat-card-title>
-                </mat-card-header><br>
-                <mat-card-content>
-                    <div class="row">
-                        <div class="col-md-2">
-                            <label for=""><b>Category</b></label><br>
-                            <select class="form-control" style="font-size: 13px;" [(ngModel)]="note_category">
-                                <option value="">Select Category</option>
-                                <option *ngFor="let category of MonitoringCategories" [value]="category">{{ category }}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="due_date"><b>Due Date </b></label><br>
-                            <input type="date" class="form-control" style="font-size: 13px;" [(ngModel)]="due_date" [value]="" name="" id="due_date">  
-                        </div>
-                        <div class="col-md">
-                            <label for="note"><b>Note </b></label><br>
-                            <textarea name="" id="" cols="110" class="form-control-sm w-100" [(ngModel)]="note" rows="1"></textarea>
-                        </div>
-                        <div class="col-md-1">
-                            <label for=""></label><br>                            
-                            <button (click)="addNote()" style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0);" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;">Add Note</button>
-                        </div>
-                    </div>                
-                </mat-card-content>
-            </mat-card>
-        </div>
-    </div>
+    
     <br>
     <div class="row">
         <div class="col">
@@ -237,15 +244,15 @@
                         <div class='col' *ngIf="note.DueDate == null; else elseBlockCompleted">N/A</div>
                         <ng-template #elseBlockCompleted>
                             <div class="col" *ngIf="note.Completed == null; else elseBlock">
-                                    <span *ngIf="this.NavAccessRiskMonitoringRestricted != 1">
-                                    <button id="completed-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true, 'risk_select_note_completed': 'risk_select_note_completed'}" style="font-size: 12px;" (click)="onChangeCompleteStatus($event)">Set as Completed</button>
+                                    <span *ngIf="canEdit()">
+                                    <button id="completed-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true, 'risk_select_note_completed': 'risk_select_note_completed'}" style="font-size: 12px;" (click)="onChangeCompleteStatus($event)" [disabled]="!canEdit()" [style.opacity]="canEdit() ? '1' : '0.6'">Set as Completed</button>
                                     </span>
                                 </div>
                                     <ng-template #elseBlock>
                                         <div class='col'>
-                                            <span *ngIf="this.NavAccessRiskMonitoringRestricted != 1">
+                                            <span *ngIf="canEdit()">
                                             {{ note.Completed | date:'MM/dd/yyyy' }}&nbsp;
-                                            <button id="notcompleted-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-danger': true, 'risk_select_note_notcompleted': 'risk_select_note_notcompleted'}" style="font-size: 12px;" (click)="onChangeNotCompleteStatus($event)">Not Completed</button>
+                                            <button id="notcompleted-{{ note.ClientNoteKey }}" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-danger': true, 'risk_select_note_notcompleted': 'risk_select_note_notcompleted'}" style="font-size: 12px;" (click)="onChangeNotCompleteStatus($event)" [disabled]="!canEdit()" [style.opacity]="canEdit() ? '1' : '0.6'">Not Completed</button>
                                             </span>
                                         </div>
                                     </ng-template>
@@ -253,7 +260,7 @@
                         <div class='col'>{{ note.CreatedBy }}</div>
                         <div class='col'>{{ note.CreatedDate | date:"MM/dd/yyyy HH:mm:ss" }}</div>
                         <div class='col'>
-                            <span #spanHideElement id="hide-{{ note.ClientNoteKey }}" style="font-size: 12px; background-color: #f3f5fc; border: 1px solid #385491; color: black;" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-primary': true, 'risk_select_hide_note': 'risk_select_hide_note'}" (click)="hideNote(note.ClientNoteKey)">{{ this.hideNoteBtnText }}</span>
+                            <span #spanHideElement id="hide-{{ note.ClientNoteKey }}" style="font-size: 12px; background-color: #f3f5fc; border: 1px solid #385491; color: black;" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-primary': true, 'risk_select_hide_note': 'risk_select_hide_note'}" (click)="hideNote(note.ClientNoteKey)" [style.opacity]="canEdit() ? '1' : '0.6'" [style.cursor]="canEdit() ? 'pointer' : 'not-allowed'" [style.pointer-events]="canEdit() ? 'auto' : 'none'">{{ this.hideNoteBtnText }}</span>
                         </div>
                         <div class='row text-left pl-3 pt-3 pb-3'>
                             <div class="form-control-sm" style="height: fit-content;width: 99%;border: #000000 solid 1px;">{{ note.Notes }}</div>

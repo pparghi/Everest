@@ -54,6 +54,8 @@ export class MemberMasterDebtorComponent {
   DebtorPaymentsData: any;
   MiscDataList: any;
 
+  @Input() userAccessLevel: string = 'No Access'; // default value if not provided
+
   constructor(private route: ActivatedRoute, private clientDebtorService: ClientsDebtorsService, private masterDebtorService: DebtorsApiService,  private dataService: MemberMasterDebtorService, private router: Router){}
     
     ngOnInit(): void {      
@@ -76,6 +78,9 @@ export class MemberMasterDebtorComponent {
     }
 
     openDocumentsDialog(DebtorKey: number){      
+      if (this.userAccessLevel === 'View Restricted') {
+        return; // Prevent restricted users from opening dialogs
+      }
       this.masterDebtorService.getDebtorsDocuments(DebtorKey).subscribe(response => {                                
         this.DocumentsList = response.documentsList;
         this.DocumentsCat = response.DocumentsCat;
@@ -95,6 +100,9 @@ export class MemberMasterDebtorComponent {
     }
 
     openClientsWindow(DebtorKey: number, Debtor: string): void {
+      if (this.userAccessLevel === 'View Restricted') {
+        return; // Prevent restricted users from opening new tabs
+      }
       const url = this.router.serializeUrl(
         this.router.createUrlTree(['/clients'], { queryParams: { DebtorKey: DebtorKey, Debtor: Debtor } })
       );
@@ -135,6 +143,9 @@ export class MemberMasterDebtorComponent {
     isExpansionDetailRow = (index: number, row: DataItem) => row.hasOwnProperty('expandedDetail');
 
     payments(DebtorKey: any, Debtor: any){
+      if (this.userAccessLevel === 'View Restricted') {
+        return; // Prevent restricted users from opening dialogs
+      }
       this.clientDebtorService.getDebtorsPayments(DebtorKey, this.MasterClientKey).subscribe(response => {                                
         this.DebtorPaymentsData = response.debtorPaymentsData;
         
@@ -154,6 +165,9 @@ export class MemberMasterDebtorComponent {
   }
 
   miscData(DebtorKey: any){
+    if (this.userAccessLevel === 'View Restricted') {
+      return; // Prevent restricted users from opening dialogs
+    }
     this.clientDebtorService.getMiscData(DebtorKey, this.MasterClientKey).subscribe(response => {                                
       this.MiscDataList = response.MiscDataList;
       

@@ -13,17 +13,17 @@
 .analysis-container {
 	/* margin: 20px;
 	max-height: 700px; */
-	overflow: auto;
+	overflow-x: auto;
 }
 
-.card-container{
-	padding: 10px;
-    margin: 10px;
-    margin-bottom: 20px;
-	background-color: #ffffff;
-    height: 100%;
-    width: 100%;
-    overflow: auto;
+.card-container {
+  padding: 10px;
+  margin: 10px;
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
 }
 
 .centered-label {
@@ -186,4 +186,149 @@
     width: 90%;
     border: 1px solid #767676;
     border-radius: 2px;
+}
+
+/* Base font family for all elements */
+.card-container-v2 {
+  padding: 10px;
+  margin: 5px;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.card-base {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Title Styles */
+.title1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.title2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    padding-bottom: 4px;
+}
+
+.title3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 4px;
+}
+
+/* Text Styles */
+.text1 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 4px 0;
+}
+
+.text2 {
+    font-size: 12px;
+    font-weight: 500;
+    color: #7f8c8d;
+    margin: 2px 0;
+}
+
+.text3 {
+    font-size: 10px;
+    font-weight: 400;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Number/Value Styles */
+.number1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 4px 0;
+}
+
+.number2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 4px 0;
+}
+
+.number3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 2px 0;
+}
+
+.number4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Status Colors */
+.success {
+    color: #27ae60;
+}
+
+.danger {
+    color: #e74c3c;
+}
+
+.warning {
+    color: #f39c12;
+}
+
+.info {
+    color: #3498db;
+}
+
+/* Layout Helpers */
+.card-section {
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.flex-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.text-center {
+    text-align: center;
 }

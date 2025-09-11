@@ -24,22 +24,22 @@
                 <b>Rate: </b> {{ this.todayRate }} ({{ this.todayCurrency }}, {{ this.todayDate }}) 
                 <button mat-icon-button (click)="moreInfo()" style="color: #1473d1; font-size: 16px"><i class="fa fa-info-circle"></i></button>                         &nbsp; 
             </li>
-            <li class="nav-item" style="border-top-left-radius: 10px; background-color: #e5e5e5;">            
+            <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Dashboard']['View Full'] + this.userPermissionsDisctionary['Everest Dashboard']['Full'] >= 1" [style]="getFirstNavItemStyle('dashboard')">            
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
             </li>
-            <li class="nav-item" *ngIf="this.NavOptionMasterDebtor == 'Master Debtor' && this.NavAccessMasterDebtor == 1" style="background-color: #e5e5e5;">            
+            <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Master Debtors']['View Restricted'] + this.userPermissionsDisctionary['Everest Master Debtors']['View Full'] + this.userPermissionsDisctionary['Everest Master Debtors']['Full'] >= 1" [style]="getFirstNavItemStyle('master-debtors')">            
                 <a class="nav-link" style="color: #808183" data-toggle="tab"  routerLink="/master-debtors" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }" >Master Debtors</a>
             </li>
-            <li class="nav-item" *ngIf="this.NavOptionClientRisk == 'Client Risk Page' && this.NavAccessClientRisk == 1" style="background-color: #e5e5e5;">
+            <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Client Risk']['View Restricted'] + this.userPermissionsDisctionary['Everest Client Risk']['View Full'] + this.userPermissionsDisctionary['Everest Client Risk']['Full'] >= 1" [style]="getFirstNavItemStyle('risk-client')">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/risk-client" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Client Risk</a>
             </li>
-            <li class="nav-item" *ngIf="this.NavOptionRiskMonitoring == 'Risk Monitoring' && this.NavAccessRiskMonitoring == 1" style="background-color: #e5e5e5;">
+            <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Risk Monitoring']['View Restricted'] + this.userPermissionsDisctionary['Everest Risk Monitoring']['View Full'] + this.userPermissionsDisctionary['Everest Risk Monitoring']['Full'] >= 1" [style]="getFirstNavItemStyle('monitoring')">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/monitoring" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Risk Monitoring</a>
             </li>
-            <li class="nav-item" style="background-color: #e5e5e5;">
+            <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Credit Requests']['View Restricted'] + this.userPermissionsDisctionary['Everest Credit Requests']['View Full'] + this.userPermissionsDisctionary['Everest Credit Requests']['Full'] >= 1" [style]="getFirstNavItemStyle('ticketing')">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/ticketing" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Credit Requests</a>
             </li>
-            <li class="nav-item" style="background-color: #e5e5e5;">
+            <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Invoices']['View Restricted'] + this.userPermissionsDisctionary['Everest Invoices']['View Full'] >= 1" [style]="getFirstNavItemStyle('invoice-search')">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/invoice-search" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Invoices</a>
             </li>
             <li class="nav-item" style="border-top-right-radius: 10px; background-color: #e5e5e5;">
@@ -48,15 +48,15 @@
                     <mat-icon fontIcon="arrow_drop_down"></mat-icon>
                 </a>
                 <mat-menu #documents="matMenu">
-                    <a mat-menu-item routerLink="/notice-of-accessment">NOA</a>
-                    <a mat-menu-item routerLink="/release-letter">Release Letter</a>
-                    <a mat-menu-item routerLink="/documents-statements">Statements</a>
-                    <a mat-menu-item routerLink="/client-documents">Client Documents</a>
+                    <a mat-menu-item routerLink="/notice-of-accessment" *ngIf="this.userPermissionsDisctionary['Everest Documents NOA']['PDF'] + this.userPermissionsDisctionary['Everest Documents NOA']['Full'] >= 1">NOA</a>
+                    <a mat-menu-item routerLink="/release-letter" *ngIf="this.userPermissionsDisctionary['Everest Documents Release']['PDF'] + this.userPermissionsDisctionary['Everest Documents Release']['Full'] >= 1">Release Letter</a>
+                    <a mat-menu-item routerLink="/documents-statements" *ngIf="this.userPermissionsDisctionary['Everest Documents Statements']['View Full'] + this.userPermissionsDisctionary['Everest Documents Statements']['Full'] >= 1">Statements</a>
+                    <a mat-menu-item routerLink="/client-documents" *ngIf="this.userPermissionsDisctionary['Everest Documents Client Documents']['View Restricted'] + this.userPermissionsDisctionary['Everest Documents Client Documents']['View Full'] + this.userPermissionsDisctionary['Everest Documents Client Documents']['Full'] >= 1">Client Documents</a>
                 </mat-menu>
             </li>
         </ul>
     </div>
     <div class="container-fluid w-100 shadow p-2" style="height: 100%; min-height: 830px; background-color: white; border-top-left-radius: 5px; border-top-right-radius: 0px; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">    
-        <app-main-content [userPermissions]="userPermissions"></app-main-content>
+        <app-main-content [userPermissionsDisctionary]="userPermissionsDisctionary"></app-main-content>
     </div>
 </div>

@@ -57,7 +57,7 @@
         </div>
     </div>       
     
-    <div class="main-table-container" *ngIf="this.NavOptionMasterDebtor == 'Master Debtor' && this.NavAccessMasterDebtor == 1">    
+    <div class="main-table-container">    
         <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="mat-table">
 
         <ng-container matColumnDef="expand">
@@ -172,7 +172,10 @@
 
         <ng-container matColumnDef="CalcRateCode">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Rating</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end; color: #3a8ada;" (click)="openDSODialog(element.DSO30, element.DSO60, element.DSO90, element.Debtor)">{{ element.CalcRateCode }}</td>
+            <td mat-cell *matCellDef="let element" style="text-align: end;" 
+                [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : '#3a8ada'"
+                [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                (click)="openDSODialog(element.DSO30, element.DSO60, element.DSO90, element.Debtor)">{{ element.CalcRateCode }}</td>
         </ng-container>        
 
         <ng-container matColumnDef="CredExpireDate">
@@ -210,20 +213,23 @@
             </td>
         </ng-container> -->
 
-        <ng-container matColumnDef="Edit" *ngIf="this.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && this.NavAccessUpdateMasterDebtor == 1">
-            <th mat-header-cell *matHeaderCellDef style="text-align: end;">Edit</th>
-            <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">
-                <span (click)="edit(element)">                        
-                    <mat-icon style="height: 20px; width: 20px; font-size: 15px; color: #3a8ada;"><i class="fa fa-edit"></i></mat-icon>
-                </span>                     
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="Edit" *ngIf="this.NavOptionUpdateMasterDebtor == 'Update Master Debtor' && this.NavAccessUpdateMasterDebtor == 0">
-            <th mat-header-cell *matHeaderCellDef style="text-align: end;"></th>
-            <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">                                       
-            </td>
-        </ng-container>
+        @if (this.userPermissionsDisctionary['Everest Master Debtors']['Full'] == 1){
+            <ng-container matColumnDef="Edit">
+                <th mat-header-cell *matHeaderCellDef style="text-align: end;">Edit</th>
+                <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">
+                    <span (click)="edit(element)">                        
+                        <mat-icon style="height: 20px; width: 20px; font-size: 15px; color: #3a8ada;"><i class="fa fa-edit"></i></mat-icon>
+                    </span>                     
+                </td>
+            </ng-container>
+        }
+        @else {
+            <ng-container matColumnDef="Edit">
+                <th mat-header-cell *matHeaderCellDef style="text-align: end;"></th>
+                <td mat-cell *matCellDef="let element; let i = index" style="text-align: end;">                                       
+                </td>
+            </ng-container>
+        }
 
         <ng-container matColumnDef="extra">
             <th mat-header-cell *matHeaderCellDef></th>
@@ -251,7 +257,11 @@
                                 <th class="header" style="width: 10%;">DSOAll</th>               
                             </tr>                               
                             <tr class="table-row">
-                                <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openDebtorStatementsDialog(element.DebtorKey)">{{ element.Balance | roundThousands }}</td>
+                                <td class="cell" style="width: 10%;" 
+                                    [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : '#3a8ada'" 
+                                    [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                                    [style.text-decoration]="userAccessLevel() === 'View Restricted' ? 'none' : 'inherit'"
+                                    (click)="openDebtorStatementsDialog(element.DebtorKey)">{{ element.Balance | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
@@ -279,9 +289,17 @@
                                 <td class="cell" style="width: 10%;">{{ element.TotalCreditLimit | roundThousands }}</td>                                                                    
                                 <td class="cell" style="width: 10%;">{{ element.SkippedInvoices }}</td>                                  
                                 <td class="cell" style="width: 20%;">{{ element.NoInvoices }}</td>
-                                <td class="cell" style="width: 10%; color: #3a8ada;" (click)="openChecqueSearchDialog(element.DebtorKey)">{{ element.LastPmtDate | date:"MM/dd/yyyy" }}</td>
+                                <td class="cell" style="width: 10%;" 
+                                    [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : '#3a8ada'"
+                                    [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                                    (click)="openChecqueSearchDialog(element.DebtorKey)">{{ element.LastPmtDate | date:"MM/dd/yyyy" }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.DisputesPct | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;" (click)="openDebtorAuditDialog(element.DebtorKey)"><i class="fa-solid fa-list-check" style="color: #3a8ada;"></i></td>
+                                <td class="cell" style="width: 10%;" 
+                                    [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                                    (click)="openDebtorAuditDialog(element.DebtorKey)">
+                                    <i class="fa-solid fa-list-check" 
+                                       [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : '#3a8ada'"></i>
+                                </td>
                                 <td class="cell" style="width: 20%;">{{ element.Addr1 }}</td>                                    
                                 <td class="cell" style="width: 20%;">{{ element.Addr2 }}</td>                                                                    
                             </tr>
@@ -302,22 +320,43 @@
                                 <td>{{ element.Email }}</td>                                  
                                 <td><a href="tel:{{ element.Phone1 }}"> {{ element.Phone1 }}</a></td>                                    
                                 <td><a href="tel:{{ element.Phone2 }}">{{ element.Phone2 }}</a></td>                                    
-                                <td class="cell" (click)="openDocumentsDialog(element.DebtorKey)"><i class="fa fa-file" style="color: #3a8ada;"></i></td>
+                                <td class="cell" 
+                                    [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                                    (click)="openDocumentsDialog(element.DebtorKey)">
+                                    <i class="fa fa-file" 
+                                       [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : '#3a8ada'"></i>
+                                </td>
                                 <td class="cell">{{ element.Warning }}</td>
                                 <td class="cell">
                                     <div class="duns-MC-cell">
                                         {{ element.DbDunsNo }}
-                                        <mat-icon color="primary" (click)="searchDuns(element)" class="Duns-MC-button">find_replace</mat-icon>
+                                        <mat-icon 
+                                            [color]="userAccessLevel() === 'View Restricted' ? '' : 'primary'" 
+                                            [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : ''"
+                                            [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                                            (click)="searchDuns(element)" 
+                                            class="Duns-MC-button">find_replace</mat-icon>
                                     </div>
                                 </td>
                                 <td class="cell">{{ element.MotorCarrNo }}</td>
-                                <td class="cell"><mat-icon color="primary" (click)="getReportLink(element)" class="report-button">link</mat-icon></td>
-                                <td class="cell" (click)="openDebtorContactsDialog(element.DebtorKey)" style="color: #005cbb; cursor: pointer; font-weight: Medium;">Debtor Contacts</td>
+                                <td class="cell">
+                                    <mat-icon 
+                                        [color]="userAccessLevel() === 'View Restricted' ? '' : 'primary'" 
+                                        [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : ''"
+                                        [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                                        (click)="getReportLink(element)" 
+                                        class="report-button">link</mat-icon>
+                                </td>
+                                <td class="cell" 
+                                    [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : '#005cbb'"
+                                    [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
+                                    [style.font-weight]="userAccessLevel() === 'View Restricted' ? 'normal' : 'Medium'"
+                                    (click)="openDebtorContactsDialog(element.DebtorKey)">Debtor Contacts</td>
                             </tr>                               
                         </table>                            
                     </div> 
                     <br>
-                    <app-members [DebtorKey]="element.DebtorKey"></app-members>                   
+                    <app-members [DebtorKey]="element.DebtorKey" [userAccessLevel]="userAccessLevel()"></app-members>                   
                 </div>                                      
             </td>            
         </ng-container>

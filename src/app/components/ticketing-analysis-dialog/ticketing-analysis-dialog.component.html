@@ -35,6 +35,8 @@
     </mat-drawer>
 
     <div class="analysis-container">
+
+        <!-- old debtor information cards -->
         <mat-grid-list cols="2" rowHeight="350px">
             <mat-grid-tile>
                 <mat-card appearance="raised" class="card-container">
@@ -272,6 +274,20 @@
                 </mat-card>
             </mat-grid-tile>
         </mat-grid-list>
+
+
+        <!-- <mat-grid-list cols="1" rowHeight="120px">
+            <mat-grid-tile>
+                <mat-card appearance="raised" class="card-container-v2">
+                    <div class="card-base">
+                        <p class="text2">Credit Request #</p>
+                        <p class="title2">{{ticketData.RequestNo}} on {{ticketData.RequestDate | date:'MM/dd/yyyy h:mm a'}} by {{ticketData.RequestUser}}</p>
+                    </div>
+                </mat-card>
+            </mat-grid-tile>
+        </mat-grid-list> -->
+
+
         <!-- trend analysis table and chart 1 -->
         <mat-grid-list cols="1" rowHeight="auto">
             <mat-card appearance="raised" class="mat-card-trend-table">

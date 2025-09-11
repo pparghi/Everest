@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, Input } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import * as XLSX from 'xlsx-js-style';
-import {Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { HttpClient } from '@angular/common/http';
-import {startWith, map, switchMap} from 'rxjs/operators';
+import { startWith, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
 import { FilterService } from '../../services/filter.service';
@@ -36,10 +36,25 @@ export interface InvoiceStatementInterface {
   templateUrl: './documents-statements.component.html',
   styleUrl: './documents-statements.component.css'
 })
-export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
-  
+export class DocumentsStatementsComponent implements OnInit, AfterViewInit {
+
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+
+  // Helper method to get user access level, only two levels in this page which are View Restricted and View Full
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Documents Statements']?.['Full'] === 1) {
+      return 'Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Documents Statements']?.['View Full'] === 1) {
+      return 'View Full';
+    }
+    else {
+      return 'No Access';
+    }
+  }
+
   // #region constructor
-  constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService, private riskService: RiskMonitoringService, private filterService: FilterService, private invoiceService: InvoiceService) {}
+  constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService, private riskService: RiskMonitoringService, private filterService: FilterService, private invoiceService: InvoiceService) { }
 
   // Define a FormGroup for filters
   filterForm = new FormGroup({
@@ -55,19 +70,19 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
   selectedDebtorKey: string = '';
   officeList: string[] = [];
   clientCRMList: any;
-  
+
   debtorFilteredOptions: Observable<DebtorInterface[]> | undefined;
-  
+
   isLoading = false;
   invoiceListSource = new MatTableDataSource<InvoiceStatementInterface>([]);
-  
+
   pageSize: number = 25; // paginator page size
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   // invoice list table columns
   invoceColumns: string[] = ['Debtor', 'Client', 'PurchOrd', 'InvNo', 'InvDate', 'OpenDays', 'CurrencyType', 'Amt', 'Balance'];
 
-  
+
   // #region ngOnInit
   ngOnInit(): void {
     // load filter state from filter service
@@ -133,7 +148,7 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
   // API get invoice list based on filters
   getInvoiceListByFilters() {
     this.isLoading = true;
-    
+
     const Debtor = this.filterForm.get('Debtor')?.value?.trim() || '%';
     const Office = this.filterForm.get('Office')?.value?.trim() || '%';
     const CRM = this.filterForm.get('CRM')?.value?.trim() || '%';
@@ -161,6 +176,10 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
   // #region export excel
   /** Export table to Excel */
   exportTableToExcel(): void {
+    if (this.userAccessLevel() !== 'Full') {
+      return;
+    }
+
     if (this.invoiceListSource.data.length === 0) {
       alert('No data available to export.');
       return;
@@ -221,9 +240,9 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
     worksheet['!cols'] = Object.keys(exportData[0]).map(header => ({
       wch: columnWidths[header] || 15 // Default to 15 if width not specified
     }));
-    
+
     // Set height in points for first row
-    worksheet['!rows'] = [{ hpt: 18 }]; 
+    worksheet['!rows'] = [{ hpt: 18 }];
 
     // Add styling to header row
     const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
@@ -306,7 +325,7 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
               right: { style: 'thin', color: { rgb: '000000' } }
             }
           };
-        } else if (( range.e.c === 9 && (C === 9 || C === 8) ) || ( range.e.c === 8 && (C === 7 || C === 8) )) {  // Amount and Balance column
+        } else if ((range.e.c === 9 && (C === 9 || C === 8)) || (range.e.c === 8 && (C === 7 || C === 8))) {  // Amount and Balance column
           worksheet[address].s = {
             font: {
               name: 'Calibri',
@@ -400,7 +419,7 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
 
   // load office list
   loadOfficeList() {
-    this.riskService.getOfficeList().subscribe(response => {                                         
+    this.riskService.getOfficeList().subscribe(response => {
       this.officeList = response.officeList.map((office: any) => office.Office);
     });
   }
@@ -419,11 +438,11 @@ export class DocumentsStatementsComponent implements OnInit, AfterViewInit  {
     // update columns
     this.updateColumns();
   }
-  
+
   private updateColumns() {
     const showDescription = this.filterForm.get('descriptionChecked')?.value;
-    this.invoceColumns = showDescription ? 
-      ['Debtor', 'Client', 'PurchOrd', 'InvNo', 'Descr', 'InvDate', 'OpenDays', 'CurrencyType', 'Amt', 'Balance'] : 
+    this.invoceColumns = showDescription ?
+      ['Debtor', 'Client', 'PurchOrd', 'InvNo', 'Descr', 'InvDate', 'OpenDays', 'CurrencyType', 'Amt', 'Balance'] :
       ['Debtor', 'Client', 'PurchOrd', 'InvNo', 'InvDate', 'OpenDays', 'CurrencyType', 'Amt', 'Balance'];
   }
 

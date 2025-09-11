@@ -44,6 +44,9 @@ export class MemberClientsComponent implements OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
+    
+    @Input() userAccessLevel: string = 'No Access'; // default value if not provided
+
   constructor(private route: ActivatedRoute, private dataService: MemberClientsService, private router: Router){}
     
     ngOnInit(): void {
@@ -78,6 +81,9 @@ export class MemberClientsComponent implements OnInit {
     }
 
     openClientsDebtorWindow(DebtorKey: number): void {
+      if (this.userAccessLevel === 'View Restricted') {
+        return; // Prevent restricted users from opening new tabs
+      }
       const url = this.router.serializeUrl(
         this.router.createUrlTree(['/clients'], { queryParams: { DebtorKey: DebtorKey } })
       );

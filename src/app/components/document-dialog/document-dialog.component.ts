@@ -196,7 +196,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Email: [data.Email || ''],
         MotorCarrNo: [data.MotorCarrNo || ''],
         CredExpireMos: [data.CredExpireMos || ''],
-        RateDate: [data?.RateDate.split(' ')[0] || ''],
+        RateDate: [data?.RateDate ? data?.RateDate.split(' ')[0] : ''],
         Notes: [data.Notes || ''],
         CredNote: [data.CredNote || ''],
         IndivCreditLimit: [data.IndivCreditLimit || ''],
@@ -829,7 +829,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     if (this.editTicketForm) {
       // Update ticket form with fresh debtor details
       this.editTicketForm.patchValue({
-        RateDate: debtorDetails?.RateDate.split(' ')[0] || '',
+        RateDate: debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '',
         ExpiresInMonths: debtorDetails?.CredExpireMos || '1',
         ExpiresDate: debtorDetails?.CredExpireDate ? this.formateDate(debtorDetails?.CredExpireDate) : this.addMonths(debtorDetails?.CredExpireMos || '1'),
       });
@@ -980,11 +980,36 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   }
   // method to add months to current date
   private addMonths(months: number): string {
-    let newDate = new Date();
-    // add days of months times 30 to the current date
-    newDate.setDate(newDate.getDate() + 30 * months);
+    let baseDate = new Date();
+    if (this.editTicketForm && this.editTicketForm.get('RateDate')?.value){
+      baseDate = new Date(this.editTicketForm.get('RateDate')?.value);
+    }
+    
+    // Use toISOString() to get timezone-neutral date components
+    const isoString = baseDate.toISOString();
+    const datePart = isoString.split('T')[0]; // Get YYYY-MM-DD part
+    const [yearStr, monthStr, dayStr] = datePart.split('-');
+    
+    const originalDay = parseInt(dayStr);
+    const originalMonth = parseInt(monthStr) - 1; // Convert to 0-indexed
+    const originalYear = parseInt(yearStr);
+    
+    // Calculate target year and month
+    const targetMonth = originalMonth + months;
+    const targetYear = originalYear + Math.floor(targetMonth / 12);
+    const normalizedTargetMonth = targetMonth % 12;
+    
+    // Create a date with the target year/month and original day
+    const newDate = new Date(targetYear, normalizedTargetMonth, originalDay);
+    
+    // Handle case where the original day doesn't exist in the target month
+    if (newDate.getMonth() !== normalizedTargetMonth) {
+      // The date rolled over to the next month, so set to last day of target month
+      newDate.setDate(0);
+    }
+    
     // return string in mm/dd/yyyy format
-    const month = String(newDate.getMonth()+1).padStart(2, '0'); // Months are zero-based
+    const month = String(newDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
     const day = String(newDate.getDate()).padStart(2, '0');
     const year = String(newDate.getFullYear());
     return `${month}/${day}/${year}`;

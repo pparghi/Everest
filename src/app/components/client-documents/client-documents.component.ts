@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { HttpClient } from '@angular/common/http';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -15,6 +15,34 @@ import { CacheService } from '../../services/cache.service';
   styleUrl: './client-documents.component.css'
 })
 export class ClientDocumentsComponent implements OnInit {
+
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+
+  // Helper method to get user access level, only two levels in this page which are View Restricted and View Full
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Documents Client Documents']?.['Full'] === 1) {
+      return 'Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Documents Client Documents']?.['View Full'] === 1) {
+      return 'View Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Documents Client Documents']?.['View Restricted'] === 1) {
+      return 'View Restricted';
+    }
+    else {
+      return 'No Access';
+    }
+  }
+
+  // Helper method to check if user can perform actions that require view access
+  public canView(): boolean {
+    return this.userAccessLevel() === 'Full' || this.userAccessLevel() === 'View Full';
+  }
+
+  // Helper method to check if user can edit
+  public canEdit(): boolean {
+    return this.userAccessLevel() === 'Full';
+  }
 
   constructor( 
     private http: HttpClient, 
@@ -119,6 +147,10 @@ export class ClientDocumentsComponent implements OnInit {
 
   // method for viewing file
   viewFile(element: any) {
+    if (!this.canView()) {
+      return; // Prevent restricted users from viewing files
+    }
+
     const fileName = element.FileName;
     const fileNameBase64 = btoa(fileName);
     const fileType = element.FileType.toLowerCase();
@@ -198,6 +230,10 @@ export class ClientDocumentsComponent implements OnInit {
   
   // Method to open the file upload dialog
   openUploadDialog(): void {
+    if (!this.canEdit()) {
+      return; // Prevent restricted users from opening upload dialog
+    }
+
     // Get the selected client
     const clientValue = this.filterForm.get('Client')?.value;
     let clientName = clientValue?clientValue.trim() : '';

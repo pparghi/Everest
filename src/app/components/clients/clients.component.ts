@@ -50,6 +50,18 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   rawData: any[] = []; // Store the raw data for filtering
   checkboxValues: any[] = [true, false]; // Array to hold checkbox values
 
+  @Input() userAccessLevel: string = 'No Access'; // default value if not provided
+
+  // Helper method to check if user can perform actions that require view access
+  public canView(): boolean {
+    return this.userAccessLevel === 'Full' || this.userAccessLevel === 'View Full';
+  }
+
+  // Helper method to check if user can edit
+  public canEdit(): boolean {
+    return this.userAccessLevel === 'Full';
+  }
+
   constructor(private route: ActivatedRoute, private dataService: ClientsService, private router: Router) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -127,6 +139,10 @@ export class ClientsComponent implements OnInit, AfterViewInit {
   }
 
   openClientsInvoicesWindow(ClientKey: number, Client: string): void {
+    if (!this.canView()) {
+      return;
+    }
+
     const url = this.router.serializeUrl(
       this.router.createUrlTree(['/invoices'], { queryParams: { ClientKey: ClientKey, DebtorKey: this.DebtorKey, Client: Client } })
     );
