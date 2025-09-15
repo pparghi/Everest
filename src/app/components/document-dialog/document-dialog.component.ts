@@ -787,13 +787,12 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
               verticalPosition: 'top',
               horizontalPosition: 'center'
             });
-            if ( !(this.data?.ReloadPage && this.data?.ReloadPage === 'N') ) {
-              window.location.reload();
+            // update expires date if expires in months is available
+            if (this.editTicketForm.get('ExpiresInMonths')?.value) {
+              this.editTicketForm.patchValue({
+                ExpiresDate: this.addMonths(this.editTicketForm.get('ExpiresInMonths')?.value)
+              });
             }
-            else {
-              this.dialogRef.close();
-            }
-            
           }
           else {
             this._snackBar.openFromComponent(ErrorSnackbarComponent, {

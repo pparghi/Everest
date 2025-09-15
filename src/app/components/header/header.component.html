@@ -31,7 +31,7 @@
                 <a class="nav-link" style="color: #808183" data-toggle="tab"  routerLink="/master-debtors" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }" >Master Debtors</a>
             </li>
             <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Client Risk']['View Restricted'] + this.userPermissionsDisctionary['Everest Client Risk']['View Full'] + this.userPermissionsDisctionary['Everest Client Risk']['Full'] >= 1" [style]="getFirstNavItemStyle('risk-client')">
-                <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/risk-client" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Client Risk</a>
+                <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/risk-client" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Clients</a>
             </li>
             <li class="nav-item" *ngIf="this.userPermissionsDisctionary['Everest Risk Monitoring']['View Restricted'] + this.userPermissionsDisctionary['Everest Risk Monitoring']['View Full'] + this.userPermissionsDisctionary['Everest Risk Monitoring']['Full'] >= 1" [style]="getFirstNavItemStyle('monitoring')">
                 <a class="nav-link" style="color: #808183" data-toggle="tab" routerLink="/monitoring" routerLinkActive="active" [routerLinkActiveOptions]="{ exact : true }">Risk Monitoring</a>

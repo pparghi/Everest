@@ -75,8 +75,19 @@ export class RiskMonitoringDetailComponent {
   userAccessLevel: string = 'No Access'; // Add userAccessLevel property
 
   // Helper method to check if user can edit
-  canEdit(): boolean {
-    return this.userAccessLevel === 'Full';
+  canEdit(edit = 'other'): boolean {
+    if (this.userAccessLevel === 'Edit Restricted') {
+      // Edit Restricted users can edit everything EXCEPT CRM and Level
+      if (edit === 'crm' || edit === 'level') {
+        return false;
+      }
+      return true; // Can edit everything else
+    }
+    else if (this.userAccessLevel === 'Full') {
+      return true; // Can edit everything
+    }
+    
+    return false; // No access
   }
   
   constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService, private router: Router) { 

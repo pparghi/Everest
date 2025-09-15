@@ -141,7 +141,7 @@ export class TicketingAnalysisComponent implements OnInit {
         this.debtorDetails = response.data[0];
         for (let it of response.data) {
           if (it.DebtorKey === this.ticketData.DebtorKey) {
-            this.debtorDetails = it;
+            this.debtorDetails = it; 
             break;
           }
         }
@@ -938,6 +938,24 @@ export class TicketingAnalysisComponent implements OnInit {
         console.error('Error refresh member debtor details:', error);
       });
     });
+  }
+
+  // calculate the gap year, month and days from today to given date
+  calculateGapDays(dateStr: string): string {
+    if (!dateStr) return 'N/A';
+    const givenDate = new Date(dateStr);
+    const today = new Date();
+    // Calculate the difference in milliseconds
+    const diffTime = today.getTime() - givenDate.getTime();
+    // returns 
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays > 365) {
+      const years = diffDays / 365;
+      return +years.toFixed(1) + ' years ago';
+    }
+    else {
+      return diffDays + ' days ago';
+    }
   }
 
 }
