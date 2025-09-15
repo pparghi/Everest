@@ -76,6 +76,9 @@ export class RiskMonitoringComponent implements OnInit {
     if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['Full'] === 1) {
       return 'Full';
     }
+    else if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['Edit Restricted'] === 1) {
+      return 'Edit Restricted';
+    }
     else if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['View Full'] === 1) {
       return 'View Full';
     }
