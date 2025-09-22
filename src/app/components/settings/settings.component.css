@@ -1,0 +1,130 @@
+.settings-dialog {
+  max-width: 600px;
+  min-width: 500px;
+}
+
+.dialog-header {
+  padding: 0 24px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.dialog-content {
+  padding: 0 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.settings-form {
+  width: 100%;
+}
+
+.settings-section {
+  margin-bottom: 24px;
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
+}
+
+.form-row {
+  margin-bottom: 26px;
+  display: flex;
+  align-items: center;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-slide-toggle {
+  margin-right: 16px;
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.action-buttons-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.button-spinner {
+  margin-right: 8px;
+}
+
+/* Custom styling for mat-card */
+mat-card-header {
+  margin-bottom: 16px;
+}
+
+mat-card-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #555;
+}
+
+mat-card-content {
+  padding-top: 0;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .settings-dialog {
+    min-width: 90vw;
+    max-width: 95vw;
+  }
+  
+  .dialog-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .action-buttons-right {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Loading state */
+.mat-mdc-raised-button:disabled {
+  opacity: 0.6;
+}
+
+/* Error state styling */
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+  border-color: #f44336;
+}
+
+/* Success styling for saved settings */
+.settings-saved {
+  background-color: #e8f5e8;
+  border-left: 4px solid #4caf50;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+/* Focus styling */
+.mat-mdc-slide-toggle:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}

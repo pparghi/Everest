@@ -37,7 +37,7 @@
     <div class="analysis-container">
 
         <!-- old debtor information cards -->
-        <mat-grid-list cols="1" rowHeight="300px" style="margin-bottom: 16px;">
+        <mat-grid-list cols="1" rowHeight="260px" style="margin-bottom: 16px;">
             <mat-grid-tile>
                 <mat-card appearance="raised" class="card-container">
                     <div class="table-container">                            
@@ -53,59 +53,105 @@
                         </table>
                         <table class="bordered-table">
                             <tr>                                
-                                <th class="header" style="width: 33.33%;">Overall credit limit</th>
-                                <th class="header" style="width: 33.33%;">AIG limit</th>
-                                <th class="header" style="width: 33.33%;">Outstanding balance</th>
+                                <th class="header" style="width: 25%;">Overall credit limit</th>
+                                <th class="header" style="width: 25%;">AIG limit</th>
+                                <th class="header" style="width: 25%;">Outstanding balance</th>
+                                <th class="header" style="width: 25%;">Credit limit utilization</th>
                             </tr>                               
                             <tr class="table-row">
-                                <td class="cell" style="width: 33.33%;">{{ formatCurrency(ticketData.TotalCreditLimit) }}</td>
-                                <td class="cell" style="width: 33.33%;">{{ formatCurrency(debtorDetails?.AIGLimit) }}</td>
-                                <td class="cell" style="width: 33.33%;">
-                                    <div class="d-flex align-items-center w-100">
-                                        {{ formatCurrency(debtorDetails?.Balance) }} 
-                                        <mat-icon color="primary" class="input-icon ms-2 icon-hover-effect" 
-                                        (click)="onMoreDetailsClick('balance')">
-                                            {{showDetailedView === 'balance' ? 'visibility' : 'more_horiz'}}
-                                        </mat-icon>
-                                    </div>
+                                <td class="cell" style="width: 25%;">{{ formatCurrency(ticketData.TotalCreditLimit) }}</td>
+                                <td class="cell" style="width: 25%;">{{ formatCurrency(debtorDetails?.AIGLimit) }}</td>
+                                <td class="cell" style="width: 25%;">
+                                    {{ formatCurrency(debtorDetails?.Balance) }}
                                 </td>
+                                <td class="cell" style="width: 25%;">{{ formatPercentage(debtorDetails?.PctUtilized) }}</td>
                             </tr>                                
                         </table>
                         <table class="bordered-table">
                             <tr>
-                                <th class="header" style="width: 33.33%;">Credit limit utilization</th>
-                                <th class="header" style="width: 33.33%;">Credit rating</th>
-                                <th class="header" style="width: 33.33%;">Credit Ansonia</th>
+                                <th class="header" style="width: 25%;">Dilution %</th>
+                                <th class="header" style="width: 25%;">Client | Debtor Concentration %</th>
+                                <th class="header" style="width: 25%;">Last payment date</th>
                             </tr>                               
                             <tr class="table-row">
-                                <td class="cell" style="width: 33.33%;">{{ formatPercentage(debtorDetails?.PctUtilized) }}</td>
-                                <td class="cell" style="width: 33.33%;">
-                                    <mat-icon color="primary" class="input-icon ms-2 icon-hover-effect" 
-                                    (click)="onMoreDetailsClick('creditRating')">
-                                        {{showDetailedView === 'creditRating' ? 'visibility' : 'more_horiz'}}
-                                    </mat-icon>
-                                </td>
-                                <td class="cell" style="width: 33.33%;">
-                                    <mat-icon color="primary" class="input-icon ms-2 icon-hover-effect" 
-                                    (click)="onMoreDetailsClick('creditAnsonia')">
-                                        {{showDetailedView === 'creditAnsonia' ? 'visibility' : 'more_horiz'}}
-                                    </mat-icon>
-                                </td>
+                                <td class="cell" style="width: 25%;">{{ debtorDetails?.DilutionPct| percent: '1.0-2' }}</td>
+                                <td class="cell" style="width: 25%;">{{ this.ClientConcentrationPercentage + ' | ' + this.DebtorConcentrationPercentage }}</td>
+                                <td class="cell" style="width: 25%; cursor: pointer; color: rgb(58, 138, 218);" (click)="openChecqueSearchDialog(debtorDetails?.DebtorKey)">{{ debtorDetails?.LastPmtDate ? (debtorDetails?.LastPmtDate | date:"MM/dd/yyyy") : 'N/A' }}</td>
                             </tr>                                
                         </table>
                         <table class="bordered-table">
                             <tr>
-                                <th class="header" style="width: 33.33%;">Dilution %</th>
-                                <th class="header" style="width: 33.33%;">Client | Debtor Concentration %</th>
-                                <th class="header" style="width: 33.33%;">Last payment date</th>
+                                <th class="header" style="width: 20%;">Total AR</th>
+                                <th class="header" style="width: 20%;">0-30 | %</th>
+                                <th class="header" style="width: 20%;">31-60 | %</th>
+                                <th class="header" style="width: 20%;">61-90 | %</th>
+                                <th class="header" style="width: 20%;">≥ 91 | %</th>             
                             </tr>                               
                             <tr class="table-row">
-                                <td class="cell" style="width: 33.33%;">{{ debtorDetails?.DilutionPct| percent: '1.0-2' }}</td>
-                                <td class="cell" style="width: 33.33%;">{{ this.ClientConcentrationPercentage + ' | ' + this.DebtorConcentrationPercentage }}</td>
-                                <td class="cell" style="width: 33.33%; cursor: pointer; color: rgb(58, 138, 218);" (click)="openChecqueSearchDialog(debtorDetails?.DebtorKey)">{{ debtorDetails?.LastPmtDate ? (debtorDetails?.LastPmtDate | date:"MM/dd/yyyy") : 'N/A' }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Balance) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age0to30) + ' | ' +  calculatePercentage(debtorDetails?.Age0to30, debtorDetails?.Balance) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age31to60) + ' | ' +  calculatePercentage(debtorDetails?.Age31to60, debtorDetails?.Balance) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age61to90) + ' | ' +  calculatePercentage(debtorDetails?.Age61to90, debtorDetails?.Balance) }}</td>
+                                <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age91to120, [debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180]) + ' | ' +  calculatePercentage(getSumOfArray([debtorDetails?.Age91to120, debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180])+'', debtorDetails?.Balance) }}</td>                                                
                             </tr>                                
-                        </table> 
+                        </table>
                     </div> 
+                </mat-card>
+            </mat-grid-tile>
+        </mat-grid-list>
+        
+        <mat-grid-list cols="2" rowHeight="160px" style="margin-bottom: 16px;">
+            <mat-grid-tile>
+                <mat-card appearance="raised" class="card-container">
+                    <div class="table-container">
+                            <table class="bordered-table">
+                                <tr>
+                                    <th class="header" style="width: 20%;">DSO All</th>
+                                    <th class="header" style="width: 20%;">DSO 90</th>
+                                    <th class="header" style="width: 20%;">DSO 60</th>
+                                    <th class="header" style="width: 20%;">DSO 30</th>
+                                    <th class="header" style="width: 20%;">Rate code</th>             
+                                </tr>                               
+                                <tr class="table-row">
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSOAll) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO90) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO60) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO30) }}</td>
+                                    <td class="cell" style="width: 20%;">{{ debtorDetails?.CalcRateCode }}</td>                                                
+                                </tr>                                
+                            </table>
+                        </div> 
+                </mat-card>
+            </mat-grid-tile>
+            
+            <mat-grid-tile>
+                <mat-card appearance="raised" class="card-container">
+                        <div class="table-container">
+                            <table class="bordered-table">
+                                <tr>
+                                    <th class="header" style="width: 33.33%;">Last updated</th>
+                                    <th class="header" style="width: 33.33%;">Risk score</th>
+                                    <th class="header" style="width: 33.33%;">Rating</th>
+                                </tr>                               
+                                <tr class="table-row">
+                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaLastUpdate || "N/A" }}</td>
+                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaRiskScore || "N/A" }}</td>
+                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaRating || "N/A" }}</td>
+                                </tr>                                
+                            </table>
+                            <table class="bordered-table">
+                                <tr>
+                                    <th class="header" style="width: 33.33%;">Average days to pay</th>
+                                    <th class="header" style="width: 33.33%;">Average balance</th>
+                                    <th class="header" style="width: 33.33%;">High balance</th>
+                                </tr>                               
+                                <tr class="table-row">
+                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaAvgDaysToPay || "N/A" }}</td>
+                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaAvgBalance ? formatCurrency(debtorDetails?.AnsoniaAvgBalance) : "N/A" }}</td>
+                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaHighBalance ? formatCurrency(debtorDetails?.AnsoniaHighBalance) : "N/A" }}</td>
+                                </tr>                                
+                            </table>
+                        </div> 
                 </mat-card>
             </mat-grid-tile>
         </mat-grid-list>
@@ -145,26 +191,10 @@
             </mat-grid-tile>
         </mat-grid-list>
             
-        <mat-grid-list cols="1" rowHeight="350px" style="margin-bottom: 16px;">
+        <mat-grid-list cols="1" rowHeight="300px" style="margin-bottom: 16px;">
             <mat-grid-tile>
                 <mat-card appearance="raised" class="card-container">
                     <div class="table-container">
-                            <table class="bordered-table">
-                                <tr>
-                                    <th class="header" style="width: 20%;">Total AR</th>
-                                    <th class="header" style="width: 20%;">0-30 | %</th>
-                                    <th class="header" style="width: 20%;">31-60 | %</th>
-                                    <th class="header" style="width: 20%;">61-90 | %</th>
-                                    <th class="header" style="width: 20%;">≥ 91 | %</th>             
-                                </tr>                               
-                                <tr class="table-row">
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age0to30) + ' | ' +  calculatePercentage(debtorDetails?.Age0to30, debtorDetails?.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age31to60) + ' | ' +  calculatePercentage(debtorDetails?.Age31to60, debtorDetails?.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age61to90) + ' | ' +  calculatePercentage(debtorDetails?.Age61to90, debtorDetails?.Balance) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ formatCurrency(debtorDetails?.Age91to120, [debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180]) + ' | ' +  calculatePercentage(getSumOfArray([debtorDetails?.Age91to120, debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180])+'', debtorDetails?.Balance) }}</td>                                                
-                                </tr>                                
-                            </table>
                             <table class="bordered-table">
                                 <tr>
                                     <th class="header" style="width: 75%;">Address</th>
@@ -232,61 +262,6 @@
             </mat-grid-tile>
         </mat-grid-list>
         
-        <mat-grid-list cols="2" rowHeight="200px" style="margin-bottom: 16px;">
-            <mat-grid-tile>
-                <mat-card appearance="raised" class="card-container">
-                    <div class="table-container">
-                            <table class="bordered-table">
-                                <tr>
-                                    <th class="header" style="width: 20%;">DSO All</th>
-                                    <th class="header" style="width: 20%;">DSO 90</th>
-                                    <th class="header" style="width: 20%;">DSO 60</th>
-                                    <th class="header" style="width: 20%;">DSO 30</th>
-                                    <th class="header" style="width: 20%;">Rate code</th>             
-                                </tr>                               
-                                <tr class="table-row">
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSOAll) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO90) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO60) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ math.round(debtorDetails?.DSO30) }}</td>
-                                    <td class="cell" style="width: 20%;">{{ debtorDetails?.CalcRateCode }}</td>                                                
-                                </tr>                                
-                            </table>
-                        </div> 
-                </mat-card>
-            </mat-grid-tile>
-            
-            <mat-grid-tile>
-                <mat-card appearance="raised" class="card-container">
-                        <div class="table-container">
-                            <table class="bordered-table">
-                                <tr>
-                                    <th class="header" style="width: 33.33%;">Last updated</th>
-                                    <th class="header" style="width: 33.33%;">Risk score</th>
-                                    <th class="header" style="width: 33.33%;">Rating</th>
-                                </tr>                               
-                                <tr class="table-row">
-                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaLastUpdate || "N/A" }}</td>
-                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaRiskScore || "N/A" }}</td>
-                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaRating || "N/A" }}</td>
-                                </tr>                                
-                            </table>
-                            <table class="bordered-table">
-                                <tr>
-                                    <th class="header" style="width: 33.33%;">Average days to pay</th>
-                                    <th class="header" style="width: 33.33%;">Average balance</th>
-                                    <th class="header" style="width: 33.33%;">High balance</th>
-                                </tr>                               
-                                <tr class="table-row">
-                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaAvgDaysToPay || "N/A" }}</td>
-                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaAvgBalance ? formatCurrency(debtorDetails?.AnsoniaAvgBalance) : "N/A" }}</td>
-                                    <td class="cell" style="width: 33.33%;">{{ debtorDetails?.AnsoniaHighBalance ? formatCurrency(debtorDetails?.AnsoniaHighBalance) : "N/A" }}</td>
-                                </tr>                                
-                            </table>
-                        </div> 
-                </mat-card>
-            </mat-grid-tile>
-        </mat-grid-list>
 
 
         <!--<mat-grid-list cols="2" rowHeight="350px">
@@ -663,8 +638,8 @@
             </mat-card>
         </mat-grid-list>
 
-
-
+        <!-- ##################### new layout ##################### -->
+        @if (currentUser.toUpperCase() === "RSUN" || currentUser.toUpperCase() === "SCHAUDHARI"){
         <!-- credit request # card -->
         <mat-card appearance="raised" class="card-container-v2">
             <div class="card-base">
@@ -699,8 +674,8 @@
                     <div class="flex-column" style="flex: 1;">
                         <p class="text2">Established date</p>
                         <div style="display: flex; align-items: center; gap: 16px;">
-                            <p class="title1 word-wrap">{{'2018-06-29 11:26:38.000' | date:'yyyy-MM-dd'}}</p>
-                            <p class="text1">{{calculateGapDays('2018-06-29 11:26:38.000')}}</p>
+                            <p class="title1 word-wrap">{{debtorDetails?.DateCreated | date:'yyyy-MM-dd'}}</p>
+                            <p class="text1">{{calculateGapDays(debtorDetails?.DateCreated)}}</p>
                         </div>
                     </div>
                 </div>
@@ -799,7 +774,7 @@
                             </div>
                         </div>
 
-                        <p class="title2">Ansonia Rating</p>
+                        <p class="title2">Ansonia</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Risk Score</p>
@@ -829,6 +804,41 @@
                                 <p class="title1">{{ debtorDetails?.AnsoniaHighBalance ? formatCurrency(debtorDetails?.AnsoniaHighBalance) : "N/A" }}</p>
                             </div>
                         </div>
+                        
+                        <p class="title2">DUNS</p>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Risk Score</p>
+                                <p class="title1">{{'TBD'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">D&B Rating</p>
+                                <p class="title1">{{'TBD'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Paydex</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p class="title1">{{'TBD'}}</p>
+                                </div>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">MCR</p>
+                                <p class="title1">{{ "TBD" }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">High Balance</p>
+                                <p class="title1">{{ "TBD" }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">DS/FC</p>
+                                <p class="title1">{{ "TBD" }}</p>
+                            </div>
+                        </div>
                     </div> 
                 </mat-card>
             </div>
@@ -836,12 +846,145 @@
             <div class="equal-height-column" style="flex: 1;">
                 <mat-card appearance="raised" class="card-container-v2">
                     <div class="card-base">
-                        <p class="title2">Client relationship analsysis</p>
+                        <p class="title2">Client Relationship Analysis</p>
                     </div>
                 </mat-card>
             </div>
         </div>
 
+        <!-- receivables cards -->
+        <div class="equal-height-row">
+            <!-- Credit profiles card -->
+            <div class="equal-height-column">
+                <mat-card appearance="raised" class="card-container-v2">
+                    <div class="card-base">
+                        <p class="title2">{{ticketData.Client}} Relationship</p>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Total AR</p>
+                                <p class="title1">{{'400,000'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Past due balance</p>
+                                <p class="title1">{{'N/A'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">DSO</p>
+                                <p class="title1">{{'30'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Disputed invoice</p>
+                                <p class="title1">{{'N/A'}}</p>
+                            </div>
+                        </div>
+                        <p class="title2">Aging Breakdown</p>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">0-30</p>
+                                <p class="title1 aging-0-30" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age0to30, debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age0to30.split('.')[0])}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">31-60</p>
+                                <p class="title1 aging-31-60" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age31to60, debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age31to60.split('.')[0])}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">61-90</p>
+                                <p class="title1 aging-61-90" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age61to90, debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age61to90.split('.')[0])}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">91+</p>
+                                <p class="title1 aging-91-plus" style="margin-bottom: 0px;">{{calculatePercentage(getSumOfArray([debtorDetails?.Age91to120, debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180])+'', debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age91to120.split('.')[0], [debtorDetails?.Age121to150.split('.')[0], debtorDetails?.Age151to180.split('.')[0], debtorDetails?.AgeOver180.split('.')[0]])}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+            <!-- Client relationship analsysis card -->
+            <div class="equal-height-column">
+                <mat-card appearance="raised" class="card-container-v2">
+                    <div class="card-base">
+                        <p class="title2">All Clients Relationship</p>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Total AR</p>
+                                <p class="title1">{{'400,000'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Past due balance</p>
+                                <p class="title1">{{'N/A'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">DSO</p>
+                                <p class="title1">{{'30'}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Disputed invoice</p>
+                                <p class="title1">{{'N/A'}}</p>
+                            </div>
+                        </div>
+                        <p class="title2">Aging Breakdown</p>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">0-30</p>
+                                <p class="title1 aging-0-30" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age0to30, debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age0to30.split('.')[0])}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">31-60</p>
+                                <p class="title1 aging-31-60" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age31to60, debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age31to60.split('.')[0])}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">61-90</p>
+                                <p class="title1 aging-61-90" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age61to90, debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age61to90.split('.')[0])}}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">91+</p>
+                                <p class="title1 aging-91-plus" style="margin-bottom: 0px;">{{calculatePercentage(getSumOfArray([debtorDetails?.Age91to120, debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180])+'', debtorDetails?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(debtorDetails?.Age91to120.split('.')[0], [debtorDetails?.Age121to150.split('.')[0], debtorDetails?.Age151to180.split('.')[0], debtorDetails?.AgeOver180.split('.')[0]])}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- payment behaviour card -->
+        <mat-card appearance="raised" class="card-container-v2">
+            <div class="card-base">
+                <p class="title2">Payment Behaviour</p>
+                <div class="flex-row">
+                    <div class="flex-column">
+                        <p class="text2">Last Payment</p>
+                        
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <p class="title1">{{calculateGapDays(debtorDetails?.LastPmtDate)}}</p>
+                            <p class="text1 t1-clickable" (click)="openChecqueSearchDialog(debtorDetails?.DebtorKey)">{{ debtorDetails?.LastPmtDate ? (debtorDetails?.LastPmtDate | date:"yyyy-MM-dd") : 'N/A' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-card>
+
+
+        }
 
     </div>
 </mat-drawer-container>

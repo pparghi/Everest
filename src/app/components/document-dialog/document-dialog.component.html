@@ -943,7 +943,12 @@
                 <div class="row" style="padding-top: 10px;">
                   <div class="col-md-12">
                     <label for="FreeTextInput" class="form-label">Text input</label>
-                    <textarea id="FreeTextInput" class="form-control" formControlName="FreeTextInput" rows="3"></textarea>
+                    <textarea id="FreeTextInput" class="form-control" 
+                              [class.is-invalid]="hasFieldError('FreeTextInput')"
+                              formControlName="FreeTextInput" rows="3"></textarea>
+                    <div class="invalid-feedback" *ngIf="hasFieldError('FreeTextInput')">
+                      {{ getFieldErrorMessage('FreeTextInput') }}
+                    </div>
                   </div>
                 </div>
               </div>

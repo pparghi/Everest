@@ -1,4 +1,12 @@
-<div class="example-container mat-elevation-z8" tabindex="0">     
+<div class="example-container mat-elevation-z8" tabindex="0">  
+    <div style="display: flex; justify-content: flex-end; padding-bottom: 12px;">
+        <button (click)="goBack()" 
+                style="background-color: #315cf8; border: 1px solid #385491; color: rgb(255, 255, 255);" 
+                [ngClass]="{'btn': true, 'btn-sm': true, 'btn-primary': true}" 
+                style="font-size: 12px;">
+            Close
+        </button>
+    </div>    
     <div class="row" style="justify-content: space-between;">
         <div class="col-md-4">
             <mat-card style="height: 100%;" appearance="outlined">
@@ -52,51 +60,6 @@
             </mat-card>
         </div>
         <div class="col-md-8">
-            <div class="row" style="justify-content: space-between;">
-                <div class="col-md-6">
-                    <mat-card style="height: 100%;" appearance="outlined">
-                        <mat-card-header>
-                            <mat-card-title style="font-size: 20px;">Contacts</mat-card-title>
-                        </mat-card-header>
-                        <mat-card-content>
-                            <table>
-                                <tr>
-                                    <td><b>Name</b></td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;<b>Phone</b></td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;<b>Email</b></td>
-                                </tr>
-                                <tr *ngFor="let contact of contacts">
-                                    <td>{{ contact.LastName }} {{ contact.FirstName }} </td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Phone }} </td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Email }} </td>
-                                </tr>
-                            </table>
-                        </mat-card-content>
-                    </mat-card>
-                </div>
-                <div class="col-md-6">
-                    <mat-card style="height: 100%;" appearance="outlined">
-                        <mat-card-header>
-                            <mat-card-title style="font-size: 20px;">Summary</mat-card-title>
-                        </mat-card-header>
-                        <mat-card-content>
-                            <p>{{ extractSummaryText(clientSummary) }}</p>
-                            <table>  
-                                <tr>
-                                    <td style="vertical-align: middle;"><b>Created by: </b></td>
-                                    <td style="vertical-align: middle;">{{ clientSummary?extractUserId(clientSummary):'' }}</td>
-                                    <td style="vertical-align: middle; padding-left: 20px;"><b>Created on: </b></td>
-                                    <td style="vertical-align: middle;">{{ extractDate(clientSummary) }}</td>
-                                    <td style="vertical-align: middle; padding-left: 40px;">
-                                        <button (click)="updateClientSummary()" style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0); " [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;" [disabled]="!canEdit()" [style.opacity]="canEdit() ? '1' : '0.6'" [style.cursor]="canEdit() ? 'pointer' : 'not-allowed'">Edit Summary</button>
-                                    </td>
-                                </tr>                                          
-                            </table>
-                        </mat-card-content>
-                    </mat-card>
-                </div>
-            </div>
-            <br>
             <div class="row" style="justify-content: space-between;">
                 <div class="col-md-6">
                     <mat-card style="height: 100%;" appearance="outlined">
@@ -171,38 +134,61 @@
                 <div class="col-md-6">
                     <mat-card style="height: 100%;" appearance="outlined">
                         <mat-card-header>
-                            <mat-card-title style="font-size: 20px;">Add New Note</mat-card-title>
-                        </mat-card-header><br>
+                            <mat-card-title style="font-size: 20px;">Summary</mat-card-title>
+                        </mat-card-header>
                         <mat-card-content>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for=""><b>Category</b></label><br>
-                                    <select class="form-control" style="font-size: 13px;" [(ngModel)]="note_category"
-                                        [disabled]="!canEdit()">
-                                        <option value="">Select Category</option>
-                                        <option *ngFor="let category of MonitoringCategories" [value]="category">{{ category }}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="due_date"><b>Due Date </b></label><br>
-                                    <input type="date" class="form-control" style="font-size: 13px;" [(ngModel)]="due_date"
-                                        [value]="" name="" id="due_date" [disabled]="!canEdit()">
-                                </div>
-                                <div class="col-md-9">
-                                    <label for="note"><b>Note </b></label><br>
-                                    <textarea name="" id="" cols="110" class="form-control-sm w-100" [(ngModel)]="note" rows="3"
-                                        [disabled]="!canEdit()"></textarea>
-                                </div>
-                                <div class="col-md-3">
-                                    <label for=""></label><br>
-                                    <button (click)="addNote()"
-                                        style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0);"
-                                        [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;"
-                                        [disabled]="!canEdit()" [style.opacity]="canEdit() ? '1' : '0.6'"
-                                        [style.cursor]="canEdit() ? 'pointer' : 'not-allowed'">Add Note</button>
-                                </div>
-                            </div>
+                            <p>{{ extractSummaryText(clientSummary) }}</p>
+                            <table>  
+                                <tr>
+                                    <td style="vertical-align: middle;"><b>Created by: </b></td>
+                                    <td style="vertical-align: middle;">{{ clientSummary?extractUserId(clientSummary):'' }}</td>
+                                    <td style="vertical-align: middle; padding-left: 20px;"><b>Created on: </b></td>
+                                    <td style="vertical-align: middle;">{{ extractDate(clientSummary) }}</td>
+                                    <td style="vertical-align: middle; padding-left: 40px;">
+                                        <button (click)="updateClientSummary()" style="font-size: 12px; background-color: #38f831; border: 1px solid #389147; color: rgb(0, 0, 0); " [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;" [disabled]="!canEdit()" [style.opacity]="canEdit() ? '1' : '0.6'" [style.cursor]="canEdit() ? 'pointer' : 'not-allowed'">Edit Summary</button>
+                                    </td>
+                                </tr>                                          
+                            </table>
+                        </mat-card-content>
+                    </mat-card>
+                </div>
+            </div>
+            <br>
+            <div class="row" style="justify-content: space-between;">
+                <div class="col-md-6">
+                    <mat-card style="height: 100%;" appearance="outlined">
+                        <mat-card-header>
+                            <mat-card-title style="font-size: 20px;">Contacts</mat-card-title>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <table>
+                                <tr>
+                                    <td><b>Name</b></td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;<b>Phone</b></td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;<b>Email</b></td>
+                                </tr>
+                                <tr *ngFor="let contact of contacts">
+                                    <td>{{ contact.LastName }} {{ contact.FirstName }} </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Phone }} </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Email }} </td>
+                                </tr>
+                            </table>
+                        </mat-card-content>
+                    </mat-card>
+                </div>
+                <div class="col-md-6">
+                    <mat-card style="height: 100%;" appearance="outlined">
+                        <mat-card-header>
+                            <mat-card-title style="font-size: 20px;">Quick Actions</mat-card-title>
+                        </mat-card-header>
+                        <mat-card-content style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                            <button (click)="addNewNote()"
+                                [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;" 
+                                [disabled]="!canEdit()" 
+                                [style.opacity]="canEdit() ? '1' : '0.6'"
+                                [style.cursor]="canEdit() ? 'pointer' : 'not-allowed'">
+                                Add New Note
+                            </button>
                         </mat-card-content>
                     </mat-card>
                 </div>
@@ -270,6 +256,4 @@
             </mat-card>
         </div>
     </div>
-    <hr>    
-    <button (click)="goBack()" style="font-size: 12px; background-color: #315cf8; border: 1px solid #385491; color: rgb(255, 255, 255);" [ngClass]="{'btn': true, 'btn-sm': true, 'btn-primary': true}" style="font-size: 12px;">Close</button>
 </div>

@@ -123,39 +123,40 @@ export class TicketingAnalysisComponent implements OnInit {
 
   ngOnInit() {
     // Load analysis data
-    console.log('Analysis Dialog data:', this.ticketData);
+    console.log('ticketing-analysis-component, this.ticketData:', this.ticketData);
     // this.ticketData = this.data; // removebecause the data is used by dialog
 
     // Get the logged in user for CredAppBy
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       this.currentUser = (profile as any).mail.match(/^([^@]*)@/)[1];
       
+      // fetch debtor details
+      if (this.ticketData.DebtorKey) {
+        this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
+          this.debtorDetails = response.data[0];
+          for (let it of response.data) {
+            if (it.DebtorKey === this.ticketData.DebtorKey) {
+              this.debtorDetails = it; 
+              break;
+            }
+          }
+          this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
+          console.log('ticketing-analysis-component, this.debtorDetails:', this.debtorDetails);
+          
+          // Emit the debtor details to the parent component
+          this.debtorDetailsChanged.emit(this.debtorDetails);
+          
+          // fetch no buy code list and set the default no buy code after debtor details are loaded
+          this.getNoBuyCodeList();
+        }, error => {
+          console.error('Error fetching member debtors:', error);
+        });
+      }
     });
 
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
   
-    // fetch debtor details
-    if (this.ticketData.DebtorKey) {
-      this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
-        this.debtorDetails = response.data[0];
-        for (let it of response.data) {
-          if (it.DebtorKey === this.ticketData.DebtorKey) {
-            this.debtorDetails = it; 
-            break;
-          }
-        }
-        console.log('Member Debtors Response:', this.debtorDetails);
-        
-        // Emit the debtor details to the parent component
-        this.debtorDetailsChanged.emit(this.debtorDetails);
-        
-        // fetch no buy code list and set the default no buy code after debtor details are loaded
-        this.getNoBuyCodeList();
-      }, error => {
-        console.error('Error fetching member debtors:', error);
-      });
-    }
 
     // fetch client concentration percentage
     this.loadClientConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
@@ -285,7 +286,7 @@ export class TicketingAnalysisComponent implements OnInit {
   // load concentration percentage number of a client related to a debtor
   loadClientConcentrationPercentage(DebtorKey: number, ClientKey: number): void {
     this.clientService.getClients(DebtorKey).subscribe(response => {
-      // console.log("client concentration number: ", response.data);
+      console.log("client concentration number: ", response.data);
       for (let it of response.data) {
         if (parseInt(it.ClientKey) === ClientKey) {
           this.ClientConcentrationPercentage = Math.round(parseFloat(it.Concentration) * 10000) / 100 + '%';

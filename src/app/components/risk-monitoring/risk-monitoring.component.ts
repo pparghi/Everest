@@ -438,7 +438,7 @@ export class RiskMonitoringComponent implements OnInit {
       return; // Prevent restricted users from opening detail pages
     }
     this.dataService.setData('Level', Level);
-    this.dataService.setData('userAccessLevel', this.userAccessLevel()); // Pass userAccessLevel securely via service
+    // this.dataService.setData('userAccessLevel', this.userAccessLevel()); // Pass userAccessLevel securely via service
     this.router.navigate(['/detail'], { queryParams: { ClientKey: ClientKey, ARGrossBalance: ARGrossBalance, Ineligible: Ineligible, NFE: NFE, Reserve: Reserve, Availability: Availability, Level: Level }  });    
   }
 

@@ -222,6 +222,7 @@
     font-weight: 600;
     color: #2c3e50;
     padding-bottom: 4px;
+    margin-bottom: 4px;
 }
 
 .title3 {
@@ -254,6 +255,18 @@
     letter-spacing: 0.5px;
 }
 
+.t1-clickable {
+    cursor: pointer;
+}
+.t1-clickable:hover {
+    text-decoration: underline;
+    color: #0b2ab6;
+}
+
+.fit-content {
+  width: fit-content;
+  display: inline-block;
+}
 
 /* Number/Value Styles */
 .number1 {
@@ -300,6 +313,22 @@
     color: #3498db;
 }
 
+.aging-0-30 {
+    color: #17944b; /* Green for 0-30 days */
+}
+
+.aging-31-60 {
+    color: #b3a80e; /* Yellow for 31-60 days */
+}
+
+.aging-61-90 {
+    color: #ce6219; /* Red for 61-90 days */
+}
+
+.aging-91-plus {
+    color: #c53232; /* Blue for 91+ days */
+}
+
 /* Layout Helpers */
 .card-section {
     background: #ffffff;
@@ -330,7 +359,7 @@
     display: flex;
     align-items: stretch;
     gap: 8px;
-    margin-bottom: 16px;
+    /* margin-bottom: 16px; */
 }
 
 .equal-height-column {
@@ -386,6 +415,8 @@
     height: auto;
     align-self: stretch;
     margin: 0 8px;
+    border-color: #f3f3f3 !important;
+    border-width: 2px !important;
 }
 
 /* Ensure long names wrap properly */

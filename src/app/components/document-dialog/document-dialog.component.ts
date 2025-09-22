@@ -152,6 +152,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   totalQuantityShown: string = 'N/A';
   // get debtor details from child component trend tab
   debtorDetails: any = {};
+  isSendDecisionEmail: boolean = false;
 
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
@@ -213,6 +214,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       // #region ticketing page
       console.log('ticketing data--', data);
 
+      if (data.RequestUser && data.RequestUser.toUpperCase() === '*PORTAL') {
+        this.isSendDecisionEmail = true;
+      }
+
       // request tab
       const roundThousandsPipe = new RoundThousandsPipe();
       var creditLimit = roundThousandsPipe.transform(data.TotalCreditLimit);
@@ -249,8 +254,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Action: ['', Validators.required], // Required
         NewLimit: ['0', Validators.required], // Required
         ExpiresInMonths: ['1', Validators.required], // Required
-        FreeTextInput: '',
-        SendDecisionToClient: false,
+        FreeTextInput: ['', this.isSendDecisionEmail ? [Validators.required, this.trimmedMinLength(4)] : []],
+        SendDecisionToClient: this.isSendDecisionEmail,
         ChangeMaster: data.Type === "Non-Grouped"?false:true,
         MasterDebtor:data.MasterDebtor,
         MasterIndivCreditLimit: this.formatCurrency(data.MasterIndivCreditLimit) || '',
@@ -261,6 +266,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       })
 
       this.debtor = data.Debtor
+      
+      // Update FreeTextInput validation based on portal request status
+      this.updateFreeTextInputValidation();
+      
       this.getCreditRequestStatusList();
 
       this.debtorDetails = null;
@@ -790,7 +799,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
             // update expires date if expires in months is available
             if (this.editTicketForm.get('ExpiresInMonths')?.value) {
               this.editTicketForm.patchValue({
-                ExpiresDate: this.addMonths(this.editTicketForm.get('ExpiresInMonths')?.value)
+                ExpiresDate: this.addMonths(parseInt(this.editTicketForm.get('ExpiresInMonths')?.value))
               });
             }
           }
@@ -830,7 +839,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       this.editTicketForm.patchValue({
         RateDate: debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '',
         ExpiresInMonths: debtorDetails?.CredExpireMos || '1',
-        ExpiresDate: debtorDetails?.CredExpireDate ? this.formateDate(debtorDetails?.CredExpireDate) : this.addMonths(debtorDetails?.CredExpireMos || '1'),
+        ExpiresDate: debtorDetails?.CredExpireDate ? this.formateDate(debtorDetails?.CredExpireDate) : this.addMonths(debtorDetails?.CredExpireMos ? parseInt(debtorDetails?.CredExpireMos) : 1, debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : ''),
       });
     }
     
@@ -942,6 +951,11 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       if (field.errors['required']) {
         return `Required`;
       }
+      if (field.errors['minlength']) {
+        const requiredLength = field.errors['minlength'].requiredLength;
+        const actualLength = field.errors['minlength'].actualLength;
+        return `Minimum ${requiredLength} characters required (current: ${actualLength})`;
+      }
     }
     return '';
   }
@@ -964,6 +978,42 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     const masterTotalLimit = this.parseCurrencyValue(this.editTicketForm.get('MasterTotalCreditLimit')?.value || '0');
     return approveAmt >= masterTotalLimit;
   }
+  // Method to update FreeTextInput validation based on portal request status
+  private updateFreeTextInputValidation(): void {
+    if (this.editTicketForm) {
+      const freeTextControl = this.editTicketForm.get('FreeTextInput');
+      if (freeTextControl) {
+        if (this.isSendDecisionEmail) {
+          freeTextControl.setValidators([Validators.required, this.trimmedMinLength(4)]);
+        } else {
+          freeTextControl.clearValidators();
+        }
+        freeTextControl.updateValueAndValidity();
+      }
+    }
+  }
+
+  // Custom validator that trims the value before checking minimum length
+  private trimmedMinLength(minLength: number) {
+    return (control: any) => {
+      if (!control.value) {
+        return null; // Let the required validator handle empty values
+      }
+      
+      const trimmedValue = control.value.toString().trim();
+      
+      if (trimmedValue.length < minLength) {
+        return {
+          'minlength': {
+            'requiredLength': minLength,
+            'actualLength': trimmedValue.length
+          }
+        };
+      }
+      
+      return null;
+    };
+  }
   // when ExpiresInMonths changed, updaste expires date too
   onExpiresInMonthsChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
@@ -978,12 +1028,18 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     }
   }
   // method to add months to current date
-  private addMonths(months: number): string {
+  private addMonths(months: number, passBaseDate: string = ''): string {
+    // console.log(`Adding ${months} months to base date`);
     let baseDate = new Date();
     if (this.editTicketForm && this.editTicketForm.get('RateDate')?.value){
+      // console.log(`Initial base date: ${this.editTicketForm.get('RateDate')?.value}`);
       baseDate = new Date(this.editTicketForm.get('RateDate')?.value);
     }
-    
+    if (passBaseDate) {
+      // console.log(`Overriding base date with passed value: ${passBaseDate}`);
+      baseDate = new Date(passBaseDate);
+    }
+    // console.log(`Base date: ${baseDate.toISOString().split('T')[0]}`);
     // Use toISOString() to get timezone-neutral date components
     const isoString = baseDate.toISOString();
     const datePart = isoString.split('T')[0]; // Get YYYY-MM-DD part
@@ -1011,6 +1067,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     const month = String(newDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
     const day = String(newDate.getDate()).padStart(2, '0');
     const year = String(newDate.getFullYear());
+
+    // console.log(`Calculated expiry date: ${month}/${day}/${year}`);
     return `${month}/${day}/${year}`;
   }
   // method to formate date to MM/DD/YYYY

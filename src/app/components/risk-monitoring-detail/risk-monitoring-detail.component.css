@@ -27,13 +27,22 @@ td {
   }
 
 .swal2-textarea-large {
-  min-height: 200px !important;
+  height: auto !important;
+  min-height: auto !important;
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5;
 }
 
 .swal2-wide-popup {
-  width: 600px !important;
+  width: 1080px !important;
   max-width: 90% !important;
+}
+
+.swal2-textarea {
+  min-height: auto !important;
+  height: auto !important;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
 }

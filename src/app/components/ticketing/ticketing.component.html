@@ -103,7 +103,7 @@
             </ng-container>
 
             <ng-container matColumnDef="Age">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Date & time</th>            
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Wait Time</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
                     <!-- {{ element.RequestDate | date:"MM/dd/yyyy HH:mm:ss" }} -->
                     {{  element.Age | minutesToDHM }}
@@ -111,7 +111,7 @@
             </ng-container>
 
             <ng-container matColumnDef="ApproveDate">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Approved Date & time</th>            
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Approved Date</th>            
                 <td mat-cell *matCellDef="let element" style="text-align: end;" class="truncate">                
                     {{ element.ApproveDate | date:"MM/dd/yyyy HH:mm" }}
                 </td>
@@ -121,6 +121,13 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Credit Type</th>             
                 <td mat-cell *matCellDef="let element" style="text-align: end;">                
                     {{ element.Source }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ApproveUser">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Approved By</th>             
+                <td mat-cell *matCellDef="let element" style="text-align: end;">                
+                    {{ element.ApproveUser }}
                 </td>
             </ng-container>
 

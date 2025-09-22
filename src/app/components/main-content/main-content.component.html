@@ -39,7 +39,7 @@
         <app-member-master-debtor></app-member-master-debtor>
     </div> -->
     <div *ngIf="currentPath.includes('detail')">
-        <app-risk-monitoring-detail></app-risk-monitoring-detail>
+        <app-risk-monitoring-detail [userPermissionsDisctionary]="userPermissionsDisctionary"></app-risk-monitoring-detail>
     </div>
     <div *ngIf="showChildComponent('monitoring')">
         <app-risk-monitoring [userPermissionsDisctionary]="userPermissionsDisctionary"></app-risk-monitoring>

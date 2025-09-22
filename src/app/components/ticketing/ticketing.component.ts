@@ -30,6 +30,7 @@ interface DataItem {
     Comments: any;
     ApproveDate: any;
     ApproveAmt: any;
+    ApproveUser: any;
     Response: any;
     Source: any;
     Balance: any;
@@ -66,7 +67,7 @@ interface clientDataItem {
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'Edit', 'Email'];   
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'ApproveUser', 'Edit', 'Email'];   
     clientDisplayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis']; 
     statusListOptions = [
       { label: 'Pending', value: '0' },
@@ -145,12 +146,20 @@ export class TicketingComponent {
       return this.userAccessLevel() === 'Full';
     }
 
+
+    // parameters for notification methods
+    ifSendNoti = false; // flag to indicate if need to send notification
+    notiSentTime = new Date();
+    oldRecords: DataItem[] = [];
+    notiIntervalSeconds = 60; // minimum interval between notifications in seconds
+    firstLoad = true; // flag to indicate if it's the first load
+
     constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
       const yesterdayDate = new Date(today);
-      yesterdayDate.setDate(today.getDate() - 1);
-      // yesterdayDate.setDate(today.getDate() - 49);
-      this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');      
+      // yesterdayDate.setDate(today.getDate() - 1);
+      yesterdayDate.setDate(today.getDate() - 53);
+      this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');     
     }
     ngOnInit(): void {
       this.http.get(GRAPH_ENDPOINT)
@@ -160,21 +169,29 @@ export class TicketingComponent {
         this.user = userId;
       });
 
+      // get local session for notification settings
+      const settingsString = localStorage.getItem('settings');
+      if (settingsString) {
+        const settings = JSON.parse(settingsString);
+        this.ifSendNoti = settings.CreditRequestNotificationSwitch;
+        this.notiIntervalSeconds = settings.CreditRequestNotificationIntervalMinutes ? settings.CreditRequestNotificationIntervalMinutes*60 : 60;
+      }
+
       // load filter state from filter service
       const filterValues = this.filterService.getFilterState('ticketing');
       if (filterValues?.selectedValues) {
         this.selectedValues = filterValues.selectedValues;
       }
       else {
-        this.selectedValues = ['0']; // Default value
-        // this.selectedValues = ['0', '1, 6, 7', '2'];
+        // this.selectedValues = ['0']; // Default value
+        this.selectedValues = ['0', '1, 6, 7', '2'];
       }
       if (filterValues?.requestDate) {
         this.requestDate = filterValues.requestDate;
       }
 
       this.selectedValuesString = this.selectedValues.join(', ');      
-      this.loadData();     
+      this.loadData();
 
       // Auto-reload every 30 seconds
       this.autoReloadSub = interval(30 * 1000).subscribe(() => this.loadData());
@@ -227,47 +244,6 @@ export class TicketingComponent {
     }
 
     loadData(): void {
-      // console.log('loadData called');
-      // this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-      //   this.profile = profile;
-      //   this.loginService.getData(this.profile.mail).subscribe(response => {                                
-      //     response.data.forEach((element: any) => {
-      //       if (element.NavOption == 'Master Debtor') {            
-      //         this.NavOptionMasterDebtor = element.NavOption;          
-      //         this.NavAccessMasterDebtor = element.NavAccess;
-      //       } else if (element.NavOption == 'Client Risk Page'){
-      //         this.NavOptionClientRisk = element.NavOption;          
-      //         this.NavAccessClientRisk = element.NavAccess;
-      //       } else if (element.NavOption == 'Update Master Debtor'){
-      //         this.NavOptionUpdateMasterDebtor = element.NavOption;          
-      //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
-      //       } else if (element.NavOption == 'Risk Monitoring'){
-      //         this.NavOptionRiskMonitoring = element.NavOption;          
-      //         this.NavAccessRiskMonitoring = element.NavAccess;
-      //       } else if (element.NavOption == 'Risk Monitoring Restricted'){
-      //         this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-      //         this.NavAccessRiskMonitoringRestricted = element.NavAccess;
-      //       } else {
-      //         this.NavOptionMasterDebtor = '';
-      //         this.NavAccessMasterDebtor = '';
-      //         this.NavOptionClientRisk = '';
-      //         this.NavAccessClientRisk = '';       
-      //         this.NavOptionUpdateMasterDebtor = '';       
-      //         this.NavAccessUpdateMasterDebtor = ''; 
-      //         this.NavOptionRiskMonitoring = '';
-      //         this.NavAccessRiskMonitoring = '';
-      //         this.NavOptionRiskMonitoringRestricted = '';
-      //         this.NavAccessRiskMonitoringRestricted = '';
-      //       }                                         
-                        
-      //     });
-      //   }, error => {
-      //     console.error('error--', error);
-      //   });
-             
-      //   // const mail = btoa(this.profile.mail);             
-
-      // });
       
       this.isLoading = true; 
       // stop load  data if there is row expended
@@ -277,7 +253,27 @@ export class TicketingComponent {
         return;
       }
 
-      this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {                
+      this.dataService.getData(this.selectedValuesString, this.requestDate, this.client).subscribe(response => {  
+        // console.log('ifSendNoti:', this.ifSendNoti);
+        // console.log('notiIntervalSeconds:', this.notiIntervalSeconds);
+        if (this.ifSendNoti) {
+          if (this.firstLoad){
+            this.firstLoad = false;
+            // hard copy the initial loaded data to oldRecords for next comparison
+            this.oldRecords = JSON.parse(JSON.stringify(response.data));
+            // remove rows that are not in pending status
+            this.oldRecords = this.oldRecords.filter((item) => item.Status === 'Pending');
+          }
+
+          // check if need to check and send notification
+          // console.log('reload rows:', new Date());
+          const differenceInSeconds = (new Date().getTime() - this.notiSentTime.getTime()) / 1000;
+          if (differenceInSeconds >= this.notiIntervalSeconds) {
+            this.checkIfSendNotification(this.oldRecords, response.data);
+            // console.log('Checked notification:', new Date());
+          }
+        }
+
         this.isLoading = false;
         this.dataSource.data = response.data;  
         // console.log('Data loaded:', this.dataSource.data);                                            
@@ -559,4 +555,61 @@ export class TicketingComponent {
     XLSX.utils.book_append_sheet(wb, newWs, 'Sheet1');
     XLSX.writeFile(wb, 'filtered-data.xlsx');
   }
+
+  // method to check if new credit request is created and trigger notification
+  checkIfSendNotification(oldData: DataItem[], newData: DataItem[]) {
+    if (newData.length === 0) {
+      return; // No new data
+    }
+
+    // Check for new items which status is 'Pending' in the newData array
+    const newItems = newData.filter(newItem => {
+      return newItem.Status === 'Pending' && !oldData.some(oldItem => oldItem.RequestNo === newItem.RequestNo);
+    });
+
+    // hard copy newData to oldData for next comparison
+    this.oldRecords = JSON.parse(JSON.stringify(newData));
+
+    if (newItems.length > 0) {
+      this.notiSentTime = new Date(); // update the last sent time
+      this.sendNewCreditRequestNotification(newItems);
+            // console.log('send notification:', new Date());
+    }
+  }
+
+  // trigger browser notification
+  sendNewCreditRequestNotification(newItems: DataItem[]) {
+    let ifSend = false;
+    if (Notification.permission === 'granted') {
+      ifSend = true;
+    }
+    else if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          ifSend = true;
+        }
+      });
+      ifSend = true;
+    } 
+    else if (Notification.permission === 'denied') {
+      alert("Notification permission denied, please enable it in your browser settings");
+    } 
+    else {
+      alert("This browser does not support desktop notification");
+    }
+    
+    const returnMsg = newItems.length === 1 ? "A new credit request has been created." : `${newItems.length} new credit requests have been created.`;
+
+    if (ifSend) {
+      const notification = new Notification("Everest - New Credit Request", {
+        body: returnMsg,
+        icon: "assets/images/Everest-Logo-square.png"
+      });
+    }
+
+
+
+  }
+
+
 }

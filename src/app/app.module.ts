@@ -73,6 +73,9 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ClientDocumentsComponent } from './components/client-documents/client-documents.component';
 import { FileUploadDialogComponent } from './components/file-upload-dialog/file-upload-dialog.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatStepperModule} from '@angular/material/stepper';
 
 @NgModule({
   declarations: [
@@ -109,7 +112,8 @@ import { FileUploadDialogComponent } from './components/file-upload-dialog/file-
     TicketingAnalysisComponent,
     DashboardComponent,
     ClientDocumentsComponent,
-    FileUploadDialogComponent,    
+    FileUploadDialogComponent,
+    SettingsComponent,    
   ],
   imports: [
     MatDatepickerModule,
@@ -168,6 +172,8 @@ import { FileUploadDialogComponent } from './components/file-upload-dialog/file-
     MatRadioModule,
     MatProgressBarModule,
     MatSidenavModule,
+    MatSlideToggleModule,
+    MatStepperModule,
     DunsCardComponent,
     MatGridListModule
 ],

@@ -7,6 +7,9 @@ import { LoginService } from '../../services/login.service';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { SettingsComponent } from '../settings/settings.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SuccessSnackbarComponent, ErrorSnackbarComponent, WarningSnackbarComponent } from '../custom-snackbars/custom-snackbars';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -46,6 +49,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     "Everest Invoices": {}, "Everest Documents NOA": {}, "Everest Documents Release": {}, "Everest Documents Statements": {}, "Everest Documents Client Documents": {}
   };
 
+  private _snackBar = inject(MatSnackBar); // used for snackbar notifications
+
   constructor(@Inject(MSAL_GUARD_CONFIG) 
     private msalGuardConfig: MsalGuardConfiguration, 
     private msalBroadcast: MsalBroadcastService,
@@ -71,6 +76,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.greetingMessage = 'Good Evening, ';
     }
 
+    // check if settings are initialed and stored in localsession, initialize if not
+    if (!localStorage.getItem('settings')) {
+      const settings = {
+        "CreditRequestNotificationSwitch": false,
+        "CreditRequestNotificationIntervalMinutes": 10
+      };
+      localStorage.setItem('settings', JSON.stringify(settings));
+    }
+
     // Listen to route changes to determine if the "Documents" tab should be active
     this.router.events.subscribe(() => {
       this.isDocumentsTabActive = this.router.url.includes('/notice-of-accessment') || this.router.url.includes('/release-letter') || this.router.url.includes('/documents-statements');
@@ -87,35 +101,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           if (["Everest Dashboard", "Everest Master Debtors", "Everest Client Risk", "Everest Risk Monitoring", "Everest Credit Requests",
             "Everest Invoices", "Everest Documents NOA", "Everest Documents Release", "Everest Documents Statements", "Everest Documents Client Documents"].includes(element.NavMenu)) {
             this.userPermissionsDisctionary[element.NavMenu][element.NavOption] = Number(element.NavAccess);
-          }
-
-          // if (element.NavOption == 'Master Debtor') {            
-          //   this.NavOptionMasterDebtor = element.NavOption;          
-          //   this.NavAccessMasterDebtor = element.NavAccess;
-          // } else if (element.NavOption == 'Client Risk Page'){
-          //   this.NavOptionClientRisk = element.NavOption;          
-          //   this.NavAccessClientRisk = element.NavAccess;
-          // } else if (element.NavOption == 'Update Master Debtor'){
-          //   this.NavOptionUpdateMasterDebtor = element.NavOption;          
-          //   this.NavAccessUpdateMasterDebtor = element.NavAccess;
-          // } else if (element.NavOption == 'Risk Monitoring'){
-          //   this.NavOptionRiskMonitoring = element.NavOption;          
-          //   this.NavAccessRiskMonitoring = element.NavAccess;
-          // } else if (element.NavOption == 'Risk Monitoring Restricted'){
-          //   this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-          //   this.NavAccessRiskMonitoringRestricted = element.NavAccess;
-          // } else {
-          //   this.NavOptionMasterDebtor = '';
-          //   this.NavAccessMasterDebtor = '';
-          //   this.NavOptionClientRisk = '';
-          //   this.NavAccessClientRisk = '';       
-          //   this.NavOptionUpdateMasterDebtor = '';       
-          //   this.NavAccessUpdateMasterDebtor = ''; 
-          //   this.NavOptionRiskMonitoring = '';
-          //   this.NavAccessRiskMonitoring = '';
-          //   this.NavOptionRiskMonitoringRestricted = '';
-          //   this.NavAccessRiskMonitoringRestricted = '';
-          // }          
+          }        
         });
         // console.log('this.userPermissionsDisctionary--', this.userPermissionsDisctionary);
       }, error => {
@@ -228,5 +214,40 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     return baseStyle;
   }
+
+  // method to open settings dialog
+  openSettingsDialog(): void {
+    // Get current settings from localStorage
+    const currentSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+    
+    const dialogData = {
+      title: 'Everest Settings',
+      currentSettings: {
+        CreditRequestNotificationSwitch: currentSettings.CreditRequestNotificationSwitch || false,
+        CreditRequestNotificationIntervalMinutes: currentSettings.CreditRequestNotificationIntervalMinutes || 10
+      }
+    };
+
+    const dialogRef = this.dialog.open(SettingsComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      height: 'auto',
+      maxHeight: '90vh',
+      data: dialogData,
+      disableClose: false,
+      autoFocus: true,
+      panelClass: 'settings-dialog-panel'
+    });
+
+    // Handle dialog result when user clicks Save or Cancel
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        window.location.reload();
+      } else {
+        console.log('Settings dialog was cancelled');
+      }
+    });
+  }
+
 
 }

@@ -1,0 +1,83 @@
+<div class="settings-dialog">
+  <!-- Dialog Header -->
+  <div mat-dialog-title class="dialog-header">
+    <h2>{{ data.title || 'Application Settings' }}</h2>
+  </div>
+
+  <!-- Dialog Content -->
+  <div mat-dialog-content class="dialog-content">
+    <form [formGroup]="settingsForm" class="settings-form">
+      
+      <!-- General Settings Section -->
+      <mat-card class="settings-section" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>Credit Requests Page Settings</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          
+          <!-- Credit Request Notification Toggle -->
+          <div class="form-row">
+            <mat-slide-toggle formControlName="CreditRequestNotificationSwitch">
+              Enable Credit Request Notifications
+            </mat-slide-toggle>
+          </div>
+
+          <!-- Notification Interval -->
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Notification Interval (minutes)</mat-label>
+              <input matInput 
+                     type="number" 
+                     formControlName="CreditRequestNotificationIntervalMinutes">
+              <mat-hint>Minimum: 1, Maximum: 300</mat-hint>
+              <mat-error *ngIf="settingsForm.get('CreditRequestNotificationIntervalMinutes')?.hasError('required')">
+                Notification interval is required
+              </mat-error>
+              <mat-error *ngIf="settingsForm.get('CreditRequestNotificationIntervalMinutes')?.hasError('min')">
+                Minimum value is 1 minute
+              </mat-error>
+              <mat-error *ngIf="settingsForm.get('CreditRequestNotificationIntervalMinutes')?.hasError('max')">
+                Maximum value is 300 minutes
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- button for testing notification -->
+          <div class="form-row">
+            <button mat-flat-button (click)="testNotification()">Test Notification</button>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+    </form>
+  </div>
+
+  <!-- Dialog Actions -->
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button 
+            type="button" 
+            (click)="onReset()"
+            [disabled]="isLoading">
+      Reset to Default
+    </button>
+    
+    <div class="action-buttons-right">
+      <button mat-button 
+              type="button" 
+              (click)="onCancel()"
+              [disabled]="isLoading">
+        Cancel
+      </button>
+      
+      <button mat-raised-button 
+              color="primary" 
+              type="button"
+              (click)="onSave()"
+              [disabled]="isLoading || settingsForm.invalid">
+        <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
+        {{ isLoading ? 'Saving...' : 'Save Settings' }}
+      </button>
+    </div>
+  </div>
+</div>

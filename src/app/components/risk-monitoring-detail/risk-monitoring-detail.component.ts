@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject, Input } from '@angular/core';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -53,9 +53,6 @@ export class RiskMonitoringDetailComponent {
   CRM!: any;
   bgcolor = '2px solid green';
   LevelHistory: any;
-  note_category: any = '';
-  due_date: any = '';
-  note: any = '';
 
   readonly dialog = inject(MatDialog);
   data!: string[];  
@@ -72,32 +69,50 @@ export class RiskMonitoringDetailComponent {
   // Inject the MatSnackBar service
   private _snackBar = inject(MatSnackBar);
 
-  userAccessLevel: string = 'No Access'; // Add userAccessLevel property
+  
+  @Input() userPermissionsDisctionary: any = {}; // get user permissions from parent component
+  public userAccessLevel(): string {
+    if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['Full'] === 1) {
+      return 'Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['Edit Restricted'] === 1) {
+      return 'Edit Restricted';
+    }
+    else if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['View Full'] === 1) {
+      return 'View Full';
+    }
+    else if (this.userPermissionsDisctionary['Everest Risk Monitoring']?.['View Restricted'] === 1) {
+      return 'View Restricted';
+    }
+    else {
+      return 'No Access';
+    }
+  }
+
+  // userAccessLevel: string = 'No Access'; // Add userAccessLevel property
 
   // Helper method to check if user can edit
   canEdit(edit = 'other'): boolean {
-    if (this.userAccessLevel === 'Edit Restricted') {
+    // console.log('User Access Level:', this.userAccessLevel);
+    if (this.userAccessLevel() === 'Edit Restricted') {
       // Edit Restricted users can edit everything EXCEPT CRM and Level
       if (edit === 'crm' || edit === 'level') {
         return false;
       }
       return true; // Can edit everything else
     }
-    else if (this.userAccessLevel === 'Full') {
+    else if (this.userAccessLevel() === 'Full') {
       return true; // Can edit everything
     }
     
     return false; // No access
   }
   
-  constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private riskService: DataService, private router: Router) { 
+  constructor(private route: ActivatedRoute, private dataService: RiskMonitoringService, private http: HttpClient, private loginService: LoginService, private router: Router) { 
     
   }
 
-  ngOnInit(): void {    
-    // Get userAccessLevel from DataService (passed from risk-monitoring component)
-    const dataServiceData = this.riskService.getData();
-    this.userAccessLevel = dataServiceData['userAccessLevel'] || 'No Access';
+  ngOnInit(): void {
 
     this.route.queryParams.subscribe(params => {
       const ClientKey = +params['ClientKey'];
@@ -128,44 +143,6 @@ export class RiskMonitoringDetailComponent {
     });           
     
 
-    // this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-      
-    //   this.profile = profile;      
-    //   this.loginService.getData(this.profile.mail).subscribe(response => {                                
-    //     response.data.forEach((element: any) => {
-    //       if (element.NavOption == 'Master Debtor') {            
-    //         this.NavOptionMasterDebtor = element.NavOption;          
-    //         this.NavAccessMasterDebtor = element.NavAccess;
-    //       } else if (element.NavOption == 'Client Risk Page'){
-    //         this.NavOptionClientRisk = element.NavOption;          
-    //         this.NavAccessClientRisk = element.NavAccess;
-    //       } else if (element.NavOption == 'Update Master Debtor'){
-    //         this.NavOptionUpdateMasterDebtor = element.NavOption;          
-    //         this.NavAccessUpdateMasterDebtor = element.NavAccess;
-    //       } else if (element.NavOption == 'Risk Monitoring'){
-    //         this.NavOptionRiskMonitoring = element.NavOption;          
-    //         this.NavAccessRiskMonitoring = element.NavAccess;
-    //       } else if (element.NavOption == 'Risk Monitoring Restricted'){
-    //         this.NavOptionRiskMonitoringRestricted = element.NavOption;          
-    //         this.NavAccessRiskMonitoringRestricted = element.NavAccess;                        
-    //       } else {
-    //         this.NavOptionMasterDebtor = '';
-    //         this.NavAccessMasterDebtor = '';
-    //         this.NavOptionClientRisk = '';
-    //         this.NavAccessClientRisk = '';       
-    //         this.NavOptionUpdateMasterDebtor = '';       
-    //         this.NavAccessUpdateMasterDebtor = ''; 
-    //         this.NavOptionRiskMonitoring = '';
-    //         this.NavAccessRiskMonitoring = '';
-    //         this.NavOptionRiskMonitoringRestricted = '';
-    //         this.NavAccessRiskMonitoringRestricted = '';
-    //       }                                           
-                      
-    //     });
-    //   }, error => {
-    //     console.error('error--', error);
-    //   });
-    // });
 
     this.loadClientDetails(this.ClientKey); 
     this.loadClientContactsDetails(this.ClientKey);
@@ -247,8 +224,8 @@ export class RiskMonitoringDetailComponent {
       this.loadMonitoringNotes(this.ClientKey);      
   }
 
-  addNote(){
-    if (this.userAccessLevel !== 'Full') {
+  addNewNote(): void {
+    if (!this.canEdit()) {
       this._snackBar.openFromComponent(WarningSnackbarComponent, {
         data: { message: "You don't have permission to add notes. Full access required." },
         duration: 5000,
@@ -258,51 +235,98 @@ export class RiskMonitoringDetailComponent {
       return;
     }
 
-    this.http.get(GRAPH_ENDPOINT)
-    .subscribe(profile => {
-      this.profile = profile;          
-      var userId = this.profile.mail.match(/^([^@]*)@/)[1];
-      this.user = userId 
-    });
+    if (!this.ClientKey) {
+      console.error('Client key is missing');
+      return;
+    }
 
-    this.dataService.addNotesRisk(this.ClientKey, this.note_category===''?'Other':this.note_category, this.note, '', '1', this.user, this.due_date).subscribe(response => {      
-      // window.location.reload();
-      if (response.result){
-        this.loadMonitoringNotes(this.ClientKey); // reload tasks after added note
+    // Open SweetAlert2 dialog with form inputs
+    Swal.fire({
+      title: 'Add New Note',
+      width: 1080, 
+      html: `
+        <div style="text-align: left; margin: 20px 0; width: 950px">
+          <label style="display: block; margin-bottom: 5px; font-weight: bold;">Due Date (Optional)</label>
+          <input id="swal-input-duedate" type="date" class="swal2-input" style="width: 300px; margin-bottom: 15px;">
+          
+          <label style="display: block; margin-bottom: 5px; font-weight: bold;">Note</label>
+          <textarea id="swal-input-note" class="swal2-textarea" placeholder="Enter your note..." rows="6" style="width: 100%; resize: vertical; height: auto !important; min-height: auto !important;"></textarea>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Add Note',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'swal2-wide-popup'
+      },
+      preConfirm: () => {
+        const dueDate = (document.getElementById('swal-input-duedate') as HTMLInputElement).value;
+        const noteText = (document.getElementById('swal-input-note') as HTMLTextAreaElement).value;
+        
+        // if (!noteText.trim()) {
+        //   Swal.showValidationMessage('Please enter a note');
+        //   return false;
+        // }
+        
+        return {
+          dueDate: dueDate || '',
+          noteText: noteText.trim() || ''
+        };
+      }
+    }).then((result) => {
+      // If user confirms the dialog and provides text
+      if (result.isConfirmed && result.value) {
+        // Get current user info
+        this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
+          this.profile = profile;          
+          const userId = this.profile.mail.match(/^([^@]*)@/)[1];
+          this.user = userId;
+          
+          // Call API to add the note with 'Other' as default category
+          this.dataService.addNotesRisk(
+            this.ClientKey, 
+            'Other', // Default category as requested
+            result.value.noteText, 
+            '', 
+            '1', 
+            this.user, 
+            result.value.dueDate
+          ).subscribe({
+            next: (response) => {      
+              if (response.result) {
+                this.loadMonitoringNotes(this.ClientKey); // reload tasks after added note
 
-        // Clear form fields after successful addition
-        this.note_category = '';
-        this.due_date = '';
-        this.note = '';
-
-        this._snackBar.openFromComponent(SuccessSnackbarComponent, {
-          data: { message: "Note added successfully" },
-          duration: 5000,
-          verticalPosition: 'top',
-          horizontalPosition: 'center'
+                this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+                  data: { message: "Note added successfully" },
+                  duration: 5000,
+                  verticalPosition: 'top',
+                  horizontalPosition: 'center'
+                });
+              } else {
+                this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+                  data: { message: "Failed to add note" },
+                  duration: 10000,
+                  verticalPosition: 'top',
+                  horizontalPosition: 'center'
+                });
+              }
+            },
+            error: (error) => {
+              this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+                data: { message: "Error adding note: " + (error.error?.message || error.message) },
+                duration: 10000,
+                verticalPosition: 'top',
+                horizontalPosition: 'center'
+              });
+            }
+          });
         });
       }
-      else {
-        this._snackBar.openFromComponent(WarningSnackbarComponent, {
-          data: { message: "Failed to add note" },
-          duration: 10000,
-          verticalPosition: 'top',
-          horizontalPosition: 'center'
-        });
-      }
-    }, error => {
-      // alert('Failed');
-      this._snackBar.openFromComponent(ErrorSnackbarComponent, {
-        data: { message: "Error adding note: " + error.error.message },
-        duration: 10000,
-        verticalPosition: 'top',
-        horizontalPosition: 'center'
-      });
     });
   }
 
   onChangeCRM(event: Event, ClientKey: string){
-    if (this.userAccessLevel !== 'Full') {
+    if (!this.canEdit('crm')) {
       const selectElement = event.target as HTMLSelectElement;
       selectElement.value = this.CRM; // Revert to original value
       this._snackBar.openFromComponent(WarningSnackbarComponent, {
@@ -367,7 +391,7 @@ export class RiskMonitoringDetailComponent {
   };
 
   onChangeLevel(event: Event, ClientKey: string){
-    if (this.userAccessLevel !== 'Full') {
+    if (!this.canEdit('level')) {
       const selectElement = event.target as HTMLSelectElement;
       selectElement.value = this.Level; // Revert to original value
       this._snackBar.openFromComponent(WarningSnackbarComponent, {
@@ -509,7 +533,7 @@ export class RiskMonitoringDetailComponent {
   // }
 
   onChangeCompleteStatus(event: Event){
-    if (this.userAccessLevel !== 'Full') {
+    if (!this.canEdit()) {
       this._snackBar.openFromComponent(WarningSnackbarComponent, {
         data: { message: "You don't have permission to change complete status. Full access required." },
         duration: 5000,
@@ -541,7 +565,7 @@ export class RiskMonitoringDetailComponent {
   }
 
   onChangeNotCompleteStatus(event: Event){
-    if (this.userAccessLevel !== 'Full') {
+    if (!this.canEdit()) {
       this._snackBar.openFromComponent(WarningSnackbarComponent, {
         data: { message: "You don't have permission to change complete status. Full access required." },
         duration: 5000,
@@ -609,7 +633,7 @@ export class RiskMonitoringDetailComponent {
   }
 
   hideNote(ClientNoteKey: string){
-    if (this.userAccessLevel !== 'Full') {
+    if (!this.canEdit()) {
       this._snackBar.openFromComponent(WarningSnackbarComponent, {
         data: { message: "You don't have permission to hide/unhide notes. Full access required." },
         duration: 5000,
@@ -668,7 +692,7 @@ export class RiskMonitoringDetailComponent {
 
   // Update client summary text
   updateClientSummary(): void {
-    if (this.userAccessLevel !== 'Full') {
+    if (!this.canEdit()) {
       this._snackBar.openFromComponent(WarningSnackbarComponent, {
         data: { message: "You don't have permission to update client summary. Full access required." },
         duration: 5000,
@@ -686,6 +710,7 @@ export class RiskMonitoringDetailComponent {
     // Open SweetAlert2 dialog with textarea input
     Swal.fire({
       title: 'Update Client Summary',
+      width: 1080,
       input: 'textarea',
       inputLabel: 'Client Summary',
       inputValue: this.extractSummaryText(this.clientSummary) || '',

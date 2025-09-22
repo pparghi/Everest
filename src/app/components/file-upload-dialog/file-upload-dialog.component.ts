@@ -61,6 +61,9 @@ export class FileUploadDialogComponent implements OnInit {
 
   userID: string = '';
   
+  // Stepper properties
+  currentStep = 0;
+  
   constructor(
     public dialogRef: MatDialogRef<FileUploadDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
@@ -151,6 +154,11 @@ export class FileUploadDialogComponent implements OnInit {
       
       this.uploadedFiles.push(fileItem);
     });
+    
+    // Automatically go to next step (Files List) if files were added
+    if (this.uploadedFiles.length > 0) {
+      this.nextStep();
+    }
   }
   
   /**
@@ -321,6 +329,8 @@ export class FileUploadDialogComponent implements OnInit {
     this.searchForm.patchValue({
       clientSearch: client.ClientName
     });
+    // Automatically go to next step (Upload Files)
+    this.nextStep();
   }
   
   // Clear selected client
@@ -423,5 +433,46 @@ export class FileUploadDialogComponent implements OnInit {
 
   onCancel(): void {
     this.dialogRef.close();
+  }
+
+  // Stepper navigation methods
+  nextStep(): void {
+    if (this.currentStep < 2) {
+      this.currentStep++;
+    }
+  }
+
+  prevStep(): void {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
+
+  goToStep(stepIndex: number): void {
+    if (stepIndex >= 0 && stepIndex <= 2) {
+      this.currentStep = stepIndex;
+    }
+  }
+
+  canProceedToNextStep(): boolean {
+    switch (this.currentStep) {
+      case 0: // Select Master Client step
+        return !!this.selectedClient;
+      case 1: // Upload Files step
+        return this.uploadedFiles.length > 0;
+      case 2: // Files List step
+        return this.areAllFilesValid();
+      default:
+        return false;
+    }
+  }
+
+  getStepLabel(index: number): string {
+    switch (index) {
+      case 0: return 'Select Master Client';
+      case 1: return 'Upload Files';
+      case 2: return 'Files List';
+      default: return '';
+    }
   }
 }
