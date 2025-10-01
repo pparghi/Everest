@@ -211,7 +211,7 @@
 
 /* Title Styles */
 .title1 {
-    font-size: 24px;
+    font-size: 16px;
     font-weight: 700;
     color: #2c3e50;
     margin-bottom: 8px;
@@ -221,7 +221,7 @@
     font-size: 18px;
     font-weight: 600;
     color: #2c3e50;
-    padding-bottom: 4px;
+    /* padding-bottom: 4px; */
     margin-bottom: 4px;
 }
 
@@ -314,19 +314,47 @@
 }
 
 .aging-0-30 {
-    color: #17944b; /* Green for 0-30 days */
+    color: #27ae60; /* Green for 0-30 days */
 }
 
 .aging-31-60 {
-    color: #b3a80e; /* Yellow for 31-60 days */
+    color: #f1c40f; /* Yellow for 31-60 days */
 }
 
 .aging-61-90 {
-    color: #ce6219; /* Red for 61-90 days */
+    color: #e67e22; /* Orange for 61-90 days */
 }
 
 .aging-91-plus {
-    color: #c53232; /* Blue for 91+ days */
+    color: #e74c3c; /* Red for 91+ days */
+}
+
+.A-Rating {
+    color: #27ae60; /* Green for A Rating */
+}
+.B-Rating {
+    color: #5af39f; /* Light Green for B Rating */
+}
+.C-Rating {
+    color: #f1c40f; /* Yellow for C Rating */
+}
+.D-Rating {
+    color: #e67e22; /* Orange for D Rating */
+}
+.E-Rating {
+    color: #e74c3c; /* Red for F Rating */
+}
+
+.na-text {
+  color: #aaaaaa; /* Gray color for N/A */
+}
+
+.tbd-text {
+  color: #ffe4ba; /* Orange color for TBD */
+}
+
+.normal-text {
+  color: inherit; /* Default color */
 }
 
 /* Layout Helpers */
@@ -344,7 +372,7 @@
     justify-content: space-between;
     align-items: stretch;
     gap: 0;
-    margin-bottom: 16px;
+    margin-bottom: 0px;
 }
 
 .flex-column {
@@ -425,4 +453,38 @@
     overflow-wrap: break-word;
     hyphens: auto;
     margin: 4px 0;
+}
+
+.primary-color {
+    color: #005ebb;
+}
+
+.notes-truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4em;
+  min-height: 2.8em;
+  max-height: 2.8em; /* 2 lines * 1.4em line-height */
+  cursor: pointer;
+}
+
+.notes-truncated:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  /* padding: 2px 4px;
+  margin: -2px -4px; */
+}
+
+/* Custom tooltip styling */
+::ng-deep .custom-tooltip .mdc-tooltip__surface {
+  font-size: 12px;
+  min-width: 490px !important;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: left;
+  transform: translate(0, -10px) !important;
 }

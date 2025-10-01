@@ -4,7 +4,7 @@ import { MemberDebtorsService } from '../../services/member-debtors.service';
 import { DebtorsApiService } from '../../services/debtors-api.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { DecimalPipe } from '@angular/common';
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip } from 'chart.js';
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip, LineController, LineElement, PointElement } from 'chart.js';
 import { ClientsService } from '../../services/clients.service';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -38,6 +38,9 @@ interface TrendVerticalData {
 Chart.register(
   BarController,
   BarElement,
+  LineController,
+  LineElement,
+  PointElement,
   CategoryScale,
   LinearScale,
   Legend,
@@ -86,6 +89,19 @@ export class TicketingAnalysisComponent implements OnInit {
   chart2: any;
   @ViewChild('trendBarChart2') chartCanvas2!: ElementRef;
 
+  // combined line chart and data
+  combinedLineChart: any;
+  @ViewChild('combinedLineChart') combinedLineChartCanvas!: ElementRef; // line chart (debtor - all clients) (Average weighted days, Purchases, Average, Invoices)
+  combinedLineChartData: any = {
+    columns: [...this.generateRecentPeriods('M')],
+    rows:{
+      'Purchases': [],
+      'Average': [],
+      'Invoices': [],
+      'AverageWeightedDays': []
+    }
+  };
+
   // last payment date
   readonly dialog = inject(MatDialog);
 
@@ -106,6 +122,12 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // snackbars
   private _snackBar = inject(MatSnackBar);
+
+  // variable for storing number of relationship clients with balance and active status
+  numOfRelationshipClients: number = 0;
+  // variable for searching related clients or debtors by debtorKey or clientKey
+  currentClientsRelationship: any = {}
+  currentDebtorRelationship: any = {}
 
   constructor(
     // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
@@ -159,9 +181,12 @@ export class TicketingAnalysisComponent implements OnInit {
   
 
     // fetch client concentration percentage
-    this.loadClientConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
+    this.searchAllClientsByDebtorKey(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
     // fetch debtor concentration percentage
     this.loadDebtorConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
+
+    // load combined line chart data
+    this.loadCombinedLineChartData();
 
   }
 
@@ -284,13 +309,19 @@ export class TicketingAnalysisComponent implements OnInit {
   }
 
   // load concentration percentage number of a client related to a debtor
-  loadClientConcentrationPercentage(DebtorKey: number, ClientKey: number): void {
+  searchAllClientsByDebtorKey(DebtorKey: number, ClientKey: number): void {
     this.clientService.getClients(DebtorKey).subscribe(response => {
-      console.log("client concentration number: ", response.data);
+      console.log("ticketing-analysis-component, getClients by debtorKey: ", response.data);
+
+      // get the concentration number by searching the ClientKey
+      // get number of relationship clients with outstanding balance and active status
       for (let it of response.data) {
-        if (parseInt(it.ClientKey) === ClientKey) {
+        if (it.Inactive === '0' && parseFloat(it.Balance) > 0) {
+          this.numOfRelationshipClients++;
+        }
+        if (this.ClientConcentrationPercentage === 'N/A' && parseInt(it.ClientKey) === ClientKey) {
           this.ClientConcentrationPercentage = Math.round(parseFloat(it.Concentration) * 10000) / 100 + '%';
-          break;
+          this.currentClientsRelationship = it;
         }
       }
     });
@@ -299,9 +330,10 @@ export class TicketingAnalysisComponent implements OnInit {
   // load concentration percentage number of a debtor related to a client
   loadDebtorConcentrationPercentage(DebtorKey: number, ClientKey: number): void {
     this.clientsDebtorsService.getClientsDebtors(ClientKey).subscribe(response => {
-      // console.log("debtor concentration number: ", response.data);
+      console.log("ticketing-analysis-component, getClientsDebtors by clientKey: ", response.data);
       for (let it of response.data) {
         if (parseInt(it.DebtorKey) === DebtorKey) {
+          this.currentDebtorRelationship = it;
           this.DebtorConcentrationPercentage = Math.round(parseFloat(it.Concentration) * 10000) / 100 + '%';
           break;
         }
@@ -958,5 +990,287 @@ export class TicketingAnalysisComponent implements OnInit {
       return diffDays + ' days ago';
     }
   }
+
+  // method to change text color depending on value and data type
+  textColorByValueAndType(value: string, type: string = 'text'): string {
+    if (value === 'N/A') {
+      return 'na-text';
+    }
+    if (value === 'TBD') {
+      return 'tbd-text';
+    }
+
+    if (type === 'AnsoniaRiskScore') {
+      if (value && !isNaN(Number(value))) {
+        let tempNum = Number(value);
+        if (tempNum >= 87 && tempNum <= 100) {
+          return 'success';
+        }
+        else if (tempNum >= 70 && tempNum <= 86) {
+          return 'warning';
+        }
+        else {
+          return 'danger';
+        }
+      }
+    }
+    else if (type === 'InternalRating') {
+      if (value === 'A') {
+        return 'A-Rating';
+      }
+      else if (value === 'B') {
+        return 'B-Rating';
+      }
+      else if (value === 'C') {
+        return 'C-Rating';
+      }
+      else if (value === 'D') {
+        return 'D-Rating';
+      }
+      else if (value === 'E') {
+        return 'E-Rating';
+      }
+      else {
+        return 'na-text';
+      }
+    }
+    else if (type === 'DiffDaysLastPayment') {
+      if (value === 'Payment delayed'){
+        return 'danger';
+      }
+      else if (value === 'Stable'){
+        return 'success';
+      }
+    }
+
+    return '';
+  }
+
+  // method to return description message by value and type
+  descriptionByValueAndType(value: string, type: string = 'N/A'): string {
+    if (type === 'AnsoniaRiskScore') {
+      if (value && !isNaN(Number(value))) {
+        let tempNum = Number(value);
+        if (tempNum >= 87 && tempNum <= 100) {
+          return 'Low Risk';
+        }
+        else if (tempNum >= 70 && tempNum <= 86) {
+          return 'Med Risk';
+        }
+        else {
+          return 'High Risk';
+        }
+      }
+    }
+    else if (type === 'DiffDaysLastPayment') {
+      if (value && !isNaN(parseInt(value))) {
+        let tempNum = parseInt(value);
+        if (tempNum > this.debtorDetails?.DSO30) {
+          return 'Payment delayed';
+        }
+        else {
+          return 'Stable';
+        }
+      }
+    }
+
+    return '';
+  }
+
+  // method to open document dialog
+  openDocumentsDialog(DebtorKey: number) {
+    this.dataService.getDebtorsDocuments(DebtorKey).subscribe(response => {
+
+      const dialogRef = this.dialog.open(DocumentDialogComponent, {
+        width: 'auto',
+        maxWidth: 'none',
+        height: 'auto',
+        panelClass: 'custom-dialog-container',
+        data: {
+          DebtorKey: DebtorKey,
+          documentsList: response.documentsList,
+          documentCategory: response.DocumentsCat,
+          documentsFolder: response.DocumentsFolder,
+          userAccessLevel: "Full"
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+
+      });
+    });
+  }
+
+  // method to open debtor audit dialog
+  openDebtorAuditDialog(DebtorKey: number) {
+
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {
+      width: 'auto',
+      maxWidth: 'none',
+      height: 'auto',
+      panelClass: 'custom-dialog-container',
+      data: {
+        DebtorKey: DebtorKey,
+        debtorAudit: 'debtorAudit',
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+    });
+  }
+
+  // method to create combined line chart, use the date of debtorDetails 
+  createCombinedLineChart() {
+    if (!this.combinedLineChartCanvas) {
+      console.warn('Combined line chart canvas not initialized');
+      return;
+    }
+    const ctx = this.combinedLineChartCanvas.nativeElement.getContext('2d');
+
+    if (this.combinedLineChart) {
+      this.combinedLineChart.destroy();
+    }
+    this.combinedLineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: this.combinedLineChartData.columns,
+        datasets: [
+          {
+            label: 'Purchases',
+            data: this.combinedLineChartData.rows['Purchases'],
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgb(54, 162, 235)',
+            yAxisID: 'y',
+          },
+          {
+            label: 'Purchases Avg',
+            data: this.combinedLineChartData.rows['Average'],
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            borderColor: 'rgb(75, 192, 192)',
+            yAxisID: 'y',
+          },
+          {
+            label: 'Invoices',
+            data: this.combinedLineChartData.rows['Invoices'],
+            backgroundColor: 'rgba(255, 206, 86, 0.5)',
+            borderColor: 'rgb(255, 206, 86)',
+            yAxisID: 'y1',
+          },
+          {
+            label: 'Average Weighted Days',
+            data: this.combinedLineChartData.rows['AverageWeightedDays'],
+            backgroundColor: 'rgba(153, 102, 255, 0.5)',
+            borderColor: 'rgb(153, 102, 255)',
+            yAxisID: 'y2',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            grid: {
+              drawOnChartArea: true,
+            },
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            border: {
+              color: 'rgb(255, 206, 86)'
+            },
+            ticks: {
+              color: 'rgb(255, 206, 86)'
+            },
+            grid: {
+              drawOnChartArea: false,
+            },
+          },
+          y2: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            border: {
+              color: 'rgb(153, 102, 255)'
+            },
+            ticks: {
+              color: 'rgb(153, 102, 255)'
+            },
+            grid: {
+              drawOnChartArea: false,
+            },
+          }
+        },
+        // plugins: {
+        //   title: {
+        //     // change size of the title
+        //     font: {
+        //       size: 14,
+        //       weight: 'bold',
+        //     },
+        //     display: true,
+        //     text: 'Months Combined Trend Chart',
+        //   }
+        // }
+      }
+    });
+  }
+
+  // function for fetching api data for the combined line chart
+  loadCombinedLineChartData() {
+    const ClientNo = '';
+    const DebtorKey = parseInt(this.ticketData.DebtorKey);
+    const trendPeriodChar = 'M';
+
+    this.dataService.getDebtorClientTrendData(DebtorKey, ClientNo, trendPeriodChar).subscribe(response => {
+      let recentPeriods = this.combinedLineChartData.columns;
+      let PurchasesTempData: number[] = [];
+      let AverageTempData: number[] = [];
+      let InvoicesTempData: number[] = [];
+      let AvgWeightedDaysTempData: number[] = [];
+      for (let it of recentPeriods) {
+        let found = false;
+        for (let item of response.data) {
+          if (item.YearMonth === it) {
+            PurchasesTempData.push(parseFloat(item.Purchases));
+            AverageTempData.push(parseFloat(item.PurchasesAvg));
+            InvoicesTempData.push(parseFloat(item.PurchasesNo));
+            AvgWeightedDaysTempData.push(parseFloat(item.AvgWeightedDays));
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          PurchasesTempData.push(0);
+          AverageTempData.push(0);
+          InvoicesTempData.push(0);
+          AvgWeightedDaysTempData.push(0);
+        }
+      }
+      this.combinedLineChartData.rows['Purchases'] = PurchasesTempData;
+      this.combinedLineChartData.rows['Average'] = AverageTempData;
+      this.combinedLineChartData.rows['Invoices'] = InvoicesTempData;
+      this.combinedLineChartData.rows['AverageWeightedDays'] = AvgWeightedDaysTempData;
+
+      if (this.combinedLineChartCanvas && this.combinedLineChartCanvas.nativeElement) {
+        this.createCombinedLineChart();
+        this.cdr.detectChanges(); // Trigger change detection
+      }
+      // deleyed loading of the chart
+      else {
+        setTimeout(() => {
+          this.createCombinedLineChart();
+          this.cdr.detectChanges(); // Trigger change detection
+        }, 500);
+      }
+
+    });
+  }
+
 
 }

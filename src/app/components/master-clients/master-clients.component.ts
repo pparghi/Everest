@@ -149,7 +149,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
 
     // });    
 
-    console.log('this.userPermissionsDisctionary--', this.userPermissionsDisctionary);
+    // console.log('this.userPermissionsDisctionary--', this.userPermissionsDisctionary);
 
     // load filter state from filter service
     const filterValues = this.filterService.getFilterState('master-clients');
@@ -233,7 +233,7 @@ export class MasterClientsComponent implements OnInit, AfterViewInit {
     this.dataService.getData(page, pageSize, this.filter, sort, order, filterByBalance, filterByGroup, filterByGroupValue, filterByCRM).subscribe(response => {
       this.isLoading = false;
       this.dataSource.data = response.data;
-
+      // console.log('response--', response);
       response.data.forEach((element: any) => {
         const total = element.total;
         this.totalRecords = total;

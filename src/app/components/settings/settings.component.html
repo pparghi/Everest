@@ -29,12 +29,12 @@
               <input matInput 
                      type="number" 
                      formControlName="CreditRequestNotificationIntervalMinutes">
-              <mat-hint>Minimum: 1, Maximum: 300</mat-hint>
+              <mat-hint>Minimum: 0, Maximum: 300</mat-hint>
               <mat-error *ngIf="settingsForm.get('CreditRequestNotificationIntervalMinutes')?.hasError('required')">
                 Notification interval is required
               </mat-error>
               <mat-error *ngIf="settingsForm.get('CreditRequestNotificationIntervalMinutes')?.hasError('min')">
-                Minimum value is 1 minute
+                Minimum value is 0 minutes
               </mat-error>
               <mat-error *ngIf="settingsForm.get('CreditRequestNotificationIntervalMinutes')?.hasError('max')">
                 Maximum value is 300 minutes

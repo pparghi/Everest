@@ -191,7 +191,7 @@
   
 .trend-tab {
 	margin: 30px;
-	max-height: 700px;
+	max-height: calc(90vh - 100px);
 	overflow: auto;
 }
 

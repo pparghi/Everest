@@ -683,29 +683,57 @@
                 <div class="flex-row">
                     <div class="flex-column">
                         <p class="text2">Debtor ID</p>
-                        <p class="title1">{{debtorDetails?.DebtorKey || 'N/A'}}</p>
+                        <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.DebtorKey) || 'N/A'">
+                            {{debtorDetails?.DebtorKey || 'N/A'}}
+                        </p>
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column">
                         <p class="text2">MC#</p>
-                        <p class="title1">{{debtorDetails?.MotorCarrNo || 'N/A'}}</p>
+                        <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.MotorCarrNo) || 'N/A'">
+                            {{debtorDetails?.MotorCarrNo || 'N/A'}}
+                        </p>
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column">
                         <p class="text2">DUNS</p>
-                        <p class="title1">{{debtorDetails?.DbDunsNo || 'N/A'}}</p>
+                        <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.DbDunsNo) || 'N/A'">
+                            {{debtorDetails?.DbDunsNo || 'N/A'}}
+                        </p>
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column">
                         <p class="text2"># of Client Relationship</p>
-                        <p class="title1">{{'N/A'}}</p>
+                        <p class="title1" [ngClass]="textColorByValueAndType(''+numOfRelationshipClients)">
+                            {{numOfRelationshipClients}}
+                        </p>
                     </div>
                 </div>
 
                 <div class="flex-row">
                     <div class="flex-column" style="flex: 3;">
                         <p class="text2">Address</p>
-                        <p class="title3">{{debtorDetails?.Addr1 || ''}}</p>
+                        <p class="text2">{{debtorDetails?.Addr1 || ''}}</p>
+                    </div>
+                    <mat-divider vertical class="vertical-divider"></mat-divider>
+                    <div class="flex-column" style="flex: 3;">
+                        <p class="text2">Email</p>
+                        <p class="text2 notes-truncated" 
+                            [matTooltip]="debtorDetails?.Email || ''" 
+                            [matTooltipDisabled]="!debtorDetails?.Email"
+                            matTooltipPosition="below"
+                            matTooltipClass="custom-tooltip">
+                            {{formatEmail(debtorDetails?.Email)}}
+                        </p>
+                    </div>
+                    <mat-divider vertical class="vertical-divider"></mat-divider>
+                    <div class="flex-column" style="flex: 1.5;">
+                        <p class="text2">Phone1</p>
+                        <p class="text2">{{debtorDetails?.Phone1 || ''}}</p>
+                    </div>
+                    <div class="flex-column" style="flex: 1.5;">
+                        <p class="text2">Phone2</p>
+                        <p class="text2">{{debtorDetails?.Phone2 || ''}}</p>
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column" style="flex: 1;">
@@ -714,23 +742,35 @@
                     </div>
                     <div class="flex-column" style="flex: 1;">
                         <p class="text2">Documents</p>
-                        <p class="title3"> <i class="fa fa-file" [style.color]="'#3a8ada'"></i></p>
+                        <p class="title3"> <i class="fa fa-file ms-2 icon-hover-effect primary-color" (click)="openDocumentsDialog(debtorDetails?.DebtorKey)"></i></p>
                     </div>
                     <div class="flex-column" style="flex: 1;">
                         <p class="text2">Audit</p>
-                        <p class="title3"> <i class="fa-solid fa-list-check" [style.color]="'#3a8ada'"></i></p>
+                        <p class="title3"> <i class="fa fa-list-check ms-2 icon-hover-effect primary-color" (click)="openDebtorAuditDialog(debtorDetails?.DebtorKey)"></i></p>
                     </div>
                 </div>
 
                 <div class="flex-row">
                     <div class="flex-column">
                         <p class="text2">Warning</p>
-                        <p class="text2">{{debtorDetails?.Warning || ''}}</p>
+                        <p class="text2 notes-truncated" 
+                            [matTooltip]="debtorDetails?.Warning || ''" 
+                            [matTooltipDisabled]="!debtorDetails?.Warning"
+                            matTooltipPosition="below"
+                            matTooltipClass="custom-tooltip">
+                            {{debtorDetails?.Warning || ''}}
+                        </p>
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column">
                         <p class="text2">Instruction</p>
-                        <p class="text2">{{debtorDetails?.Notes || ''}}</p>
+                        <p class="text2 notes-truncated" 
+                            [matTooltip]="debtorDetails?.Notes || ''" 
+                            [matTooltipDisabled]="!debtorDetails?.Notes"
+                            matTooltipPosition="below"
+                            matTooltipClass="custom-tooltip">
+                            {{debtorDetails?.Notes || ''}}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -745,98 +785,144 @@
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Overall credit limit</p>
-                                <p class="title1">{{'500,000'}}</p>
+                                <p class="title1">{{formatCurrency(ticketData.TotalCreditLimit)}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Credit utilization %</p>
-                                <p class="title1">{{'80%'}}</p>
-                            </div>
-                            <mat-divider vertical class="vertical-divider"></mat-divider>
-                            <div class="flex-column">
-                                <p class="text2">Internal Rating</p>
-                                <p class="title1" style="color: green;">{{'A'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.PctUtilized || 'N/A')">{{formatPercentage(debtorDetails?.PctUtilized)}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">AIG Coverage</p>
-                                <p class="title1">{{'N/A'}}</p>
+                                <p class="title1">{{formatCurrency(debtorDetails?.AIGLimit)}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Net Terms</p>
-                                <p class="title1">{{'N/A'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(ticketData.Terms || 'N/A')">{{ticketData.Terms || 'N/A'}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Risk Trend</p>
-                                <p class="title1">{{'TBD'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{'TBD'}}</p>
+                            </div>
+                        </div>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">DSO All</p>
+                                <p class="title1">{{ math.round(debtorDetails?.DSOAll) }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">DSO90</p>
+                                <p class="title1">{{ math.round(debtorDetails?.DSO90) }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">DSO60</p>
+                                <p class="title1">{{ math.round(debtorDetails?.DSO60) }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">DSO30</p>
+                                <p class="title1">{{ math.round(debtorDetails?.DSO30) }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Internal Rating</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.CalcRateCode || 'N/A', 'InternalRating')">{{ debtorDetails?.CalcRateCode || 'N/A' }}</p>
                             </div>
                         </div>
 
-                        <p class="title2">Ansonia</p>
-                        <div class="flex-row">
+                        
+                        <div style="display: flex; align-items: center; gap: 50px;">
+                            <p matBadge="External" matBadgeOverlap="false" class="title2">Ansonia</p>
+                            <mat-icon color="primary" (click)="getAnsoniaReportLink(debtorDetails)" class="input-icon ms-2 icon-hover-effect">link</mat-icon>
+                        </div>
+                        <div class="flex-row Ansonia-section">
+                            <div class="flex-column">
+                                <p class="text2">Last Updated</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.AnsoniaLastUpdate || 'N/A')">
+                                    {{ debtorDetails?.AnsoniaLastUpdate ? debtorDetails?.AnsoniaLastUpdate.split(' ')[0] : "N/A" }}
+                                </p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Risk Score</p>
-                                <p class="title1" style="color: green;">{{'80'}}</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.AnsoniaRiskScore || 'N/A', 'AnsoniaRiskScore')">
+                                        {{ debtorDetails?.AnsoniaRiskScore || "N/A" }}
+                                    </p>
+                                    <p class="text3">{{ descriptionByValueAndType(debtorDetails?.AnsoniaRiskScore, 'AnsoniaRiskScore') }}</p>
+                                </div>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Rating</p>
-                                <p class="title1">{{'43K-54'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.AnsoniaRating || 'N/A')">
+                                    {{ debtorDetails?.AnsoniaRating || "N/A" }}
+                                </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Avg days to pay</p>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <p class="title1" style="color: green;">{{'28'}}</p>
+                                    <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.AnsoniaAvgDaysToPay || 'N/A')">
+                                        {{ debtorDetails?.AnsoniaAvgDaysToPay || "N/A" }}
+                                    </p>
                                     <p class="text3">Days</p>
                                 </div>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Avg Balance</p>
-                                <p class="title1">{{ debtorDetails?.AnsoniaAvgBalance ? formatCurrency(debtorDetails?.AnsoniaAvgBalance) : "N/A" }}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.AnsoniaAvgBalance ? 'Normal text' : 'N/A')">
+                                    {{ debtorDetails?.AnsoniaAvgBalance ? formatCurrency(debtorDetails?.AnsoniaAvgBalance) : "N/A" }}
+                                </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">High Balance</p>
-                                <p class="title1">{{ debtorDetails?.AnsoniaHighBalance ? formatCurrency(debtorDetails?.AnsoniaHighBalance) : "N/A" }}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.AnsoniaHighBalance ? 'Normal text' : 'N/A')">
+                                    {{ debtorDetails?.AnsoniaHighBalance ? formatCurrency(debtorDetails?.AnsoniaHighBalance) : "N/A" }}
+                                </p>
                             </div>
                         </div>
                         
-                        <p class="title2">DUNS</p>
+                        <div style="display: flex; align-items: center; gap: 50px;">
+                            <p matBadge="External" matBadgeOverlap="false" class="title2">DUNS</p></div>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Risk Score</p>
-                                <p class="title1">{{'TBD'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{'TBD'}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">D&B Rating</p>
-                                <p class="title1">{{'TBD'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{'TBD'}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Paydex</p>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <p class="title1">{{'TBD'}}</p>
+                                    <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{'TBD'}}</p>
                                 </div>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">MCR</p>
-                                <p class="title1">{{ "TBD" }}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ "TBD" }}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">High Balance</p>
-                                <p class="title1">{{ "TBD" }}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ "TBD" }}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">DS/FC</p>
-                                <p class="title1">{{ "TBD" }}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ "TBD" }}</p>
                             </div>
                         </div>
                     </div> 
@@ -846,7 +932,7 @@
             <div class="equal-height-column" style="flex: 1;">
                 <mat-card appearance="raised" class="card-container-v2">
                     <div class="card-base">
-                        <p class="title2">Client Relationship Analysis</p>
+                        <p class="title2">Client Relation Analysis</p>
                     </div>
                 </mat-card>
             </div>
@@ -854,7 +940,6 @@
 
         <!-- receivables cards -->
         <div class="equal-height-row">
-            <!-- Credit profiles card -->
             <div class="equal-height-column">
                 <mat-card appearance="raised" class="card-container-v2">
                     <div class="card-base">
@@ -862,48 +947,63 @@
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Total AR</p>
-                                <p class="title1">{{'400,000'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(currentClientsRelationship?.Balance || 'N/A')">
+                                    {{ currentClientsRelationship?.Balance ? formatCurrency(currentClientsRelationship?.Balance) : 'N/A' }}
+                                </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Past due balance</p>
-                                <p class="title1">{{'N/A'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(currentClientsRelationship?.PastDue || 'N/A')">
+                                    {{ currentClientsRelationship?.PastDue ? formatCurrency(currentClientsRelationship?.PastDue) : 'N/A' }}
+                                </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">DSO</p>
-                                <p class="title1">{{'30'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(currentDebtorRelationship?.DSOAll || 'N/A')">
+                                    {{ currentDebtorRelationship?.DSOAll ? math.round(currentDebtorRelationship?.DSOAll) : 'N/A' }}
+                                </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Disputed invoice</p>
-                                <p class="title1">{{'N/A'}}</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p class="title1" [ngClass]="textColorByValueAndType(currentClientsRelationship?.DisputesPct || 'N/A')">
+                                        {{ currentClientsRelationship?.DisputesPct ? formatPercentage(currentClientsRelationship?.DisputesPct) : 'N/A' }}
+                                    </p>
+                                    <p class="text3">{{ currentClientsRelationship?.DisputeAmt ? formatCurrency(currentClientsRelationship?.DisputeAmt) : 'N/A' }}</p>
+                                </div>
                             </div>
                         </div>
                         <p class="title2">Aging Breakdown</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">0-30</p>
-                                <p class="title1 aging-0-30" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age0to30, debtorDetails?.Balance)}}</p>
-                                <p class="title3">{{formatCurrency(debtorDetails?.Age0to30.split('.')[0])}}</p>
+                                <p class="title1 aging-0-30" style="margin-bottom: 0px;">{{calculatePercentage(currentDebtorRelationship?.Age0to30, currentDebtorRelationship?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(currentDebtorRelationship?.Age0to30?.split('.')[0])}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">31-60</p>
-                                <p class="title1 aging-31-60" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age31to60, debtorDetails?.Balance)}}</p>
-                                <p class="title3">{{formatCurrency(debtorDetails?.Age31to60.split('.')[0])}}</p>
+                                <p class="title1 aging-31-60" style="margin-bottom: 0px;">{{calculatePercentage(currentDebtorRelationship?.Age31to60, currentDebtorRelationship?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(currentDebtorRelationship?.Age31to60?.split('.')[0])}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">61-90</p>
-                                <p class="title1 aging-61-90" style="margin-bottom: 0px;">{{calculatePercentage(debtorDetails?.Age61to90, debtorDetails?.Balance)}}</p>
-                                <p class="title3">{{formatCurrency(debtorDetails?.Age61to90.split('.')[0])}}</p>
+                                <p class="title1 aging-61-90" style="margin-bottom: 0px;">{{calculatePercentage(currentDebtorRelationship?.Age61to90, currentDebtorRelationship?.Balance)}}</p>
+                                <p class="title3">{{formatCurrency(currentDebtorRelationship?.Age61to90?.split('.')[0])}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">91+</p>
-                                <p class="title1 aging-91-plus" style="margin-bottom: 0px;">{{calculatePercentage(getSumOfArray([debtorDetails?.Age91to120, debtorDetails?.Age121to150, debtorDetails?.Age151to180, debtorDetails?.AgeOver180])+'', debtorDetails?.Balance)}}</p>
-                                <p class="title3">{{formatCurrency(debtorDetails?.Age91to120.split('.')[0], [debtorDetails?.Age121to150.split('.')[0], debtorDetails?.Age151to180.split('.')[0], debtorDetails?.AgeOver180.split('.')[0]])}}</p>
+                                <p class="title1 aging-91-plus" style="margin-bottom: 0px;">
+                                    {{calculatePercentage(getSumOfArray([currentDebtorRelationship?.Age91to120, currentDebtorRelationship?.Age121to150, currentDebtorRelationship?.Age151to180, currentDebtorRelationship?.AgeOver180])+'', currentDebtorRelationship?.Balance)}}
+                                </p>
+                                <p class="title3">
+                                    {{formatCurrency(currentDebtorRelationship?.Age91to120?.split('.')[0], [currentDebtorRelationship?.Age121to150?.split('.')[0], currentDebtorRelationship?.Age151to180?.split('.')[0], currentDebtorRelationship?.AgeOver180?.split('.')[0]])}}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -913,26 +1013,38 @@
             <div class="equal-height-column">
                 <mat-card appearance="raised" class="card-container-v2">
                     <div class="card-base">
-                        <p class="title2">All Clients Relationship</p>
+                        <div style="margin-bottom: 8px;">
+                            <p class="title2" style="display: inline;">All Clients Relationship</p>
+                            <p class="title2" style="display: inline; visibility: hidden">{{(ticketData?.Client + ' Relationship').slice(21)}}</p>
+                        </div>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Total AR</p>
-                                <p class="title1">{{'400,000'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.Balance || 'N/A')">
+                                    {{ debtorDetails?.Balance ? formatCurrency(debtorDetails?.Balance) : 'N/A' }}
+                                </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Past due balance</p>
-                                <p class="title1">{{'N/A'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.PastDue || 'N/A')">
+                                    {{ debtorDetails?.PastDue ? formatCurrency(debtorDetails?.PastDue) : 'N/A' }}
+                                </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">DSO</p>
-                                <p class="title1">{{'30'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.DSOAll || 'N/A')">{{ debtorDetails?.DSOAll ? math.round(debtorDetails?.DSOAll) : 'N/A' }}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Disputed invoice</p>
-                                <p class="title1">{{'N/A'}}</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.DisputesPct || 'N/A')">
+                                        {{ formatPercentage(debtorDetails?.DisputesPct) }}
+                                    </p>
+                                    <p class="text3">{{ debtorDetails?.DisputeAmt ? formatCurrency(debtorDetails?.DisputeAmt) : 'N/A' }}</p>
+                                </div>
                             </div>
                         </div>
                         <p class="title2">Aging Breakdown</p>
@@ -973,12 +1085,21 @@
                 <div class="flex-row">
                     <div class="flex-column">
                         <p class="text2">Last Payment</p>
-                        
                         <div style="display: flex; align-items: center; gap: 16px;">
-                            <p class="title1">{{calculateGapDays(debtorDetails?.LastPmtDate)}}</p>
-                            <p class="text1 t1-clickable" (click)="openChecqueSearchDialog(debtorDetails?.DebtorKey)">{{ debtorDetails?.LastPmtDate ? (debtorDetails?.LastPmtDate | date:"yyyy-MM-dd") : 'N/A' }}</p>
+                            <p class="title1" [ngClass]="textColorByValueAndType(calculateGapDays(debtorDetails?.LastPmtDate))">{{calculateGapDays(debtorDetails?.LastPmtDate)}}</p>
+                            <p class="title1" [ngClass]="textColorByValueAndType(descriptionByValueAndType(calculateGapDays(debtorDetails?.LastPmtDate), 'DiffDaysLastPayment'), 'DiffDaysLastPayment')">
+                                {{descriptionByValueAndType(calculateGapDays(debtorDetails?.LastPmtDate), 'DiffDaysLastPayment')}}
+                            </p>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <p class="text1 t1-clickable" [ngClass]="textColorByValueAndType(debtorDetails?.LastPmtDate ? 'Normal text' : 'N/A')" (click)="openChecqueSearchDialog(debtorDetails?.DebtorKey)">
+                                {{ debtorDetails?.LastPmtDate ? (debtorDetails?.LastPmtDate | date:"yyyy-MM-dd") : 'N/A' }}
+                            </p>
                         </div>
                     </div>
+                </div>
+                <p class="title2">Months Combined Trend Chart</p>
+                <div style="width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; background-color: #f5f5f5; border-radius: 10px;">
+                    <canvas #combinedLineChart></canvas>
                 </div>
             </div>
         </mat-card>

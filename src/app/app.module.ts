@@ -76,6 +76,7 @@ import { FileUploadDialogComponent } from './components/file-upload-dialog/file-
 import { SettingsComponent } from './components/settings/settings.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatStepperModule} from '@angular/material/stepper';
+import {MatBadgeModule} from '@angular/material/badge';
 
 @NgModule({
   declarations: [
@@ -175,7 +176,8 @@ import {MatStepperModule} from '@angular/material/stepper';
     MatSlideToggleModule,
     MatStepperModule,
     DunsCardComponent,
-    MatGridListModule
+    MatGridListModule,
+    MatBadgeModule
 ],
   providers: [
     CacheService,

@@ -31,11 +31,24 @@ export class SettingsComponent implements OnInit {
   private initializeForm(): void {
     this.settingsForm = this.formBuilder.group({
       CreditRequestNotificationSwitch: [false],
-      CreditRequestNotificationIntervalMinutes: [10, [Validators.required, Validators.min(1), Validators.max(300)]],
+      CreditRequestNotificationIntervalMinutes: [10, [Validators.required, Validators.min(0), Validators.max(300)]],
     });
   }
 
   private loadCurrentSettings(): void {
+    // First try to load from localStorage (most recent saved settings)
+    const savedSettings = localStorage.getItem('settings');
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        this.settingsForm.patchValue(parsedSettings);
+        return; // Exit early if we successfully loaded from localStorage
+      } catch (error) {
+        console.error('Error parsing saved settings:', error);
+      }
+    }
+    
+    // Fallback to injected data if localStorage is empty or invalid
     if (this.data?.currentSettings) {
       this.settingsForm.patchValue(this.data.currentSettings);
     }
@@ -75,7 +88,7 @@ export class SettingsComponent implements OnInit {
       return 'This field is required.';
     }
     if (control?.hasError('min')) {
-      return 'Minimum value is 1 minute.';
+      return 'Minimum value is 0 minutes.';
     }
     if (control?.hasError('max')) {
       return 'Maximum value is 300 minutes.';
