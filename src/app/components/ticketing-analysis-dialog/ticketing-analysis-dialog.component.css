@@ -20,6 +20,34 @@
 	box-sizing: border-box;
 }
 
+/* Performance calculator styles */
+.performance-pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.stable {
+  background: #C6EFCE;
+  color: #006100;
+}
+
+.deteriorating {
+  background: #FFF2CC;
+  color: #9C6500;
+}
+
+.highrisk {
+  background: #F8CBAD;
+  color: #9C3400;
+}
+
+.new {
+  background: #E7E6E6;
+  color: #444444;
+}
+
 .card-container {
   padding: 10px;
   margin: 10px;
@@ -487,4 +515,35 @@
   word-wrap: break-word;
   text-align: left;
   transform: translate(0, -10px) !important;
+}
+
+.switch-debtor-p-button {
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: #005ebb; /* Primary color */
+    border: 1px solid #757575;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 10px;
+    width: 115px;
+    text-align: center;
+}
+
+.switch-debtor-p-button:hover {
+    background-color: rgba(204, 228, 252, 0.596); /* Light primary color background on hover */
+    cursor: pointer;
+} 
+
+.Ansonia-badge .mat-badge-content,
+.DUNS-badge .mat-badge-content {
+  background-color: #dd8500; /* Orange or your preferred color */
+  color: white; /* Text color */
+}
+
+::ng-deep .switch-debtor-menu {
+    width: 500px;
+    max-width: none !important;
+    max-height: 600px;
+    overflow-y: auto;
 }

@@ -189,6 +189,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         Addr2: [data.Addr2 || ''],
         City: [data.City || ''],
         State: [data.State || ''],
+        Country: [data.Country || ''],
         Phone1: [Phone1 || ''],
         Phone2: [Phone2 || ''],
         TotalCreditLimit: [creditLimit || ''],
@@ -565,6 +566,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       formData.append('Phone2', this.editForm.value.Phone2);
       formData.append('City', this.editForm.value.City);
       formData.append('State', this.editForm.value.State);
+      formData.append('Country', this.editForm.value.Country);
       formData.append('TotalCreditLimit', this.editForm.value.TotalCreditLimit);
       formData.append('IndivCreditLimit', this.editForm.value.IndivCreditLimit);
       formData.append('AIGLimit', this.editForm.value.AIGLimit);

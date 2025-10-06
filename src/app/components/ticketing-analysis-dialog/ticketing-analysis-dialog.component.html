@@ -555,6 +555,7 @@
                                     <select class="form-column-selection" [(ngModel)]="trendColumn" (change)="onTrendColumnChange()">
                                     <option value="Purchases">Purchases</option>
                                     <option value="PurchasesAvg">Average</option>
+                                    <option value="Payments">Payments</option>
                                     <option value="PurchasesNo">Invoices</option>
                                     <option value="PaiTodZero">Paid to zero</option>
                                     <option value="Recoursed">Recoursed</option>
@@ -621,6 +622,7 @@
                                     <select class="form-column-selection" [(ngModel)]="trendColumn2" (change)="onTrendColumnChange2()">
                                     <option value="Purchases">Purchases</option>
                                     <option value="PurchasesAvg">Average</option>
+                                    <option value="Payments">Payments</option>
                                     <option value="PurchasesNo">Invoices</option>
                                     <option value="PaiTodZero">Paid to zero</option>
                                     <option value="Recoursed">Recoursed</option>
@@ -668,8 +670,29 @@
                 <p class="title2">Debtor Profile</p>
                 <div class="flex-row">
                     <div class="flex-column" style="flex: 3;">
-                        <p class="text2">Debtor Name</p>
-                        <p class="title1 word-wrap">{{ticketData.Debtor}}</p>
+                        <div style="display: flex; align-items: center; gap: 8px; ">
+                            <p [matBadge]="switchedDebtorType==='N/A' ? originalDebtorType : switchedDebtorType" matBadgeOverlap="false" class="text2" style="width:75px; margin-right: 80px;">Debtor Name</p>
+                            @if ((originalDebtorType === 'Master' || originalDebtorType === 'Member') && switchedDebtorKey === '') {
+                                <p [matMenuTriggerFor]="menu" class="switch-debtor-p-button">{{originalDebtorType === 'Master' ? 'Switch to Member' : 'Switch to Master'}}</p>
+                                <mat-menu #menu="matMenu" class="switch-debtor-menu">
+                                    <!-- @for (it of switchableDebtors; track it) {
+                                        <button mat-menu-item (click)="onSwitchDebtorClick(it)">{{it}}</button>
+                                    } -->
+                                    @for (it of switchableDebtors; track it.DebtorKey) {
+                                        <button mat-menu-item (click)="onSwitchDebtorClick(it.DebtorKey)">
+                                            <div>
+                                                <p class="title2 word-wrap">{{it.DebtorName}}</p>
+                                                <p class="text2 word-wrap">Debtor ID: {{it.DebtorKey}}</p>
+                                            </div>
+                                        </button>
+                                    }
+                                </mat-menu>
+                            }
+                            @else if (switchedDebtorKey && originalDebtorType !== 'Non-Grouped'){
+                                <p class="switch-debtor-p-button" (click)="onResetSwitchDebtor()">Reset</p>
+                            }
+                        </div>
+                        <p class="title1 word-wrap">{{debtorDetails?.Debtor}}</p>
                     </div>
                     <div class="flex-column" style="flex: 1;">
                         <p class="text2">Established date</p>
@@ -751,7 +774,7 @@
                 </div>
 
                 <div class="flex-row">
-                    <div class="flex-column">
+                    <div class="flex-column" style="flex: 1;">
                         <p class="text2">Warning</p>
                         <p class="text2 notes-truncated" 
                             [matTooltip]="debtorDetails?.Warning || ''" 
@@ -762,7 +785,18 @@
                         </p>
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
-                    <div class="flex-column">
+                    <div class="flex-column" style="flex: 1;">
+                        <p class="text2">Credit Information</p>
+                        <p class="text2 notes-truncated" 
+                            [matTooltip]="debtorDetails?.CredNote || ''" 
+                            [matTooltipDisabled]="!debtorDetails?.CredNote"
+                            matTooltipPosition="below"
+                            matTooltipClass="custom-tooltip">
+                            {{debtorDetails?.CredNote || ''}}
+                        </p>
+                    </div>
+                    <mat-divider vertical class="vertical-divider"></mat-divider>
+                    <div class="flex-column" style="flex: 2;">
                         <p class="text2">Instruction</p>
                         <p class="text2 notes-truncated" 
                             [matTooltip]="debtorDetails?.Notes || ''" 
@@ -772,20 +806,21 @@
                             {{debtorDetails?.Notes || ''}}
                         </p>
                     </div>
+                    <mat-divider vertical class="vertical-divider" style="visibility: hidden"></mat-divider>
                 </div>
             </div>
         </mat-card>
 
         <div class="equal-height-row">
             <!-- Credit profiles card -->
-            <div class="equal-height-column" style="flex: 3;">
+            <div class="equal-height-column" style="flex: 7;">
                 <mat-card appearance="raised" class="card-container-v2">
                     <div class="card-base">
                         <p class="title2">Credit Profile</p>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Overall credit limit</p>
-                                <p class="title1">{{formatCurrency(ticketData.TotalCreditLimit)}}</p>
+                                <p class="title1">{{formatCurrency(debtorDetails?.TotalCreditLimit)}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
@@ -800,7 +835,7 @@
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Net Terms</p>
-                                <p class="title1" [ngClass]="textColorByValueAndType(ticketData.Terms || 'N/A')">{{ticketData.Terms || 'N/A'}}</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.Terms || 'N/A')">{{debtorDetails?.Terms || 'N/A'}}</p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
@@ -837,7 +872,7 @@
 
                         
                         <div style="display: flex; align-items: center; gap: 50px;">
-                            <p matBadge="External" matBadgeOverlap="false" class="title2">Ansonia</p>
+                            <p matBadge="External" matBadgeOverlap="false" class="title2 Ansonia-badge">Ansonia</p>
                             <mat-icon color="primary" (click)="getAnsoniaReportLink(debtorDetails)" class="input-icon ms-2 icon-hover-effect">link</mat-icon>
                         </div>
                         <div class="flex-row Ansonia-section">
@@ -891,7 +926,7 @@
                         </div>
                         
                         <div style="display: flex; align-items: center; gap: 50px;">
-                            <p matBadge="External" matBadgeOverlap="false" class="title2">DUNS</p></div>
+                            <p matBadge="External" matBadgeOverlap="false" class="title2 DUNS-badge">DUNS</p></div>
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Risk Score</p>
@@ -929,10 +964,28 @@
                 </mat-card>
             </div>
             <!-- Client relationship analsysis card -->
-            <div class="equal-height-column" style="flex: 1;">
+            <div class="equal-height-column" style="flex: 3;">
                 <mat-card appearance="raised" class="card-container-v2">
                     <div class="card-base">
-                        <p class="title2">Client Relation Analysis</p>
+                        <p class="title2">Client Relationship Analysis</p>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Debtor's Concentration on Client Facility</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(this.DebtorConcentrationPercentage)">{{this.DebtorConcentrationPercentage}}</p>
+                            </div>
+                        </div>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Credit Limit Utilization by Client</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(this.ClientConcentrationPercentage)">{{this.ClientConcentrationPercentage}}</p>
+                            </div>
+                        </div>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Dilution %</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.DilutionPct || 'N/A')">{{ debtorDetails?.DilutionPct| percent: '1.0-2' }}</p>
+                            </div>
+                        </div>
                     </div>
                 </mat-card>
             </div>
@@ -1099,7 +1152,61 @@
                 </div>
                 <p class="title2">Months Combined Trend Chart</p>
                 <div style="width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; background-color: #f5f5f5; border-radius: 10px;">
-                    <canvas #combinedLineChart></canvas>
+                    <canvas #combinedLineChart style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </mat-card>
+        
+        <!-- Debtor Performance Calculator card -->
+        <mat-card *ngIf="performanceResults" appearance="raised" class="card-container-v2">
+            <div class="card-base">
+                <p class="title2">Debtor Performance Assessment</p>
+                <div class="flex-row">
+                    <div class="flex-column" style="flex: 1;">
+                        <p class="text2">Status</p>
+                        <div class="performance-pill" [ngClass]="performanceResults.statusClass">
+                            {{ performanceResults.status }}
+                        </div>
+                    </div>
+                    <mat-divider vertical class="vertical-divider"></mat-divider>
+                    <div class="flex-column" style="flex: 1;">
+                        <p class="text2">Utilization</p>
+                        <p class="title1">{{ performanceResults.utilization }}%</p>
+                    </div>
+                    <mat-divider vertical class="vertical-divider"></mat-divider>
+                    <div class="flex-column" style="flex: 1;">
+                        <p class="text2">Override</p>
+                        <p class="title3">{{ performanceResults.override }}</p>
+                    </div>
+                    <mat-divider vertical class="vertical-divider"></mat-divider>
+                    <div class="flex-column" style="flex: 1;">
+                        <p class="text2">Weighted Risk Score</p>
+                        <p class="title1">{{ performanceResults.score }}</p>
+                    </div>
+                </div>
+                <div class="flex-row">
+                    <div class="flex-column" style="flex: 1;">
+                        <p class="text2">Suggestion</p>
+                        <p class="title3">{{ performanceResults.suggestion }}</p>
+                    </div>
+                    <mat-divider vertical class="vertical-divider"></mat-divider>
+                    <div class="flex-column" style="flex: 1;">
+                        <p class="text2">Suggested New Credit Limit</p>
+                        <p class="title1">${{ performanceResults.newCreditLimit.toLocaleString() }}</p>
+                    </div>
+                </div>
+                
+                <!-- N status explanation -->
+                <div *ngIf="performanceResults.status === 'N'" style="margin-top: 16px;">
+                    <mat-divider></mat-divider>
+                    <p class="title2" style="margin-top: 16px;">New Debtor Guidelines:</p>
+                    <div class="flex-row">
+                        <div class="flex-column">
+                            <p class="text2"><strong>Low Exposure:</strong> small trial credit ($5k–$10k)</p>
+                            <p class="text2"><strong>Moderate Exposure:</strong> if external refs A/B, 10–15% of credit limit</p>
+                            <p class="text2"><strong>High Restriction:</strong> no open credit; prepay until 1–2 cycles</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </mat-card>

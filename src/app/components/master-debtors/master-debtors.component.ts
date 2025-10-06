@@ -511,6 +511,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   edit(row: DataItem) {
+    // console.log('Editing row:', row);
     this.http.get(GRAPH_ENDPOINT)
       .subscribe(profile => {
         this.profile = profile;
@@ -548,6 +549,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
             Addr2: row.Addr2,
             City: row.City,
             State: row.State,
+            Country: row.Country,
             Phone1: row.Phone1,
             Phone2: row.Phone2,
             PctUtilized: row.PctUtilized,

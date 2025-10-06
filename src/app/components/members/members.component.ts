@@ -334,6 +334,7 @@ export class MembersComponent implements OnInit {
             Addr2: row.Addr2,
             City: row.City,
             State: row.State,
+            Country: row.Country,
             Phone1: row.Phone1,
             Phone2: row.Phone2,
             PctUtilized: row.PctUtilized,

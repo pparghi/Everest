@@ -96,11 +96,15 @@ export class TicketingAnalysisComponent implements OnInit {
     columns: [...this.generateRecentPeriods('M')],
     rows:{
       'Purchases': [],
+      'Payments': [],
       'Average': [],
       'Invoices': [],
       'AverageWeightedDays': []
     }
   };
+  
+  // debtor performance calculator results
+  performanceResults: any = null;
 
   // last payment date
   readonly dialog = inject(MatDialog);
@@ -129,6 +133,14 @@ export class TicketingAnalysisComponent implements OnInit {
   currentClientsRelationship: any = {}
   currentDebtorRelationship: any = {}
 
+  // variables for switching debtors; 
+  // Non-Grouped: not switchable; Member: switchable to Master, only one choice; Master: switchable to Member, could be multiple choices;
+  originalDebtorType: string = 'N/A';
+  originalDebtorKey: string = '';
+  switchedDebtorType: string = 'N/A';
+  switchedDebtorKey: string = '';
+  switchableDebtors: any[] = []; // list of switchable debtors for the current debtor
+
   constructor(
     // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
     // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
@@ -148,6 +160,9 @@ export class TicketingAnalysisComponent implements OnInit {
     console.log('ticketing-analysis-component, this.ticketData:', this.ticketData);
     // this.ticketData = this.data; // removebecause the data is used by dialog
 
+    this.originalDebtorKey = this.ticketData.DebtorKey;
+    this.originalDebtorType = this.ticketData.Type;
+
     // Get the logged in user for CredAppBy
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       this.currentUser = (profile as any).mail.match(/^([^@]*)@/)[1];
@@ -159,7 +174,15 @@ export class TicketingAnalysisComponent implements OnInit {
           for (let it of response.data) {
             if (it.DebtorKey === this.ticketData.DebtorKey) {
               this.debtorDetails = it; 
-              break;
+              if (this.originalDebtorType === 'Member' || this.originalDebtorType === 'Non-Grouped' ) {
+                if (this.originalDebtorType === 'Member'){
+                  this.switchableDebtors = [{DebtorKey: it.MasterDebtorKey, DebtorName: 'Master Debtor'}];
+                }
+                break;
+              }
+            }
+            else if (this.originalDebtorType === 'Master') {
+              this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor});
             }
           }
           this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
@@ -170,6 +193,9 @@ export class TicketingAnalysisComponent implements OnInit {
           
           // fetch no buy code list and set the default no buy code after debtor details are loaded
           this.getNoBuyCodeList();
+          
+          // Calculate debtor performance after debtor details are loaded
+          this.performanceResults = this.calculateDebtorPerformance();
         }, error => {
           console.error('Error fetching member debtors:', error);
         });
@@ -186,7 +212,7 @@ export class TicketingAnalysisComponent implements OnInit {
     this.loadDebtorConcentrationPercentage(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
 
     // load combined line chart data
-    this.loadCombinedLineChartData();
+    this.loadCombinedLineChartData(this.ticketData.DebtorKey);
 
   }
 
@@ -266,7 +292,7 @@ export class TicketingAnalysisComponent implements OnInit {
       else {
         this.ticketingTrendDataSource2.data = response.data;
       }
-      // console.log('Trend Data:', this.ticketingTrendDataSource.data);
+      console.log('Trend Data:', this.ticketingTrendDataSource.data);
       this.transferTrendDataToVertical(response.data, chartNumber);
     
       this.cdr.detectChanges(); // Trigger change detection
@@ -361,7 +387,7 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // transfer the trend table data to vertical format
   transferTrendDataToVertical(tableData: any[], chartNumber: number = 1) {
-    let tempData: TrendVerticalData[] = [{ Period: "Purchases" }, { Period: "Average" }, { Period: "Invoices" }, { Period: "Paid to zero" }, { Period: "Recoursed" }, { Period: "Avg Weighted Days" }];
+    let tempData: TrendVerticalData[] = [{ Period: "Purchases" }, { Period: "Average" }, { Period: "Payments" }, { Period: "Invoices" }, { Period: "Paid to zero" }, { Period: "Recoursed" }, { Period: "Avg Weighted Days" }];
     // initial columns headers
     const periodChar = chartNumber === 1 ? this.trendPeriodChar : this.trendPeriodChar2;
     let tempColumn = ['Period', ...this.generateRecentPeriods(periodChar)];
@@ -373,10 +399,11 @@ export class TicketingAnalysisComponent implements OnInit {
           hasValues = true;
           tempData[0][tempColumn[i]] = this._decimalPipe.transform(it.Purchases, '1.0-0');
           tempData[1][tempColumn[i]] = this._decimalPipe.transform(it.PurchasesAvg, '1.0-0');
-          tempData[2][tempColumn[i]] = it.PurchasesNo;
-          tempData[3][tempColumn[i]] = it.PaiTodZero;
-          tempData[4][tempColumn[i]] = it.Recoursed;
-          tempData[5][tempColumn[i]] = this._decimalPipe.transform(it.AvgWeightedDays, '1.0-0');
+          tempData[2][tempColumn[i]] = this._decimalPipe.transform(it.Payments, '1.0-0');
+          tempData[3][tempColumn[i]] = it.PurchasesNo;
+          tempData[4][tempColumn[i]] = it.PaiTodZero;
+          tempData[5][tempColumn[i]] = it.Recoursed;
+          tempData[6][tempColumn[i]] = this._decimalPipe.transform(it.AvgWeightedDays, '1.0-0');
           break;
         }
       }
@@ -387,6 +414,7 @@ export class TicketingAnalysisComponent implements OnInit {
         tempData[3][tempColumn[i]] = '';
         tempData[4][tempColumn[i]] = '';
         tempData[5][tempColumn[i]] = '';
+        tempData[6][tempColumn[i]] = '';
       }
     }
     if (chartNumber === 1) {
@@ -932,6 +960,7 @@ export class TicketingAnalysisComponent implements OnInit {
         Addr2: row.Addr2,
         City: row.City,
         State: row.State,
+        Country: row.Country,
         Phone1: row.Phone1,
         Phone2: row.Phone2,
         PctUtilized: row.PctUtilized,
@@ -957,15 +986,35 @@ export class TicketingAnalysisComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       this.cacheService.removeByPattern('/api/memberDebtors?');
       this.memberDebtorsService.getMemberDebtors(parseInt(this.debtorDetails.DebtorKey)).subscribe(response => {
-        this.debtorDetails = response.data[0];
         for (let it of response.data) {
-          if (it.DebtorKey === this.ticketData.DebtorKey) {
+          if (it.DebtorKey === this.debtorDetails.DebtorKey) {
             this.debtorDetails = it;
             break;
           }
         }
+
+        this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
+        console.log('ticketing-analysis-component, Switched, this.debtorDetails:', this.debtorDetails);
+        
+        // Calculate debtor performance after debtor details are loaded
+        this.performanceResults = this.calculateDebtorPerformance();
+
+        this.cacheService.removeByPattern('/api/debtorHistoryTrend?'); // clear the debtor history trend cache
+        this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
+        this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
+      
+        // fetch client concentration percentage
+        this.cacheService.removeByPattern('/api/clients?'); // clear the clients cache
+        this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+        // fetch debtor concentration percentage
+        this.cacheService.removeByPattern('/api/ClientsDebtors?'); // clear the clientsDebtors cache
+        this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+
+        // load combined line chart data
+        this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
+
         this.cdr.detectChanges(); // Trigger change detection
-        console.log('New Member Debtor details:', this.debtorDetails);
+        console.log('Edited debtor details and reload all information.', this.debtorDetails);
         
       }, error => {
         console.error('Error refresh member debtor details:', error);
@@ -1119,6 +1168,109 @@ export class TicketingAnalysisComponent implements OnInit {
 
     });
   }
+  
+  // Debtor Performance Calculator
+  calculateDebtorPerformance(): any {
+    // Extract values from component data using the mapping
+    const cl = parseFloat(this.debtorDetails?.TotalCreditLimit) || 0;
+    const ob = parseFloat(this.debtorDetails?.Balance) || 0;
+    const terms = parseFloat(this.debtorDetails?.Terms) || 30;
+    const dso_all = parseFloat(this.debtorDetails?.DSOAll) || null;
+    const dso30 = parseFloat(this.debtorDetails?.DSO30) || null;
+    const dso60 = parseFloat(this.debtorDetails?.DSO60) || null;
+    const dso90 = parseFloat(this.debtorDetails?.DSO90) || null;
+    const pastDueRatio = parseFloat(this.debtorDetails?.PastDuePct) || null;
+    const disputeRatio = parseFloat(this.debtorDetails?.DisputesPct) || null;
+    const rating = this.debtorDetails?.CalcRateCode || "";
+    const lastpay = this.debtorDetails?.LastPmtDate || null;
+
+    // Utilization
+    let util = 0;
+    if (cl > 0 && ob !== null) util = ob / cl; else util = 0;
+
+    // History vs New
+    const hasDSO = (dso_all !== null) || (dso30 !== null) || (dso60 !== null) || (dso90 !== null);
+    const hasHistory = (!!lastpay && hasDSO);
+    const isNew = (!lastpay && !hasDSO);
+
+    // Override rule
+    let override = false;
+    let diffDays = 0;
+    if (lastpay) {
+      try {
+        const lp = new Date(lastpay);
+        const today = new Date();
+        diffDays = Math.floor((today.getTime() - lp.getTime()) / (1000 * 60 * 60 * 24));
+        override = diffDays > 45;
+      } catch(e) { 
+        console.error('Error calculating date difference:', e);
+      }
+    }
+
+    // Points
+    const dso_vs_terms = (dso_all !== null && terms !== null) ? (dso_all - terms) : null;
+
+    const utilPts = util <= 0.7 ? 0 : (util <= 1 ? 20 : 40);
+    const dsoPts = (dso_vs_terms === null) ? 0 : (dso_vs_terms <= 0 ? 0 : (dso_vs_terms <= 15 ? 10 : (dso_vs_terms <= 30 ? 20 : 40)));
+    const pastPts = (pastDueRatio === null) ? 0 : (pastDueRatio < 0.10 ? 0 : (pastDueRatio <= 0.25 ? 20 : 40));
+    const dispPts = (disputeRatio === null) ? 0 : (disputeRatio < 0.05 ? 0 : (disputeRatio <= 0.10 ? 10 : 20));
+    
+    let ratePts = 0;
+    if (rating === "A") ratePts = 0; 
+    else if (rating === "B") ratePts = 10; 
+    else if (rating === "C") ratePts = 20; 
+    else if (rating === "D") ratePts = 40;
+    
+    const overlimitPts = (cl && ob && ob > cl) ? 10 : 0;
+
+    const score = (utilPts * 0.2) + (dsoPts * 0.2) + (pastPts * 0.2) + (dispPts * 0.1) + (ratePts * 0.2) + (overlimitPts * 0.1);
+
+    // Classification
+    let klass = "N";
+    if (override) { 
+      klass = "Deteriorating"; 
+    }
+    else if (isNew) { 
+      klass = "N"; 
+    }
+    else {
+      if (score <= 10) klass = "Stable";
+      else if (score <= 18) klass = "Deteriorating";
+      else klass = "High Risk";
+    }
+
+    // Suggestion text & new limit
+    let suggest = "—";
+    let newCL = cl || 0;
+    if (klass === "N") {
+      const trial = (cl && cl > 0) ? Math.min(10000, cl * 0.10) : 10000;
+      suggest = "Trial credit; pick Low/Moderate/High Restriction based on external refs";
+      newCL = trial;
+    } else if (klass === "Stable") {
+      if (util >= 0.6 && util < 0.85) { suggest = "Increase 10%"; newCL = cl * 1.10; }
+      else if (util >= 0.85 && util <= 1) { suggest = "Increase 15–25%"; newCL = cl * 1.20; }
+      else { suggest = "No change"; newCL = cl; }
+    } else if (klass === "Deteriorating") {
+      suggest = "Freeze limit";
+      newCL = cl;
+    } else { // High Risk
+      suggest = "Decrease 10–30% (or CIA)";
+      newCL = cl * 0.80;
+    }
+
+    // Return the results
+    return {
+      status: klass,
+      statusClass: klass === "Stable" ? "stable" : 
+                  (klass === "Deteriorating" ? "deteriorating" : 
+                  (klass === "High Risk" ? "highrisk" : "new")),
+      utilization: isFinite(util) ? (Math.round(util * 1000) / 10) : 0,
+      override: override ? diffDays + " days since last payment" : "N/A",
+      score: (Math.round(score * 10) / 10).toFixed(1),
+      suggestion: suggest,
+      newCreditLimit: Math.round(newCL)
+    };
+  }
 
   // method to create combined line chart, use the date of debtorDetails 
   createCombinedLineChart() {
@@ -1132,7 +1284,7 @@ export class TicketingAnalysisComponent implements OnInit {
       this.combinedLineChart.destroy();
     }
     this.combinedLineChart = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels: this.combinedLineChartData.columns,
         datasets: [
@@ -1144,25 +1296,19 @@ export class TicketingAnalysisComponent implements OnInit {
             yAxisID: 'y',
           },
           {
-            label: 'Purchases Avg',
-            data: this.combinedLineChartData.rows['Average'],
+            label: 'Payments',
+            data: this.combinedLineChartData.rows['Payments'],
             backgroundColor: 'rgba(75, 192, 192, 0.5)',
             borderColor: 'rgb(75, 192, 192)',
             yAxisID: 'y',
           },
           {
-            label: 'Invoices',
-            data: this.combinedLineChartData.rows['Invoices'],
+            label: 'Average Weighted Days',
+            data: this.combinedLineChartData.rows['AverageWeightedDays'],
             backgroundColor: 'rgba(255, 206, 86, 0.5)',
             borderColor: 'rgb(255, 206, 86)',
             yAxisID: 'y1',
-          },
-          {
-            label: 'Average Weighted Days',
-            data: this.combinedLineChartData.rows['AverageWeightedDays'],
-            backgroundColor: 'rgba(153, 102, 255, 0.5)',
-            borderColor: 'rgb(153, 102, 255)',
-            yAxisID: 'y2',
+            type: 'line',
           }
         ]
       },
@@ -1181,25 +1327,14 @@ export class TicketingAnalysisComponent implements OnInit {
             type: 'linear',
             display: true,
             position: 'right',
+            beginAtZero: false,
+            grace: '5%',
+            min: 0,
             border: {
               color: 'rgb(255, 206, 86)'
             },
             ticks: {
               color: 'rgb(255, 206, 86)'
-            },
-            grid: {
-              drawOnChartArea: false,
-            },
-          },
-          y2: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            border: {
-              color: 'rgb(153, 102, 255)'
-            },
-            ticks: {
-              color: 'rgb(153, 102, 255)'
             },
             grid: {
               drawOnChartArea: false,
@@ -1222,14 +1357,15 @@ export class TicketingAnalysisComponent implements OnInit {
   }
 
   // function for fetching api data for the combined line chart
-  loadCombinedLineChartData() {
+  loadCombinedLineChartData(passDebtorKey: string) {
     const ClientNo = '';
-    const DebtorKey = parseInt(this.ticketData.DebtorKey);
+    const DebtorKey = parseInt(passDebtorKey);
     const trendPeriodChar = 'M';
 
     this.dataService.getDebtorClientTrendData(DebtorKey, ClientNo, trendPeriodChar).subscribe(response => {
       let recentPeriods = this.combinedLineChartData.columns;
       let PurchasesTempData: number[] = [];
+      let PaymentsTempData: number[] = [];
       let AverageTempData: number[] = [];
       let InvoicesTempData: number[] = [];
       let AvgWeightedDaysTempData: number[] = [];
@@ -1238,6 +1374,7 @@ export class TicketingAnalysisComponent implements OnInit {
         for (let item of response.data) {
           if (item.YearMonth === it) {
             PurchasesTempData.push(parseFloat(item.Purchases));
+            PaymentsTempData.push(parseFloat(item.Payments));
             AverageTempData.push(parseFloat(item.PurchasesAvg));
             InvoicesTempData.push(parseFloat(item.PurchasesNo));
             AvgWeightedDaysTempData.push(parseFloat(item.AvgWeightedDays));
@@ -1247,12 +1384,14 @@ export class TicketingAnalysisComponent implements OnInit {
         }
         if (!found) {
           PurchasesTempData.push(0);
+          PaymentsTempData.push(0);
           AverageTempData.push(0);
           InvoicesTempData.push(0);
           AvgWeightedDaysTempData.push(0);
         }
       }
       this.combinedLineChartData.rows['Purchases'] = PurchasesTempData;
+      this.combinedLineChartData.rows['Payments'] = PaymentsTempData;
       this.combinedLineChartData.rows['Average'] = AverageTempData;
       this.combinedLineChartData.rows['Invoices'] = InvoicesTempData;
       this.combinedLineChartData.rows['AverageWeightedDays'] = AvgWeightedDaysTempData;
@@ -1272,5 +1411,80 @@ export class TicketingAnalysisComponent implements OnInit {
     });
   }
 
+  // eventhandler for selecting menu to switch debtor
+  onSwitchDebtorClick(selectedDebtorKey: string) {
+    this.switchedDebtorKey = selectedDebtorKey;
+    if (this.originalDebtorType === 'Member'){
+      this.switchedDebtorType = 'Master';
+    }
+    else if (this.originalDebtorType === 'Master'){
+      this.switchedDebtorType = 'Member';
+    }
+
+    // load new debtor details
+    this.memberDebtorsService.getMemberDebtors(parseInt(selectedDebtorKey)).subscribe(response => {
+      for (let it of response.data) {
+        if (it.DebtorKey === selectedDebtorKey) {
+          this.debtorDetails = it;
+        }
+      }
+      this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
+      console.log('ticketing-analysis-component, Switched, this.debtorDetails:', this.debtorDetails);
+      
+      // Calculate debtor performance after debtor details are loaded
+      this.performanceResults = this.calculateDebtorPerformance();
+
+      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
+      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
+    
+      // fetch client concentration percentage
+      this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+      // fetch debtor concentration percentage
+      this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+
+      // load combined line chart data
+      this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
+
+      this.cdr.detectChanges(); // Trigger change detection
+
+    }, error => {
+      console.error('Error fetching member debtors:', error);
+    });
+
+  }
+
+  // eventhandler for clearing the switched debtor and go back to original
+  onResetSwitchDebtor() {
+    this.switchedDebtorKey = '';
+    this.switchedDebtorType = 'N/A';
+    this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
+      for (let it of response.data) {
+        if (it.DebtorKey === this.ticketData.DebtorKey) {
+          this.debtorDetails = it;
+        }
+      }
+      this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
+      console.log('ticketing-analysis-component, Reseted, this.debtorDetails:', this.debtorDetails);
+      
+      // Calculate debtor performance after debtor details are loaded
+      this.performanceResults = this.calculateDebtorPerformance();
+
+      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
+      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
+    
+      // fetch client concentration percentage
+      this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+      // fetch debtor concentration percentage
+      this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+
+      // load combined line chart data
+      this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
+
+      this.cdr.detectChanges(); // Trigger change detection
+
+    }, error => {
+      console.error('Error fetching member debtors:', error);
+    });
+  }
 
 }
