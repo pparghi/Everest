@@ -141,6 +141,14 @@ export class TicketingAnalysisComponent implements OnInit {
   switchedDebtorKey: string = '';
   switchableDebtors: any[] = []; // list of switchable debtors for the current debtor
 
+  // alternate addresses
+  alternateAddresses: any[] = [];
+
+  // country and area list for address; [{CountryListKey, CountryAreaName, IsoAlpha2Code}]
+  countryAreaList: any[] = [];
+
+  loadingCurrentDebtorRelationship: boolean = false;
+
   constructor(
     // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
     // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
@@ -205,6 +213,8 @@ export class TicketingAnalysisComponent implements OnInit {
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.ticketData.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
   
+    // get alternate addresses
+    this.getDebtorAlternateAddresses(parseInt(this.ticketData.DebtorKey));
 
     // fetch client concentration percentage
     this.searchAllClientsByDebtorKey(parseInt(this.ticketData.DebtorKey), parseInt(this.ticketData.ClientKey));
@@ -213,6 +223,9 @@ export class TicketingAnalysisComponent implements OnInit {
 
     // load combined line chart data
     this.loadCombinedLineChartData(this.ticketData.DebtorKey);
+
+    // load country and area list
+    this.loadCountryAreaList();
 
   }
 
@@ -341,6 +354,10 @@ export class TicketingAnalysisComponent implements OnInit {
 
       // get the concentration number by searching the ClientKey
       // get number of relationship clients with outstanding balance and active status
+      // reset numOfRelationshipClients to 0 before counting
+      this.numOfRelationshipClients = 0;
+      this.ClientConcentrationPercentage = 'N/A';
+      this.currentClientsRelationship = {};
       for (let it of response.data) {
         if (it.Inactive === '0' && parseFloat(it.Balance) > 0) {
           this.numOfRelationshipClients++;
@@ -355,6 +372,10 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // load concentration percentage number of a debtor related to a client
   loadDebtorConcentrationPercentage(DebtorKey: number, ClientKey: number): void {
+    this.loadingCurrentDebtorRelationship = true;
+    // reset parameters
+    this.DebtorConcentrationPercentage = 'N/A';
+    this.currentDebtorRelationship = {};
     this.clientsDebtorsService.getClientsDebtors(ClientKey).subscribe(response => {
       console.log("ticketing-analysis-component, getClientsDebtors by clientKey: ", response.data);
       for (let it of response.data) {
@@ -364,6 +385,8 @@ export class TicketingAnalysisComponent implements OnInit {
           break;
         }
       }
+      this.loadingCurrentDebtorRelationship = false;
+      this.cdr.detectChanges(); // Trigger change detection
     });
   }
 
@@ -371,7 +394,7 @@ export class TicketingAnalysisComponent implements OnInit {
   calculatePercentage(valueStr: string, totalStr: string): string {
     let total = parseFloat(totalStr);
     let value = parseFloat(valueStr);
-    if (total === 0) return '0%';
+    if (total === 0 || isNaN(value) || isNaN(total)) return '0%';
     // const percentage = Math.round((value / total) * 10000) / 100; // Calculate percentage with 2 decimal places
     const percentage = Math.round((value / total) * 100); // Calculate percentage with 0 decimal places
     return percentage + '%';
@@ -690,25 +713,7 @@ export class TicketingAnalysisComponent implements OnInit {
 
     // console.log("element--", element);
     let fullAddress = "";
-    // if (element.Addr1) {
-    //   fullAddress += element.Addr1 + ", ";
-    // }
-    // if (element.Addr2) {
-    //   fullAddress += element.Addr2 + ", ";
-    // }
-    // if (element.City) {
-    //   fullAddress += element.City + ", ";
-    // }
-    // if (element.State) {
-    //   fullAddress += element.State + ", ";
-    // }
-    // if (element.Country) {
-    //   fullAddress += element.Country + ", ";
-    // }
-    // if (element.ZipCode) {
-    //   fullAddress += element.ZipCode;
-    // }
-    // fullAddress = fullAddress.trim().replace(/^,+\s*|\s*,+$/g, "");
+
     fullAddress = this.formatAddress([element.Addr1, element.Addr2, element.City, element.State, element.Country, element.ZipCode]);
     this.debtorName = element.Debtor;
     this.debtorFullAddress = fullAddress;
@@ -734,7 +739,11 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // method to take in address and return a formatted address, array pareameter in this order: [Addr1, Addr2, City, State, Country, ZipCode]
   formatAddress(addresses: string[]): string {
-    return addresses.join(', ').trim().replace(/^,+\s*|\s*,+$/g, "");
+    // Filter out empty, null, or undefined values, then join
+    return addresses
+      .filter(addr => addr && addr.trim() !== '')
+      .join(', ')
+      .trim();
   }
 
   // convert country name to code, US and CA only
@@ -817,28 +826,34 @@ export class TicketingAnalysisComponent implements OnInit {
       formData.append('DotNo', this.debtorDetails.DotNo);
     }
 
-    // Get the logged in user for CredAppBy
-    this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
-      const userId = (profile as any).mail.match(/^([^@]*)@/)[1];
-      formData.append('CredAppBy', userId.toUpperCase());
+    formData.append('CredAppBy', this.currentUser.toUpperCase());
 
-      // Call the API service to update the debtor
-      this.dataService.updateDebtorDetails(formData).subscribe({
-        next: (response) => {
-          // Clear master debtors data cache for showing updated Duns
-          this.cacheService.removeByPattern('/api/memberDebtors?');
+    // Call the API service to update the debtor
+    this.dataService.updateDebtorDetails(formData).subscribe({
+      next: (response) => {
+        // Clear master debtors data cache for showing updated Duns
+        this.cacheService.removeByPattern('/api/memberDebtors?');
 
-          // Show success message
-          Swal.fire('Success', 'Debtor information updated successfully with DUNS data.', 'success');
-          this.drawer.close(); // Close the drawer
-          this.debtorDetails.DbDunsNo = event.dunsNumber; // Refresh the duns number
-          this.cdr.detectChanges(); // Trigger change detection
-        },
-        error: (error) => {
-          console.error('Error updating debtor details:', error);
-          Swal.fire('Error', 'Failed to update debtor information.', 'error');
-        }
-      });
+        // Show success message
+        this.drawer.close(); // Close the drawer
+        this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+          data: { message: "Debtor information updated successfully with DUNS data." },
+          duration: 5000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+        this.debtorDetails.DbDunsNo = event.dunsNumber; // Refresh the duns number
+        this.cdr.detectChanges(); // Trigger change detection
+      },
+      error: (error) => {
+        this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+          data: { message: "Failed to update debtor DUNS: " + error.error.message },
+          duration: 10000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+        console.error('Error updating debtor details:', error);
+      }
     });
   }
 
@@ -971,7 +986,7 @@ export class TicketingAnalysisComponent implements OnInit {
         Terms: row.Terms,
         MotorCarrNo: row.MotorCarrNo,
         Email: row.Email,
-        RateDate: row.RateDate,
+        RateDate: row.RateDate || '',
         CredExpireDate: row.CredExpireDate,
         openForm: 'editForm',
         CredAppBy: this.currentUser,
@@ -1009,6 +1024,10 @@ export class TicketingAnalysisComponent implements OnInit {
         // fetch debtor concentration percentage
         this.cacheService.removeByPattern('/api/ClientsDebtors?'); // clear the clientsDebtors cache
         this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+
+        // reload alternate addresses
+        this.cacheService.removeByPattern('/api/getDebtorAlternateAddresses?'); // clear the debtor alternate address cache
+        this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
 
         // load combined line chart data
         this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
@@ -1442,8 +1461,14 @@ export class TicketingAnalysisComponent implements OnInit {
       // fetch debtor concentration percentage
       this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
 
+      // load alternate addresses
+      this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
+
       // load combined line chart data
       this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
+
+      // load the no buy code
+      this.setDefaultNoBuyCode();
 
       this.cdr.detectChanges(); // Trigger change detection
 
@@ -1476,9 +1501,15 @@ export class TicketingAnalysisComponent implements OnInit {
       this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
       // fetch debtor concentration percentage
       this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+      
+      // load alternate addresses
+      this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
 
       // load combined line chart data
       this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
+      
+      // load the no buy code
+      this.setDefaultNoBuyCode();
 
       this.cdr.detectChanges(); // Trigger change detection
 
@@ -1486,5 +1517,379 @@ export class TicketingAnalysisComponent implements OnInit {
       console.error('Error fetching member debtors:', error);
     });
   }
+
+  // method to get debtor's alternate addresses by DebtorKey
+  getDebtorAlternateAddresses(debtorKey: number) {
+    this.dataService.getDebtorAlternateAddresses(debtorKey).subscribe(response => {
+      this.alternateAddresses = response.data;
+      // console.log('alternateAddresses--', this.alternateAddresses);
+      // console.log('formatted alternateAddresses--', this.formatAlternateAddress());
+      this.cdr.detectChanges(); // Trigger change detection
+    }, error => {
+      console.error('Error fetching debtor alternate addresses:', error);
+    });
+  }
+
+  // method to convert address array to formatted address string
+  formatAlternateAddress(): string {
+    let result = '';
+    let addresses = this.alternateAddresses;
+    for (let i = 0; i < addresses.length; i++) {
+      result += addresses[i].Name + '; ' + this.formatAddress([addresses[i].Addr1, addresses[i].Addr2, addresses[i].City, addresses[i].State, addresses[i].Country, addresses[i].ZipCode]);
+      if (i < addresses.length - 1) {
+        result += "\n";
+      }
+    }
+    return result;
+  }
+
+  // method to delete an alternate address
+  deleteAlternateAddress() {
+    if (!this.alternateAddresses || this.alternateAddresses.length === 0) {
+      Swal.fire('No Addresses', 'There are no alternate addresses to delete.', 'info');
+      return;
+    }
+
+    // Create HTML for the address list with checkboxes
+    let addressListHtml = '<div style="text-align: left; max-height: 400px; overflow-y: auto;">';
+
+    this.alternateAddresses.forEach((address, index) => {
+      const formattedAddress = address.Name + ';' + this.formatAddress([
+        address.Addr1,
+        address.Addr2,
+        address.City,
+        address.State,
+        address.Country,
+        address.ZipCode
+      ]);
+
+      addressListHtml += `
+      <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        <label style="display: flex; align-items: flex-start; cursor: pointer;">
+          <input type="checkbox" 
+                 id="address_${index}" 
+                 class="address-delete-checkbox"
+                 value="${address.AltAddressKey}" 
+                 style="margin-right: 10px; margin-top: 5px; transform: scale(1.2);">
+          <div>
+            <span style="color: #333; font-size: 14px;">${formattedAddress || 'No address available'}</span>
+          </div>
+        </label>
+      </div>
+    `;
+    });
+
+    addressListHtml += '</div>';
+
+    Swal.fire({
+      title: 'Delete Alternate Addresses',
+      html: `
+      <div style="margin-bottom: 20px;">
+        <p style="margin-bottom: 15px; color: #666;">Select the alternate addresses you want to delete:</p>
+        ${addressListHtml}
+      </div>
+    `,
+      width: '600px',
+      showCancelButton: true,
+      confirmButtonText: 'Delete Selected',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      preConfirm: () => {
+        // Get all checked checkboxes
+        const checkedBoxes = document.querySelectorAll('input[type="checkbox"].address-delete-checkbox:checked');
+        const selectedIndices: number[] = [];
+
+        checkedBoxes.forEach((checkbox) => {
+          const keyNumber = parseInt((checkbox as HTMLInputElement).value);
+          selectedIndices.push(keyNumber);
+        });
+
+        if (selectedIndices.length === 0) {
+          Swal.showValidationMessage('Please select at least one address to delete');
+          return false;
+        }
+
+        return selectedIndices;
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const selectedIndices = result.value as number[];
+
+        Swal.fire({
+          title: 'Confirm Deletion',
+          html: `
+          <p>Are you sure you want to delete the selected alternate address(es)?</p>
+          <p style="color: #666; font-size: 14px;">This action cannot be undone.</p>
+        `,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, Delete',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6'
+        }).then((confirmResult) => {
+          if (confirmResult.isConfirmed) {
+            this.performDeleteAlternateAddresses(selectedIndices);
+            // console.log('Selected indices to delete:', selectedIndices);
+          }
+        });
+      }
+    });
+  }
+
+  // Helper method to perform the actual deletion
+  private performDeleteAlternateAddresses(selectedIndices: number[]) {
+    // Create an array of API calls for each address to delete
+    const deletePromises = selectedIndices.map(keyNumber => {
+      // Replace this with your actual API call
+      return this.dataService.deleteDebtorAlternateAddress(this.debtorDetails.DebtorKey, keyNumber, this.currentUser).toPromise();
+    });
+
+    // Show loading indicator
+    Swal.fire({
+      title: 'Deleting Addresses...',
+      text: 'Please wait while we delete the selected addresses.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Execute all delete operations
+    Promise.all(deletePromises)
+      .then(() => {
+        // Clear cache and reload alternate addresses
+        this.cacheService.removeByPattern('/api/getDebtorAlternateAddresses?');
+        this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
+
+        // close loading indicator
+        Swal.close();
+        // Show success snackbar
+        this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+          data: { message: `${selectedIndices.length} alternate address(es) deleted successfully` },
+          duration: 5000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      })
+      .catch((error) => {
+        console.error('Error deleting alternate addresses:', error);
+
+        // close loading indicator
+        Swal.close();
+        // Show error snackbar
+        this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+          data: { message: "Error deleting alternate addresses: " + (error.error?.message || error.message) },
+          duration: 10000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      });
+  }
+
+  // method to add an alternate address
+  addAlternateAddress() {
+    if (!this.countryAreaList || this.countryAreaList.length === 0) {
+      Swal.fire('Error', 'Country list not loaded. Please try again later.', 'error');
+      return;
+    }
+
+    // Create country dropdown options
+    let countryOptionsHtml = '<option value="">Select Country</option>';
+    this.countryAreaList.forEach(country => {
+      countryOptionsHtml += `<option value="${country.CountryAreaName}">${country.CountryAreaName}</option>`;
+    });
+
+    Swal.fire({
+      title: 'Add Alternate Address',
+      html: `
+      <div style="text-align: left;">
+        <div style="margin-bottom: 15px;">
+          <label for="swal-name" style="display: block; margin-bottom: 5px; font-weight: bold;">Name *</label>
+          <input id="swal-name" class="swal2-input" placeholder="Enter name" style="width: 90%; margin: 0;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label for="swal-addr1" style="display: block; margin-bottom: 5px; font-weight: bold;">Address Line 1</label>
+          <input id="swal-addr1" class="swal2-input" placeholder="Enter address line 1" style="width: 90%; margin: 0;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <label for="swal-addr2" style="display: block; margin-bottom: 5px; font-weight: bold;">Address Line 2</label>
+          <input id="swal-addr2" class="swal2-input" placeholder="Enter address line 2 (optional)" style="width: 90%; margin: 0;">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <div style="flex: 1;">
+            <label for="swal-city" style="display: block; margin-bottom: 5px; font-weight: bold;">City</label>
+            <input id="swal-city" class="swal2-input" placeholder="Enter city" style="width: 90%; margin: 0;">
+          </div>
+          <div style="flex: 1;">
+            <label for="swal-state" style="display: block; margin-bottom: 5px; font-weight: bold;">State/Province</label>
+            <input id="swal-state" class="swal2-input" placeholder="Enter state" style="width: 90%; margin: 0;">
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <div style="flex: 1;">
+            <label for="swal-zipcode" style="display: block; margin-bottom: 5px; font-weight: bold;">Zip/Postal Code</label>
+            <input id="swal-zipcode" class="swal2-input" placeholder="Enter zip code" style="width: 90%; margin: 0;">
+          </div>
+          <div style="flex: 1;">
+            <label for="swal-country" style="display: block; margin-bottom: 5px; font-weight: bold;">Country</label>
+            <select id="swal-country" class="swal2-input" style="width: 90%; margin: 0;">
+              ${countryOptionsHtml}
+            </select>
+          </div>
+        </div>
+        
+        <div style="margin-top: 10px; color: #666; font-size: 12px;">
+          * Required fields
+        </div>
+      </div>
+    `,
+      width: '600px',
+      showCancelButton: true,
+      confirmButtonText: 'Add Address',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      focusConfirm: false,
+      preConfirm: () => {
+        const name = (document.getElementById('swal-name') as HTMLInputElement).value.trim();
+        const addr1 = (document.getElementById('swal-addr1') as HTMLInputElement).value.trim();
+        const addr2 = (document.getElementById('swal-addr2') as HTMLInputElement).value.trim();
+        const city = (document.getElementById('swal-city') as HTMLInputElement).value.trim();
+        const state = (document.getElementById('swal-state') as HTMLInputElement).value.trim();
+        const zipCode = (document.getElementById('swal-zipcode') as HTMLInputElement).value.trim();
+        const country = (document.getElementById('swal-country') as HTMLSelectElement).value;
+
+        // Validation
+        if (!name) {
+          Swal.showValidationMessage('Name is required');
+          return false;
+        }
+        console.log('name:', name, ' addr1:', addr1, ' city:', city, ' state:', state, ' zipCode:', zipCode, ' country:', country);
+
+        return {
+          name: name,
+          addr1: addr1,
+          addr2: addr2,
+          city: city,
+          state: state,
+          zipCode: zipCode,
+          country: country
+        };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const addressData = result.value;
+
+        // Show confirmation dialog
+        const formattedAddress = this.formatAddress([
+          addressData.addr1,
+          addressData.addr2,
+          addressData.city,
+          addressData.state,
+          addressData.country,
+          addressData.zipCode
+        ]);
+
+        Swal.fire({
+          title: 'Confirm Addition',
+          html: `
+          <p>Are you sure you want to add this alternate address?</p>
+          <div style="margin: 15px 0; padding: 15px; background-color: #f8f9fa; border-radius: 5px; text-align: left;">
+            <span style="color: #666;">${addressData.name}; ${formattedAddress}</span>
+          </div>
+        `,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, Add',
+          cancelButtonText: 'Cancel',
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#6c757d'
+        }).then((confirmResult) => {
+          if (confirmResult.isConfirmed) {
+            this.performAddAlternateAddress(addressData);
+          }
+        });
+      }
+    });
+  }
+
+  // Helper method to perform the actual addition
+  private performAddAlternateAddress(addressData: any) {
+    // Show loading indicator
+    Swal.fire({
+      title: 'Adding Address...',
+      text: 'Please wait while we add the alternate address.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      willOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // Call the API to add the alternate address
+    this.dataService.addDebtorAlternateAddress(
+      parseInt(this.debtorDetails.DebtorKey),
+      addressData.name,
+      addressData.addr1,
+      addressData.addr2,
+      addressData.city,
+      addressData.state,
+      addressData.zipCode,
+      addressData.country,
+      this.currentUser
+    ).subscribe({
+      next: (response) => {
+        // Clear cache and reload alternate addresses
+        this.cacheService.removeByPattern('/api/getDebtorAlternateAddresses?');
+        this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
+
+        // Close loading indicator
+        Swal.close();
+
+        // Show success snackbar
+        this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+          data: { message: 'Alternate address added successfully' },
+          duration: 5000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      },
+      error: (error) => {
+        console.error('Error adding alternate address:', error);
+
+        // Close loading indicator
+        Swal.close();
+
+        // Show error snackbar
+        this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+          data: { message: "Error adding alternate address: " + (error.error?.message || error.message) },
+          duration: 10000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      }
+    });
+  }
+
+  // method to load country and area list
+  loadCountryAreaList() {
+    this.dataService.getCountryAreaList().subscribe((response: any) => {
+      this.countryAreaList = response.data;
+      // console.log('Country Area List:', this.countryAreaList);
+      
+      this.cdr.detectChanges(); // Trigger change detection
+    });
+  }
+
+
 
 }

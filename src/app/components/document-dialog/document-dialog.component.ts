@@ -122,6 +122,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   expandedElement: DebtorDataItem | null = null;
 
   focusedInputOfAdress: string = 'address1';
+  
+  countryAreaList: any = [];
 
   // #region ticketing variables
   @ViewChild(MatTableExporterDirective) exporter!: MatTableExporterDirective; 
@@ -153,6 +155,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   // get debtor details from child component trend tab
   debtorDetails: any = {};
   isSendDecisionEmail: boolean = false;
+
 
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
@@ -211,6 +214,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       })
 
       this.debtor = data.Debtor
+
+      this.loadCountryAreaList();
     } else if (data.openTicketForm) {
       // #region ticketing page
       console.log('ticketing data--', data);
@@ -1684,5 +1689,17 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
 
   // endregion
+
+  
+  // method to load country and area list
+  loadCountryAreaList() {
+    this.dataService.getCountryAreaList().subscribe((response: any) => {
+      this.countryAreaList = response.data;
+      // console.log('Country Area List:', this.countryAreaList);
+      
+      this.cdr.markForCheck(); // Trigger change detection
+    });
+  }
+
 
 }

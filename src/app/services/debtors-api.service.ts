@@ -179,6 +179,12 @@ export class DebtorsApiService {
     const url = `https://everest.revinc.com:4202/api/getDebtorNoBuyCodeList`;
     return this.http.get(url, {responseType: 'json'});
   }
+  
+  // Call the API to get country area List
+  getCountryAreaList() {
+    const url = `https://everest.revinc.com:4202/api/getCountryAreaList`;
+    return this.http.get(url, {responseType: 'json'});
+  }
 
   // update debtor's no buy code
   updateDebtorNoBuyCode(noBuyDisputeKey: number, debtorKey: number, credAppBy: string) {
@@ -190,5 +196,40 @@ export class DebtorsApiService {
     };
     return this.http.post<any>(url, body);
   }
+
+  // get debtor's alternate addresses
+  getDebtorAlternateAddresses(debtorKey: number): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/getDebtorAlternateAddresses?DebtorKey=${debtorKey}`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  // delete debtor's alternate address by AltAddressKey
+  deleteDebtorAlternateAddress(DebtorKey: number, AltAddressKey: number, UpdateBy: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/deleteDebtorAlternateAddress`;
+    const body = {
+      DebtorKey: DebtorKey,
+      AltAddressKey: AltAddressKey,
+      UpdateBy: UpdateBy
+    };
+    return this.http.post<any>(url, body);
+  }
+
+  // delete debtor's alternate address by AltAddressKey
+  addDebtorAlternateAddress(DebtorKey: number, Name: string, Addr1: string, Addr2: string, City: string, State: string, ZipCode: string, Country: string, UpdateBy: string): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/addDebtorAlternateAddress`;
+    const body = {
+      DebtorKey: DebtorKey,
+      Name: Name,
+      Addr1: Addr1,
+      Addr2: Addr2,
+      City: City,
+      State: State,
+      ZipCode: ZipCode,
+      Country: Country,
+      UpdateBy: UpdateBy
+    };
+    return this.http.post<any>(url, body);
+  }
+
 
 }

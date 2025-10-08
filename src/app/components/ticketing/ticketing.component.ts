@@ -157,8 +157,8 @@ export class TicketingComponent {
     constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
       const today = new Date();
       const yesterdayDate = new Date(today);
-      yesterdayDate.setDate(today.getDate() - 1);
-      // yesterdayDate.setDate(today.getDate() - 65);
+      // yesterdayDate.setDate(today.getDate() - 1);
+      yesterdayDate.setDate(today.getDate() - 72);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');     
     }
     ngOnInit(): void {
@@ -183,8 +183,8 @@ export class TicketingComponent {
         this.selectedValues = filterValues.selectedValues;
       }
       else {
-        this.selectedValues = ['0']; // Default value
-        // this.selectedValues = ['0', '1, 6, 7', '2'];
+        // this.selectedValues = ['0']; // Default value
+        this.selectedValues = ['0', '1, 6, 7', '2'];
       }
       if (filterValues?.requestDate) {
         this.requestDate = filterValues.requestDate;
@@ -475,10 +475,10 @@ export class TicketingComponent {
               // After dialog is closed, unlock the request
               this.dataService.actionToCreditRequest(parseInt(row.CredRequestKey), userId.toUpperCase(), 'U').subscribe(response => {
                 console.log('Request unlocked:', response);
+                // refresh the request list after dialog is closed
+                console.log('Dialog closed, reloading data');
+                this.loadData();
               });
-              // refresh the request list after dialog is closed
-              console.log('Dialog closed, reloading data');
-              this.loadData();
             });
           }
 

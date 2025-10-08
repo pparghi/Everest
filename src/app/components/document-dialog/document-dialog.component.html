@@ -177,12 +177,13 @@
                 <input type="text" id="State" class="form-control" formControlName="State" placeholder="N/A">
               </div>
               <div class="col-md-6">
-                <label for="Country" class="form-label">Country</label>
-                <select id="Country" class="form-control" formControlName="Country">
-                  <option value="Canada">Canada</option>
+                <label for="Country" class="form-label">Country&Area</label>
+                <select id="Country" class="form-control" formControlName="Country" matTooltip="{{editForm.get('Country')?.value}}">
+                  <option *ngFor="let country of countryAreaList" [value]="country.CountryAreaName">{{ country.CountryAreaName }}</option>
+                  <!-- <option value="Canada">Canada</option>
                   <option value="United States">United States</option>
                   <option value="Mexico">Mexico</option>
-                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="United Kingdom">United Kingdom</option> -->
                 </select>
               </div>
             </div>
