@@ -77,6 +77,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatStepperModule} from '@angular/material/stepper';
 import {MatBadgeModule} from '@angular/material/badge';
+import { AgingDocumentsDialogComponent } from './components/aging-documents-dialog/aging-documents-dialog.component';
 
 @NgModule({
   declarations: [
@@ -115,6 +116,7 @@ import {MatBadgeModule} from '@angular/material/badge';
     ClientDocumentsComponent,
     FileUploadDialogComponent,
     SettingsComponent,    
+    AgingDocumentsDialogComponent,
   ],
   imports: [
     MatDatepickerModule,

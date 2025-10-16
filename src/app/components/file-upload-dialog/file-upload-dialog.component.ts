@@ -108,7 +108,7 @@ export class FileUploadDialogComponent implements OnInit {
       if (profile.mail) {
         this.userID = profile.mail.match(/^([^@]*)@/)?.[1] || '';
       } else {
-        this.userID = 'Unkown';
+        this.userID = 'Unknown';
       }
     });
   }

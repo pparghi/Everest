@@ -1,0 +1,197 @@
+<!-- view documents -->
+@if (data.mode === 'view'){
+<h2 mat-dialog-title>Relationship Documents list</h2>
+
+<mat-dialog-content class="dialog-content">
+    <div class="main-table-container">
+        <table mat-table [dataSource]="agingDocumentListSource" class="mat-elevation-z8" class="mat-table">
+
+            <ng-container matColumnDef="View">
+                <th mat-header-cell *matHeaderCellDef> View </th>
+                <td mat-cell *matCellDef="let element">
+                    @if (element.FileType === 'PDF'){
+                    <span (click)="viewFile(element)" class="icon-container"
+                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'">
+                        <mat-icon class="viewFileIcon">file_open</mat-icon>
+                    </span>
+                    }
+                    @else if (['JPG', 'JPEG', 'PNG', 'GIF', 'BMP', 'SVG'].includes(element.FileType)){
+                    <span (click)="viewFile(element)" class="icon-container"
+                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'">
+                        <mat-icon class="viewFileIcon">image</mat-icon>
+                    </span>
+                    }
+                    @else {
+                    <span (click)="viewFile(element)" class="icon-container"
+                        [style.cursor]="canView() ? 'pointer' : 'not-allowed'">
+                        <mat-icon class="viewFileIcon">download</mat-icon>
+                    </span>
+                    }
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="FileName">
+                <th mat-header-cell *matHeaderCellDef> File Name </th>
+                <td mat-cell *matCellDef="let element"> {{element.FileName}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Descr">
+                <th mat-header-cell *matHeaderCellDef> Description </th>
+                <td mat-cell *matCellDef="let element"> {{element.Descr}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="DropDate">
+                <th mat-header-cell *matHeaderCellDef class="dropDate-column"> Drop Date </th>
+                <td mat-cell *matCellDef="let element" class="dropDate-column"> {{element.DropDate | date:'yyyy-MM-dd'}}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="FileType">
+                <th mat-header-cell *matHeaderCellDef> File Type </th>
+                <td mat-cell *matCellDef="let element"> {{element.FileType}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="agingDocumentColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: agingDocumentColumns;" class="element-row"></tr>
+        </table>
+
+        <div class="spinner-container" *ngIf="isLoading;">
+            <mat-spinner class="custom-spinner"></mat-spinner>
+        </div>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close color="primary">Close</button>
+</mat-dialog-actions>
+}
+
+
+
+<!-- ************* upload documents *********** -->
+@if (data.mode === 'upload'){
+<h2 mat-dialog-title>Upload Relationship Document</h2>
+
+<div mat-dialog-content>
+    <!-- File Upload Section -->
+    <div class="upload-section">
+        <h3>Upload Documents</h3>
+        <form [formGroup]="uploadForm" class="upload-form">
+            <!-- Drag & Drop File Upload Area -->
+            <div class="file-drop-area" [class.dragging]="isDragging" (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+                <div class="file-drop-icon">
+                    <mat-icon>cloud_upload</mat-icon>
+                </div>
+                <div class="file-drop-text">
+                    <p>Drag & drop files here</p>
+                    <p>or</p>
+                </div>
+                <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" multiple
+                    [accept]="acceptedFileTypes">
+                <button type="button" mat-raised-button color="primary" (click)="fileInput.click()">
+                    <mat-icon>attach_file</mat-icon> Select Files
+                </button>
+                <div class="file-types">
+                    <small>Accepted file types: {{acceptedFileTypeArray.join(', ')}}</small>
+                </div>
+            </div> <!-- File Cards List -->
+            <div class="file-cards-container" *ngIf="uploadedFiles.length > 0">
+                <div class="file-card" *ngFor="let file of uploadedFiles; let i = index">
+                    <div class="file-card-header">
+                        <div class="file-type-icon" [ngClass]="file.type">
+                            @if (file.type.includes('image')){
+                            <mat-icon>image</mat-icon>
+                            }
+                            @else if (file.type.includes('pdf')) {
+                            <mat-icon>picture_as_pdf</mat-icon>
+                            }
+                            @else if (file.type.includes('word') || file.type.includes('document')){
+                            <mat-icon>description</mat-icon>
+                            }
+                            @else {
+                            <mat-icon>insert_drive_file</mat-icon>
+                            }
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name">{{file.name.split('.')[0]}}</div>
+                            <div class="file-meta">
+                                <span class="file-size">{{file.size}}</span>
+                                <span class="file-type">{{file.name.split('.')[1]}}</span>
+                            </div>
+                        </div>
+                        <button mat-icon-button color="warn" (click)="removeFile(i)" *ngIf="!file.isUploading">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+
+                    <!-- Preview for images -->
+                    <div class="file-preview" *ngIf="file.previewUrl">
+                        <img [src]="file.previewUrl" alt="Preview" class="preview-image">
+                    </div>
+
+                    <!-- Individual file metadata inputs -->
+                    <div class="file-metadata-form" *ngIf="!file.isUploading">
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Category</mat-label>
+                                <mat-select [(ngModel)]="file.category" [ngModelOptions]="{standalone: true}" required>
+                                    <mat-option *ngFor="let category of data.categories" [value]="category.DocCatKey">
+                                        {{category.Descr}}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="!file.category">Category is required</mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="form-row">
+                            <mat-form-field appearance="outline" class="full-width">
+                                <mat-label>Description</mat-label>
+                                <input matInput [(ngModel)]="file.description" [ngModelOptions]="{standalone: true}"
+                                    placeholder="Enter a description (optional)">
+                                <mat-hint align="start"><strong>If left blank then uploaded file name will be used as
+                                        the Description</strong></mat-hint>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!-- File details (when uploading) -->
+                    <div class="file-details" *ngIf="file.isUploading && file.category">
+                        <div class="file-category">
+                            <strong>Category:</strong> {{getCategoryDescription(file.category)}}
+                        </div>
+                        <div class="file-description" *ngIf="file.description">
+                            <strong>Description:</strong> {{file.description}}
+                        </div>
+                    </div>
+
+                    <!-- Upload progress -->
+                    <div class="file-progress" *ngIf="file.isUploading || file.progress > 0">
+                        <mat-progress-bar mode="determinate" [value]="file.progress"></mat-progress-bar>
+                        <span class="progress-text">{{file.progress}}% Uploaded</span>
+                    </div>
+
+                    <!-- Error message -->
+                    <div class="file-error" *ngIf="file.error">
+                        <mat-icon>error</mat-icon>
+                        <span>{{file.error}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="isUploading" class="progress-container">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                <span>Uploading files...</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-button [disabled]="isUploading" (click)="onClose()">Cancel</button>
+    <button mat-raised-button color="primary"
+        [disabled]="isUploading || uploadedFiles.length === 0 || !areAllFilesValid()"
+        (click)="onSubmit()">
+        <mat-icon>cloud_upload</mat-icon> Upload
+    </button>
+</div>
+
+}

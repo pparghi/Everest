@@ -858,7 +858,12 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     // Calculate total from filtered data
     let filteredTotal = 0;
     for (let item of this.statementsDataSource.data) {
-      filteredTotal += Number(item.Balance) || 0;
+      if (item.Status === 'Pending'){
+        filteredTotal += Number(item.Amt) || 0;
+      }
+      else {
+        filteredTotal += Number(item.Balance) || 0;
+      }
     }
     this.balanceShown = this.formatCurrency(filteredTotal);
     this.totalQuantityShown = this.statementsDataSource.data.length.toString();

@@ -9,6 +9,7 @@ import { ClientsService } from '../../services/clients.service';
 import { ClientsDebtorsService } from '../../services/clients-debtors.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DocumentDialogComponent } from '../document-dialog/document-dialog.component';
+import { AgingDocumentsDialogComponent } from '../aging-documents-dialog/aging-documents-dialog.component';
 import { MatDrawer } from '@angular/material/sidenav';
 import { HttpClient } from '@angular/common/http';
 import { CacheService } from '../../services/cache.service';
@@ -179,7 +180,9 @@ export class TicketingAnalysisComponent implements OnInit {
       if (this.ticketData.DebtorKey) {
         this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
           this.debtorDetails = response.data[0];
+          let sumBalance = 0;
           for (let it of response.data) {
+            sumBalance += Number(it.Balance) || 0;
             if (it.DebtorKey === this.ticketData.DebtorKey) {
               this.debtorDetails = it; 
               if (this.originalDebtorType === 'Member' || this.originalDebtorType === 'Non-Grouped' ) {
@@ -193,6 +196,11 @@ export class TicketingAnalysisComponent implements OnInit {
               this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor});
             }
           }
+          // if the debtor type is Master, set the balance to sum of all member debtors
+          if (this.originalDebtorType === 'Master'){
+            this.debtorDetails.Balance = '' + sumBalance
+          }
+
           this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
           console.log('ticketing-analysis-component, this.debtorDetails:', this.debtorDetails);
           
@@ -1001,11 +1009,17 @@ export class TicketingAnalysisComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       this.cacheService.removeByPattern('/api/memberDebtors?');
       this.memberDebtorsService.getMemberDebtors(parseInt(this.debtorDetails.DebtorKey)).subscribe(response => {
+        let sumBalance = 0;
+        let isMasterflag = this.debtorDetails.MasterDebtorKey === '0';
         for (let it of response.data) {
           if (it.DebtorKey === this.debtorDetails.DebtorKey) {
             this.debtorDetails = it;
-            break;
           }
+          sumBalance += Number(it.Balance) || 0;
+        }
+        // if it is master debtor, update the balance to sum of all related debtors
+        if (isMasterflag) {
+          this.debtorDetails.Balance = '' + sumBalance;
         }
 
         this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
@@ -1185,6 +1199,37 @@ export class TicketingAnalysisComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
 
+    });
+  }
+
+  // method to open aging documents dialog
+  openAgingDocumentsDialog(passMode: string) {
+    if (this.loadingCurrentDebtorRelationship){
+      this._snackBar.openFromComponent(WarningSnackbarComponent, {
+        data: { message: "Please wait the loading process and try again." },
+        duration: 10000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(AgingDocumentsDialogComponent, {
+      width: '1000px',
+      maxWidth: 'none',
+      height: 'auto',
+      panelClass: 'custom-dialog-container',
+      data: {
+        ticketingDetails: this.ticketData,
+        mode: passMode,
+        categories: [{DocCatKey: '0', Descr: 'GENERAL'}],
+        agingKey: this.currentDebtorRelationship?.AgingKey || 0,
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // clean relationship documents cache
+      this.cacheService.removeByPattern('api/getRelationshipDocumentList?');
     });
   }
   
@@ -1442,11 +1487,20 @@ export class TicketingAnalysisComponent implements OnInit {
 
     // load new debtor details
     this.memberDebtorsService.getMemberDebtors(parseInt(selectedDebtorKey)).subscribe(response => {
+      let sumBalance = 0;
+      let isMasterflag = false;
       for (let it of response.data) {
         if (it.DebtorKey === selectedDebtorKey) {
           this.debtorDetails = it;
+          isMasterflag = it.MasterDebtorKey === '0';
         }
+        sumBalance += Number(it.Balance) || 0;
       }
+      // if it is master debtor, update the balance to sum of all related debtors
+      if (isMasterflag) {
+        this.debtorDetails.Balance = '' + sumBalance;
+      }
+
       this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
       console.log('ticketing-analysis-component, Switched, this.debtorDetails:', this.debtorDetails);
       
@@ -1483,11 +1537,20 @@ export class TicketingAnalysisComponent implements OnInit {
     this.switchedDebtorKey = '';
     this.switchedDebtorType = 'N/A';
     this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
+      let sumBalance = 0;
+      let isMasterflag = false;
       for (let it of response.data) {
         if (it.DebtorKey === this.ticketData.DebtorKey) {
           this.debtorDetails = it;
+          isMasterflag = it.MasterDebtorKey === '0';
         }
+        sumBalance += Number(it.Balance) || 0;
       }
+      // if it is master debtor, update the balance to sum of all related debtors
+      if (isMasterflag) {
+        this.debtorDetails.Balance = '' + sumBalance;
+      }
+
       this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
       console.log('ticketing-analysis-component, Reseted, this.debtorDetails:', this.debtorDetails);
       

@@ -49,14 +49,31 @@ export class DocumentsReportsService {
     return this.http.get(url, {responseType: 'json'});
   }
 
-  // Call the API to get the PDF file
+  // Call the API to send bulk email
   callNOAIRISAPISendBulkEmail(ClientKey: number, DebtorKey: string, FactorSignature: boolean, acknowledge_signature:boolean, bankingdetails:boolean, bankingdetails_included:boolean, 
     araging:boolean, email_debtor:boolean, email_client:boolean, email_crm:boolean, email_address:string, email_contactname:string, email_contactemail:string, email_contactext:string) {
-    // Construct the URL with the parameters
-    const url = `https://everest.revinc.com:4202/api/callNOAIRISAPI?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}&factor_signature=${FactorSignature?1:0}&acknowledge_signature=${acknowledge_signature?1:0}&bankingdetails=${bankingdetails?1:0}&bankingdetails_included=${bankingdetails_included?1:0}&araging=${araging?1:0}&email_debtor=${email_debtor?1:0}&email_client=${email_client?1:0}&email_crm=${email_crm?1:0}&email_address=${email_address}&email_contactname=${email_contactname}&email_contactemail=${email_contactemail}&email_contactext=${email_contactext}`;
+    // Construct the URL and request body
+    const url = `https://everest.revinc.com:4202/api/callNOAIRISAPISendBulkEmail`;
+    const requestBody = {
+      ClientKey: ClientKey,
+      DebtorKey: DebtorKey,
+      factor_signature: FactorSignature ? 1 : 0,
+      acknowledge_signature: acknowledge_signature ? 1 : 0,
+      bankingdetails: bankingdetails ? 1 : 0,
+      bankingdetails_included: bankingdetails_included ? 1 : 0,
+      araging: araging ? 1 : 0,
+      email_debtor: email_debtor ? 1 : 0,
+      email_client: email_client ? 1 : 0,
+      email_crm: email_crm ? 1 : 0,
+      email_address: email_address,
+      email_contactname: email_contactname,
+      email_contactemail: email_contactemail,
+      email_contactext: email_contactext
+    };
     console.log('Bulk email API URL:', url);
+    console.log('Bulk email API Body:', requestBody);
     // no response
-    this.http.get(url).subscribe();
+    this.http.post(url, requestBody).subscribe();
   }
 
   // Call the API to get ansonia report url
@@ -124,6 +141,16 @@ export class DocumentsReportsService {
   }
 
   //endregion client documents
+
+  
+  //region aging relationship documents
+  // get the list of relationship documents based on client name, debtor, and file name. category is not required because it is always General
+  getRelationshipDocumentList(client: string, debtor: string, fileNameContains: string) {
+    const url = `https://everest.revinc.com:4202/api/getRelationshipDocumentList?ClientName=${client}&DebtorName=${debtor}&FileName=${fileNameContains}`;
+    return this.http.get(url, {responseType: 'json'});
+  }
+
+  //endregion aging relationship documents
 
   
   //region dashboard reports

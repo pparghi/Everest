@@ -63,7 +63,7 @@
             <div class="card-base">
                 <p class="title2">Debtor Profile</p>
                 <div class="flex-row">
-                    <div class="flex-column" style="flex: 3;">
+                    <div class="flex-column" style="flex: 3; margin-right: 34px;">
                         <div style="display: flex; align-items: center; gap: 8px; ">
                             <p [matBadge]="switchedDebtorType==='N/A' ? originalDebtorType : switchedDebtorType" matBadgeOverlap="false" class="text2" style="width:75px; margin-right: 80px;">Debtor Name</p>
                             @if ((originalDebtorType === 'Master' || originalDebtorType === 'Member') && switchedDebtorKey === '') {
@@ -413,6 +413,36 @@
                             <div class="flex-column">
                                 <p class="text2">Dilution %</p>
                                 <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.DilutionPct || 'N/A')">{{ debtorDetails?.DilutionPct| percent: '1.0-2' }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider" style="margin-left: 0px;"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Exp In Months</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Research Date</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Credit Override</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
+                            </div>
+                            <mat-divider vertical class="vertical-divider"></mat-divider>
+                            <div class="flex-column">
+                                <p class="text2">Relationship No Buy</p>
+                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex-row">
+                            <div class="flex-column">
+                                <p class="text2">Relationship Documents</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <mat-icon color="primary" class="icon-hover-effect" (click)="openAgingDocumentsDialog('view')">manage_search</mat-icon>
+                                    <mat-icon color="primary" class="icon-hover-effect" (click)="openAgingDocumentsDialog('upload')">upload_file</mat-icon>
+                                </div>
                             </div>
                         </div>
                     </div>
