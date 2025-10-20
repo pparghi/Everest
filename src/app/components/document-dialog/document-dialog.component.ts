@@ -193,6 +193,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         City: [data.City || ''],
         State: [data.State || ''],
         Country: [data.Country || ''],
+        ZipCode: [data.ZipCode || ''],
         Phone1: [Phone1 || ''],
         Phone2: [Phone2 || ''],
         TotalCreditLimit: [creditLimit || ''],
@@ -362,37 +363,37 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       });
     }
 
-    this.searchSubject.pipe(debounceTime(500),
-      distinctUntilChanged(),
-      switchMap(query => {
-        console.log("Fetching suggestsions for : ", query);
-        return this.addressService.getAddressSuggestions(query);
-      })
-    ).subscribe({
-      next: (data) => {
-        console.log("API Response:", data);
-        if (data.Items) {
-          // condition of focusing on address 1
-          if (this.focusedInputOfAdress == "address1") {
-            this.suggestions = data.Items.map((item: any) => ({
-              text: item.Text,
-              description: item.Description
-            }));
-          } else {
-            this.addr2suggestions = data.Items.map((item: any) => ({
-              text: item.Text,
-              description: item.Description
-            }));
-          }
-        } else {
-          this.suggestions = [];
-          // this.addr2suggestions = [];
-        }
-      },
-      error: (error) => {
-        console.error('Error fetching address suggestions: ', error);
-      }
-    });
+    // this.searchSubject.pipe(debounceTime(500),
+    //   distinctUntilChanged(),
+    //   switchMap(query => {
+    //     console.log("Fetching suggestsions for : ", query);
+    //     return this.addressService.getAddressSuggestions(query);
+    //   })
+    // ).subscribe({
+    //   next: (data) => {
+    //     console.log("API Response:", data);
+    //     if (data.Items) {
+    //       // condition of focusing on address 1
+    //       if (this.focusedInputOfAdress == "address1") {
+    //         this.suggestions = data.Items.map((item: any) => ({
+    //           text: item.Text,
+    //           description: item.Description
+    //         }));
+    //       } else {
+    //         this.addr2suggestions = data.Items.map((item: any) => ({
+    //           text: item.Text,
+    //           description: item.Description
+    //         }));
+    //       }
+    //     } else {
+    //       this.suggestions = [];
+    //       // this.addr2suggestions = [];
+    //     }
+    //   },
+    //   error: (error) => {
+    //     console.error('Error fetching address suggestions: ', error);
+    //   }
+    // });
   }
 
   onQueryChange(event: Event) {
@@ -489,6 +490,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       // });
       const addressComplete = new pca.AddressComplete();
 
+      /*
       // Listen for the address selection event for Addr1
       // console.log('addressComplete.controls:', addressComplete.controls);
       addressComplete.controls[4].listen('populate', (address: any) => {
@@ -501,6 +503,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         // console.log('Selected Address:', address);
         this.editForm.get('Addr2')?.setValue(address.Line1);
       });
+      */
 
     } catch (error) {
       console.error('Error initializing AddressComplete:', error);
@@ -572,6 +575,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       formData.append('City', this.editForm.value.City);
       formData.append('State', this.editForm.value.State);
       formData.append('Country', this.editForm.value.Country);
+      formData.append('ZipCode', this.editForm.value.ZipCode.trim());
       formData.append('TotalCreditLimit', this.editForm.value.TotalCreditLimit);
       formData.append('IndivCreditLimit', this.editForm.value.IndivCreditLimit);
       formData.append('AIGLimit', this.editForm.value.AIGLimit);

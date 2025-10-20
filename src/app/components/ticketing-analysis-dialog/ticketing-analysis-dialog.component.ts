@@ -141,6 +141,7 @@ export class TicketingAnalysisComponent implements OnInit {
   switchedDebtorType: string = 'N/A';
   switchedDebtorKey: string = '';
   switchableDebtors: any[] = []; // list of switchable debtors for the current debtor
+  allRelatedDebtors: any[] = []; // list of all related debtors for the current debtor
 
   // alternate addresses
   alternateAddresses: any[] = [];
@@ -172,6 +173,8 @@ export class TicketingAnalysisComponent implements OnInit {
     this.originalDebtorKey = this.ticketData.DebtorKey;
     this.originalDebtorType = this.ticketData.Type;
 
+    let tempDebtorKey: string;
+
     // Get the logged in user for CredAppBy
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       this.currentUser = (profile as any).mail.match(/^([^@]*)@/)[1];
@@ -185,20 +188,53 @@ export class TicketingAnalysisComponent implements OnInit {
             sumBalance += Number(it.Balance) || 0;
             if (it.DebtorKey === this.ticketData.DebtorKey) {
               this.debtorDetails = it; 
-              if (this.originalDebtorType === 'Member' || this.originalDebtorType === 'Non-Grouped' ) {
-                if (this.originalDebtorType === 'Member'){
-                  this.switchableDebtors = [{DebtorKey: it.MasterDebtorKey, DebtorName: 'Master Debtor'}];
-                }
-                break;
+              if (this.originalDebtorType === 'Member' && it.MasterDebtorKey !== '0') {
+                tempDebtorKey = it.MasterDebtorKey;
               }
+              // if (this.originalDebtorType === 'Member' || this.originalDebtorType === 'Non-Grouped' ) {
+              //   if (this.originalDebtorType === 'Member'){
+              //     this.switchableDebtors = [{DebtorKey: it.MasterDebtorKey, DebtorName: 'Master Debtor'}];
+              //   }
+              //   break;
+              // }
             }
-            else if (this.originalDebtorType === 'Master') {
-              this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor});
+            // else if (this.originalDebtorType === 'Master') {
+            //   this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor, TotalAR: it.Balance});
+            // }
+            if (this.originalDebtorType === 'Master') {
+              this.allRelatedDebtors = response.data; // store all related debtors
+              this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor, TotalAR: it.Balance, 
+                isMaster: (this.originalDebtorKey === it.DebtorKey ? true : false)
+              });
             }
           }
           // if the debtor type is Master, set the balance to sum of all member debtors
           if (this.originalDebtorType === 'Master'){
-            this.debtorDetails.Balance = '' + sumBalance
+            this.debtorDetails.Balance = '' + sumBalance;
+            for (let it of this.switchableDebtors) {
+              if (it.DebtorKey === this.originalDebtorKey) {
+                it.TotalAR = sumBalance;
+              }
+            }
+          }
+
+          // set switchableDebtors list when the original debtor is Member
+          sumBalance = 0;
+          if (this.originalDebtorType === 'Member' && tempDebtorKey) {
+            this.memberDebtorsService.getMemberDebtors(parseInt(tempDebtorKey)).subscribe(response => {
+              this.allRelatedDebtors = response.data; // store all related debtors
+              for (let it of response.data) {
+                sumBalance += Number(it.Balance) || 0;
+                this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor, TotalAR: it.Balance, 
+                  isMaster: (tempDebtorKey === it.DebtorKey ? true : false)
+                });
+              }
+              for (let it of this.switchableDebtors) {
+                if (it.DebtorKey === tempDebtorKey) {
+                  it.TotalAR = sumBalance;
+                }
+              }
+            });
           }
 
           this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
@@ -984,6 +1020,7 @@ export class TicketingAnalysisComponent implements OnInit {
         City: row.City,
         State: row.State,
         Country: row.Country,
+        ZipCode: row.ZipCode,
         Phone1: row.Phone1,
         Phone2: row.Phone2,
         PctUtilized: row.PctUtilized,
@@ -1478,57 +1515,49 @@ export class TicketingAnalysisComponent implements OnInit {
   // eventhandler for selecting menu to switch debtor
   onSwitchDebtorClick(selectedDebtorKey: string) {
     this.switchedDebtorKey = selectedDebtorKey;
-    if (this.originalDebtorType === 'Member'){
+    // load new debtor details
+    let sumBalance = 0;
+    let isMasterflag = false;
+    for (let it of this.allRelatedDebtors) {
+      if (it.DebtorKey === selectedDebtorKey) {
+        this.debtorDetails = it;
+        isMasterflag = it.MasterDebtorKey === '0';
+      }
+      sumBalance += Number(it.Balance) || 0;
+    }
+    // if it is master debtor, update the balance to sum of all related debtors
+    if (isMasterflag) {
+      this.debtorDetails.Balance = '' + sumBalance;
       this.switchedDebtorType = 'Master';
     }
-    else if (this.originalDebtorType === 'Master'){
+    else {
       this.switchedDebtorType = 'Member';
     }
 
-    // load new debtor details
-    this.memberDebtorsService.getMemberDebtors(parseInt(selectedDebtorKey)).subscribe(response => {
-      let sumBalance = 0;
-      let isMasterflag = false;
-      for (let it of response.data) {
-        if (it.DebtorKey === selectedDebtorKey) {
-          this.debtorDetails = it;
-          isMasterflag = it.MasterDebtorKey === '0';
-        }
-        sumBalance += Number(it.Balance) || 0;
-      }
-      // if it is master debtor, update the balance to sum of all related debtors
-      if (isMasterflag) {
-        this.debtorDetails.Balance = '' + sumBalance;
-      }
+    this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
+    console.log('ticketing-analysis-component, Switched, this.debtorDetails:', this.debtorDetails);
 
-      this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
-      console.log('ticketing-analysis-component, Switched, this.debtorDetails:', this.debtorDetails);
-      
-      // Calculate debtor performance after debtor details are loaded
-      this.performanceResults = this.calculateDebtorPerformance();
+    // Calculate debtor performance after debtor details are loaded
+    this.performanceResults = this.calculateDebtorPerformance();
 
-      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
-      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
-    
-      // fetch client concentration percentage
-      this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
-      // fetch debtor concentration percentage
-      this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
+    this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
 
-      // load alternate addresses
-      this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
+    // fetch client concentration percentage
+    this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    // fetch debtor concentration percentage
+    this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
 
-      // load combined line chart data
-      this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
+    // load alternate addresses
+    this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
 
-      // load the no buy code
-      this.setDefaultNoBuyCode();
+    // load combined line chart data
+    this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
 
-      this.cdr.detectChanges(); // Trigger change detection
+    // load the no buy code
+    this.setDefaultNoBuyCode();
 
-    }, error => {
-      console.error('Error fetching member debtors:', error);
-    });
+    this.cdr.detectChanges(); // Trigger change detection
 
   }
 
@@ -1536,49 +1565,45 @@ export class TicketingAnalysisComponent implements OnInit {
   onResetSwitchDebtor() {
     this.switchedDebtorKey = '';
     this.switchedDebtorType = 'N/A';
-    this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
-      let sumBalance = 0;
-      let isMasterflag = false;
-      for (let it of response.data) {
-        if (it.DebtorKey === this.ticketData.DebtorKey) {
-          this.debtorDetails = it;
-          isMasterflag = it.MasterDebtorKey === '0';
-        }
-        sumBalance += Number(it.Balance) || 0;
+    let sumBalance = 0;
+    let isMasterflag = false;
+    for (let it of this.allRelatedDebtors) {
+      if (it.DebtorKey === this.ticketData.DebtorKey) {
+        this.debtorDetails = it;
+        isMasterflag = it.MasterDebtorKey === '0';
       }
-      // if it is master debtor, update the balance to sum of all related debtors
-      if (isMasterflag) {
-        this.debtorDetails.Balance = '' + sumBalance;
-      }
+      sumBalance += Number(it.Balance) || 0;
+    }
+    // if it is master debtor, update the balance to sum of all related debtors
+    if (isMasterflag) {
+      this.debtorDetails.Balance = '' + sumBalance;
+    }
 
-      this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
-      console.log('ticketing-analysis-component, Reseted, this.debtorDetails:', this.debtorDetails);
-      
-      // Calculate debtor performance after debtor details are loaded
-      this.performanceResults = this.calculateDebtorPerformance();
+    this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
+    console.log('ticketing-analysis-component, Reseted, this.debtorDetails:', this.debtorDetails);
 
-      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
-      this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
-    
-      // fetch client concentration percentage
-      this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
-      // fetch debtor concentration percentage
-      this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
-      
-      // load alternate addresses
-      this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
+    // Calculate debtor performance after debtor details are loaded
+    this.performanceResults = this.calculateDebtorPerformance();
 
-      // load combined line chart data
-      this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
-      
-      // load the no buy code
-      this.setDefaultNoBuyCode();
+    this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
+    this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
 
-      this.cdr.detectChanges(); // Trigger change detection
+    // fetch client concentration percentage
+    this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    // fetch debtor concentration percentage
+    this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
 
-    }, error => {
-      console.error('Error fetching member debtors:', error);
-    });
+    // load alternate addresses
+    this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
+
+    // load combined line chart data
+    this.loadCombinedLineChartData(this.debtorDetails.DebtorKey);
+
+    // load the no buy code
+    this.setDefaultNoBuyCode();
+
+    this.cdr.detectChanges(); // Trigger change detection
+
   }
 
   // method to get debtor's alternate addresses by DebtorKey

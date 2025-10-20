@@ -550,6 +550,7 @@ export class MasterDebtorsComponent implements OnInit, AfterViewInit, AfterViewC
             City: row.City,
             State: row.State,
             Country: row.Country,
+            ZipCode: row.ZipCode,
             Phone1: row.Phone1,
             Phone2: row.Phone2,
             PctUtilized: row.PctUtilized,

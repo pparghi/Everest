@@ -66,23 +66,25 @@
                     <div class="flex-column" style="flex: 3; margin-right: 34px;">
                         <div style="display: flex; align-items: center; gap: 8px; ">
                             <p [matBadge]="switchedDebtorType==='N/A' ? originalDebtorType : switchedDebtorType" matBadgeOverlap="false" class="text2" style="width:75px; margin-right: 80px;">Debtor Name</p>
-                            @if ((originalDebtorType === 'Master' || originalDebtorType === 'Member') && switchedDebtorKey === '') {
-                                <p [matMenuTriggerFor]="menu" class="switch-debtor-p-button">{{originalDebtorType === 'Master' ? 'Switch to Member' : 'Switch to Master'}}</p>
+                            @if (originalDebtorType !== 'Non-Grouped') {
+                                <p [matMenuTriggerFor]="menu" class="switch-debtor-p-button">Switch Debtor</p>
                                 <mat-menu #menu="matMenu" class="switch-debtor-menu">
-                                    <!-- @for (it of switchableDebtors; track it) {
-                                        <button mat-menu-item (click)="onSwitchDebtorClick(it)">{{it}}</button>
-                                    } -->
                                     @for (it of switchableDebtors; track it.DebtorKey) {
-                                        <button mat-menu-item (click)="onSwitchDebtorClick(it.DebtorKey)">
+                                        <button mat-menu-item (click)="onSwitchDebtorClick(it.DebtorKey)" 
+                                        [disabled]="(it.DebtorKey === switchedDebtorKey) || (!switchedDebtorKey && it.DebtorKey === originalDebtorKey)">
                                             <div>
                                                 <p class="title2 word-wrap">{{it.DebtorName}}</p>
-                                                <p class="text2 word-wrap">Debtor ID: {{it.DebtorKey}}</p>
+                                                <div style="display: flex; gap: 16px;">
+                                                    <p class="text2 word-wrap" style="width: 75px;">{{it.isMaster ? 'Master' : 'Member'}}</p>
+                                                    <p class="text2 word-wrap">Debtor ID: {{it.DebtorKey}}</p>
+                                                    <p class="text2 word-wrap">Total AR: {{formatCurrency(it.TotalAR)}}</p>
+                                                </div>
                                             </div>
                                         </button>
                                     }
                                 </mat-menu>
                             }
-                            @else if (switchedDebtorKey && originalDebtorType !== 'Non-Grouped'){
+                            @if (originalDebtorType !== 'Non-Grouped' && switchedDebtorKey && switchedDebtorKey !== originalDebtorKey){
                                 <p class="switch-debtor-p-button" (click)="onResetSwitchDebtor()">Reset</p>
                             }
                         </div>

@@ -20,6 +20,7 @@ interface DataItem {
   DebtorKey: number;
   DbDunsNo: string;
   Country: string;
+  ZipCode: string;
   State: string;
   City: string;
   TotalCreditLimit: number;
@@ -335,6 +336,7 @@ export class MembersComponent implements OnInit {
             City: row.City,
             State: row.State,
             Country: row.Country,
+            ZipCode: row.ZipCode,
             Phone1: row.Phone1,
             Phone2: row.Phone2,
             PctUtilized: row.PctUtilized,
