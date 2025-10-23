@@ -71,7 +71,8 @@
                                 <mat-menu #menu="matMenu" class="switch-debtor-menu">
                                     @for (it of switchableDebtors; track it.DebtorKey) {
                                         <button mat-menu-item (click)="onSwitchDebtorClick(it.DebtorKey)" 
-                                        [disabled]="(it.DebtorKey === switchedDebtorKey) || (!switchedDebtorKey && it.DebtorKey === originalDebtorKey)">
+                                        [disabled]="(it.DebtorKey === switchedDebtorKey) || (!switchedDebtorKey && it.DebtorKey === originalDebtorKey)"
+                                        [matTooltip]="getDebtorTooltipText(it)" matTooltipPosition="right" matTooltipClass="custom-tooltip" [matTooltipShowDelay]="500">
                                             <div>
                                                 <p class="title2 word-wrap">{{it.DebtorName}}</p>
                                                 <div style="display: flex; gap: 16px;">

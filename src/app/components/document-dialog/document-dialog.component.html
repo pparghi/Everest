@@ -5,7 +5,7 @@
   <div class="dialog-content">
     <mat-dialog-content class="mat-typography">
       <ul *ngFor="let item of data.documentsList">
-        <li (click)="openFile()" style="cursor: pointer;">{{ item.FileName }}</li>
+        <li (click)="openFile(item)" style="cursor: pointer;">{{ item.FileName }}</li>
       </ul>
       <div *ngIf="data.userAccessLevel === 'Full'">
         <hr>
@@ -670,8 +670,9 @@
 
             <ng-container matColumnDef="CheckNo">
               <th mat-header-cell *matHeaderCellDef>Cheque#</th>
-              <td mat-cell *matCellDef="let element" style="color: #3a8ada;" (click)="getPaymentsImage(element)">{{
-                element.CheckNo }}</td>
+              <td mat-cell *matCellDef="let element" class="clickable" (click)="getPaymentsImage(element)">
+                {{element.CheckNo }}
+              </td>
             </ng-container>
 
             <ng-container matColumnDef="ClientName">
@@ -987,7 +988,7 @@
     </mat-tab>
     <mat-tab label="Trend">
       <div class="trend-tab">
-        <app-ticketing-analysis [ticketData]="data.row" (debtorDetailsChanged)="updateDebtorDetails($event)"></app-ticketing-analysis>
+        <app-ticketing-analysis [ticketData]="data.row" (debtorDetailsChanged)="updateDebtorDetails($event)" (relatedClientList)="updateRelatedClientList($event)"></app-ticketing-analysis>
         <!-- <mat-card appearance="raised" class="mat-card-trend-input">
           <div class="col-md-12">
             <label class="form-label"><strong>Statistics For</strong></label>
@@ -1092,7 +1093,13 @@
 
               <ng-container matColumnDef="Client">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Vendor/Carrier</th>
-                <td mat-cell *matCellDef="let element">{{ element.CliName }}</td>
+                <td mat-cell *matCellDef="let element"
+                  [matTooltip]="getClientDetailsByName(element.CliName)" 
+                  matTooltipPosition="right" 
+                  matTooltipClass="custom-tooltip" 
+                  [matTooltipShowDelay]="500">
+                  {{ element.CliName }}
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="PO/LOAD">

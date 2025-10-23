@@ -256,6 +256,15 @@
 	cursor: pointer;
 }
 
+.clickable{
+	color:#3a8ada;
+}
+
+.clickable:hover {
+	cursor: pointer;
+	color: #133984;
+}
+
 .checkbox-container {
 	display: flex;
 	align-items: center;

@@ -22,6 +22,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 
+const UTIF = require('utif');
+
 
 Chart.register(
   BarController,
@@ -155,7 +157,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   // get debtor details from child component trend tab
   debtorDetails: any = {};
   isSendDecisionEmail: boolean = false;
-
+  // aging tab, list of client details
+  agingRelatedClientList: any[] = [];
 
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
@@ -524,12 +527,32 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   //   });
   // }
 
-  openFile() {
-    // let url = atob(this.link);       
-    // window.open("https://everest.revinc.com:4202/storage/uploads/");
-    let url = 'https://login.baron.finance/iris/public/common/show_pdf.php?pdf=' + this.link;
-    window.open(url);
-    return false;
+  openFile(item: any) {
+    console.log('openFile(item) --', item);
+    // let url = 'https://login.baron.finance/iris/public/common/show_pdf.php?pdf=' + this.link;
+    // window.open(url);
+    const { fileName, fileType } = this.separateFileNameAndType(item.FileName);
+    console.log('Separated fileName:', fileName, 'fileType:', fileType);
+    const apiUrl = `https://everest.revinc.com:4202/api/showFile?title=${btoa(fileName)}&encodeFilePath=${item.Link}&fileType=${fileType}`;
+    window.open(apiUrl, '_blank');
+  }
+
+  // helper Method to separate filename and file type
+  private separateFileNameAndType(fullFileName: string): { fileName: string, fileType: string } {
+    const lastDotIndex = fullFileName.lastIndexOf('.');
+
+    if (lastDotIndex === -1) {
+      // No extension found
+      return {
+        fileName: fullFileName,
+        fileType: ''
+      };
+    }
+
+    const fileName = fullFileName.substring(0, lastDotIndex);
+    const fileType = fullFileName.substring(lastDotIndex + 1).toLowerCase();
+
+    return { fileName, fileType };
   }
 
   onFilechange(event: any) {
@@ -641,33 +664,459 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     this.changedNoaStatus = selectElement.value
   }
 
-  getPaymentsImage(event: any) {
-    this.clientService.convertDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {
-      console.log('file called', response);
-    }, error => {
-      console.error('file failed', error);
-    }
-    );
-    this.clientService.startTimer(() => {
-      this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(response => {
-        response.debtorPaymentImages.forEach(async (element: any) => {
-          const fileName = element.FileName;
-          this.fileExtension = this.getFileExtension(fileName);
-          console.log(this.fileExtension);
+  // Helper method to convert TIFF to canvas using UTIF
+  private convertTiffToCanvas(base64Data: string): Promise<HTMLCanvasElement> {
+    return new Promise((resolve, reject) => {
+      try {
+        // Convert base64 to ArrayBuffer
+        const binaryString = atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const buffer = bytes.buffer;
 
-          if (this.fileExtension == 'jpg' || this.fileExtension == 'jpeg' || this.fileExtension == 'png' || this.fileExtension == 'pdf') {
-            window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName);
+        // Decode TIFF using UTIF
+        const ifds = UTIF.decode(buffer);
+        
+        if (ifds.length === 0) {
+          throw new Error('No image data found in TIFF file');
+        }
+        
+        // Use only the first image (in case there are multiple pages/frames)
+        const firstIfd = ifds[0];
+        
+        // Decode the image data
+        UTIF.decodeImage(buffer, firstIfd);
+        
+        const { width, height } = firstIfd;
+        
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          throw new Error('Could not get canvas context');
+        }
+        
+        // Convert to RGBA8 format
+        UTIF.toRGBA8(firstIfd);
+        
+        // Create ImageData
+        const imageData = ctx.createImageData(width, height);
+        
+        // Check if we have the correct RGBA data length after conversion
+        if (firstIfd.data.length === width * height * 4) {
+          // Perfect - we have RGBA data
+          const sourceData = new Uint8ClampedArray(firstIfd.data);
+          imageData.data.set(sourceData);
+        } else {
+          // Handle different color formats (grayscale, RGB, etc.)
+          const bytesPerPixel = firstIfd.data.length / (width * height);
+          
+          if (bytesPerPixel === 1) {
+            // Grayscale - convert to RGBA
+            for (let i = 0; i < width * height; i++) {
+              const gray = firstIfd.data[i];
+              const rgbaIndex = i * 4;
+              imageData.data[rgbaIndex] = gray;     // R
+              imageData.data[rgbaIndex + 1] = gray; // G
+              imageData.data[rgbaIndex + 2] = gray; // B
+              imageData.data[rgbaIndex + 3] = 255;  // A
+            }
+          } else if (bytesPerPixel === 3) {
+            // RGB - add alpha channel
+            for (let i = 0; i < width * height; i++) {
+              const srcIndex = i * 3;
+              const rgbaIndex = i * 4;
+              imageData.data[rgbaIndex] = firstIfd.data[srcIndex];     // R
+              imageData.data[rgbaIndex + 1] = firstIfd.data[srcIndex + 1]; // G
+              imageData.data[rgbaIndex + 2] = firstIfd.data[srcIndex + 2]; // B
+              imageData.data[rgbaIndex + 3] = 255;  // A
+            }
           } else {
-            window.open(`https://everest.revinc.com:4202/api/paymentsFiles/` + element.FileName + '.jpg');
+            // Fallback for unknown formats
+            for (let i = 0; i < imageData.data.length; i += 4) {
+              imageData.data[i] = 255;     // R
+              imageData.data[i + 1] = 255; // G
+              imageData.data[i + 2] = 255; // B
+              imageData.data[i + 3] = 255; // A
+            }
           }
-
-        });
-      }, error => {
-        console.error('file not converted', error);
+        }
+        
+        // Put the image data on the canvas
+        ctx.putImageData(imageData, 0, 0);
+        resolve(canvas);
+      } catch (error) {
+        reject(error);
       }
-      );
-    }, 3000);
+    });
+  }
 
+  async getPaymentsImage(event: any) {
+    console.log('event.PmtChecksKey: ', event.PmtChecksKey);
+    this.clientService.getDebtorsPaymentsImages(event.PmtChecksKey).subscribe(async response => {
+      console.log('Debtor Payment Images Response:', response);
+      
+      if (response.success && response.images && response.images.length > 0) {
+        // Open a new tab to display the images
+        const newTab = window.open('', '_blank');
+        
+        if (!newTab) {
+          console.error('Failed to open new tab. Popup blocker might be enabled.');
+          return;
+        }
+
+        // Build HTML content for displaying all images
+        let imagesHtml = '';
+        let convertedImageData: { [key: number]: string } = {};
+
+        // Process all images first, including TIFF conversion
+        for (let index = 0; index < response.images.length; index++) {
+          const image = response.images[index];
+          const dataUrl = `data:${image.ContentType};base64,${image.Base64Data}`;
+          const isTiff = image.ContentType.toLowerCase().includes('tiff') || image.ContentType.toLowerCase().includes('tif');
+          
+          let imageDisplay = '';
+          let jpegDownloadButton = '';
+
+          if (isTiff) {
+            try {
+              // Convert TIFF using our existing method
+              const canvas = await this.convertTiffToCanvas(image.Base64Data);
+              
+              // Convert canvas to data URL for display
+              const canvasDataUrl = canvas.toDataURL('image/png');
+              convertedImageData[index] = canvasDataUrl;
+              
+              imageDisplay = `<img src="${canvasDataUrl}" alt="${image.FileName}" class="payment-image" onclick="toggleImageZoom(this)" />`;
+              jpegDownloadButton = `<button onclick="downloadConvertedJpeg(${index})" class="download-btn jpeg-btn" style="margin-left: 10px; background: #28a745;">Download as JPEG</button>`;
+            } catch (error) {
+              console.error(`Failed to convert TIFF ${index}:`, error);
+              imageDisplay = `
+                <div class="error-message">
+                  <p>❌ Unable to convert TIFF image</p>
+                  <p>Please download the original file to view</p>
+                </div>`;
+            }
+          } else {
+            imageDisplay = `<img src="${dataUrl}" alt="${image.FileName}" class="payment-image" onclick="toggleImageZoom(this)" />`;
+          }
+          
+          imagesHtml += `
+            <div class="image-container">
+              <h3>Image ${index + 1}: ${image.FileName}</h3>
+              <div class="image-info">
+                <p><strong>File Size:</strong> ${(image.FileSize / 1024).toFixed(2)} KB</p>
+                <p><strong>Content Type:</strong> ${image.ContentType}</p>
+              </div>
+              <div class="image-wrapper">
+                <div class="zoom-hint">Click to zoom</div>
+                ${imageDisplay}
+              </div>
+              <div class="download-section">
+                <button onclick="downloadImage('${dataUrl}', '${image.FileName}')" class="download-btn">
+                  Download ${image.FileName}
+                </button>
+                ${jpegDownloadButton}
+              </div>
+            </div>
+          `;
+        }
+
+        // Write the complete HTML content
+        newTab.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Payment Images - Check ${event.PmtChecksKey}</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  margin: 20px;
+                  background-color: #f5f5f5;
+                }
+                .header {
+                  background: #3c3c3c;
+                  color: white;
+                  padding: 15px;
+                  margin: -20px -20px 20px -20px;
+                  text-align: center;
+                }
+                .image-container {
+                  background: white;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  margin-bottom: 30px;
+                  padding: 20px;
+                }
+                .image-container h3 {
+                  margin-top: 0;
+                  color: #333;
+                  border-bottom: 2px solid #007bff;
+                  padding-bottom: 10px;
+                }
+                .image-info {
+                  background: #f8f9fa;
+                  padding: 10px;
+                  border-radius: 4px;
+                  margin-bottom: 15px;
+                }
+                .image-info p {
+                  margin: 5px 0;
+                  font-size: 14px;
+                }
+                .image-wrapper {
+                  text-align: center;
+                  margin: 20px 0;
+                  border: 2px solid #ddd;
+                  border-radius: 8px;
+                  padding: 10px;
+                  background: white;
+                  position: relative;
+                  overflow: hidden;
+                  max-height: 800px;
+                }
+                .image-wrapper.scrollable {
+                  overflow: auto;
+                }
+                .payment-image {
+                  max-width: 100%;
+                  max-height: 780px;
+                  border-radius: 4px;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                  cursor: pointer;
+                  transition: all 0.3s ease;
+                  display: block;
+                  margin: 0 auto;
+                }
+                .payment-image.zoomed {
+                  max-width: none;
+                  max-height: none;
+                  width: auto;
+                  height: auto;
+                  cursor: zoom-out;
+                }
+                .payment-image.fit-width {
+                  max-height: none;
+                  width: 100%;
+                  height: auto;
+                  cursor: zoom-in;
+                }
+                .zoom-hint {
+                  position: sticky;
+                  width: max-content;
+                  top: 5px;
+                  right: 5px;
+                  background: rgba(0,0,0,0.7);
+                  color: white;
+                  padding: 2px 6px;
+                  border-radius: 3px;
+                  font-size: 11px;
+                  pointer-events: none;
+                }
+                .error-message {
+                  text-align: center;
+                  padding: 20px;
+                  color: #dc3545;
+                }
+                .download-section {
+                  text-align: center;
+                  margin-top: 15px;
+                }
+                .download-btn {
+                  background: #007bff;
+                  color: white;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-size: 14px;
+                }
+                .download-btn:hover {
+                  background: #0056b3;
+                }
+                .jpeg-btn:hover {
+                  background: #1e7e34 !important;
+                }
+                .summary {
+                  background: #e7f3ff;
+                  border-left: 4px solid #007bff;
+                  padding: 15px;
+                  margin-bottom: 20px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <h1>Payment Images</h1>
+                <p>Check Key: ${event.PmtChecksKey}</p>
+              </div>
+              
+              <div class="summary">
+                <h3>Summary</h3>
+                <p><strong>Total Images:</strong> ${response.count}</p>
+                <p><strong>Images Found:</strong> ${response.images.length}</p>
+              </div>
+
+              ${imagesHtml}
+
+              <script>
+                // Store converted canvases for JPEG download
+                const convertedCanvases = ${JSON.stringify(convertedImageData)};
+                
+                function downloadImage(dataUrl, fileName) {
+                  const link = document.createElement('a');
+                  link.href = dataUrl;
+                  link.download = fileName;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+                
+                function downloadConvertedJpeg(index) {
+                  if (convertedCanvases[index]) {
+                    // Create a temporary canvas to convert PNG data URL to JPEG
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                      canvas.width = img.width;
+                      canvas.height = img.height;
+                      ctx.drawImage(img, 0, 0);
+                      
+                      const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                      const link = document.createElement('a');
+                      link.href = jpegDataUrl;
+                      link.download = 'converted_image_' + (index + 1) + '.jpeg';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    };
+                    
+                    img.src = convertedCanvases[index];
+                  }
+                }
+                
+                // Image zoom functionality
+                function toggleImageZoom(img) {
+                  const wrapper = img.parentElement;
+                  const hint = wrapper.querySelector('.zoom-hint');
+                  
+                  if (img.classList.contains('zoomed')) {
+                    // Currently zoomed to actual size, switch to fit width
+                    img.classList.remove('zoomed');
+                    img.classList.add('fit-width');
+                    hint.textContent = 'Click to fit container';
+                    wrapper.classList.add('scrollable');
+                    wrapper.scrollTop = 0;
+                    wrapper.scrollLeft = 0;
+                  } else if (img.classList.contains('fit-width')) {
+                    // Currently fit to width, switch to fit container
+                    img.classList.remove('fit-width');
+                    wrapper.classList.remove('scrollable');
+                    hint.textContent = 'Click to zoom';
+                    wrapper.scrollTop = 0;
+                    wrapper.scrollLeft = 0;
+                  } else {
+                    // Currently fit to container, switch to actual size
+                    img.classList.add('zoomed');
+                    wrapper.classList.add('scrollable');
+                    hint.textContent = 'Click to fit width';
+                  }
+                }
+              </script>
+            </body>
+          </html>
+        `);
+        
+        newTab.document.close();
+      } else {
+        // No images found - show message
+        const newTab = window.open('', '_blank');
+        if (newTab) {
+          newTab.document.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>Payment Images - Check ${event.PmtChecksKey}</title>
+                <style>
+                  body {
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background-color: #f5f5f5;
+                  }
+                  .no-images {
+                    text-align: center;
+                    background: white;
+                    padding: 40px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="no-images">
+                  <h2>No Payment Images Found</h2>
+                  <p>No images were found for Check Key: ${event.PmtChecksKey}</p>
+                </div>
+              </body>
+            </html>
+          `);
+          newTab.document.close();
+        }
+      }
+    }, error => {
+      console.error('Failed to get debtor payment images', error);
+      
+      // Show error message in new tab
+      const newTab = window.open('', '_blank');
+      if (newTab) {
+        newTab.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Error - Payment Images</title>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 100vh;
+                  margin: 0;
+                  background-color: #f5f5f5;
+                }
+                .error {
+                  text-align: center;
+                  background: white;
+                  padding: 40px;
+                  border-radius: 8px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  border-left: 4px solid #dc3545;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="error">
+                <h2>Error Loading Payment Images</h2>
+                <p>Failed to load images for Check Key: ${event.PmtChecksKey}</p>
+                <p>Please try again later or contact support.</p>
+              </div>
+            </body>
+          </html>
+        `);
+        newTab.document.close();
+      }
+    });
   };
 
   onRadioChange(value: string) {
@@ -856,6 +1305,41 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     
     // Trigger change detection to update the view
     this.cdr.markForCheck();
+  }
+  // helper method to take in address and return a formatted address, array parameter in this order: [Addr1, Addr2, City, State, Country, ZipCode]
+  formatAddress(addresses: string[]): string {
+    // Filter out empty, null, or undefined values, then join
+    return addresses
+      .filter(addr => addr && addr.trim() !== '')
+      .join(', ')
+      .trim();
+  }
+  // handle relatedClientList when received from child component
+  updateRelatedClientList(relatedClientList: any[]) {
+    console.log('Received related client list from child component:', relatedClientList);
+    this.agingRelatedClientList = relatedClientList;
+  }
+  // return client's details by searching client's name in agingRelatedClientList
+  getClientDetailsByName(clientName: string): string {
+    const clientDetails = this.agingRelatedClientList.find(client => client.Client === clientName);
+    if (!clientName || !clientDetails) {
+      return 'No client information available';
+    }
+    const parts = [];
+    // Address with icon
+    parts.push(`🏠 ${this.formatAddress([clientDetails?.Addr1, clientDetails?.Addr2, clientDetails?.City, clientDetails?.State, clientDetails?.Country, clientDetails?.ZipCode])}`);
+    // Phone with icon
+    parts.push(`📞 ${(clientDetails?.Phone1 + (clientDetails?.Phone2 ? '; ' + clientDetails?.Phone2 : ''))}`);
+    // Email with icon
+    parts.push(`📧 ${clientDetails?.Email}`);
+    // Motor Carrier Number with icon
+    parts.push(`🚛 MC#: ${clientDetails?.MotorCarrNo}`);
+    // Motor Carrier Number with icon
+    parts.push(`💼 CRM: ${clientDetails?.CRM}`);
+    // Motor Carrier Number with icon
+    parts.push(`🌍 Office: ${clientDetails?.Office}`);
+
+    return parts.join('\n');
   }
   // method to caculate balanceShown number
   private updateTotalShown(): void {

@@ -124,6 +124,9 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // send debtor details to parent component
   @Output() debtorDetailsChanged = new EventEmitter<any>();
+  // send list of related client details to parent component
+  @Output() relatedClientList = new EventEmitter<any[]>();
+  emittedRelatedClientList: boolean = false;
 
   // snackbars
   private _snackBar = inject(MatSnackBar);
@@ -204,7 +207,9 @@ export class TicketingAnalysisComponent implements OnInit {
             if (this.originalDebtorType === 'Master') {
               this.allRelatedDebtors = response.data; // store all related debtors
               this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor, TotalAR: it.Balance, 
-                isMaster: (this.originalDebtorKey === it.DebtorKey ? true : false)
+                isMaster: (this.originalDebtorKey === it.DebtorKey ? true : false), 
+                FullAddress: this.formatAddress([it.Addr1, it.Addr2, it.City, it.State, it.Country, it.ZipCode]),
+                Phone: (it.Phone1 + (it.Phone2 ? '; ' + it.Phone2 : '')), Email: it.Email, MotorCarrNo: it.MotorCarrNo,
               });
             }
           }
@@ -226,7 +231,9 @@ export class TicketingAnalysisComponent implements OnInit {
               for (let it of response.data) {
                 sumBalance += Number(it.Balance) || 0;
                 this.switchableDebtors.push({DebtorKey: it.DebtorKey, DebtorName: it.Debtor, TotalAR: it.Balance, 
-                  isMaster: (tempDebtorKey === it.DebtorKey ? true : false)
+                  isMaster: (tempDebtorKey === it.DebtorKey ? true : false), 
+                  FullAddress: this.formatAddress([it.Addr1, it.Addr2, it.City, it.State, it.Country, it.ZipCode]),
+                  Phone: (it.Phone1 + (it.Phone2 ? '; ' + it.Phone2 : '')), Email: it.Email, MotorCarrNo: it.MotorCarrNo,
                 });
               }
               for (let it of this.switchableDebtors) {
@@ -395,7 +402,10 @@ export class TicketingAnalysisComponent implements OnInit {
   searchAllClientsByDebtorKey(DebtorKey: number, ClientKey: number): void {
     this.clientService.getClients(DebtorKey).subscribe(response => {
       console.log("ticketing-analysis-component, getClients by debtorKey: ", response.data);
-
+      if (!this.emittedRelatedClientList){
+        this.relatedClientList.emit(response.data);
+        this.emittedRelatedClientList = true;
+      }
       // get the concentration number by searching the ClientKey
       // get number of relationship clients with outstanding balance and active status
       // reset numOfRelationshipClients to 0 before counting
@@ -1973,9 +1983,24 @@ export class TicketingAnalysisComponent implements OnInit {
     this.dataService.getCountryAreaList().subscribe((response: any) => {
       this.countryAreaList = response.data;
       // console.log('Country Area List:', this.countryAreaList);
-      
+
       this.cdr.detectChanges(); // Trigger change detection
     });
+  }
+
+  // Method to generate tooltip text for switchable debtors
+  getDebtorTooltipText(debtor: any): string {
+    const parts = [];
+    // Address with icon
+    parts.push(`🏠 ${debtor.FullAddress}`);
+    // Phone with icon
+    parts.push(`📞 ${debtor.Phone}`);
+    // Email with icon
+    parts.push(`📧 ${debtor.Email}`);
+    // Motor Carrier Number with icon
+    parts.push(`🚛 MC#: ${debtor.MotorCarrNo}`);
+
+    return parts.join('\n');
   }
 
 
