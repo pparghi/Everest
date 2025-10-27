@@ -72,11 +72,14 @@
                                     @for (it of switchableDebtors; track it.DebtorKey) {
                                         <button mat-menu-item (click)="onSwitchDebtorClick(it.DebtorKey)" 
                                         [disabled]="(it.DebtorKey === switchedDebtorKey) || (!switchedDebtorKey && it.DebtorKey === originalDebtorKey)"
-                                        [matTooltip]="getDebtorTooltipText(it)" matTooltipPosition="right" matTooltipClass="custom-tooltip" [matTooltipShowDelay]="500">
+                                        [matTooltip]="getDebtorTooltipText(it)" matTooltipPosition="right" matTooltipClass="custom-tooltip" [matTooltipShowDelay]="500"
+                                        [ngClass]="it.isMaster ? 'master-debtor-item' : 'member-debtor-item'">
                                             <div>
                                                 <p class="title2 word-wrap">{{it.DebtorName}}</p>
-                                                <div style="display: flex; gap: 16px;">
-                                                    <p class="text2 word-wrap" style="width: 75px;">{{it.isMaster ? 'Master' : 'Member'}}</p>
+                                                <div style="display: flex; gap: 16px; align-items: center;">
+                                                    <span [ngClass]="it.isMaster ? 'master-badge' : 'member-badge'">
+                                                        {{it.isMaster ? 'Master' : 'Member'}}
+                                                    </span>
                                                     <p class="text2 word-wrap">Debtor ID: {{it.DebtorKey}}</p>
                                                     <p class="text2 word-wrap">Total AR: {{formatCurrency(it.TotalAR)}}</p>
                                                 </div>
@@ -933,17 +936,19 @@
                             </select>
                             </mat-form-field>
 
-                            <table mat-table [dataSource]="ticketingTrendDataVertical" matTableExporter #exporter="matTableExporter"
-                                class="mat-elevation-z8 trend-table">
-                                @for (it of displayedColumnsVertical; track it) {
-                                <ng-container matColumnDef={{it}}>
-                                    <th mat-header-cell *matHeaderCellDef> {{it}} </th>
-                                    <td mat-cell *matCellDef="let element"> {{element[it]}} </td>
-                                </ng-container>
-                                }
-                                <tr mat-header-row *matHeaderRowDef="displayedColumnsVertical"></tr>
-                                <tr mat-row *matRowDef="let row; columns: displayedColumnsVertical;"></tr>
-                            </table>
+                            <div style="overflow-x: auto; width: 100%;">
+                                <table mat-table [dataSource]="ticketingTrendDataVertical" matTableExporter #exporter="matTableExporter"
+                                    class="mat-elevation-z8 trend-table">
+                                    @for (it of displayedColumnsVertical; track it) {
+                                    <ng-container matColumnDef={{it}} sticky="{{it === 'Period' ? 'true' : 'false'}}">
+                                        <th mat-header-cell *matHeaderCellDef> {{formatTrendTableHeader(it)}} </th>
+                                        <td mat-cell *matCellDef="let element"> {{element[it]}} </td>
+                                    </ng-container>
+                                    }
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumnsVertical"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedColumnsVertical;"></tr>
+                                </table>
+                            </div>
                     
                         </mat-expansion-panel>
                     </mat-accordion>
@@ -1000,17 +1005,19 @@
                             </select>
                             </mat-form-field>
 
-                            <table mat-table [dataSource]="ticketingTrendDataVertical2" matTableExporter #exporter="matTableExporter"
-                                class="mat-elevation-z8 trend-table">
-                                @for (it of displayedColumnsVertical2; track it) {
-                                <ng-container matColumnDef={{it}}>
-                                    <th mat-header-cell *matHeaderCellDef> {{it}} </th>
-                                    <td mat-cell *matCellDef="let element"> {{element[it]}} </td>
-                                </ng-container>
-                                }
-                                <tr mat-header-row *matHeaderRowDef="displayedColumnsVertical2"></tr>
-                                <tr mat-row *matRowDef="let row; columns: displayedColumnsVertical2;"></tr>
-                            </table>
+                            <div style="overflow-x: auto; width: 100%;">
+                                <table mat-table [dataSource]="ticketingTrendDataVertical2" matTableExporter #exporter="matTableExporter"
+                                    class="mat-elevation-z8 trend-table">
+                                    @for (it of displayedColumnsVertical2; track it) {
+                                    <ng-container matColumnDef={{it}} sticky="{{it === 'Period' ? 'true' : 'false'}}">
+                                        <th mat-header-cell *matHeaderCellDef> {{formatTrendTableHeader(it)}} </th>
+                                        <td mat-cell *matCellDef="let element"> {{element[it]}} </td>
+                                    </ng-container>
+                                    }
+                                    <tr mat-header-row *matHeaderRowDef="displayedColumnsVertical2"></tr>
+                                    <tr mat-row *matRowDef="let row; columns: displayedColumnsVertical2;"></tr>
+                                </table>
+                            </div>
                     
                         </mat-expansion-panel>
                     </mat-accordion>

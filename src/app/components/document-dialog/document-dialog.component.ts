@@ -162,6 +162,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
+  saveRateDateBeforeClose: boolean = true;
+
 
   constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService, private _decimalPipe: DecimalPipe, private cdr: ChangeDetectorRef) {
     if (data.openChequeSearchForm) {
@@ -1197,18 +1199,30 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
   //region ticketPG functions
   // method to save research date
-  onSaveResearchDate() {
+  onSaveResearchDate(forcetoUpdate: boolean = false) {
     const rateDate = this.editTicketForm.get('RateDate')?.value;
-    if (!rateDate ||  rateDate === this.debtorDetails?.RateDate?.split(' ')[0]) {
+    if (!rateDate) {
       return; // Don't proceed if empty
     }
-    
-    if (!this.debtorDetails) {
-      console.warn('Cannot save research date: Debtor details not available');
-      return;
-    }
+    let confirmed = true;
+    if (!forcetoUpdate) {
+      if (rateDate === this.getLocalDateYYYYMMDD()) {
+        if (this.editTicketForm.get('ExpiresInMonths')?.value) {
+          this.editTicketForm.patchValue({
+            ExpiresDate: this.addMonths(parseInt(this.editTicketForm.get('ExpiresInMonths')?.value), this.getLocalDateYYYYMMDD())
+          });
+        }
+        this.saveRateDateBeforeClose = true;
+        return; // Don't proceed if same as today's date
+      }
+      
+      if (!this.debtorDetails) {
+        console.warn('Cannot save research date: Debtor details not available');
+        return;
+      }
 
-    const confirmed = window.confirm('Are you sure you want to update the research date?'); // Add confirmation popup
+      confirmed = window.confirm('Are you sure you want to update the research date?'); // Add confirmation popup
+    }
     if (confirmed && this.debtorDetails) {
 
       const formData = new FormData();
@@ -1257,10 +1271,13 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
               horizontalPosition: 'center'
             });
             // update expires date if expires in months is available
-            if (this.editTicketForm.get('ExpiresInMonths')?.value) {
-              this.editTicketForm.patchValue({
-                ExpiresDate: this.addMonths(parseInt(this.editTicketForm.get('ExpiresInMonths')?.value))
-              });
+            if (!forcetoUpdate) {
+              if (this.editTicketForm.get('ExpiresInMonths')?.value) {
+                this.editTicketForm.patchValue({
+                  ExpiresDate: this.addMonths(parseInt(this.editTicketForm.get('ExpiresInMonths')?.value))
+                });
+              }
+              this.saveRateDateBeforeClose = false;
             }
           }
           else {
@@ -1278,8 +1295,9 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     // don't update the form if the user cancels the update nor if the form is invalid
     else {
       this.editTicketForm.patchValue({
-        RateDate: this.debtorDetails.RateDate.split(' ')[0],
+        RateDate: this.getLocalDateYYYYMMDD(),
       });
+      this.saveRateDateBeforeClose = true;
       this.cdr.markForCheck();
       console.log('Update cancelled');
     }
@@ -1297,14 +1315,25 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     if (this.editTicketForm) {
       // Update ticket form with fresh debtor details
       this.editTicketForm.patchValue({
-        RateDate: debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '',
+        // RateDate: debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '',
+        RateDate: this.getLocalDateYYYYMMDD(), // set RateDate to local today's date
         ExpiresInMonths: debtorDetails?.CredExpireMos || '1',
-        ExpiresDate: debtorDetails?.CredExpireDate ? this.formateDate(debtorDetails?.CredExpireDate) : this.addMonths(debtorDetails?.CredExpireMos ? parseInt(debtorDetails?.CredExpireMos) : 1, debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : ''),
+        // ExpiresDate: debtorDetails?.CredExpireDate ? this.formateDate(debtorDetails?.CredExpireDate) : this.addMonths(debtorDetails?.CredExpireMos ? parseInt(debtorDetails?.CredExpireMos) : 1, debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : ''),
+        ExpiresDate: this.addMonths(debtorDetails?.CredExpireMos ? parseInt(debtorDetails?.CredExpireMos) : 1, this.getLocalDateYYYYMMDD()),
       });
     }
     
     // Trigger change detection to update the view
     this.cdr.markForCheck();
+  }
+  // helper method to get local date in YYYY-MM-DD format
+  private getLocalDateYYYYMMDD() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); 
+    const day = String(today.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
   // helper method to take in address and return a formatted address, array parameter in this order: [Addr1, Addr2, City, State, Country, ZipCode]
   formatAddress(addresses: string[]): string {
@@ -1735,6 +1764,10 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     }
     console.log('editTicketForm value--', this.editTicketForm.value);
     // console.log('userID--', this.data.userID.toUpperCase());
+    // if saveRateDateBeforeClose is true, save the research date first
+    if (this.saveRateDateBeforeClose) {
+      this.onSaveResearchDate(true);
+    }
     this.onApproveCreditRequest(this.editTicketForm.value.CredRequestKey, this.data.userID.toUpperCase(), this.editTicketForm.value.Action, this.editTicketForm.value.FreeTextInput, this.parseCurrencyValue(this.editTicketForm.value.ApproveAmt).toString(), this.parseCurrencyValue(this.editTicketForm.value.NewLimit).toString(), this.editTicketForm.value.ExpiresInMonths, this.editTicketForm.value.SendDecisionToClient?"Y":"N", this.editTicketForm.value.ChangeMaster?"Y":"N");
   }
 

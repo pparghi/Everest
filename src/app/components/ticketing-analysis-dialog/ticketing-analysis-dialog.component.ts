@@ -213,6 +213,7 @@ export class TicketingAnalysisComponent implements OnInit {
               });
             }
           }
+          this.reorderSwitchableDebtors(); // reorder the switchable debtors
           // if the debtor type is Master, set the balance to sum of all member debtors
           if (this.originalDebtorType === 'Master'){
             this.debtorDetails.Balance = '' + sumBalance;
@@ -241,6 +242,7 @@ export class TicketingAnalysisComponent implements OnInit {
                   it.TotalAR = sumBalance;
                 }
               }
+              this.reorderSwitchableDebtors(); // reorder the switchable debtors
             });
           }
 
@@ -356,7 +358,7 @@ export class TicketingAnalysisComponent implements OnInit {
       else {
         this.ticketingTrendDataSource2.data = response.data;
       }
-      console.log('Trend Data:', this.ticketingTrendDataSource.data);
+      // console.log('Trend Data:', this.ticketingTrendDataSource.data);
       this.transferTrendDataToVertical(response.data, chartNumber);
     
       this.cdr.detectChanges(); // Trigger change detection
@@ -501,6 +503,8 @@ export class TicketingAnalysisComponent implements OnInit {
     else {
       this.ticketingTrendDataVertical2 = tempData;
       this.displayedColumnsVertical2 = tempColumn;
+      console.log('ticketingTrendDataVertical2--', this.ticketingTrendDataVertical2);
+      console.log('displayedColumnsVertical2--', this.displayedColumnsVertical2);
     }
     // console.log('ticketingTrendDataVertical--', this.ticketingTrendDataVertical);
   }
@@ -2003,6 +2007,37 @@ export class TicketingAnalysisComponent implements OnInit {
     return parts.join('\n');
   }
 
+  // helper method to re-order switchable debtors list, master debtor on top, order by name
+  reorderSwitchableDebtors() {
+    this.switchableDebtors.sort((a, b) => {
+      // Master debtor first
+      if (a.isMaster && !b.isMaster) {
+        return -1;
+      }
+      if (!a.isMaster && b.isMaster) {
+        return 1;
+      }
+      // Then order by name
+      return a.DebtorName.localeCompare(b.DebtorName);
+    });
+  }
+
+  // helper method to format trend analysis table column headers
+  formatTrendTableHeader(header: string): string {
+    if (header.length === 7){
+      let [year, month] = header.split('-');
+      let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      let monthIndex = parseInt(month, 10) - 1;
+      return `${monthNames[monthIndex]}/${year.substring(2)}`;
+    }
+    else if (header.length === 6 && header !== 'Period'){
+      let [year, quarter] = header.split('-');
+      return `Q${quarter}/${year.substring(2)}`;
+    }
+    else {
+      return header;
+    }
+  }
 
 
 }

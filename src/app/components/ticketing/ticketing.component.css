@@ -17,6 +17,18 @@
   background-color: #ffffff;
 }
 
+td[mat-cell] .icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.mat-column-Edit td,
+.mat-column-Email td {
+  text-align: center !important;
+}
+
 .element-row .mat-mdc-cell {
   border-bottom: 1px solid transparent;
   border-top: 1px solid transparent;
@@ -199,6 +211,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.mat-column-RequestNo {
+  width: 70px !important;
 }
 
 .mat-expansion-panel-header:not([aria-disabled=true]) {

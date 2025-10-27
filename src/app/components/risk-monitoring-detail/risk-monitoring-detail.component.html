@@ -7,18 +7,82 @@
             Close
         </button>
     </div>    
-    <div class="row" style="justify-content: space-between;">
-        <div class="col-md-4">
-            <mat-card style="height: 100%;" appearance="outlined">
+    <div class="row" style="justify-content: space-between; display: flex; align-items: stretch;">
+        <div class="col-md-4" style="display: flex;">
+            <mat-card style="height: 100%; width: 100%;" appearance="outlined">
                 <mat-card-header>
-                    <mat-card-title style="font-size: 20px;">Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span *ngIf="client?.Inactive == 0; else elseBlockStatus" style="color: green; font-size: 15px;"><b>Active</b></span>
+                    <mat-card-title style="font-size: 20px;">Client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span *ngIf="client?.Inactive == 0; else elseBlockStatus" style="color: green; font-size: 15px;"><b>Active</b></span>
                         <ng-template #elseBlockStatus>
                             <span style="color: red; font-size: 15px;"><b>Inactive</b></span>
                         </ng-template>                      
                 </mat-card-title>
                 </mat-card-header>
                 <mat-card-content *ngIf="client">
-                    <table>
+                    <div style="display: grid; gap: 8px; width: 100%;">
+                        <!-- 2-column rows -->
+                        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+                            <div><b>Name</b></div>
+                            <div>{{ client.Name }}</div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+                            <div><b>Signed</b></div>
+                            <div>{{ client.SignedDate | date:'MM/dd/yyyy' }}</div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+                            <div><b>CRM/Office</b></div>
+                            <div *ngIf="!canEdit('crm'); else elseBlockCRM">{{ client.AcctExec }} / {{ client.Office }}</div>
+                            <ng-template #elseBlockCRM>
+                                <div>
+                                    <select (change)="onChangeCRM($event, client.ClientKey)" style="font-size: 13px;" class="dropdown" [disabled]="!canEdit('crm')">
+                                        <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey" [selected]="crm.UserKey === client.AcctExec">{{ crm.UserKey }}</option>
+                                    </select> / {{ client.Office }}
+                                </div>
+                            </ng-template>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+                            <div><b>Address</b></div>
+                            <div>{{ formatAddress([client.Addr1, client.Addr2, client.City, client.State, client.Country, client.ZipCode]) }}</div>
+                        </div>
+                        
+                        <!-- 4-column row for phones -->
+                        <div style="display: grid; grid-template-columns: 110px 1fr 110px 1fr; gap: 10px;">
+                            <div><b>Phone1</b></div>
+                            <div>{{ client.Phone1 }}</div>
+                            <div><b>Phone2</b></div>
+                            <div>{{ client.Phone2 }}</div>
+                        </div>
+                        
+                        <!-- Continue with 2-column rows -->
+                        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+                            <div><b>MC#</b></div>
+                            <div>{{ client.MotorCarrNo }}</div>
+                        </div>
+                        
+                        <!-- 6-column row for BDOs -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 110px 1fr); gap: 10px;">
+                            <div><b>BDO1</b></div>
+                            <div>{{ client.BDO1 }}</div>
+                            <div><b>BDO2</b></div>
+                            <div>{{ client.BDO2 }}</div>
+                            <div><b>BDO3</b></div>
+                            <div>{{ client.BDO3 }}</div>
+                        </div>
+                        
+                        <!-- Continue with other 2-column rows -->
+                        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+                            <div><b>1st Funding Date</b></div>
+                            <div>{{ client.FirstFundingDate | date:'MM/dd/yyyy' }}</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 110px 1fr; gap: 10px;">
+                            <div><b>Warning</b></div>
+                            <div>{{ client.Warning }}</div>
+                        </div>
+                    </div>
+                    <!--<table>
                         <tr>
                             <td><b>Name</b></td>
                             <td>{{ client.Name }}</td>
@@ -33,7 +97,7 @@
                             <ng-template #elseBlockCRM>
                                 <td>
                                     <select (change)="onChangeCRM($event, client.ClientKey)" style="font-size: 13px;" class="dropdown" [disabled]="!canEdit('crm')">
-                                        <!-- <option value="{{ client.AcctExec }}">{{ client.AcctExec }}</option> -->
+                                        <!~~ <option value="{{ client.AcctExec }}">{{ client.AcctExec }}</option> ~~>
                                         <option *ngFor="let crm of clientCRMList" [value]="crm.UserKey" [selected]="crm.UserKey === client.AcctExec">{{ crm.UserKey }}</option>
                                     </select> / {{ client.Office }}
                                 </td>
@@ -41,32 +105,46 @@
                         </tr>
                         <tr>
                             <td style="vertical-align: top;"><b>Address</b></td>
-                            <td>{{ client.Addr1 }} {{ client.Addr2 }} <br> {{ client.City }} {{ client.State }} {{ client.ZipCode }} </td>
+                            <td style="width: 100%;">{{ formatAddress([client.Addr1, client.Addr2, client.City, client.State, client.Country, client.ZipCode]) }}</td>
                         </tr>
                         <tr>
-                            <td style="vertical-align: top;"><b>Phones</b></td>
-                            <td>{{ client.Phone1 }} {{ client.Phone2 }}</td>
-                        </tr>                                                
+                            <td style="vertical-align: top; width: 25%;"><b>Phone1</b></td>
+                            <td style="width: 25%;">{{ client.Phone1 }}</td>
+                            <td style="vertical-align: top; width: 25%;"><b>Phone2</b></td>
+                            <td style="width: 25%;">{{ client.Phone2 }}</td>
+                        </tr>
                         <tr>
                             <td style="vertical-align: top;"><b>MC#</b></td>
                             <td>{{ client.MotorCarrNo }}</td>
-                        </tr>                                                
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top; width: 16.66%;"><b>BDO1</b></td>
+                            <td style="width: 16.66%;">{{ client.BDO1 || 'N/A' }}</td>
+                            <td style="vertical-align: top; width: 16.66%;"><b>BDO2</b></td>
+                            <td style="width: 16.66%;">{{ client.BDO2 || 'N/A' }}</td>
+                            <td style="vertical-align: top; width: 16.66%;"><b>BDO3</b></td>
+                            <td style="width: 16.66%;">{{ client.BDO3 || 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: top;"><b>1st Funding Date</b></td>
+                            <td>{{ client.FirstFundingDate | date:'MM/dd/yyyy' }}</td>
+                        </tr>
                         <tr>
                             <td style="vertical-align: top;"><b>Warning</b></td>
                             <td>{{ client.Warning }}</td>
                         </tr>                                                
-                    </table>
+                    </table>-->
                 </mat-card-content>
             </mat-card>
         </div>
-        <div class="col-md-8">
-            <div class="row" style="justify-content: space-between;">
-                <div class="col-md-6">
-                    <mat-card style="height: 100%;" appearance="outlined">
+        <div class="col-md-8" style="display: flex; flex-direction: column;">
+            <div class="row" style="justify-content: space-between; display: flex; align-items: stretch; flex: 1;">
+                <div class="col-md-6" style="display: flex;">
+                    <mat-card style="width: 100%; display: flex; flex-direction: column;" appearance="outlined">
                         <mat-card-header>
                             <mat-card-title style="font-size: 20px;">Concern</mat-card-title>
                         </mat-card-header>
-                        <mat-card-content *ngIf="client">
+                        <mat-card-content *ngIf="client" style="flex: 1;">
                             <tr>
                                 <td><b>Level</b></td> 
                                 <td *ngIf="!canEdit('level'); else elseBlockLevel" >{{ this.Level }}</td>
@@ -131,12 +209,12 @@
                         </mat-card-content>
                     </mat-card>
                 </div>
-                <div class="col-md-6">
-                    <mat-card style="height: 100%;" appearance="outlined">
+                <div class="col-md-6" style="display: flex;">
+                    <mat-card style="width: 100%; display: flex; flex-direction: column;" appearance="outlined">
                         <mat-card-header>
                             <mat-card-title style="font-size: 20px;">Summary</mat-card-title>
                         </mat-card-header>
-                        <mat-card-content>
+                        <mat-card-content style="flex: 1;">
                             <p>{{ extractSummaryText(clientSummary) }}</p>
                             <table>  
                                 <tr>
@@ -154,13 +232,13 @@
                 </div>
             </div>
             <br>
-            <div class="row" style="justify-content: space-between;">
-                <div class="col-md-6">
-                    <mat-card style="height: 100%;" appearance="outlined">
+            <div class="row" style="justify-content: space-between; display: flex; align-items: stretch; flex: 1;">
+                <div class="col-md-6" style="display: flex;">
+                    <mat-card style="width: 100%; display: flex; flex-direction: column;" appearance="outlined">
                         <mat-card-header>
                             <mat-card-title style="font-size: 20px;">Contacts</mat-card-title>
                         </mat-card-header>
-                        <mat-card-content>
+                        <mat-card-content style="flex: 1;">
                             <table>
                                 <tr>
                                     <td><b>Name</b></td>
@@ -176,12 +254,12 @@
                         </mat-card-content>
                     </mat-card>
                 </div>
-                <div class="col-md-6">
-                    <mat-card style="height: 100%;" appearance="outlined">
+                <div class="col-md-6" style="display: flex;">
+                    <mat-card style="width: 100%; display: flex; flex-direction: column;" appearance="outlined">
                         <mat-card-header>
                             <mat-card-title style="font-size: 20px;">Quick Actions</mat-card-title>
                         </mat-card-header>
-                        <mat-card-content style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                        <mat-card-content style="display: flex; align-items: center; justify-content: center; flex: 1;">
                             <button (click)="addNewNote()"
                                 [ngClass]="{'btn': true, 'btn-sm': true, 'btn-success': true}" style="font-size: 12px;" 
                                 [disabled]="!canEdit()" 

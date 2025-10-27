@@ -249,7 +249,7 @@ export class RiskMonitoringDetailComponent {
           <label style="display: block; margin-bottom: 5px; font-weight: bold;">Due Date (Optional)</label>
           <input id="swal-input-duedate" type="date" class="swal2-input" style="width: 300px; margin-bottom: 15px;">
           
-          <label style="display: block; margin-bottom: 5px; font-weight: bold;">Note</label>
+          <label style="display: block; margin-bottom: 5px; font-weight: bold;">Note (Required)</label>
           <textarea id="swal-input-note" class="swal2-textarea" placeholder="Enter your note..." rows="6" style="width: 100%; resize: vertical; height: auto !important; min-height: auto !important;"></textarea>
         </div>
       `,
@@ -263,19 +263,19 @@ export class RiskMonitoringDetailComponent {
         const dueDate = (document.getElementById('swal-input-duedate') as HTMLInputElement).value;
         const noteText = (document.getElementById('swal-input-note') as HTMLTextAreaElement).value;
         
-        // if (!noteText.trim()) {
-        //   Swal.showValidationMessage('Please enter a note');
-        //   return false;
-        // }
+        if (!noteText.trim()) {
+          Swal.showValidationMessage('Please enter a note');
+          return false;
+        }
         
         return {
           dueDate: dueDate || '',
-          noteText: noteText.trim() || ''
+          noteText: noteText.trim()
         };
       }
     }).then((result) => {
-      // If user confirms the dialog and provides text
-      if (result.isConfirmed && result.value) {
+      // If user confirms the dialog and provides valid text
+      if (result.isConfirmed && result.value && result.value.noteText) {
         // Get current user info
         this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
           this.profile = profile;          
@@ -813,6 +813,15 @@ export class RiskMonitoringDetailComponent {
       }
     }
     return '';
+  }
+
+  // method to take in address and return a formatted address, array pareameter in this order: [Addr1, Addr2, City, State, Country, ZipCode]
+  formatAddress(addresses: string[]): string {
+    // Filter out empty, null, or undefined values, then join
+    return addresses
+      .filter(addr => addr && addr.trim() !== '')
+      .join(', ')
+      .trim();
   }
 
 }

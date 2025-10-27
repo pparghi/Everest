@@ -67,7 +67,7 @@ interface clientDataItem {
 })
 
 export class TicketingComponent {  
-    displayedColumns: string[] = ['expand', 'RequestNo', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'ApproveUser', 'Edit', 'Email'];   
+    displayedColumns: string[] = ['expand', 'RequestNo', 'Edit', 'Email', 'Debtor', 'Client', 'TotalCreditLimit', 'Status', 'IndivCreditLimit', 'RequestAmt', 'RequestUser', 'Office', 'Industry', 'BankAcctName', 'Age', 'ApproveDate', 'Source', 'ApproveUser'];   
     clientDisplayedColumns: string[] = ['expand', 'Client', 'TotalAR', 'AgingOver60Days', '%pastdue', '#ofInvoicesDisputes', '#holdInvoices', '%concentration',  'CRM', 'Office', 'Analysis']; 
     statusListOptions = [
       { label: 'Pending', value: '0' },
@@ -158,7 +158,7 @@ export class TicketingComponent {
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
-      // yesterdayDate.setDate(today.getDate() - 79);
+      // yesterdayDate.setDate(today.getDate() - 88);
       this.requestDate = this.datePipe.transform(yesterdayDate, 'yyyy-MM-dd');     
     }
     ngOnInit(): void {

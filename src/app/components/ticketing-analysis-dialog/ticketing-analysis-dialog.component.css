@@ -78,8 +78,8 @@
 	background-color: #ffffff;
 	width: calc(100% - 10px);
 	box-sizing: border-box;
-    overflow-x: auto; 
-    overflow-y: hidden;
+  overflow-x: auto; 
+  overflow-y: hidden;
 }
 
 .dialog-header {
@@ -128,8 +128,21 @@
   font-size: 14px;
 }
 
+.mat-mdc-header-cell {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0px 10px;
+}
+
+.mat-mdc-cell {
+  font-size: 11px;
+  padding: 0px 10px;
+}
+
 .trend-table {
-    background-color: #ffffff;
+  background-color: #ffffff;
+  max-width: 100%;
+  width: 100%;
 }
 
 /* Make panel title wider */
@@ -547,6 +560,36 @@
     max-width: none !important;
     max-height: 600px;
     overflow-y: auto;
+}
+
+/* Master debtor menu item styling */
+::ng-deep .master-debtor-item {
+    background-color: #e8f4fd !important;
+    border-left: 4px solid #1976d2 !important;
+}
+
+::ng-deep .master-debtor-item:hover {
+    background-color: #d0e7f8 !important;
+}
+
+::ng-deep .master-debtor-item .master-badge {
+    background-color: #1976d2;
+    color: white;
+    padding: 0px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+::ng-deep .member-debtor-item .member-badge {
+    background-color: #757575;
+    color: white;
+    padding: 0px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
 .loading-overlay {
