@@ -163,6 +163,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
   saveRateDateBeforeClose: boolean = true;
+  defaultRateDate: string = '';
 
 
   constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService, private _decimalPipe: DecimalPipe, private cdr: ChangeDetectorRef) {
@@ -1325,7 +1326,12 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       let tempDate = debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '';
       if ((debtorRateDate && debtorExpiresDate && debtorRateDate < today && debtorExpiresDate < today) || (debtorRateDate === null)) {
         tempDate = this.getLocalDateYYYYMMDD();
+        this.saveRateDateBeforeClose = true;
       }
+      else {
+        this.saveRateDateBeforeClose = false;
+      }
+      this.defaultRateDate = tempDate;
       this.editTicketForm.patchValue({
         // RateDate: debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '',
         // RateDate: this.getLocalDateYYYYMMDD(), // set RateDate to local today's date
