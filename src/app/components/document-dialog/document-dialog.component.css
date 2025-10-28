@@ -187,7 +187,15 @@
 	overflow-y: auto;
 	background-color: #ffffff;
 	font-size: 13px;
-  }   
+}   
+
+.main-table-container .mat-mdc-header-cell {
+  padding: 0px 4px;
+}
+
+.main-table-container .mat-mdc-cell {
+  padding: 0px 4px;
+}
   
 .trend-tab {
 	margin: 30px;
@@ -330,6 +338,7 @@
 .aging-tab {
 	margin: 20px;
 	overflow: auto;
+	max-height: calc(90vh - 100px);
 }
 
 .aging-tab-table, .cheque-search-tab-table {

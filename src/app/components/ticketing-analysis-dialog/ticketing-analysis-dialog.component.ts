@@ -154,6 +154,9 @@ export class TicketingAnalysisComponent implements OnInit {
 
   loadingCurrentDebtorRelationship: boolean = false;
 
+  debtorAlertsList: any[] = []; // store all debtor alerts
+  debtorAlert:any = {}; // store the matched debtor alert by debtorKey
+
   constructor(
     // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
     // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
@@ -177,6 +180,15 @@ export class TicketingAnalysisComponent implements OnInit {
     this.originalDebtorType = this.ticketData.Type;
 
     let tempDebtorKey: string;
+
+    // load debtor alerts list and match the alert for the current debtor
+    this.dataService.getDebtorAlertsList().subscribe((response: any) => {
+      this.debtorAlertsList = response.data;
+      this.debtorAlert = this.debtorAlertsList.find(alert => alert.DebtorKey === this.ticketData.DebtorKey) || {};
+      // this.debtorAlert = this.debtorAlertsList.find(alert => alert.DebtorKey === '64663') || {}; // for testing
+      console.log('Alert list: ', this.debtorAlertsList);
+      console.log('matched debtor alert: ', this.debtorAlert);
+    });
 
     // Get the logged in user for CredAppBy
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
@@ -1529,6 +1541,8 @@ export class TicketingAnalysisComponent implements OnInit {
   // eventhandler for selecting menu to switch debtor
   onSwitchDebtorClick(selectedDebtorKey: string) {
     this.switchedDebtorKey = selectedDebtorKey;
+    // search and save alert if debtor is in alert list
+    this.debtorAlert = this.debtorAlertsList.find(alert => alert.DebtorKey === selectedDebtorKey) || {};
     // load new debtor details
     let sumBalance = 0;
     let isMasterflag = false;
@@ -1577,6 +1591,9 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // eventhandler for clearing the switched debtor and go back to original
   onResetSwitchDebtor() {
+    // search and save alert if debtor is in alert list
+    this.debtorAlert = this.debtorAlertsList.find(alert => alert.DebtorKey === this.ticketData.DebtorKey) || {};
+
     this.switchedDebtorKey = '';
     this.switchedDebtorType = 'N/A';
     let sumBalance = 0;
@@ -2037,6 +2054,230 @@ export class TicketingAnalysisComponent implements OnInit {
     else {
       return header;
     }
+  }
+
+  // click event handler for showing debtor alert details
+  onShowDebtorAlertDetails() {
+    if (!this.debtorAlert || Object.keys(this.debtorAlert).length === 0) {
+      console.log('No debtor alert details available');
+      return;
+    }
+
+    // Parse XML data to extract meaningful information
+    const alertInfo = this.parseAlertXmlData(this.debtorAlert.XmlData);
+    
+    // Create HTML content for the alert details
+    const alertHtml = this.buildAlertDetailsHtml(this.debtorAlert, alertInfo);
+
+    // Show SweetAlert2 dialog with the alert details
+    Swal.fire({
+      title: '<strong>Debtor Alert Details</strong>',
+      html: alertHtml,
+      // icon: 'warning',
+      width: '800px',
+      showCloseButton: true,
+      showConfirmButton: true,
+      confirmButtonText: 'Close',
+      confirmButtonColor: '#1976d2',
+      customClass: {
+        popup: 'debtor-alert-dialog',
+        htmlContainer: 'debtor-alert-content'
+      }
+    });
+  }
+
+  // Helper method to parse XML alert data
+  private parseAlertXmlData(xmlData: string): any {
+    try {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
+      
+      const alertNotification = xmlDoc.querySelector('AlertNotification');
+      if (!alertNotification) return {};
+
+      const alertInfo = {
+        alertId: alertNotification.querySelector('AlertId')?.textContent || 'N/A',
+        submittedDate: alertNotification.querySelector('SubmittedDate')?.textContent || 'N/A',
+        industrySector: alertNotification.querySelector('IndustrySector')?.textContent || 'N/A',
+        customers: [] as any[],
+        alertTypes: [] as any[]
+      };
+
+      // Extract customer information (can be multiple customers)
+      const customers = alertNotification.querySelectorAll('ContributorCustomer');
+      customers.forEach(customer => {
+        alertInfo.customers.push({
+          entityId: customer.querySelector('EntityId')?.textContent || 'N/A',
+          name: customer.querySelector('Name')?.textContent || 'N/A',
+          address1: customer.querySelector('Address1')?.textContent || 'N/A',
+          city: customer.querySelector('City')?.textContent || 'N/A',
+          state: customer.querySelector('State')?.textContent || 'N/A',
+          postalCode: customer.querySelector('PostalCode')?.textContent || 'N/A',
+          country: customer.querySelector('Country')?.textContent || 'N/A',
+          accountNumber: customer.querySelector('AccountNumber')?.textContent || 'N/A',
+          matchCount: customer.querySelector('MatchCount')?.textContent || 'N/A',
+          isPartnerCustomer: customer.querySelector('IsPartnerCustomer')?.textContent || 'N/A'
+        });
+      });
+
+      // Extract alert types and field values
+      const alertTypes = alertNotification.querySelectorAll('AlertType');
+      alertTypes.forEach(alertType => {
+        const alertTypeInfo = {
+          alertName: alertType.querySelector('AlertName')?.textContent || 'N/A',
+          fields: [] as any[]
+        };
+
+        const alertFields = alertType.querySelectorAll('AlertField');
+        alertFields.forEach(field => {
+          alertTypeInfo.fields.push({
+            fieldName: field.querySelector('FieldName')?.textContent || 'N/A',
+            fieldValue: field.querySelector('FieldValue')?.textContent || 'N/A'
+          });
+        });
+
+        alertInfo.alertTypes.push(alertTypeInfo);
+      });
+
+      return alertInfo;
+    } catch (error) {
+      console.error('Error parsing XML data:', error);
+      return {};
+    }
+  }
+
+  // Helper method to format customer full address
+  private formatCustomerFullAddress(customer: any): string {
+    const addressParts = [];
+    
+    if (customer.address1 && customer.address1 !== 'N/A') {
+      addressParts.push(customer.address1);
+    }
+    
+    if (customer.city && customer.city !== 'N/A') {
+      addressParts.push(customer.city);
+    }
+    
+    if (customer.state && customer.state !== 'N/A') {
+      addressParts.push(customer.state);
+    }
+    
+    if (customer.postalCode && customer.postalCode !== 'N/A') {
+      addressParts.push(customer.postalCode);
+    }
+    
+    if (customer.country && customer.country !== 'N/A') {
+      addressParts.push(customer.country);
+    }
+    
+    return addressParts.length > 0 ? addressParts.join(', ') : 'N/A';
+  }
+
+  // Helper method to build HTML content for alert details
+  private buildAlertDetailsHtml(debtorAlert: any, alertInfo: any): string {
+    const formatDate = (dateStr: string) => {
+      try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch {
+        return dateStr;
+      }
+    };
+
+    let html = `
+      <div style="text-align: left; font-size: 14px; line-height: 1.5;">
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #1976d2; margin: 0 0 10px 0; font-size: 16px;">Basic Information</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><strong>Alert Type:</strong> ${debtorAlert.Type || 'N/A'}</div>
+            <div><strong>Debtor Key:</strong> ${debtorAlert.DebtorKey || 'N/A'}</div>
+            <div><strong>Company Name:</strong> ${debtorAlert.Name || 'N/A'}</div>
+            <div><strong>Received Time:</strong> ${formatDate(debtorAlert.RefTime || '')}</div>
+          </div>
+        </div>`;
+
+    if (alertInfo && Object.keys(alertInfo).length > 0) {
+      html += `
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 16px;">Alert Details</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <div><strong>Alert ID:</strong> ${alertInfo.alertId}</div>
+            <div><strong>Submitted Date:</strong> ${formatDate(alertInfo.submittedDate)}</div>
+            <div><strong>Industry Sector:</strong> ${alertInfo.industrySector}</div>
+          </div>
+        </div>`;
+
+      if (alertInfo.customers && alertInfo.customers.length > 0) {
+        html += `
+          <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h4 style="color: #1976d2; margin: 0 0 10px 0; font-size: 16px;">Customer Information (${alertInfo.customers.length} customer${alertInfo.customers.length > 1 ? 's' : ''})</h4>`;
+        
+        alertInfo.customers.forEach((customer: any, index: number) => {
+          html += `
+            <div style="margin-bottom: ${index < alertInfo.customers.length - 1 ? '20px' : '0'}; ${index > 0 ? 'border-top: 1px solid #ccc; padding-top: 15px;' : ''}">
+              ${alertInfo.customers.length > 1 ? `<h5 style="color: #1976d2; margin: 0 0 10px 0; font-size: 14px;">Customer ${index + 1}</h5>` : ''}
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><strong>Name:</strong> ${customer.name}</div>
+                <div><strong>Account Number:</strong> ${customer.accountNumber}</div>
+                <div style="grid-column: 1 / -1;"><strong>Full Address:</strong> ${this.formatCustomerFullAddress(customer)}</div>
+              </div>
+            </div>`;
+        });
+        
+        html += `</div>`;
+      }
+      else {
+        html += `
+          <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h4 style="color: #1976d2; margin: 0 0 10px 0; font-size: 16px;">Customer Information</h4>
+            <div>No customer information available.</div>
+          </div>`;
+      }
+
+      if (alertInfo.alertTypes && alertInfo.alertTypes.length > 0) {
+        html += `
+          <div style="background: #f8d7da; padding: 15px; border-radius: 8px;">
+            <h4 style="color: #721c24; margin: 0 0 10px 0; font-size: 16px;">Alert(s)</h4>`;
+        
+        alertInfo.alertTypes.forEach((alertType: any, index: number) => {
+          html += `
+            <div style="margin-bottom: ${index < alertInfo.alertTypes.length - 1 ? '15px' : '0'};">
+              <div style="font-weight: bold; color: #721c24; margin-bottom: 8px;">
+                ${alertType.alertName}
+              </div>`;
+          
+          if (alertType.fields && alertType.fields.length > 0) {
+            html += `<div style="margin-left: 20px;">`;
+            alertType.fields.forEach((field: any) => {
+              html += `
+                <div style="margin-bottom: 5px;">
+                  <strong>${field.fieldName}:</strong> <span style="color: #721c24;">${field.fieldValue}</span>
+                </div>`;
+            });
+            html += `</div>`;
+          }
+          html += `</div>`;
+        });
+        
+        html += `</div>`;
+      }
+      else {
+        html += `
+          <div style="background: #f8d7da; padding: 15px; border-radius: 8px;">
+            <h4 style="color: #721c24; margin: 0 0 10px 0; font-size: 16px;">Alert(s)</h4>
+            <div>No alert available.</div>
+          </div>`;
+      }
+    }
+
+    html += `</div>`;
+    return html;
   }
 
 

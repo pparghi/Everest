@@ -92,7 +92,15 @@
                                 <p class="switch-debtor-p-button" (click)="onResetSwitchDebtor()">Reset</p>
                             }
                         </div>
-                        <p class="title1 word-wrap">{{debtorDetails?.Debtor}}</p>
+                        @if (debtorAlert.DebtorKey){
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <mat-icon class="icon-hover-effect-warning warning" (click)="onShowDebtorAlertDetails()">warning</mat-icon>
+                                <p class="title1 word-wrap icon-hover-effect-warning warning" (click)="onShowDebtorAlertDetails()">{{debtorDetails?.Debtor}}</p>
+                            </div>
+                        }
+                        @else {
+                            <p class="title1 word-wrap">{{debtorDetails?.Debtor}}</p>
+                        }
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column" style="flex: 1;">

@@ -231,5 +231,10 @@ export class DebtorsApiService {
     return this.http.post<any>(url, body);
   }
 
+  // Call the API to get debtor alerts list
+  getDebtorAlertsList() {
+    const url = `https://everest.revinc.com:4202/api/getDebtorAlertsList`;
+    return this.http.get(url, {responseType: 'json'});
+  }
 
 }

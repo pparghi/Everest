@@ -6,6 +6,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { LoginService } from '../../services/login.service';
+import { CacheService } from '../../services/cache.service';
 import { TicketingService } from '../../services/ticketing.service';
 import { DatePipe } from '@angular/common';
 import { MatTableExporterDirective } from 'mat-table-exporter';
@@ -154,7 +155,7 @@ export class TicketingComponent {
     notiIntervalSeconds = 60; // minimum interval between notifications in seconds
     firstLoad = true; // flag to indicate if it's the first load
 
-    constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService) {         
+    constructor(private dataService: TicketingService,private clientService: ClientsService, private router: Router, private http: HttpClient, private loginService: LoginService, private datePipe: DatePipe, private filterService: FilterService, private cacheService: CacheService,) {         
       const today = new Date();
       const yesterdayDate = new Date(today);
       yesterdayDate.setDate(today.getDate() - 1);
@@ -479,6 +480,8 @@ export class TicketingComponent {
                 console.log('Dialog closed, reloading data');
                 this.loadData();
               });
+              // clear debtor alert list cache
+              this.cacheService.removeByPattern('/api/getDebtorAlertsList');
             });
           }
 
