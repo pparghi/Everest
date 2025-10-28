@@ -1314,12 +1314,25 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     // Update any form fields or other data as needed
     if (this.editTicketForm) {
       // Update ticket form with fresh debtor details
+      // only set RateDate to today's date when debtorDetails?.RateDate is older than today and debtorDetails?.RateDate plus debtorDetails?.CredExpireMos is also older than today
+      const today = new Date(this.getLocalDateYYYYMMDD());
+      const debtorRateDate = debtorDetails?.RateDate ? new Date(debtorDetails.RateDate.split(' ')[0]) : null;
+      let debtorExpiresDate = null;
+      if (debtorDetails?.CredExpireMos && debtorRateDate) {
+        debtorExpiresDate = this.addMonths(parseInt(debtorDetails.CredExpireMos), debtorDetails.RateDate.split(' ')[0]);
+        debtorExpiresDate = new Date(debtorExpiresDate);
+      }
+      let tempDate = debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '';
+      if ((debtorRateDate && debtorExpiresDate && debtorRateDate < today && debtorExpiresDate < today) || (debtorRateDate === null)) {
+        tempDate = this.getLocalDateYYYYMMDD();
+      }
       this.editTicketForm.patchValue({
         // RateDate: debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : '',
-        RateDate: this.getLocalDateYYYYMMDD(), // set RateDate to local today's date
+        // RateDate: this.getLocalDateYYYYMMDD(), // set RateDate to local today's date
+        RateDate: tempDate, // set RateDate to today's date if both RateDate and ExpiresDate are older than today
         ExpiresInMonths: debtorDetails?.CredExpireMos || '1',
         // ExpiresDate: debtorDetails?.CredExpireDate ? this.formateDate(debtorDetails?.CredExpireDate) : this.addMonths(debtorDetails?.CredExpireMos ? parseInt(debtorDetails?.CredExpireMos) : 1, debtorDetails?.RateDate ? debtorDetails.RateDate.split(' ')[0] : ''),
-        ExpiresDate: this.addMonths(debtorDetails?.CredExpireMos ? parseInt(debtorDetails?.CredExpireMos) : 1, this.getLocalDateYYYYMMDD()),
+        ExpiresDate: this.addMonths(debtorDetails?.CredExpireMos ? parseInt(debtorDetails?.CredExpireMos) : 1, tempDate),
       });
     }
     
