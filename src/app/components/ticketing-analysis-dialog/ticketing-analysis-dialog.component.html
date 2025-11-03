@@ -80,8 +80,14 @@
                                                     <span [ngClass]="it.isMaster ? 'master-badge' : 'member-badge'">
                                                         {{it.isMaster ? 'Master' : 'Member'}}
                                                     </span>
-                                                    <p class="text2 word-wrap">Debtor ID: {{it.DebtorKey}}</p>
-                                                    <p class="text2 word-wrap">Total AR: {{formatCurrency(it.TotalAR)}}</p>
+                                                    @if (+it.TotalAR > 0){
+                                                        <p class="text2-hightlight word-wrap">Debtor ID: {{it.DebtorKey}}</p>
+                                                        <p class="text2-hightlight word-wrap">Total AR: {{formatCurrency(it.TotalAR)}}</p>  
+                                                    }
+                                                    @else {
+                                                        <p class="text2 word-wrap">Debtor ID: {{it.DebtorKey}}</p>
+                                                        <p class="text2 word-wrap">Total AR: {{formatCurrency(it.TotalAR)}}</p>
+                                                    }
                                                 </div>
                                             </div>
                                         </button>
@@ -557,8 +563,8 @@
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">Past due balance</p>
-                                <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.PastDue || 'N/A')">
-                                    {{ debtorDetails?.PastDue ? formatCurrency(debtorDetails?.PastDue) : 'N/A' }}
+                                <p class="title1" [ngClass]="textColorByValueAndType((switchedDebtorType==='N/A' ? originalDebtorType : switchedDebtorType === 'Master') ? 'Master Debtor' : debtorDetails?.Debtor)">
+                                    {{ formatCurrency(getTotalPastDueByDebtorName( (switchedDebtorType==='N/A' ? originalDebtorType : switchedDebtorType === 'Master') ? 'Master Debtor' : debtorDetails?.Debtor)) }}
                                 </p>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>

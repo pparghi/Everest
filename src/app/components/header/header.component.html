@@ -2,6 +2,7 @@
     <img src="assets/images/Everest-Logo.png" alt="Logo" class="logo">    
     <span *ngIf="isUserLoggedIn" class="greeting-message">
         <span class="wave-text" *ngFor="let char of (greetingMessage + userName + '!').split(''); let i = index">
+        <!-- <span class="wave-text" *ngFor="let char of (greetingMessage + userName + '! Welcome_to_Sandbox').split(''); let i = index"> -->
             {{char}}
         </span>
     </span>

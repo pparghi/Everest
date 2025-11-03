@@ -438,3 +438,14 @@
 .input-icon-container .save-icon:hover {
   color: #135286;
 }
+
+/* Custom tooltip styling */
+::ng-deep .custom-tooltip .mdc-tooltip__surface {
+  font-size: 12px;
+  min-width: 490px !important;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: left;
+  transform: translate(0, -10px) !important;
+  white-space: pre-line;
+}

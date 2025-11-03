@@ -62,6 +62,7 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // variables for analysis dialog
   @Input() ticketData: any;
+  @Input() agingData: any;
   currentUser: string = '';
   debtorDetails: any;
   trendPeriodChar: string = 'M';
@@ -157,6 +158,8 @@ export class TicketingAnalysisComponent implements OnInit {
   debtorAlertsList: any[] = []; // store all debtor alerts
   debtorAlert:any = {}; // store the matched debtor alert by debtorKey
 
+  debtorsTotalPastDue: {'Debtor': string, 'TotalPastDue': number}[] = [];
+
   constructor(
     // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
     // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
@@ -174,7 +177,9 @@ export class TicketingAnalysisComponent implements OnInit {
   ngOnInit() {
     // Load analysis data
     console.log('ticketing-analysis-component, this.ticketData:', this.ticketData);
+    console.log('ticketing-analysis-component, this.agingData:', this.agingData);
     // this.ticketData = this.data; // removebecause the data is used by dialog
+    this.getDebtorsTotalPastDueBalance();
 
     this.originalDebtorKey = this.ticketData.DebtorKey;
     this.originalDebtorType = this.ticketData.Type;
@@ -199,8 +204,16 @@ export class TicketingAnalysisComponent implements OnInit {
         this.memberDebtorsService.getMemberDebtors(parseInt(this.ticketData.DebtorKey)).subscribe(response => {
           this.debtorDetails = response.data[0];
           let sumBalance = 0;
+          let sumAgingBreakdown = {'Age0to30':0, 'Age31to60':0, 'Age61to90':0, 'Age91to120':0, 'Age121to150':0, 'Age151to180':0, 'AgeOver180':0};
           for (let it of response.data) {
             sumBalance += Number(it.Balance) || 0;
+            sumAgingBreakdown.Age0to30 += Number(it.Age0to30) || 0;
+            sumAgingBreakdown.Age31to60 += Number(it.Age31to60) || 0;
+            sumAgingBreakdown.Age61to90 += Number(it.Age61to90) || 0;
+            sumAgingBreakdown.Age91to120 += Number(it.Age91to120) || 0;
+            sumAgingBreakdown.Age121to150 += Number(it.Age121to150) || 0;
+            sumAgingBreakdown.Age151to180 += Number(it.Age151to180) || 0;
+            sumAgingBreakdown.AgeOver180 += Number(it.AgeOver180) || 0;
             if (it.DebtorKey === this.ticketData.DebtorKey) {
               this.debtorDetails = it; 
               if (this.originalDebtorType === 'Member' && it.MasterDebtorKey !== '0') {
@@ -229,6 +242,13 @@ export class TicketingAnalysisComponent implements OnInit {
           // if the debtor type is Master, set the balance to sum of all member debtors
           if (this.originalDebtorType === 'Master'){
             this.debtorDetails.Balance = '' + sumBalance;
+            this.debtorDetails.Age0to30 = '' + sumAgingBreakdown.Age0to30;
+            this.debtorDetails.Age31to60 = '' + sumAgingBreakdown.Age31to60;
+            this.debtorDetails.Age61to90 = '' + sumAgingBreakdown.Age61to90;
+            this.debtorDetails.Age91to120 = '' + sumAgingBreakdown.Age91to120;
+            this.debtorDetails.Age121to150 = '' + sumAgingBreakdown.Age121to150;
+            this.debtorDetails.Age151to180 = '' + sumAgingBreakdown.Age151to180;
+            this.debtorDetails.AgeOver180 = '' + sumAgingBreakdown.AgeOver180;
             for (let it of this.switchableDebtors) {
               if (it.DebtorKey === this.originalDebtorKey) {
                 it.TotalAR = sumBalance;
@@ -1544,18 +1564,18 @@ export class TicketingAnalysisComponent implements OnInit {
     // search and save alert if debtor is in alert list
     this.debtorAlert = this.debtorAlertsList.find(alert => alert.DebtorKey === selectedDebtorKey) || {};
     // load new debtor details
-    let sumBalance = 0;
+    // let sumBalance = 0; // sumBalance is already calculated when initializing the pageand stored in allRelatedDebtors
     let isMasterflag = false;
     for (let it of this.allRelatedDebtors) {
       if (it.DebtorKey === selectedDebtorKey) {
         this.debtorDetails = it;
         isMasterflag = it.MasterDebtorKey === '0';
       }
-      sumBalance += Number(it.Balance) || 0;
+      // sumBalance += Number(it.Balance) || 0;
     }
     // if it is master debtor, update the balance to sum of all related debtors
     if (isMasterflag) {
-      this.debtorDetails.Balance = '' + sumBalance;
+      // this.debtorDetails.Balance = '' + sumBalance;
       this.switchedDebtorType = 'Master';
     }
     else {
@@ -1596,19 +1616,19 @@ export class TicketingAnalysisComponent implements OnInit {
 
     this.switchedDebtorKey = '';
     this.switchedDebtorType = 'N/A';
-    let sumBalance = 0;
+    // let sumBalance = 0;
     let isMasterflag = false;
     for (let it of this.allRelatedDebtors) {
       if (it.DebtorKey === this.ticketData.DebtorKey) {
         this.debtorDetails = it;
         isMasterflag = it.MasterDebtorKey === '0';
       }
-      sumBalance += Number(it.Balance) || 0;
+      // sumBalance += Number(it.Balance) || 0;
     }
     // if it is master debtor, update the balance to sum of all related debtors
-    if (isMasterflag) {
-      this.debtorDetails.Balance = '' + sumBalance;
-    }
+    // if (isMasterflag) {
+    //   this.debtorDetails.Balance = '' + sumBalance;
+    // }
 
     this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
     console.log('ticketing-analysis-component, Reseted, this.debtorDetails:', this.debtorDetails);
@@ -2278,6 +2298,43 @@ export class TicketingAnalysisComponent implements OnInit {
 
     html += `</div>`;
     return html;
+  }
+
+  // method to filter and calculate aging data, to get debtors total past due balance
+  getDebtorsTotalPastDueBalance(): void {
+    const tempDebtorsTotalPastDue: {'Debtor': string, 'TotalPastDue': number}[] = [];
+    const netTerms = parseInt(this.debtorDetails?.NetTerms || '30');
+    let masterPastDue = 0;
+    for (let it of this.agingData) {
+      if (it.Status === 'Open' && parseInt(it.Age) > netTerms) {
+        masterPastDue += parseFloat(it.Balance);
+        const existing = tempDebtorsTotalPastDue.find(d => d.Debtor === it.DtrName);
+        if (existing) {
+          existing.TotalPastDue += parseFloat(it.Balance);
+        } else {
+          tempDebtorsTotalPastDue.push({ Debtor: it.DtrName, TotalPastDue: parseFloat(it.Balance) });
+        }
+      }
+    }
+    tempDebtorsTotalPastDue.push({ Debtor: 'Master Debtor', TotalPastDue: masterPastDue });
+    this.debtorsTotalPastDue = tempDebtorsTotalPastDue;
+    // console.log('tempDebtorsTotalPastDue--', tempDebtorsTotalPastDue);
+  }
+
+  // helper method to return debtor's total past due balance by debtor name
+  getTotalPastDueByDebtorName(debtorName: string): string {
+    if (this.debtorsTotalPastDue.length === 0) {
+      return '0.00';
+    }
+    else {
+      const debtorData = this.debtorsTotalPastDue.find(d => d.Debtor === debtorName);
+      if (debtorData) {
+        return '' + debtorData.TotalPastDue;
+      }
+      else {
+        return '0.00';
+      }
+    }
   }
 
 

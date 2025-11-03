@@ -21,6 +21,7 @@ import { DecimalPipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
 import { MatSort, MatSortModule } from '@angular/material/sort';
+import { ClientsService } from '../../services/clients.service';
 
 const UTIF = require('utif');
 
@@ -143,6 +144,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   AgingTabSelectedDebtor: string = '';
   AgingTabDebtorList: string[] = [];
   originalStatementsData: any[] = [];
+  isAgingDataLoaded: boolean = false;
   // charts
   chart: any;
   @ViewChild('trendBarChart') chartCanvas!: ElementRef;
@@ -166,7 +168,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   defaultRateDate: string = '';
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService, private _decimalPipe: DecimalPipe, private cdr: ChangeDetectorRef) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private clientsService: ClientsService, private clientService: ClientsDebtorsService, private clientInvoiceService: ClientsInvoicesService, private loginService: LoginService, private dataService: DebtorsApiService, private dialogRef: MatDialogRef<DocumentDialogComponent>, @Inject(MAT_DIALOG_DATA) public data: any, private addressService: AddressService, private documentsReportsService: DocumentsReportsService, private ticketingService: TicketingService, private _decimalPipe: DecimalPipe, private cdr: ChangeDetectorRef) {
     if (data.openChequeSearchForm) {
       this.chequeSearchForm = this.fb.group({
         CheckNo: [''],
@@ -312,6 +314,9 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         }
         this.totalBalance = this.formatCurrency(tempTotal);
         this.updateTotalShown(); // update totalShown and totalQuantityShown
+
+        this.isAgingDataLoaded = true;
+        this.cdr.markForCheck();
       });
 
       // endregion
@@ -344,8 +349,30 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         this.auditDataSource.data = response.debtorAudit;
       });
     } else if (data.debtorStatements) {
+      this.clientsService.getClients(data.DebtorKey).subscribe(response => {
+        this.agingRelatedClientList = response.data;
+        this.cdr.markForCheck();
+      });
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
         this.statementsDataSource.data = response.debtorStatementsDetails;
+
+        // Store original data
+        this.originalStatementsData = response.debtorStatementsDetails;
+        // Set data source
+        this.statementsDataSource.data = response.debtorStatementsDetails;
+        // Extract unique debtor names for filter dropdown
+        this.extractUniqueDebtors(response.debtorStatementsDetails);
+        // Extract unique status values for filter dropdown
+        this.extractUniqueStatuses(response.debtorStatementsDetails);
+        // calculate default total numbers
+        let tempTotal = 0;
+        for (let myBalance of response.debtorStatementsDetails) {
+          tempTotal += Number(myBalance.Balance);
+        }
+        this.totalBalance = this.formatCurrency(tempTotal);
+        this.updateTotalShown(); // update totalShown and totalQuantityShown
+
+        this.cdr.markForCheck();
       });
     } else if (data.chequeSearch) {
 
@@ -1296,7 +1323,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     // don't update the form if the user cancels the update nor if the form is invalid
     else {
       this.editTicketForm.patchValue({
-        RateDate: this.getLocalDateYYYYMMDD(),
+        RateDate: this.defaultRateDate,
       });
       this.saveRateDateBeforeClose = true;
       this.cdr.markForCheck();
@@ -1394,7 +1421,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     // Calculate total from filtered data
     let filteredTotal = 0;
     for (let item of this.statementsDataSource.data) {
-      if (item.Status === 'Pending'){
+      if (item.Status === 'Pending' || item.Status === 'Held') {
         filteredTotal += Number(item.Amt) || 0;
       }
       else {

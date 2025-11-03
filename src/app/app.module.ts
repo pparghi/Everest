@@ -126,6 +126,7 @@ import { AgingDocumentsDialogComponent } from './components/aging-documents-dial
     MsalModule.forRoot(new PublicClientApplication({
         auth: {
             clientId: '6abad1c1-70c7-4eaf-a4ee-3c4827ed050f',
+            // redirectUri: window.location.origin, // Dynamic - uses current domain
             redirectUri: 'https://everest.revinc.com',
             authority: 'https://login.microsoftonline.com/1dfa1c9f-1ea3-4b25-a811-115259596ebb'
         },

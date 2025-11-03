@@ -287,6 +287,12 @@
     color: #7f8c8d;
     margin-bottom: 2px;
 }
+.text2-hightlight {
+    font-size: 12px;
+    font-weight: 900;
+    color: #34495e;
+    margin-bottom: 2px;
+}
 
 .text3 {
     font-size: 10px;
