@@ -3,6 +3,7 @@ import { HttpEvent, HttpEventType, HttpHandler, HttpInterceptor, HttpRequest } f
 import { Observable, of } from "rxjs";
 import { tap } from 'rxjs/operators';
 import { CacheService } from "../services/cache.service";
+import { AppConfig } from "../config/app.config";
 
 @Injectable()
 
@@ -11,10 +12,16 @@ export class CacheInterceptor implements HttpInterceptor {
     constructor(private cacheService: CacheService) { }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        // if the url contains :4202 (produnction backend proxy), change it to :4203 (development backend proxy), following caching rules will keep same
-        // if (req.url.includes(':4202')) {
-        //     req = req.clone({ url: req.url.replace(':4202', ':4302') });
-        // }
+        // depending on sandbox mode setting to call API url with :4202 (production backend proxy) or :4302 (development backend proxy)
+        const userId = localStorage.getItem('userId') || '';
+        const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+        
+        // Check if user is a test user and has sandbox mode enabled
+        const isSandboxEnabled = AppConfig.testUserIds.includes(userId) && settings.SandboxModeSwitch === true;
+        
+        if (isSandboxEnabled && req.url.includes(':4202')) {
+            req = req.clone({ url: req.url.replace(':4202', ':4302') });
+        }
 
         if (req.method != 'GET') {
             return next.handle(req)

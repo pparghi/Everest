@@ -4,6 +4,7 @@ import { DocumentsReportsService } from '../../services/documents-reports.servic
 import { MatTableDataSource } from '@angular/material/table';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpEventType } from '@angular/common/http';
+import { AppConfig } from '../../config/app.config';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -27,6 +28,7 @@ export interface FileUploadItem {
 })
 export class AgingDocumentsDialogComponent implements OnInit {
   userID: string = '';
+  isSandboxMode: boolean = false;
 
   //#region View Documents Var
   agingDocumentListSource = new MatTableDataSource<any>([]);
@@ -65,6 +67,9 @@ export class AgingDocumentsDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Check if sandbox mode is enabled
+    this.checkSandboxMode();
+    
     // Initialize component data here
     this.isLoading = true;
     console.log('AgingDocumentsDialogComponent initialized with data:', this.data);
@@ -360,6 +365,15 @@ export class AgingDocumentsDialogComponent implements OnInit {
   }
 
   //#endregion
+
+  // Check if sandbox mode is enabled for the current user
+  private checkSandboxMode(): void {
+    const userId = localStorage.getItem('userId') || '';
+    const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+    
+    // Check if user is a test user and has sandbox mode enabled
+    this.isSandboxMode = AppConfig.testUserIds.includes(userId) && settings.SandboxModeSwitch === true;
+  }
 
 
 }

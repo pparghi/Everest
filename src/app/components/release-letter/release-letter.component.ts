@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { map, startWith, tap } from 'rxjs/operators';
+import { AppConfig } from '../../config/app.config';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 export interface ClientInterface {
@@ -55,6 +56,7 @@ export class ReleaseLetterComponent implements OnInit {
   showEmailOneButton: boolean = false; // show email all button when all debtors are selected
   isEmailButtonEnabled: boolean = true; // disable email all button when waiting for response
   isEmailOneButtonEnabled: boolean = true; // disable email one button when waiting for response
+  isSandboxMode: boolean = false;
 
   // user profile
   userExt: string = '';
@@ -74,11 +76,23 @@ export class ReleaseLetterComponent implements OnInit {
     }
   }
 
+  // Check if sandbox mode is enabled for the current user
+  private checkSandboxMode(): void {
+    const userId = localStorage.getItem('userId') || '';
+    const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+    
+    // Check if user is a test user and has sandbox mode enabled
+    this.isSandboxMode = AppConfig.testUserIds.includes(userId) && settings.SandboxModeSwitch === true;
+  }
+
   // constructor
   constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService) { }
 
   // #region onInit
   ngOnInit(): void {
+    // Check if sandbox mode is enabled
+    this.checkSandboxMode();
+    
     this.http.get(GRAPH_ENDPOINT)
     .subscribe(profile => {
       this.userExt = (profile as any).businessPhones[0].replace("e", "E").replace("=", ". ");

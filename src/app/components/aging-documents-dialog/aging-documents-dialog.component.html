@@ -188,10 +188,18 @@
 <div mat-dialog-actions align="end">
     <button mat-button [disabled]="isUploading" (click)="onClose()">Cancel</button>
     <button mat-raised-button color="primary"
-        [disabled]="isUploading || uploadedFiles.length === 0 || !areAllFilesValid()"
+        [disabled]="isUploading || uploadedFiles.length === 0 || !areAllFilesValid() || isSandboxMode"
         (click)="onSubmit()">
         <mat-icon>cloud_upload</mat-icon> Upload
     </button>
 </div>
+
+<!-- Sandbox mode warning for upload mode -->
+@if (isSandboxMode && data.mode === 'upload') {
+    <div class="sandbox-warning" style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+        <mat-icon style="vertical-align: middle; margin-right: 5px;">warning</mat-icon>
+        <span>Sandbox mode is enabled. Document upload functionality is disabled to prevent uploading test files to the production server.</span>
+    </div>
+}
 
 }

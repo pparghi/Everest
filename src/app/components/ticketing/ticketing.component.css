@@ -12,6 +12,13 @@
   position: relative;
 }
 
+/* Sticky header row */
+.mat-mdc-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
 .example-container {
   height: 820px;
   background-color: #ffffff;

@@ -50,6 +50,24 @@
         </mat-card-content>
       </mat-card>
 
+      <!-- Sandbox Settings Section (Only for test users) -->
+      <mat-card class="settings-section" appearance="outlined" *ngIf="isTestUser">
+        <mat-card-header>
+          <mat-card-title>Sandbox Settings</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          
+          <!-- Sandbox Mode Toggle -->
+          <div class="form-row">
+            <mat-slide-toggle formControlName="SandboxModeSwitch">
+              Enable Sandbox Mode
+            </mat-slide-toggle>
+            <mat-hint>When enabled, API calls will use test data</mat-hint>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
     </form>
   </div>
 

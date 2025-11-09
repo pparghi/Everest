@@ -295,17 +295,26 @@
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">DSO All</p>
-                                <p class="title1">{{ math.round(debtorDetails?.DSOAll) }}</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p class="title1">{{ math.round(debtorDetails?.DSOAll) }}</p>
+                                    <p class="text3">{{debtorDetails?.InvCountAll}} Invoices</p>
+                                </div>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">DSO90</p>
-                                <p class="title1">{{ math.round(debtorDetails?.DSO90) }}</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p class="title1">{{ math.round(debtorDetails?.DSO90) }}</p>
+                                    <p class="text3">{{debtorDetails?.InvCount90}} Invoices</p>
+                                </div>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">
                                 <p class="text2">DSO60</p>
-                                <p class="title1">{{ math.round(debtorDetails?.DSO60) }}</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p class="title1">{{ math.round(debtorDetails?.DSO60) }}</p>
+                                    <p class="text3">{{debtorDetails?.InvCount60}} Invoices</p>
+                                </div>
                             </div>
                             <mat-divider vertical class="vertical-divider"></mat-divider>
                             <div class="flex-column">

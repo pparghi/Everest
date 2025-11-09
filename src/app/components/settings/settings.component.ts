@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AppConfig } from '../../config/app.config';
 
 export interface SettingsData {
   // Define the data structure that can be passed to this dialog
@@ -16,6 +17,7 @@ export interface SettingsData {
 export class SettingsComponent implements OnInit {
   settingsForm!: FormGroup;
   isLoading = false;
+  isTestUser = false;
 
   constructor(
     private dialogRef: MatDialogRef<SettingsComponent>,
@@ -24,15 +26,28 @@ export class SettingsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.checkIfTestUser();
     this.initializeForm();
     this.loadCurrentSettings();
   }
 
+  private checkIfTestUser(): void {
+    const userId = localStorage.getItem('userId') || '';
+    this.isTestUser = AppConfig.testUserIds.includes(userId);
+  }
+
   private initializeForm(): void {
-    this.settingsForm = this.formBuilder.group({
+    const formConfig: any = {
       CreditRequestNotificationSwitch: [false],
       CreditRequestNotificationIntervalMinutes: [10, [Validators.required, Validators.min(0), Validators.max(300)]],
-    });
+    };
+
+    // Add sandbox setting only for test users
+    if (this.isTestUser) {
+      formConfig.SandboxModeSwitch = [false];
+    }
+
+    this.settingsForm = this.formBuilder.group(formConfig);
   }
 
   private loadCurrentSettings(): void {
@@ -76,10 +91,17 @@ export class SettingsComponent implements OnInit {
   onReset(): void {
     this.settingsForm.reset();
     // set default values after reset
-    this.settingsForm.patchValue({
+    const defaultValues: any = {
       CreditRequestNotificationSwitch: false,
       CreditRequestNotificationIntervalMinutes: 10
-    });
+    };
+
+    // Add sandbox default only for test users
+    if (this.isTestUser) {
+      defaultValues.SandboxModeSwitch = false;
+    }
+
+    this.settingsForm.patchValue(defaultValues);
   }
 
   getErrorMessage(controlName: string): string {

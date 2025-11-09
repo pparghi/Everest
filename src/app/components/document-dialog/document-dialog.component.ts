@@ -22,6 +22,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { ClientsService } from '../../services/clients.service';
+import { AppConfig } from '../../config/app.config';
 
 const UTIF = require('utif');
 
@@ -110,6 +111,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   Payment120: any;
   isChequeSearchLoading: boolean = true;
   isChequeSearchEmpty: boolean = false;
+  isSandboxMode: boolean = false;
   currentMonth!: string;
   lastThreeMonths: string[] = [];
   lastThreeMonths30!: string;
@@ -469,6 +471,9 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngOnInit(): void {
+    // Check if sandbox mode is enabled
+    this.checkSandboxMode();
+    
     const now = new Date();
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"];
@@ -2006,6 +2011,11 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       this.editTicketForm.patchValue({
         ApproveAmt: this.formatCurrency(this.parseCurrencyValue(this.editTicketForm.value.RequestAmt) + this.parseCurrencyValue(this.editTicketForm.value.MasterTotalCreditLimit))
       });
+    } else if (selectedAction === '2') { // when selected Declined
+      // Set New total credit limit to equal the current Total limit
+      this.editTicketForm.patchValue({
+        ApproveAmt: this.editTicketForm.value.TotalCreditLimit
+      });
     }
   }
   // Add this method to parse formatted currency strings back to numbers
@@ -2271,6 +2281,15 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       
       this.cdr.markForCheck(); // Trigger change detection
     });
+  }
+
+  // Check if sandbox mode is enabled for the current user
+  private checkSandboxMode(): void {
+    const userId = localStorage.getItem('userId') || '';
+    const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+    
+    // Check if user is a test user and has sandbox mode enabled
+    this.isSandboxMode = AppConfig.testUserIds.includes(userId) && settings.SandboxModeSwitch === true;
   }
 
 

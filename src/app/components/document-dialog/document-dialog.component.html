@@ -31,8 +31,15 @@
       <button mat-button mat-dialog-close>Cancel</button>
       <button mat-button [mat-dialog-close]="true"
         *ngIf="data.userAccessLevel === 'Full'"
+        [disabled]="isSandboxMode"
         (click)="onSubmit()" cdkFocusInitial>Upload</button>
     </mat-dialog-actions>
+    
+    <!-- Sandbox mode warning -->
+    <div *ngIf="isSandboxMode && data.userAccessLevel === 'Full'" class="sandbox-warning" style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+      <mat-icon style="vertical-align: middle; margin-right: 5px;">warning</mat-icon>
+      <span>Sandbox mode is enabled. Document upload functionality is disabled to prevent uploading test files to the production server.</span>
+    </div>
   </div>
 </div>
 
@@ -313,8 +320,16 @@
   <div class="dialog-footer">
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-button [mat-dialog-close]="true" (click)="onSubmit()" cdkFocusInitial>Update</button>
+      <button mat-button [mat-dialog-close]="true" 
+        [disabled]="isSandboxMode"
+        (click)="onSubmit()" cdkFocusInitial>Update</button>
     </mat-dialog-actions>
+    
+    <!-- Sandbox mode warning for NOA section -->
+    <div *ngIf="isSandboxMode" class="sandbox-warning" style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+      <mat-icon style="vertical-align: middle; margin-right: 5px;">warning</mat-icon>
+      <span>Sandbox mode is enabled. Document upload functionality is disabled to prevent uploading test files to the production server.</span>
+    </div>
   </div>
 </div>
 

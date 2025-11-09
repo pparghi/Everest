@@ -75,8 +75,24 @@
     <br>
     <div class="buttons-in-row">
         <button mat-flat-button color="primary" type="submit" value="createSingleReleaseLetter" >Save Single Release Letter</button>
-        <button *ngIf="showEmailOneButton && userAccessLevel() === 'Full'" mat-flat-button color="secondary" type="submit" value="emailReleaseLetterToSingleDebtor" [disabled]="!isEmailOneButtonEnabled">Email Release Letters to Single Debtor</button>
-        <button *ngIf="showEmailAllButton && userAccessLevel() === 'Full'" mat-flat-button color="secondary" type="submit" value="emailReleaseLettersToDebtors" [disabled]="!isEmailButtonEnabled">Email Release Letters to Debtors</button>
+        <button *ngIf="showEmailOneButton && userAccessLevel() === 'Full'" 
+                mat-flat-button color="secondary" type="submit" value="emailReleaseLetterToSingleDebtor" 
+                [disabled]="!isEmailOneButtonEnabled || isSandboxMode">
+                Email Release Letters to Single Debtor
+        </button>
+        <button *ngIf="showEmailAllButton && userAccessLevel() === 'Full'" 
+                mat-flat-button color="secondary" type="submit" value="emailReleaseLettersToDebtors" 
+                [disabled]="!isEmailButtonEnabled || isSandboxMode">
+                Email Release Letters to Debtors
+        </button>
     </div>
+
+    <!-- Sandbox mode warning -->
+    @if (isSandboxMode && userAccessLevel() === 'Full' && (showEmailOneButton || showEmailAllButton)) {
+        <div class="sandbox-warning" style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+            <mat-icon style="vertical-align: middle; margin-right: 5px;">warning</mat-icon>
+            <span>Sandbox mode is enabled. Email functionality is disabled to prevent sending test emails to real clients.</span>
+        </div>
+    }
 
 </form>

@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { SettingsComponent } from '../settings/settings.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SuccessSnackbarComponent, ErrorSnackbarComponent, WarningSnackbarComponent } from '../custom-snackbars/custom-snackbars';
+import { AppConfig } from '../../config/app.config';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -51,6 +52,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private _snackBar = inject(MatSnackBar); // used for snackbar notifications
 
+  // show sandbox title for test users
+  addToGreetingMessage: string = '';
+
   constructor(@Inject(MSAL_GUARD_CONFIG) 
     private msalGuardConfig: MsalGuardConfiguration, 
     private msalBroadcast: MsalBroadcastService,
@@ -78,10 +82,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // check if settings are initialed and stored in localsession, initialize if not
     if (!localStorage.getItem('settings')) {
-      const settings = {
+      const userId = localStorage.getItem('userId') || '';
+      const settings: any = {
         "CreditRequestNotificationSwitch": false,
         "CreditRequestNotificationIntervalMinutes": 10
       };
+      
+      // Add sandbox setting only for test users
+      if (AppConfig.testUserIds.includes(userId)) {
+        settings.SandboxModeSwitch = false;
+      }
+      
       localStorage.setItem('settings', JSON.stringify(settings));
     }
 
@@ -92,6 +103,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       localStorage.setItem('userId', (profile as any).mail.match(/^([^@]*)@/)[1].toUpperCase());
+      
+      // append "Welcome to Sandbox" for test users with sandbox mode enabled
+      const userId = localStorage.getItem('userId') || '';
+      const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+      const isSandboxEnabled = AppConfig.testUserIds.includes(userId) && settings.SandboxModeSwitch === true;
+      
+      if (isSandboxEnabled) {
+        this.addToGreetingMessage += ' Welcome to Sandbox';
+      }
+
       this.profile = profile;     
       this.userName = this.profile.displayName.split(' ')[0]; // Get the first name from the display name
       this.dataService.getData(this.profile.mail).subscribe(response => {
@@ -219,13 +240,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   openSettingsDialog(): void {
     // Get current settings from localStorage
     const currentSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+    const userId = localStorage.getItem('userId') || '';
+    
+    const dialogSettings: any = {
+      CreditRequestNotificationSwitch: currentSettings.CreditRequestNotificationSwitch || false,
+      CreditRequestNotificationIntervalMinutes: currentSettings.CreditRequestNotificationIntervalMinutes || 10
+    };
+
+    // Add sandbox setting only for test users
+    if (AppConfig.testUserIds.includes(userId)) {
+      dialogSettings.SandboxModeSwitch = currentSettings.SandboxModeSwitch || false;
+    }
     
     const dialogData = {
       title: 'Everest Settings',
-      currentSettings: {
-        CreditRequestNotificationSwitch: currentSettings.CreditRequestNotificationSwitch || false,
-        CreditRequestNotificationIntervalMinutes: currentSettings.CreditRequestNotificationIntervalMinutes || 10
-      }
+      currentSettings: dialogSettings
     };
 
     const dialogRef = this.dialog.open(SettingsComponent, {

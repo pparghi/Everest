@@ -191,8 +191,8 @@ export class TicketingAnalysisComponent implements OnInit {
       this.debtorAlertsList = response.data;
       this.debtorAlert = this.debtorAlertsList.find(alert => alert.DebtorKey === this.ticketData.DebtorKey) || {};
       // this.debtorAlert = this.debtorAlertsList.find(alert => alert.DebtorKey === '64663') || {}; // for testing
-      console.log('Alert list: ', this.debtorAlertsList);
-      console.log('matched debtor alert: ', this.debtorAlert);
+      // console.log('Alert list: ', this.debtorAlertsList);
+      // console.log('matched debtor alert: ', this.debtorAlert);
     });
 
     // Get the logged in user for CredAppBy
@@ -535,8 +535,8 @@ export class TicketingAnalysisComponent implements OnInit {
     else {
       this.ticketingTrendDataVertical2 = tempData;
       this.displayedColumnsVertical2 = tempColumn;
-      console.log('ticketingTrendDataVertical2--', this.ticketingTrendDataVertical2);
-      console.log('displayedColumnsVertical2--', this.displayedColumnsVertical2);
+      // console.log('ticketingTrendDataVertical2--', this.ticketingTrendDataVertical2);
+      // console.log('displayedColumnsVertical2--', this.displayedColumnsVertical2);
     }
     // console.log('ticketingTrendDataVertical--', this.ticketingTrendDataVertical);
   }

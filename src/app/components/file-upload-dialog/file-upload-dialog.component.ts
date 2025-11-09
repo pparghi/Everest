@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
+import { AppConfig } from '../../config/app.config';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -60,6 +61,7 @@ export class FileUploadDialogComponent implements OnInit {
   selectedClient: clientListElement | null = null;  
 
   userID: string = '';
+  isSandboxMode: boolean = false;
   
   // Stepper properties
   currentStep = 0;
@@ -80,8 +82,20 @@ export class FileUploadDialogComponent implements OnInit {
     // Initialize the upload form - keeping it for structure, but not using for form controls
     this.uploadForm = this.fb.group({});
   }
+
+  // Check if sandbox mode is enabled for the current user
+  private checkSandboxMode(): void {
+    const userId = localStorage.getItem('userId') || '';
+    const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+    
+    // Check if user is a test user and has sandbox mode enabled
+    this.isSandboxMode = AppConfig.testUserIds.includes(userId) && settings.SandboxModeSwitch === true;
+  }
   //region OnInit
   ngOnInit(): void {
+    // Check if sandbox mode is enabled
+    this.checkSandboxMode();
+    
     this.getMemberMasterClientList();
     
     // if client name is not empty, search client list

@@ -45,8 +45,20 @@
     <div class="buttons-in-row">
         <button mat-flat-button color="primary" type="submit" value="createIndividualPDF">Create Individual NOA PDF</button>
         @if (userAccessLevel() === 'Full'){
-            <button mat-flat-button color="secondary" type="submit" value="emailAllDebtors" [disabled]="!isEmailButtonEnabled">Email NOA To Selected Debtor(s)</button>
+            <button mat-flat-button color="secondary" type="submit" value="emailAllDebtors"
+                    [disabled]="!isEmailButtonEnabled || isSandboxMode"
+                    matTooltipPosition="above">
+                Email NOA To Selected Debtor(s)
+            </button>
         }
     </div>
+    
+    <!-- Sandbox mode warning -->
+    @if (isSandboxMode && userAccessLevel() === 'Full') {
+        <div class="sandbox-warning" style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+            <mat-icon style="vertical-align: middle; margin-right: 5px;">warning</mat-icon>
+            <span>Sandbox mode is enabled. Email functionality is disabled to prevent sending test emails to real clients.</span>
+        </div>
+    }
     
 </form>

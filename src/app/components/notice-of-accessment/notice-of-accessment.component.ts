@@ -7,6 +7,7 @@ import {map, startWith, tap} from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { RiskMonitoringService } from '../../services/risk-monitoring.service';
+import { AppConfig } from '../../config/app.config';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
 export interface ClientInterface {
@@ -43,6 +44,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
   errorTypeDebtor: string = 'required';
   // Parameter to control button state
   isEmailButtonEnabled: boolean = true; 
+  isSandboxMode: boolean = false;
 
   // user profile
   userID: string = '';
@@ -65,10 +67,22 @@ export class NoticeOfAccessmentComponent implements OnInit {
     }
   }
 
+  // Check if sandbox mode is enabled for the current user
+  private checkSandboxMode(): void {
+    const userId = localStorage.getItem('userId') || '';
+    const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+    
+    // Check if user is a test user and has sandbox mode enabled
+    this.isSandboxMode = AppConfig.testUserIds.includes(userId) && settings.SandboxModeSwitch === true;
+  }
+
   // constructor
   constructor(private http: HttpClient, private documentsReportsService: DocumentsReportsService, private addNoteService: RiskMonitoringService) {}
 
   ngOnInit(): void {
+    // Check if sandbox mode is enabled
+    this.checkSandboxMode();
+    
     this.http.get(GRAPH_ENDPOINT)
     .subscribe(profile => {
       console.log('User profile:', profile);
