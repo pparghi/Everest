@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChanges, ViewChild, inject, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 // import { DataTableDirective, DataTablesModule } from 'angular-datatables'; this dependency is not in use and cause conflict issue
 import { Subject } from 'rxjs';
@@ -50,7 +50,7 @@ interface DataItem {
   templateUrl: './members.component.html',
   styleUrl: './members.component.css'
 })
-export class MembersComponent implements OnInit {
+export class MembersComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['expand', 'Debtor', 'Balance', '%Utilized', 'PastDue%', 'DSO', 'TotalCreditLimit', 'IndivCreditLimit', 'AIGLimit', 'Terms', 'CalcRateCode', 'Edit', 'extra'];
   isLoading = true;
   dataSource = new MatTableDataSource<any>([]);
@@ -103,7 +103,41 @@ export class MembersComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit() {
+    // Connect the sort and paginator to the dataSource
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    
+    // Custom sort accessor to handle data property mapping
+    this.dataSource.sortingDataAccessor = (data, sortHeaderId) => {
+      switch (sortHeaderId) {
+        case 'Balance': return Number(data.Balance) || 0;
+        case '%Utilized': return Number(data.PctUtilized) || 0;
+        case 'PastDue%': return Number(data.PastDuePct) || 0;
+        case 'DSO': return Number(data.DSOAll) || 0;
+        case 'TotalCreditLimit': return Number(data.TotalCreditLimit) || 0;
+        case 'IndivCreditLimit': return Number(data.IndivCreditLimit) || 0;
+        case 'AIGLimit': return Number(data.AIGLimit) || 0;
+        case 'Terms': return Number(data.Terms) || 0;
+        case 'CalcRateCode': return data.CalcRateCode || '';
+        case 'Debtor': return data.Debtor || '';
+        default: return data[sortHeaderId] || '';
+      }
+    };
+    
+    // Custom filter predicate for better search functionality
+    this.dataSource.filterPredicate = (data, filter: string) => {
+      const searchTerm = filter.toLowerCase();
+      return (data.Debtor?.toLowerCase().includes(searchTerm) || false) ||
+             (data.CalcRateCode?.toLowerCase().includes(searchTerm) || false) ||
+             (data.Terms?.toString().toLowerCase().includes(searchTerm) || false) ||
+             (data.Balance?.toString().includes(searchTerm) || false) ||
+             (data.TotalCreditLimit?.toString().includes(searchTerm) || false);
+    };
+  }
+
   loadMemberDebtorDetails(DebtorKey: number): void {
+    this.isLoading = true;
     this.http.get(GRAPH_ENDPOINT).subscribe(profile => {
       this.profile = profile;
       this.loginService.getData(this.profile.mail).subscribe(response => {
@@ -141,7 +175,22 @@ export class MembersComponent implements OnInit {
         console.error('error--', error);
       });
       this.dataService.getMemberDebtors(DebtorKey).subscribe(response => {
-        this.dataSource.data = response.data;
+        this.dataSource.data = response.data || [];
+        this.totalRecords = response.data?.length || 0;
+        
+        // Ensure sorting and pagination are properly initialized
+        if (this.sort) {
+          this.dataSource.sort = this.sort;
+        }
+        if (this.paginator) {
+          this.dataSource.paginator = this.paginator;
+        }
+        this.isLoading = false;
+      }, error => {
+        console.error('Error loading member debtor details:', error);
+        this.isLoading = false;
+        this.dataSource.data = [];
+        this.totalRecords = 0;
       });
     })
   }
@@ -191,9 +240,11 @@ export class MembersComponent implements OnInit {
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.filter = filterValue.trim().toLowerCase();
-    this.paginator.pageIndex = 0;
-    this.loadMemberDebtorDetails(this.DebtorKey);
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+    
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   get totalPages(): number {
