@@ -43,6 +43,43 @@
   </div>
 </div>
 
+<!-- Relationship Details Dialog -->
+<div *ngIf="data.relationshipDetails">
+  <div class="dialog-header">
+    <h3 mat-dialog-title>Relationship Details</h3>
+  </div>
+  <div class="dialog-content">
+    <mat-dialog-content class="mat-typography">
+      <div class="additional-details-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 16px;">
+        <div class="detail-item">
+          <label class="detail-label"><strong>Exp In Months:</strong></label>
+          <p class="detail-value">{{ data.relationshipDetails.expInMonths || 'TBD' }}</p>
+        </div>
+        
+        <div class="detail-item">
+          <label class="detail-label"><strong>Research Date:</strong></label>
+          <p class="detail-value">{{ data.relationshipDetails.researchDate || 'TBD' }}</p>
+        </div>
+        
+        <div class="detail-item">
+          <label class="detail-label"><strong>Credit Override:</strong></label>
+          <p class="detail-value">{{ data.relationshipDetails.creditOverride || 'TBD' }}</p>
+        </div>
+        
+        <div class="detail-item">
+          <label class="detail-label"><strong>Relationship No Buy:</strong></label>
+          <p class="detail-value">{{ data.relationshipDetails.relationshipNoBuy || 'TBD' }}</p>
+        </div>
+      </div>
+    </mat-dialog-content>
+  </div>
+  <div class="dialog-footer">
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+  </div>
+</div>
+
 <script src="assets/js/tiff.min.js"></script>
 <div *ngIf="data.DebtorContactsData">
   <div class="dialog-header">
@@ -64,7 +101,7 @@
 
         <ng-container matColumnDef="contact_no">
           <th mat-header-cell *matHeaderCellDef>Contact No</th>
-          <td mat-cell *matCellDef="let element"><a href="tel:{{ element.Phone }}">{{ element.Phone }}</a></td>
+          <td mat-cell *matCellDef="let element"><a href="tel:{{ element.Phone }}">{{ element.Phone  | phoneFormat }}</a></td>
         </ng-container>
 
         <tr mat-header-row class="mat-header-row" *matHeaderRowDef="contactColumns"></tr>

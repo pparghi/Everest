@@ -449,3 +449,30 @@
   transform: translate(0, -10px) !important;
   white-space: pre-line;
 }
+
+/* Relationship Details Dialog Styles */
+.additional-details-grid {
+  padding: 16px;
+}
+
+.detail-item {
+  margin-bottom: 16px;
+}
+
+.detail-label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.detail-value {
+  margin: 0;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #495057;
+}

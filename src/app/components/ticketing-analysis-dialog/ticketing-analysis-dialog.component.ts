@@ -1285,6 +1285,28 @@ export class TicketingAnalysisComponent implements OnInit {
     });
   }
 
+  // method to open relationship details dialog
+  openAdditionalDetailsDialog() {
+    const dialogRef = this.dialog.open(DocumentDialogComponent, {
+      width: '600px',
+      maxWidth: 'none',
+      height: 'auto',
+      panelClass: 'custom-dialog-container',
+      data: {
+        relationshipDetails: {
+          expInMonths: 'TBD', // You can replace these with actual data properties
+          researchDate: 'TBD',
+          creditOverride: 'TBD',
+          relationshipNoBuy: 'TBD'
+        }
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Handle dialog closed if needed
+    });
+  }
+
   // method to open aging documents dialog
   openAgingDocumentsDialog(passMode: string) {
     if (this.loadingCurrentDebtorRelationship){

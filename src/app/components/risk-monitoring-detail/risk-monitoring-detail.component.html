@@ -50,9 +50,9 @@
                         <!-- 4-column row for phones -->
                         <div style="display: grid; grid-template-columns: 110px 1fr 110px 1fr; gap: 10px;">
                             <div><b>Phone1</b></div>
-                            <div>{{ client.Phone1 }}</div>
+                            <div>{{ client.Phone1  | phoneFormat }}</div>
                             <div><b>Phone2</b></div>
-                            <div>{{ client.Phone2 }}</div>
+                            <div>{{ client.Phone2  | phoneFormat }}</div>
                         </div>
                         
                         <!-- Continue with 2-column rows -->
@@ -247,7 +247,7 @@
                                 </tr>
                                 <tr *ngFor="let contact of contacts">
                                     <td>{{ contact.LastName }} {{ contact.FirstName }} </td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Phone }} </td>
+                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Phone  | phoneFormat }} </td>
                                     <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ contact.Email }} </td>
                                 </tr>
                             </table>

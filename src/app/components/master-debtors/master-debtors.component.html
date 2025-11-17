@@ -318,8 +318,8 @@
                             </tr>                                
                             <tr> 
                                 <td>{{ element.Email }}</td>                                  
-                                <td><a href="tel:{{ element.Phone1 }}"> {{ element.Phone1 }}</a></td>                                    
-                                <td><a href="tel:{{ element.Phone2 }}">{{ element.Phone2 }}</a></td>                                    
+                                <td><a href="tel:{{ element.Phone1 }}">{{ element.Phone1 | phoneFormat }}</a></td>                                    
+                                <td><a href="tel:{{ element.Phone2 }}">{{ element.Phone2 | phoneFormat }}</a></td>                                    
                                 <td class="cell" 
                                     [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
                                     (click)="openDocumentsDialog(element.DebtorKey)">

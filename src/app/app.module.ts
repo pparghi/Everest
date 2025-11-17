@@ -58,6 +58,7 @@ import { MatTableExporterModule } from 'mat-table-exporter';
 import { NegativeToParenthesesPipe } from './negative-to-parentheses.pipe';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MinutesToDHMPipe } from './minutes-to-dhm.pipe';
+import { PhoneFormatPipe } from './phone-format.pipe';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { NoticeOfAccessmentComponent } from './components/notice-of-accessment/notice-of-accessment.component';
@@ -108,6 +109,7 @@ import { AgingDocumentsDialogComponent } from './components/aging-documents-dial
     TicketingMasterMemberDebtorsComponent,
     NegativeToParenthesesPipe,
     MinutesToDHMPipe,
+    PhoneFormatPipe,
     NoticeOfAccessmentComponent,
     DocumentsStatementsComponent,
     ReleaseLetterComponent,

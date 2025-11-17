@@ -159,11 +159,11 @@
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column" style="flex: 1.5;">
                         <p class="text2">Phone1</p>
-                        <p class="text2">{{debtorDetails?.Phone1 || ''}}</p>
+                        <p class="text2">{{debtorDetails?.Phone1 || ''  | phoneFormat}}</p>
                     </div>
                     <div class="flex-column" style="flex: 1.5;">
                         <p class="text2">Phone2</p>
-                        <p class="text2">{{debtorDetails?.Phone2 || ''}}</p>
+                        <p class="text2">{{debtorDetails?.Phone2 || ''  | phoneFormat}}</p>
                     </div>
                     <mat-divider vertical class="vertical-divider"></mat-divider>
                     <div class="flex-column" style="flex: 1;">
@@ -443,26 +443,14 @@
                                 <p class="text2">Dilution %</p>
                                 <p class="title1" [ngClass]="textColorByValueAndType(debtorDetails?.DilutionPct || 'N/A')">{{ debtorDetails?.DilutionPct| percent: '1.0-2' }}</p>
                             </div>
-                            <mat-divider vertical class="vertical-divider" style="margin-left: 0px;"></mat-divider>
-                            <div class="flex-column">
-                                <p class="text2">Exp In Months</p>
-                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
-                            </div>
-                            <mat-divider vertical class="vertical-divider"></mat-divider>
-                            <div class="flex-column">
-                                <p class="text2">Research Date</p>
-                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
-                            </div>
                         </div>
                         <div class="flex-row">
                             <div class="flex-column">
-                                <p class="text2">Credit Override</p>
-                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
-                            </div>
-                            <mat-divider vertical class="vertical-divider"></mat-divider>
-                            <div class="flex-column">
-                                <p class="text2">Relationship No Buy</p>
-                                <p class="title1" [ngClass]="textColorByValueAndType('TBD')">{{ 'TBD' }}</p>
+                                <p class="text2">Relationship Details</p>
+                                <button mat-button color="primary" (click)="openAdditionalDetailsDialog()" class="additional-details-btn">
+                                    <mat-icon>info</mat-icon>
+                                    View Details
+                                </button>
                             </div>
                         </div>
                         <div class="flex-row">

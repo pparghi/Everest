@@ -3,17 +3,18 @@
     <div class="dashboard-container">
         <!-- Dashboard content goes here -->
         <div class="row">
+            
+            <!-- 
+            ====== COMMENTED OUT FOR LATER USE - CREDIT TEAM MONTHLY METRICS ======
             <div class="col-md-6">
                 <mat-card appearance="raised" class="card-container">
                     <mat-card-header>
                         <mat-card-title>CREDIT TEAM MONTHLY METRICS</mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
-                        <!-- Dashboard summary content -->
                          <div class="table-container">
                             <table mat-table [dataSource]="metricsData" class="metrics-table">
                                 
-                                <!-- Category/Description Column -->
                                 <ng-container matColumnDef="category">
                                     <th mat-header-cell *matHeaderCellDef class="first-column"> </th>
                                     <td mat-cell *matCellDef="let row" [ngClass]="{'header-row': row.isHeader, 'summary-row': row.isSummary}">
@@ -24,7 +25,6 @@
                                     </td>
                                 </ng-container>
 
-                                <!-- March Column -->
                                 <ng-container matColumnDef="march">
                                     <th mat-header-cell *matHeaderCellDef class="month-column">March</th>
                                     <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'march')">
@@ -32,7 +32,6 @@
                                     </td>
                                 </ng-container>
 
-                                <!-- March % Column -->
                                 <ng-container matColumnDef="marchPct">
                                     <th mat-header-cell *matHeaderCellDef class="percent-column">%</th>
                                     <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'marchPct')">
@@ -40,7 +39,6 @@
                                     </td>
                                 </ng-container>
 
-                                <!-- April Column -->
                                 <ng-container matColumnDef="april">
                                     <th mat-header-cell *matHeaderCellDef class="month-column">April</th>
                                     <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'april')">
@@ -48,7 +46,6 @@
                                     </td>
                                 </ng-container>
 
-                                <!-- April % Column -->
                                 <ng-container matColumnDef="aprilPct">
                                     <th mat-header-cell *matHeaderCellDef class="percent-column">%</th>
                                     <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'aprilPct')">
@@ -56,7 +53,6 @@
                                     </td>
                                 </ng-container>
 
-                                <!-- May Column -->
                                 <ng-container matColumnDef="may">
                                     <th mat-header-cell *matHeaderCellDef class="month-column">May</th>
                                     <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'may')">
@@ -64,7 +60,6 @@
                                     </td>
                                 </ng-container>
 
-                                <!-- May % Column -->
                                 <ng-container matColumnDef="mayPct">
                                     <th mat-header-cell *matHeaderCellDef class="percent-column">%</th>
                                     <td mat-cell *matCellDef="let row" class="align-right" [ngClass]="getCellClass(row, 'mayPct')">
@@ -80,16 +75,36 @@
                     </mat-card-content>
                 </mat-card>
             </div>
+            -->
+            
+            <!-- 
+            ====== COMMENTED OUT FOR LATER USE - KEY METRICS ======
             <div class="col-md-5">
                 <mat-card appearance="raised" class="card-container">
                     <mat-card-header>
                         <mat-card-title>Key Metrics</mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
-                        <!-- Dashboard metrics content -->
                     </mat-card-content>
                 </mat-card>
             </div>
+            -->
+            
+            <!-- Temporary Dashboard Coming Soon message -->
+            <div class="col-md-11">
+                <mat-card appearance="raised" class="card-container">
+                    <mat-card-header>
+                        <mat-card-title>Dashboard</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="coming-soon-container" style="text-align: center; padding: 40px 20px;">
+                            <h2 style="color: #666; margin-bottom: 20px;">Dashboard Coming Soon</h2>
+                            <p style="color: #888; font-size: 16px;">We're working on bringing you comprehensive dashboard metrics and analytics.</p>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+            
             <div class="col-md-1">
                 <mat-card appearance="raised" class="card-container">
                     <mat-card-header>
