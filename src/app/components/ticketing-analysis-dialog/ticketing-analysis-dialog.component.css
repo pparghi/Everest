@@ -654,3 +654,84 @@
   height: 16px !important;
   margin-right: 4px !important;
 }
+
+/* Performance Results Styles */
+.performance-output {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+
+.performance-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.performance-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.performance-value {
+  color: #111827;
+  font-weight: 500;
+}
+
+.performance-separator {
+  color: #6B7280;
+  margin: 0 8px;
+}
+
+.performance-reason {
+  color: #6B7280;
+  font-size: 12px;
+  flex: 1;
+}
+
+.performance-pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 13px;
+  margin: 0 4px;
+}
+
+.pill-stable {
+  background: #e8f6ee;
+  color: #0b6b3a;
+}
+
+.pill-deteriorating {
+  background: #fff7e6;
+  color: #b36b00;
+}
+
+.pill-high-risk {
+  background: #fdecea;
+  color: #aa1b12;
+}
+
+.pill-na {
+  background: #eef1f5;
+  color: #334155;
+}
+
+.pill-current {
+  background: #e8f6ee;
+  color: #0b6b3a;
+}
+
+.pill-stale {
+  background: #fff7e6;
+  color: #b36b00;
+}
+
+.pill-dormant {
+  background: #fdecea;
+  color: #aa1b12;
+}

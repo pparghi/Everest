@@ -107,6 +107,10 @@ export class TicketingAnalysisComponent implements OnInit {
   
   // debtor performance calculator results
   performanceResults: any = null;
+  
+  // flags to track data loading status for performance calculation
+  debtorDetailsLoaded: boolean = false;
+  trendData2Loaded: boolean = false;
 
   // last payment date
   readonly dialog = inject(MatDialog);
@@ -287,8 +291,9 @@ export class TicketingAnalysisComponent implements OnInit {
           // fetch no buy code list and set the default no buy code after debtor details are loaded
           this.getNoBuyCodeList();
           
-          // Calculate debtor performance after debtor details are loaded
-          this.performanceResults = this.calculateDebtorPerformance();
+          // Mark debtor details as loaded and check if we can calculate performance
+          this.debtorDetailsLoaded = true;
+          this.checkAndCalculatePerformance();
         }, error => {
           console.error('Error fetching member debtors:', error);
         });
@@ -427,6 +432,10 @@ export class TicketingAnalysisComponent implements OnInit {
             this.cdr.detectChanges(); // Trigger change detection
           }, 500);
         }
+
+        // Mark trend data 2 as loaded and check if we can calculate performance
+        this.trendData2Loaded = true;
+        this.checkAndCalculatePerformance();
       }
 
     });
@@ -1108,8 +1117,10 @@ export class TicketingAnalysisComponent implements OnInit {
         this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
         console.log('ticketing-analysis-component, Switched, this.debtorDetails:', this.debtorDetails);
         
-        // Calculate debtor performance after debtor details are loaded
-        this.performanceResults = this.calculateDebtorPerformance();
+        // Reset loading flags and wait for new trend data to load after editing
+        this.debtorDetailsLoaded = true;
+        this.trendData2Loaded = false;
+        this.performanceResults = null;
 
         this.cacheService.removeByPattern('/api/debtorHistoryTrend?'); // clear the debtor history trend cache
         this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
@@ -1338,106 +1349,311 @@ export class TicketingAnalysisComponent implements OnInit {
     });
   }
   
-  // Debtor Performance Calculator
+  // Helper methods for debtor performance calculator
+  private toNum(v: any): number {
+    return v === "" || v == null ? NaN : Number(v);
+  }
+
+  private fmtPct(x: number): string {
+    if (isNaN(x)) return "—";
+    return (Math.round(x * 1000) / 10).toFixed(1) + "%";
+  }
+
+  private fmtAmt(x: number): string {
+    if (isNaN(x)) return "—";
+    return new Intl.NumberFormat().format(Math.round(x));
+  }
+
+  private monthsSinceYYYYMM(ym: string): number {
+    if (!ym || !/^\d{4}-\d{2}$/.test(ym)) return NaN;
+    const [y, m] = ym.split('-').map(Number);
+    const now = new Date();
+    return (now.getFullYear() - y) * 12 + ((now.getMonth() + 1) - m);
+  }
+
+  private freshnessLabel(months: number): string {
+    const CONFIG = { freshness: { currentMax: 1, staleMax: 3 } };
+    if (isNaN(months)) return 'NA';
+    if (months <= CONFIG.freshness.currentMax) return 'Current';
+    if (months <= CONFIG.freshness.staleMax) return 'Stale';
+    return 'Dormant';
+  }
+
+  private sum(arr: any[], key: string, start: number, len: number): number {
+    let s = 0;
+    for (let i = start; i < start + len && i < arr.length; i++) {
+      s += (isNaN(arr[i][key]) ? 0 : arr[i][key]);
+    }
+    return s;
+  }
+
+  private avg(arr: any[], key: string, start: number, len: number): number {
+    let n = 0, s = 0;
+    for (let i = start; i < start + len && i < arr.length; i++) {
+      if (!isNaN(arr[i][key])) {
+        n++;
+        s += arr[i][key];
+      }
+    }
+    return n ? s / n : NaN;
+  }
+
+  // Method to check if all required data is loaded and calculate performance
+  private checkAndCalculatePerformance(): void {
+    if (this.debtorDetailsLoaded && this.trendData2Loaded && this.debtorDetails) {
+      console.log('All required data loaded, calculating debtor performance');
+      this.performanceResults = this.calculateDebtorPerformance();
+      this.cdr.detectChanges();
+    } else {
+      console.log('Waiting for data to load:', {
+        debtorDetailsLoaded: this.debtorDetailsLoaded,
+        trendData2Loaded: this.trendData2Loaded,
+        debtorDetails: !!this.debtorDetails
+      });
+    }
+  }
+
+  // Debtor Performance Calculator - Updated with new formulas
   calculateDebtorPerformance(): any {
-    // Extract values from component data using the mapping
-    const cl = parseFloat(this.debtorDetails?.TotalCreditLimit) || 0;
-    const ob = parseFloat(this.debtorDetails?.Balance) || 0;
-    const terms = parseFloat(this.debtorDetails?.Terms) || 30;
-    const dso_all = parseFloat(this.debtorDetails?.DSOAll) || null;
-    const dso30 = parseFloat(this.debtorDetails?.DSO30) || null;
-    const dso60 = parseFloat(this.debtorDetails?.DSO60) || null;
-    const dso90 = parseFloat(this.debtorDetails?.DSO90) || null;
-    const pastDueRatio = parseFloat(this.debtorDetails?.PastDuePct) || null;
-    const disputeRatio = parseFloat(this.debtorDetails?.DisputesPct) || null;
+    // Extract credit profile values
+    const limit = this.toNum(this.debtorDetails?.TotalCreditLimit);
+    const aigLimit = this.toNum(this.debtorDetails?.AIGLimit);
+    const ob = this.toNum(this.debtorDetails?.Balance);
     const rating = this.debtorDetails?.CalcRateCode || "";
-    const lastpay = this.debtorDetails?.LastPmtDate || null;
 
-    // Utilization
-    let util = 0;
-    if (cl > 0 && ob !== null) util = ob / cl; else util = 0;
+    // Extract aging trend values
+    const nt = this.toNum(this.debtorDetails?.Terms) || 30;
+    const dso30 = this.toNum(this.debtorDetails?.DSO30);
+    const dso60 = this.toNum(this.debtorDetails?.DSO60);
+    const dso90 = this.toNum(this.debtorDetails?.DSO90);
+    const asofAnalytics = this.debtorDetails?.LastPmtDate ? this.debtorDetails.LastPmtDate.substring(0, 7) : "";
 
-    // History vs New
-    const hasDSO = (dso_all !== null) || (dso30 !== null) || (dso60 !== null) || (dso90 !== null);
-    const hasHistory = (!!lastpay && hasDSO);
-    const isNew = (!lastpay && !hasDSO);
+    // Calculate Past Due AR % and Dispute %
+    const debtorName = (this.switchedDebtorType === 'N/A' ? this.originalDebtorType : this.switchedDebtorType === 'Master') ? 'Master Debtor' : this.debtorDetails?.Debtor;
+    const totalPastDue = this.getTotalPastDueByDebtorName(debtorName);
+    const pastDueRatio = ob > 0 ? parseFloat(totalPastDue.replace(/[,$]/g, '')) / ob : 0;
+    const disputeRatio = this.toNum(this.debtorDetails?.DisputesPct) / 100 || 0; // Convert percentage to decimal
 
-    // Override rule
-    let override = false;
-    let diffDays = 0;
-    if (lastpay) {
-      try {
-        const lp = new Date(lastpay);
-        const today = new Date();
-        diffDays = Math.floor((today.getTime() - lp.getTime()) / (1000 * 60 * 60 * 24));
-        override = diffDays > 45;
-      } catch(e) { 
-        console.error('Error calculating date difference:', e);
+    // Extract AR Aging data from debtorDetails
+    const a0 = this.toNum(this.debtorDetails?.Age0to30) || 0;
+    const a1 = this.toNum(this.debtorDetails?.Age31to60) || 0;
+    const a2 = this.toNum(this.debtorDetails?.Age61to90) || 0;
+    const a3 = (this.toNum(this.debtorDetails?.Age91to120) || 0) + 
+               (this.toNum(this.debtorDetails?.Age121to150) || 0) + 
+               (this.toNum(this.debtorDetails?.Age151to180) || 0) + 
+               (this.toNum(this.debtorDetails?.AgeOver180) || 0);
+    
+    // Calculate AR Aging As-of date - use the most recent aging date from agingData if available
+    let asofAging = "";
+    if (this.agingData && this.agingData.length > 0) {
+      const sortedAging = this.agingData.sort((a: any, b: any) => new Date(b.InvDate).getTime() - new Date(a.InvDate).getTime());
+      asofAging = sortedAging[0].InvDate ? sortedAging[0].InvDate.substring(0, 7) : "";
+    }
+
+    // Extract Payment History & Trend data - SORT BY DATE DESCENDING
+    const rows = this.ticketingTrendDataSource2.data
+      .sort((a: any, b: any) => {
+        // Sort by YearMonth in descending order (newest first)
+        return b.YearMonth.localeCompare(a.YearMonth);
+      })
+      .map((item: any) => ({
+        month: item.YearMonth,
+        pur: this.toNum(item.Purchases),
+        pay: this.toNum(item.Payments),
+        days: this.toNum(item.AvgWeightedDays)
+      }))
+      .filter((r: any) => r.month || !isNaN(r.days));
+
+    // Console log all data used for calculating results
+    console.log('=== DEBTOR PERFORMANCE CALCULATION DATA ===');
+    console.log('Credit Profile:', {
+      limit,
+      aigLimit,
+      tradeInsurance: aigLimit > 0 ? 'Yes' : 'No',
+      ob,
+      rating
+    });
+    console.log('Aging Trend:', {
+      nt,
+      dso30,
+      dso60,
+      dso90,
+      asofAnalytics,
+      pastDueRatio,
+      disputeRatio
+    });
+    console.log('AR Aging (Amounts):', {
+      '0-30': a0,
+      '31-60': a1,
+      '61-90': a2,
+      '90+': a3,
+      totalAge: a0 + a1 + a2 + a3,
+      asofAging
+    });
+    console.log('AR Aging Raw Data:', {
+      Age0to30: this.debtorDetails?.Age0to30,
+      Age31to60: this.debtorDetails?.Age31to60,
+      Age61to90: this.debtorDetails?.Age61to90,
+      Age91to120: this.debtorDetails?.Age91to120,
+      Age121to150: this.debtorDetails?.Age121to150,
+      Age151to180: this.debtorDetails?.Age151to180,
+      AgeOver180: this.debtorDetails?.AgeOver180
+    });
+    console.log('Payment History:', rows);
+    console.log('=======================================');
+
+    // Calculate freshness
+    const latestMonth = rows.length ? rows.map(r => r.month).find(m => /^\d{4}-\d{2}$/.test(m)) : "";
+    const fTrend = this.freshnessLabel(this.monthsSinceYYYYMM(latestMonth));
+    const fAging = this.freshnessLabel(this.monthsSinceYYYYMM(asofAging));
+    const fAnalytics = this.freshnessLabel(this.monthsSinceYYYYMM(asofAnalytics));
+
+    // Calculate payment trend metrics
+    const l3Days = this.avg(rows, "days", 0, 3);
+    const p3Days = this.avg(rows, "days", 3, 3);
+    const l3Pur = this.sum(rows, "pur", 0, 3);
+    const l3Pay = this.sum(rows, "pay", 0, 3);
+
+    // Predictive signals
+    let quality = "NA", direction = "NA";
+    if (!isNaN(l3Days) && !isNaN(nt) && !isNaN(l3Pur) && !isNaN(l3Pay)) {
+      if (l3Pay >= l3Pur && l3Days <= nt + 10) quality = "Good";
+      else if (l3Pay >= 0.8 * l3Pur && l3Days <= nt + 20) quality = "Fair";
+      else quality = "Poor";
+    }
+    if (!isNaN(l3Days) && !isNaN(p3Days)) {
+      if (l3Days < p3Days - 3) direction = "Improving";
+      else if (Math.abs(l3Days - p3Days) <= 3) direction = "Stable";
+      else direction = "Worsening";
+    }
+
+    // Utilization & availability
+    let util = NaN, avail = NaN;
+    if (!isNaN(limit) && limit > 0 && !isNaN(ob)) {
+      util = ob / limit;
+      avail = 1 - util;
+    }
+
+    // Aging Trend
+    let ag = "NA", avgD = NaN, delta = NaN;
+    if (!isNaN(nt)) {
+      if (isNaN(dso30) || isNaN(dso60) || isNaN(dso90)) {
+        ag = "NA";
+      } else {
+        avgD = (dso30 + dso60 + dso90) / 3;
+        delta = avgD - nt;
+        if (avgD <= nt + 10) ag = "Stable";
+        else if (avgD <= nt + 20) ag = "Deteriorating";
+        else ag = "High risk";
       }
     }
 
-    // Points
-    const dso_vs_terms = (dso_all !== null && terms !== null) ? (dso_all - terms) : null;
+    // Baseline AR
+    let prBase = "NA", eprobBase = NaN, eamtBase = NaN;
+    const totalAge = (a0 + a1 + a2 + a3);
+    if (totalAge > 0) {
+      eamtBase = (a0 * 0.05 + a1 * 0.25 + a2 * 0.50 + a3 * 1.0);
+      eprobBase = eamtBase / totalAge;
+      if (eprobBase <= 0.10) prBase = "Stable";
+      else if (eprobBase <= 0.25) prBase = "Deteriorating";
+      else if (eprobBase <= 0.50) prBase = "Deteriorating";
+      else prBase = "High risk";
+    }
 
-    const utilPts = util <= 0.7 ? 0 : (util <= 1 ? 20 : 40);
-    const dsoPts = (dso_vs_terms === null) ? 0 : (dso_vs_terms <= 0 ? 0 : (dso_vs_terms <= 15 ? 10 : (dso_vs_terms <= 30 ? 20 : 40)));
-    const pastPts = (pastDueRatio === null) ? 0 : (pastDueRatio < 0.10 ? 0 : (pastDueRatio <= 0.25 ? 20 : 40));
-    const dispPts = (disputeRatio === null) ? 0 : (disputeRatio < 0.05 ? 0 : (disputeRatio <= 0.10 ? 10 : 20));
+    // Predictive AR
+    let prPred = "NA", eprobPred = NaN, eamtPred = NaN;
+    const havePredictive = (!isNaN(nt) && !isNaN(l3Days) && !isNaN(l3Pur) && !isNaN(l3Pay) && quality !== "NA" && direction !== "NA");
+    let predNote = "";
+    if (totalAge > 0 && havePredictive) {
+      const pRatio = l3Pur > 0 ? (l3Pay / l3Pur) : NaN;
+      const dlt = isNaN(l3Days) || isNaN(nt) ? NaN : (l3Days - nt);
+      const f_delta = isNaN(dlt) ? 1.0 : (dlt <= 10 ? 1.00 : (dlt <= 20 ? 1.10 : 1.25));
+      const f_quality = quality === "Good" ? 0.95 : quality === "Fair" ? 1.00 : quality === "Poor" ? 1.10 : 1.00;
+      const f_direction = direction === "Improving" ? 0.95 : direction === "Stable" ? 1.00 : direction === "Worsening" ? 1.10 : 1.00;
+      const f_velocity = isNaN(pRatio) ? 1.0 : Math.min(1.3, 1 + 0.5 * Math.max(0, 1 - pRatio));
+      const m = f_delta * f_quality * f_direction * f_velocity;
+      const w0 = Math.min(1.50, 0.05 * m);
+      const w1 = Math.min(1.50, 0.25 * m);
+      const w2 = Math.min(1.20, 0.50 * m);
+      const w3 = 1.00;
+      eamtPred = a0 * w0 + a1 * w1 + a2 * w2 + a3 * w3;
+      eprobPred = eamtPred / totalAge;
+      if (eprobPred <= 0.10) prPred = "Stable";
+      else if (eprobPred <= 0.25) prPred = "Deteriorating";
+      else if (eprobPred <= 0.50) prPred = "Deteriorating";
+      else prPred = "High risk";
+    } else {
+      predNote = " (Predictive NA: insufficient inputs)";
+    }
+
+    // Payment Trend rating
+    let pt = "NA";
+    if (!isNaN(l3Days) && !isNaN(nt) && !isNaN(l3Pur) && !isNaN(l3Pay)) {
+      if (l3Days <= nt + 10) pt = "Stable";
+      else if (l3Days <= nt + 20) pt = "Deteriorating";
+      else pt = "High risk";
+    }
+
+    // Section & overall (using Predictive mode)
+    const arRating = prPred !== "NA" ? prPred : prBase;
+    let overall = "NA";
+    const anyHR = [ag, arRating, pt].includes("High risk");
+    const anyDet = [ag, arRating, pt].includes("Deteriorating");
+    const anyNA = [ag, arRating, pt].includes("NA");
     
-    let ratePts = 0;
-    if (rating === "A") ratePts = 0; 
-    else if (rating === "B") ratePts = 10; 
-    else if (rating === "C") ratePts = 20; 
-    else if (rating === "D") ratePts = 40;
-    
-    const overlimitPts = (cl && ob && ob > cl) ? 10 : 0;
+    if (anyHR) overall = "High risk";
+    else if (anyNA) overall = "NA";
+    else if (anyDet) overall = "Deteriorating";
+    else overall = "Stable";
 
-    const score = (utilPts * 0.2) + (dsoPts * 0.2) + (pastPts * 0.2) + (dispPts * 0.1) + (ratePts * 0.2) + (overlimitPts * 0.1);
-
-    // Classification
-    let klass = "N";
-    if (override) { 
-      klass = "Deteriorating"; 
-    }
-    else if (isNew) { 
-      klass = "N"; 
-    }
-    else {
-      if (score <= 10) klass = "Stable";
-      else if (score <= 18) klass = "Deteriorating";
-      else klass = "High Risk";
+    // Overrides
+    const anyDormant = [fTrend, fAging, fAnalytics].includes("Dormant");
+    const anyStale = [fTrend, fAging, fAnalytics].includes("Stale");
+    if (anyDormant) {
+      if (totalAge > 0 && (a3 > 0 || (eprobBase > 0.5))) overall = "High risk (Dormant)";
+      else overall = "NA (Dormant)";
     }
 
-    // Suggestion text & new limit
-    let suggest = "—";
-    let newCL = cl || 0;
-    if (klass === "N") {
-      const trial = (cl && cl > 0) ? Math.min(10000, cl * 0.10) : 10000;
-      suggest = "Trial credit; pick Low/Moderate/High Restriction based on external refs";
-      newCL = trial;
-    } else if (klass === "Stable") {
-      if (util >= 0.6 && util < 0.85) { suggest = "Increase 10%"; newCL = cl * 1.10; }
-      else if (util >= 0.85 && util <= 1) { suggest = "Increase 15–25%"; newCL = cl * 1.20; }
-      else { suggest = "No change"; newCL = cl; }
-    } else if (klass === "Deteriorating") {
-      suggest = "Freeze limit";
-      newCL = cl;
-    } else { // High Risk
-      suggest = "Decrease 10–30% (or CIA)";
-      newCL = cl * 0.80;
-    }
+    let action = "Manual review required (insufficient or stale data)";
+    if (overall.startsWith("High risk")) action = "Hold credit / Manual review";
+    else if (overall === "Deteriorating") action = "Tighten terms / Review limits";
+    else if (overall.startsWith("Stable")) action = "Continue credit";
 
-    // Return the results
+    let reason = `Aging:${ag} | AR Prob(Predictive):${arRating || "NA"} | Pay Trend:${pt}`;
+    reason += ` | Data Reliability:${fTrend}/${fAging}/${fAnalytics}`;
+    if (anyStale && !anyDormant) reason += " (refresh within 7 days)";
+
+    // Return the results in the new format
     return {
-      status: klass,
-      statusClass: klass === "Stable" ? "stable" : 
-                  (klass === "Deteriorating" ? "deteriorating" : 
-                  (klass === "High Risk" ? "highrisk" : "new")),
-      utilization: isFinite(util) ? (Math.round(util * 1000) / 10) : 0,
-      override: override ? diffDays + " days since last payment" : "N/A",
-      score: (Math.round(score * 10) / 10).toFixed(1),
-      suggestion: suggest,
-      newCreditLimit: Math.round(newCL)
+      overallRating: overall,
+      suggestedAction: action,
+      utilization: this.fmtPct(util),
+      availability: this.fmtPct(avail),
+      dataReliability: {
+        trend: fTrend,
+        arAging: fAging,
+        analytics: fAnalytics
+      },
+      reason: reason,
+      sectionRatings: {
+        aging: ag,
+        arProb: arRating,
+        payTrend: pt
+      },
+      paymentTrendQuality: quality,
+      trendDirection: direction,
+      // Additional detailed data for debugging/display
+      rawData: {
+        creditProfile: { limit, aigLimit, ob, rating },
+        agingTrend: { nt, dso30, dso60, dso90, pastDueRatio, disputeRatio },
+        arAging: { 
+          a0, a1, a2, a3, 
+          totalAge: a0 + a1 + a2 + a3,
+          asofAging,
+          source: 'debtorDetails aging buckets'
+        },
+        paymentHistory: { l3Days, p3Days, l3Pur, l3Pay }
+      }
     };
   }
 
@@ -1607,8 +1823,10 @@ export class TicketingAnalysisComponent implements OnInit {
     this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
     console.log('ticketing-analysis-component, Switched, this.debtorDetails:', this.debtorDetails);
 
-    // Calculate debtor performance after debtor details are loaded
-    this.performanceResults = this.calculateDebtorPerformance();
+    // Reset loading flags and wait for new trend data to load
+    this.debtorDetailsLoaded = true;
+    this.trendData2Loaded = false;
+    this.performanceResults = null;
 
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
@@ -1655,8 +1873,10 @@ export class TicketingAnalysisComponent implements OnInit {
     this.debtorDetails.CredAppBy = this.currentUser.toUpperCase(); // set the CredAppBy to current user
     console.log('ticketing-analysis-component, Reseted, this.debtorDetails:', this.debtorDetails);
 
-    // Calculate debtor performance after debtor details are loaded
-    this.performanceResults = this.calculateDebtorPerformance();
+    // Reset loading flags and wait for new trend data to load
+    this.debtorDetailsLoaded = true;
+    this.trendData2Loaded = false;
+    this.performanceResults = null;
 
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2

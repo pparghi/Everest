@@ -447,7 +447,7 @@
                         <div class="flex-row">
                             <div class="flex-column">
                                 <p class="text2">Relationship Details</p>
-                                <button mat-button color="primary" (click)="openAdditionalDetailsDialog()" class="additional-details-btn">
+                                <button mat-stroked-button color="primary" (click)="openAdditionalDetailsDialog()" class="additional-details-btn">
                                     <mat-icon>info</mat-icon>
                                     View Details
                                 </button>
@@ -637,55 +637,131 @@
             </div>
         </mat-card>
         
-        <!-- Debtor Performance Calculator card -->
+        <!-- Debtor Performance Calculator - Results Card -->
         <mat-card *ngIf="performanceResults" appearance="raised" class="card-container-v2">
             <div class="card-base">
-                <p class="title2">Debtor Performance Assessment - Internal Only</p>
-                <div class="flex-row">
-                    <div class="flex-column" style="flex: 1;">
-                        <p class="text2">Status</p>
-                        <div class="performance-pill" [ngClass]="performanceResults.statusClass">
-                            {{ performanceResults.status }}
-                        </div>
-                    </div>
-                    <mat-divider vertical class="vertical-divider"></mat-divider>
-                    <div class="flex-column" style="flex: 1;">
-                        <p class="text2">Utilization</p>
-                        <p class="title1">{{ performanceResults.utilization }}%</p>
-                    </div>
-                    <mat-divider vertical class="vertical-divider"></mat-divider>
-                    <div class="flex-column" style="flex: 1;">
-                        <p class="text2">Override</p>
-                        <p class="title3">{{ performanceResults.override }}</p>
-                    </div>
-                    <mat-divider vertical class="vertical-divider"></mat-divider>
-                    <div class="flex-column" style="flex: 1;">
-                        <p class="text2">Weighted Risk Score</p>
-                        <p class="title1">{{ performanceResults.score }}</p>
-                    </div>
-                </div>
-                <div class="flex-row">
-                    <div class="flex-column" style="flex: 1;">
-                        <p class="text2">Suggestion</p>
-                        <p class="title3">{{ performanceResults.suggestion }}</p>
-                    </div>
-                    <mat-divider vertical class="vertical-divider"></mat-divider>
-                    <div class="flex-column" style="flex: 1;">
-                        <p class="text2">Suggested New Credit Limit</p>
-                        <p class="title1">${{ performanceResults.newCreditLimit.toLocaleString() }}</p>
-                    </div>
-                </div>
+                <p class="title2">Debtor Performance Assessment Results - Internal Only</p>
                 
-                <!-- N status explanation -->
-                <div *ngIf="performanceResults.status === 'N'" style="margin-top: 16px;">
-                    <mat-divider></mat-divider>
-                    <p class="title2" style="margin-top: 16px;">New Debtor Guidelines:</p>
-                    <div class="flex-row">
-                        <div class="flex-column">
-                            <p class="text2"><strong>Low Exposure:</strong> small trial credit ($5k–$10k)</p>
-                            <p class="text2"><strong>Moderate Exposure:</strong> if external refs A/B, 10–15% of credit limit</p>
-                            <p class="text2"><strong>High Restriction:</strong> no open credit; prepay until 1–2 cycles</p>
-                        </div>
+                <div class="performance-output">
+                    <div class="performance-row">
+                        <span class="performance-label">Overall Rating:</span>
+                        <span class="performance-pill" 
+                              [ngClass]="{
+                                'pill-stable': performanceResults.overallRating === 'Stable',
+                                'pill-deteriorating': performanceResults.overallRating === 'Deteriorating',
+                                'pill-high-risk': performanceResults.overallRating?.includes('High risk'),
+                                'pill-na': performanceResults.overallRating === 'NA' || performanceResults.overallRating?.includes('NA')
+                              }">
+                            {{ performanceResults.overallRating }}
+                        </span>
+                    </div>
+                    
+                    <div class="performance-row">
+                        <span class="performance-label">Suggested Action:</span>
+                        <span class="performance-value">{{ performanceResults.suggestedAction }}</span>
+                    </div>
+                    
+                    <div class="performance-row">
+                        <span class="performance-label">Utilization:</span>
+                        <span class="performance-value">{{ performanceResults.utilization }}</span>
+                        <span class="performance-separator">|</span>
+                        <span class="performance-label">Availability:</span>
+                        <span class="performance-value">{{ performanceResults.availability }}</span>
+                    </div>
+                    
+                    <div class="performance-row">
+                        <span class="performance-label">Data Reliability:</span>
+                        <span class="performance-label">Trend=</span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-current': performanceResults.dataReliability.trend === 'Current',
+                                'pill-stale': performanceResults.dataReliability.trend === 'Stale',
+                                'pill-dormant': performanceResults.dataReliability.trend === 'Dormant',
+                                'pill-na': performanceResults.dataReliability.trend === 'NA'
+                              }">
+                            {{ performanceResults.dataReliability.trend }}
+                        </span>
+                        <span class="performance-separator">|</span>
+                        <span class="performance-label">AR Aging=</span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-current': performanceResults.dataReliability.arAging === 'Current',
+                                'pill-stale': performanceResults.dataReliability.arAging === 'Stale',
+                                'pill-dormant': performanceResults.dataReliability.arAging === 'Dormant',
+                                'pill-na': performanceResults.dataReliability.arAging === 'NA'
+                              }">
+                            {{ performanceResults.dataReliability.arAging }}
+                        </span>
+                        <span class="performance-separator">|</span>
+                        <span class="performance-label">Analytics=</span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-current': performanceResults.dataReliability.analytics === 'Current',
+                                'pill-stale': performanceResults.dataReliability.analytics === 'Stale',
+                                'pill-dormant': performanceResults.dataReliability.analytics === 'Dormant',
+                                'pill-na': performanceResults.dataReliability.analytics === 'NA'
+                              }">
+                            {{ performanceResults.dataReliability.analytics }}
+                        </span>
+                    </div>
+                    
+                    <div class="performance-row">
+                        <span class="performance-label">Reason:</span>
+                        <span class="performance-reason">{{ performanceResults.reason }}</span>
+                    </div>
+                    
+                    <div class="performance-row">
+                        <span class="performance-label">Section Ratings:</span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-stable': performanceResults.sectionRatings.aging === 'Stable',
+                                'pill-deteriorating': performanceResults.sectionRatings.aging === 'Deteriorating',
+                                'pill-high-risk': performanceResults.sectionRatings.aging === 'High risk',
+                                'pill-na': performanceResults.sectionRatings.aging === 'NA'
+                              }">
+                            Aging: {{ performanceResults.sectionRatings.aging }}
+                        </span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-stable': performanceResults.sectionRatings.arProb === 'Stable',
+                                'pill-deteriorating': performanceResults.sectionRatings.arProb === 'Deteriorating',
+                                'pill-high-risk': performanceResults.sectionRatings.arProb === 'High risk',
+                                'pill-na': performanceResults.sectionRatings.arProb === 'NA'
+                              }">
+                            AR Prob: {{ performanceResults.sectionRatings.arProb }}
+                        </span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-stable': performanceResults.sectionRatings.payTrend === 'Stable',
+                                'pill-deteriorating': performanceResults.sectionRatings.payTrend === 'Deteriorating',
+                                'pill-high-risk': performanceResults.sectionRatings.payTrend === 'High risk',
+                                'pill-na': performanceResults.sectionRatings.payTrend === 'NA'
+                              }">
+                            Pay Trend: {{ performanceResults.sectionRatings.payTrend }}
+                        </span>
+                    </div>
+                    
+                    <div class="performance-row">
+                        <span class="performance-label">Payment Trend Quality:</span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-stable': performanceResults.paymentTrendQuality === 'Good',
+                                'pill-deteriorating': performanceResults.paymentTrendQuality === 'Fair',
+                                'pill-high-risk': performanceResults.paymentTrendQuality === 'Poor',
+                                'pill-na': performanceResults.paymentTrendQuality === 'NA'
+                              }">
+                            {{ performanceResults.paymentTrendQuality }}
+                        </span>
+                        <span class="performance-separator">|</span>
+                        <span class="performance-label">Trend Direction:</span>
+                        <span class="performance-pill"
+                              [ngClass]="{
+                                'pill-stable': performanceResults.trendDirection === 'Improving' || performanceResults.trendDirection === 'Stable',
+                                'pill-high-risk': performanceResults.trendDirection === 'Worsening',
+                                'pill-na': performanceResults.trendDirection === 'NA'
+                              }">
+                            {{ performanceResults.trendDirection }}
+                        </span>
                     </div>
                 </div>
             </div>
