@@ -17,6 +17,8 @@ import Swal from 'sweetalert2';
 import { DocumentsReportsService } from '../../services/documents-reports.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { WarningSnackbarComponent, SuccessSnackbarComponent, ErrorSnackbarComponent } from '../custom-snackbars/custom-snackbars';
+import { TicketingService } from '../../services/ticketing.service';
+import { InvoiceService } from '../../services/invoice.service';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
 
@@ -164,6 +166,12 @@ export class TicketingAnalysisComponent implements OnInit {
 
   debtorsTotalPastDue: {'Debtor': string, 'TotalPastDue': number}[] = [];
 
+  // relationship data
+  currentRelationshipData: any = {};
+
+  // dispute codes list for no buy codes
+  disputeCodesList: any[] = [];
+
   constructor(
     // private dialogRef: MatDialogRef<TicketingAnalysisDialogComponent>, // remove this because it is not dialog anymore
     // @Inject(MAT_DIALOG_DATA) public data: any, // remove this because it is not dialog anymore
@@ -176,6 +184,8 @@ export class TicketingAnalysisComponent implements OnInit {
     private http: HttpClient,
     private cacheService: CacheService,
     private documentsReportsService: DocumentsReportsService,
+    private ticketingService: TicketingService,
+    private invoiceService: InvoiceService,
   ) {}
 
   ngOnInit() {
@@ -184,6 +194,9 @@ export class TicketingAnalysisComponent implements OnInit {
     console.log('ticketing-analysis-component, this.agingData:', this.agingData);
     // this.ticketData = this.data; // removebecause the data is used by dialog
     this.getDebtorsTotalPastDueBalance();
+
+    // Load dispute codes list for no buy codes
+    this.loadDisputeCodesList();
 
     this.originalDebtorKey = this.ticketData.DebtorKey;
     this.originalDebtorType = this.ticketData.Type;
@@ -316,6 +329,9 @@ export class TicketingAnalysisComponent implements OnInit {
 
     // load country and area list
     this.loadCountryAreaList();
+
+    // get relationship data
+    this.getRelationshipData(this.ticketData.ClientKey, this.ticketData.DebtorKey);
 
   }
 
@@ -1133,6 +1149,9 @@ export class TicketingAnalysisComponent implements OnInit {
         this.cacheService.removeByPattern('/api/ClientsDebtors?'); // clear the clientsDebtors cache
         this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
 
+        // get new relationship data
+        this.getRelationshipData(this.ticketData.ClientKey, this.debtorDetails.DebtorKey);
+
         // reload alternate addresses
         this.cacheService.removeByPattern('/api/getDebtorAlternateAddresses?'); // clear the debtor alternate address cache
         this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
@@ -1305,17 +1324,150 @@ export class TicketingAnalysisComponent implements OnInit {
       panelClass: 'custom-dialog-container',
       data: {
         relationshipDetails: {
-          expInMonths: 'TBD', // You can replace these with actual data properties
-          researchDate: 'TBD',
-          creditOverride: 'TBD',
-          relationshipNoBuy: 'TBD'
-        }
+          AgingKey: this.currentRelationshipData?.AgingKey || 'N/A',
+          CredAppBy: this.currentRelationshipData?.CredAppBy || 'N/A',
+          CredExpireDate: this.currentRelationshipData?.CredExpireDate || 'N/A',
+          CredExpireMos: this.currentRelationshipData?.CredExpireMos || 'N/A',
+          NoBuyDesc: this.currentRelationshipData?.NoBuyDesc || 'N/A',
+          RateDate: this.currentRelationshipData?.RateDate || 'N/A',
+          CreditLimit: this.currentRelationshipData?.CreditLimit || 'N/A',
+          NoBuyDisputeKey: this.currentRelationshipData?.NoBuyDisputeKey || 'N/A'
+        },
+        disputeCodesList: this.disputeCodesList
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      // Handle dialog closed if needed
+      console.log('Receive saving relationship details: ', result);
+      
+      if (result && result.action === 'save') {
+        this.handleRelationshipDetailsUpdate(result.data);
+      }
     });
+  }
+
+  // Method to handle relationship details update
+  private handleRelationshipDetailsUpdate(formData: any) {
+    // Validate required fields
+    if (!this.currentRelationshipData?.AgingKey) {
+      this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+        data: { message: "AgingKey is required but not found." },
+        duration: 3000,
+        verticalPosition: 'top',
+        horizontalPosition: 'center'
+      });
+      return;
+    }
+
+    // Process and convert form data
+    const processedData = this.processRelationshipFormData(formData);
+    console.log('Final processed data for relationship update:', processedData);
+    // Call the API to update relationship data
+    this.ticketingService.updateRelationshipDataList(
+      parseInt(this.currentRelationshipData.AgingKey),
+      processedData.creditLimit,
+      this.currentUser.toUpperCase(),
+      processedData.rateDate,
+      this.currentRelationshipData.credExpireDate || '',
+      processedData.credExpireMos,
+      this.currentRelationshipData.noBuyDesc,
+      processedData.noBuyDisputeKey
+    ).subscribe({
+      next: (response) => {
+        console.log('Relationship update response:', response);
+
+        // clear relationshiup data cache
+        this.cacheService.removeByPattern('api/getRelationshipDataList?');
+        
+        // Update local data
+        this.currentRelationshipData = { ...this.currentRelationshipData, ...formData };
+        
+        // Refresh relationship data
+        this.getRelationshipData(this.ticketData.ClientKey, this.ticketData.DebtorKey);
+        
+        // Show success message
+        this._snackBar.openFromComponent(SuccessSnackbarComponent, {
+          data: { message: response.message || "Relationship details updated successfully." },
+          duration: 3000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      },
+      error: (error) => {
+        console.error('Error updating relationship details:', error);
+        this._snackBar.openFromComponent(ErrorSnackbarComponent, {
+          data: { message: error.error?.message || "Failed to update relationship details." },
+          duration: 3000,
+          verticalPosition: 'top',
+          horizontalPosition: 'center'
+        });
+      }
+    });
+  }
+
+  // Helper method to process form data for API call
+  private processRelationshipFormData(formData: any): any {
+    // Convert and validate credit limit
+    let creditLimit = 0;
+    if (formData.CreditLimit && formData.CreditLimit !== 'N/A' && formData.CreditLimit !== '') {
+      creditLimit = parseFloat(formData.CreditLimit) || 0;
+    } else if (this.currentRelationshipData?.CreditLimit && this.currentRelationshipData.CreditLimit !== 'N/A') {
+      // Use existing relationship data if form value is not provided
+      creditLimit = parseFloat(this.currentRelationshipData.CreditLimit) || 0;
+    }
+
+    // Process rate date
+    let rateDate = '';
+    if (formData.RateDate && formData.RateDate !== 'N/A' && formData.RateDate !== '') {
+      // date to string YYYY-MM-DD format with local timezone
+      formData.RateDate.setMinutes(formData.RateDate.getMinutes()-formData.RateDate.getTimezoneOffset());
+      rateDate = formData.RateDate.toISOString().split('T')[0];
+    } else {
+      rateDate = this.currentRelationshipData.RateDate || '';
+    }
+
+    // Process expiration months
+    let credExpireMos = 0;
+    if (formData.CredExpireMos && formData.CredExpireMos !== 'N/A' && formData.CredExpireMos !== '') {
+      credExpireMos = parseInt(formData.CredExpireMos) || 0;
+    } else if (this.currentRelationshipData?.CredExpireMos && this.currentRelationshipData.CredExpireMos !== 'N/A') {
+      // Use existing relationship data if form value is not provided
+      credExpireMos = parseInt(this.currentRelationshipData.CredExpireMos) || 0;
+    }
+
+    // Process No Buy Dispute Key
+    let noBuyDisputeKey: number | undefined;
+    if (formData.NoBuyDisputeKey && formData.NoBuyDisputeKey !== 'N/A' && formData.NoBuyDisputeKey !== '') {
+      const parsed = parseInt(formData.NoBuyDisputeKey);
+      if (!isNaN(parsed)) {
+        noBuyDisputeKey = parsed;
+      }
+    } 
+    // when noBuyDisputeKey is not provided
+    if (!noBuyDisputeKey){
+      const parsed = parseInt(this.currentRelationshipData.NoBuyDisputeKey);
+      if (!isNaN(parsed)) {
+        noBuyDisputeKey = parsed;
+      }
+      else {
+        noBuyDisputeKey = 0;
+      }
+    }
+
+    const processedResult = {
+      creditLimit,
+      rateDate,
+      credExpireMos,
+      noBuyDisputeKey
+    };
+
+    console.log('Processed relationship form data:', {
+      originalFormData: formData,
+      currentRelationshipData: this.currentRelationshipData,
+      processedResult
+    });
+
+    return processedResult;
   }
 
   // method to open aging documents dialog
@@ -1835,6 +1987,9 @@ export class TicketingAnalysisComponent implements OnInit {
     this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
     // fetch debtor concentration percentage
     this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    
+    // get new relationship data
+    this.getRelationshipData(this.ticketData.ClientKey, this.debtorDetails.DebtorKey);
 
     // load alternate addresses
     this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
@@ -1885,6 +2040,9 @@ export class TicketingAnalysisComponent implements OnInit {
     this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
     // fetch debtor concentration percentage
     this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    
+    // get new relationship data
+    this.getRelationshipData(this.ticketData.ClientKey, this.debtorDetails.DebtorKey);
 
     // load alternate addresses
     this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
@@ -2579,5 +2737,26 @@ export class TicketingAnalysisComponent implements OnInit {
     }
   }
 
+  // method to get relationship data and store
+  getRelationshipData(ClientKey: string, DebtorKey: string) {
+    this.ticketingService.getRelationshipDataList(parseInt(ClientKey), parseInt(DebtorKey)).subscribe(response => {
+      this.currentRelationshipData = response?.data[0] || {};
+      console.log('Relationship Data:', this.currentRelationshipData);
+    });
+  }
+
+  // method to load dispute codes list for no buy codes
+  loadDisputeCodesList() {
+    this.invoiceService.getDisputeCodeList().subscribe({
+      next: (response: any) => {
+        this.disputeCodesList = response.data || [];
+        console.log('Dispute Codes List loaded:', this.disputeCodesList);
+      },
+      error: (error) => {
+        console.error('Error loading dispute codes list:', error);
+        this.disputeCodesList = [];
+      }
+    });
+  }
 
 }

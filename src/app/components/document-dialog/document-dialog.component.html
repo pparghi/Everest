@@ -48,36 +48,80 @@
   <div class="dialog-header">
     <h3 mat-dialog-title>Relationship Details</h3>
   </div>
-  <div class="dialog-content">
-    <mat-dialog-content class="mat-typography">
-      <div class="additional-details-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 16px;">
-        <div class="detail-item">
-          <label class="detail-label"><strong>Exp In Months:</strong></label>
-          <p class="detail-value">{{ data.relationshipDetails.expInMonths || 'TBD' }}</p>
+  <form [formGroup]="relationshipDetailsForm" (ngSubmit)="onSaveRelationshipDetails()">
+    <div class="dialog-content">
+      <mat-dialog-content class="mat-typography">
+        <div class="additional-details-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 16px;">
+          <div class="detail-item">
+            <label class="detail-label"><strong>Exp In Months:</strong></label>
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <input matInput 
+                     type="number" 
+                     formControlName="CredExpireMos" 
+                     placeholder="Enter months"
+                     min="0">
+              <mat-error *ngIf="relationshipDetailsForm.get('CredExpireMos')?.hasError('min')">
+                Value must be 0 or greater
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="detail-item">
+            <label class="detail-label"><strong>Research Date:</strong></label>
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <input matInput 
+                     [matDatepicker]="researchDatePicker" 
+                     formControlName="RateDate" 
+                     placeholder="Select date"
+                     readonly>
+              <mat-hint>MM/DD/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="researchDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #researchDatePicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+          
+          <div class="detail-item">
+            <label class="detail-label"><strong>Credit Override:</strong></label>
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <input matInput 
+                     type="number" 
+                     formControlName="CreditLimit" 
+                     placeholder="Enter credit limit"
+                     min="0"
+                     step="0.01">
+              <mat-error *ngIf="relationshipDetailsForm.get('CreditLimit')?.hasError('min')">
+                Value must be 0 or greater
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="detail-item">
+            <label class="detail-label"><strong>Relationship No Buy:</strong></label>
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <mat-select formControlName="NoBuyDisputeKey" 
+                          placeholder="Select no buy code">
+                <mat-option value="0">-</mat-option>
+                <mat-option *ngFor="let code of data.disputeCodesList" [value]="code.DisputeCodeKey.toString()">
+                  {{ code.DisputeCode }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
         </div>
-        
-        <div class="detail-item">
-          <label class="detail-label"><strong>Research Date:</strong></label>
-          <p class="detail-value">{{ data.relationshipDetails.researchDate || 'TBD' }}</p>
-        </div>
-        
-        <div class="detail-item">
-          <label class="detail-label"><strong>Credit Override:</strong></label>
-          <p class="detail-value">{{ data.relationshipDetails.creditOverride || 'TBD' }}</p>
-        </div>
-        
-        <div class="detail-item">
-          <label class="detail-label"><strong>Relationship No Buy:</strong></label>
-          <p class="detail-value">{{ data.relationshipDetails.relationshipNoBuy || 'TBD' }}</p>
-        </div>
-      </div>
-    </mat-dialog-content>
-  </div>
-  <div class="dialog-footer">
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Close</button>
-    </mat-dialog-actions>
-  </div>
+      </mat-dialog-content>
+    </div>
+    <div class="dialog-footer">
+      <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close type="button">Cancel</button>
+        <button mat-raised-button 
+                color="primary" 
+                type="submit"
+                [disabled]="relationshipDetailsForm.invalid">
+          Save
+        </button>
+      </mat-dialog-actions>
+    </div>
+  </form>
 </div>
 
 <script src="assets/js/tiff.min.js"></script>

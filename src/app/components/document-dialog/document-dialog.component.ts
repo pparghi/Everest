@@ -100,6 +100,7 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   editTicketForm!: FormGroup;
   chequeSearchForm!: FormGroup;
   addNewTicketForm!: FormGroup;
+  relationshipDetailsForm!: FormGroup;
   changedNoaStatus!: string;
   payment_images!: { fullname: string; basename: any; }[];
   fileExtension: any;
@@ -392,6 +393,28 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       this.clientInvoiceService.getClientsInvoiceDetailNotes(data.InvoiceKey).subscribe(response => {
         this.detailNotesDataSource.data = response.data;
       });
+    }else if(data.relationshipDetails) {
+      // Initialize relationship details form
+      console.log('Relationship Details Data:', data.relationshipDetails);
+      console.log('Dispute Codes List:', data.disputeCodesList);
+      
+      // Format the RateDate for the datepicker if it exists
+      let formattedRateDate = data.relationshipDetails?.RateDate.replace(' ', 'T') || '';
+      
+      // Ensure NoBuyDisputeKey is properly set (convert to string if numeric)
+      const noBuyValue = data.relationshipDetails.NoBuyDisputeKey !== null && 
+                         data.relationshipDetails.NoBuyDisputeKey !== undefined 
+                         ? String(data.relationshipDetails.NoBuyDisputeKey) 
+                         : '';
+      
+      this.relationshipDetailsForm = this.fb.group({
+        CredExpireMos: [data.relationshipDetails.CredExpireMos || '', [Validators.min(0)]],
+        RateDate: [formattedRateDate],
+        CreditLimit: [data.relationshipDetails.CreditLimit || '', [Validators.min(0)]],
+        NoBuyDisputeKey: [noBuyValue]
+      });
+      
+      console.log('Form initialized with values:', this.relationshipDetailsForm.value);
     } else {
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
         this.contactDataSource.data = response.debtorContactsData;
@@ -697,6 +720,26 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   onChange(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     this.changedNoaStatus = selectElement.value
+  }
+
+  // Method to save relationship details
+  onSaveRelationshipDetails() {
+    if (this.relationshipDetailsForm.valid) {
+      const formData = this.relationshipDetailsForm.value;
+      console.log('Saving relationship details:', formData);
+      
+      // Close dialog and pass the updated data back to parent
+      this.dialogRef.close({
+        action: 'save',
+        data: formData
+      });
+    } else {
+      console.log('Form is invalid');
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.relationshipDetailsForm.controls).forEach(key => {
+        this.relationshipDetailsForm.get(key)?.markAsTouched();
+      });
+    }
   }
 
   // Helper method to convert TIFF to canvas using UTIF

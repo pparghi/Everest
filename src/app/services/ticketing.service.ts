@@ -83,7 +83,43 @@ export class TicketingService {
     .set('InUseUser', inUseUser)
     .set('LockUnlock', lockUnlock); // valid value: U or L
   
-  // Use GET method with params
-  return this.http.get<any>('https://everest.revinc.com:4202/api/actionToCreditRequest', { params });
-}
+    // Use GET method with params
+    return this.http.get<any>('https://everest.revinc.com:4202/api/actionToCreditRequest', { params });
+  }
+
+  getRelationshipDataList(ClientKey: number, DebtorKey: number): Observable<any> {
+    const url = `https://everest.revinc.com:4202/api/getRelationshipDataList?ClientKey=${ClientKey}&DebtorKey=${DebtorKey}`;
+    return this.http.get<any>(url);
+  }
+
+  updateRelationshipDataList(
+    agingKey: number,
+    creditLimit: number,
+    credAppBy: string,
+    rateDate: string,
+    credExpireDate: string,
+    credExpireMos: number,
+    noBuyDesc?: string,
+    noBuyDisputeKey?: number
+  ): Observable<any> {
+    const url = 'https://everest.revinc.com:4202/api/updateRelationshipDataList';
+    
+    const formData = new FormData();
+    formData.append('Agingkey', agingKey.toString());
+    formData.append('CreditLimit', creditLimit.toString());
+    formData.append('CredAppBy', credAppBy);
+    formData.append('RateDate', rateDate);
+    formData.append('CredExpireDate', credExpireDate);
+    formData.append('CredExpireMos', credExpireMos.toString());
+    
+    // Optional parameters
+    if (noBuyDesc !== undefined && noBuyDesc !== null) {
+      formData.append('NoBuyDesc', noBuyDesc);
+    }
+    if (noBuyDisputeKey !== undefined && noBuyDisputeKey !== null) {
+      formData.append('NoBuyDisputeKey', noBuyDisputeKey.toString());
+    }
+
+    return this.http.post<any>(url, formData);
+  }
 }

@@ -476,3 +476,33 @@
   font-size: 14px;
   color: #495057;
 }
+
+/* Relationship Details Form Styles */
+.additional-details-grid .detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.additional-details-grid .detail-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.additional-details-grid mat-form-field {
+  width: 100%;
+}
+
+.additional-details-grid .mat-mdc-form-field {
+  margin-bottom: 0;
+}
+
+.additional-details-grid .mat-mdc-text-field-wrapper {
+  background-color: #fff;
+}
+
+.dialog-footer button {
+  margin-left: 8px;
+}
