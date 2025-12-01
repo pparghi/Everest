@@ -113,7 +113,27 @@
 
         <ng-container matColumnDef="Balance">
             <th mat-header-cell *matHeaderCellDef mat-sort-header arrowPosition="before">Total AR</th>
-            <td mat-cell *matCellDef="let element" style="text-align: end;">{{ element.Balance | roundThousands }}</td>
+            <td mat-cell *matCellDef="let element" style="text-align: end;">
+                <!-- When both are 0 -->
+                <ng-container *ngIf="element.BalanceCAD == 0 && element.BalanceUSD == 0">
+                    0
+                </ng-container>
+                <!-- When only USD has value -->
+                <ng-container *ngIf="element.BalanceCAD == 0 && element.BalanceUSD != 0">
+                    {{ element.BalanceUSD | roundThousands }} USD
+                </ng-container>
+                <!-- When only CAD has value -->
+                <ng-container *ngIf="element.BalanceUSD == 0 && element.BalanceCAD != 0">
+                    {{ element.BalanceCAD | roundThousands }} CAD
+                </ng-container>
+                <!-- When both have values -->
+                <ng-container *ngIf="element.BalanceCAD != 0 && element.BalanceUSD != 0">
+                    <div [matTooltip]="(element.BalanceCAD | roundThousands) + ' CAD&#10;' + (element.BalanceUSD | roundThousands) + ' USD'" 
+                         matTooltipClass="multi-line-tooltip">
+                        {{ element.Balance | roundThousands }}
+                    </div>
+                </ng-container>
+            </td>
         </ng-container>
 
         <ng-container matColumnDef="%Utilized">
@@ -261,7 +281,26 @@
                                     [style.color]="userAccessLevel() === 'View Restricted' ? '#666' : '#3a8ada'" 
                                     [style.cursor]="userAccessLevel() === 'View Restricted' ? 'not-allowed' : 'pointer'"
                                     [style.text-decoration]="userAccessLevel() === 'View Restricted' ? 'none' : 'inherit'"
-                                    (click)="openDebtorStatementsDialog(element.DebtorKey)">{{ element.Balance | roundThousands }}</td>
+                                    (click)="openDebtorStatementsDialog(element.DebtorKey)">
+                                    <!-- When both are 0 -->
+                                    <ng-container *ngIf="element.BalanceCAD == 0 && element.BalanceUSD == 0">
+                                        0
+                                    </ng-container>
+                                    <!-- When only USD has value -->
+                                    <ng-container *ngIf="element.BalanceCAD == 0 && element.BalanceUSD != 0">
+                                        {{ element.BalanceUSD | roundThousands }} USD
+                                    </ng-container>
+                                    <!-- When only CAD has value -->
+                                    <ng-container *ngIf="element.BalanceUSD == 0 && element.BalanceCAD != 0">
+                                        {{ element.BalanceCAD | roundThousands }} CAD
+                                    </ng-container>
+                                    <!-- When both have values -->
+                                    <ng-container *ngIf="element.BalanceCAD != 0 && element.BalanceUSD != 0">
+                                        {{ element.Balance | roundThousands }}
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.BalanceCAD | roundThousands }} CAD</span>
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.BalanceUSD | roundThousands }} USD</span>
+                                    </ng-container>
+                                </td>
                                 <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
                                 <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>

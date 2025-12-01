@@ -278,3 +278,8 @@
   display: inline-flex;
   align-items: center;
 }
+
+::ng-deep .multi-line-tooltip .mdc-tooltip__surface {
+  white-space: pre-line;
+  text-align: right;
+}
