@@ -1370,7 +1370,7 @@ export class TicketingAnalysisComponent implements OnInit {
       processedData.rateDate,
       this.currentRelationshipData.credExpireDate || '',
       processedData.credExpireMos,
-      this.currentRelationshipData.noBuyDesc,
+      this.getRelationshipNoBuyDescription(''+processedData.noBuyDisputeKey),
       processedData.noBuyDisputeKey
     ).subscribe({
       next: (response) => {
@@ -2757,6 +2757,12 @@ export class TicketingAnalysisComponent implements OnInit {
         this.disputeCodesList = [];
       }
     });
+  }
+
+  // helper method to get relationship nobuy description by code
+  getRelationshipNoBuyDescription(code: string): string {
+    const noBuy = this.disputeCodesList.find(item => item.DisputeCodeKey === code);
+    return noBuy ? noBuy.DisputeCode : '';
   }
 
 }
