@@ -146,6 +146,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
   @ViewChild(MatSort) sort!: MatSort;
   AgingTabSelectedDebtor: string = '';
   AgingTabDebtorList: string[] = [];
+  AgingTabSelectedClient: string = '';
+  AgingTabClientList: string[] = [];
   originalStatementsData: any[] = [];
   isAgingDataLoaded: boolean = false;
   // charts
@@ -308,6 +310,8 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
         this.statementsDataSource.data = response.debtorStatementsDetails;
         // Extract unique debtor names for filter dropdown
         this.extractUniqueDebtors(response.debtorStatementsDetails);
+        // Extract unique client names for filter dropdown
+        this.extractUniqueClients(response.debtorStatementsDetails);
         // Extract unique status values for filter dropdown
         this.extractUniqueStatuses(response.debtorStatementsDetails);
         // calculate default total numbers
@@ -358,13 +362,15 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       });
       this.dataService.getDebtorsContacts(data.DebtorKey).subscribe(response => {
         this.statementsDataSource.data = response.debtorStatementsDetails;
-
+        
         // Store original data
         this.originalStatementsData = response.debtorStatementsDetails;
         // Set data source
         this.statementsDataSource.data = response.debtorStatementsDetails;
         // Extract unique debtor names for filter dropdown
         this.extractUniqueDebtors(response.debtorStatementsDetails);
+        // Extract unique client names for filter dropdown
+        this.extractUniqueClients(response.debtorStatementsDetails);
         // Extract unique status values for filter dropdown
         this.extractUniqueStatuses(response.debtorStatementsDetails);
         // calculate default total numbers
@@ -1492,6 +1498,13 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       );
     }
     
+    // Apply client filter if selected
+    if (this.AgingTabSelectedClient) {
+      filteredData = filteredData.filter(
+        item => item.CliName === this.AgingTabSelectedClient
+      );
+    }
+    
     // Apply status filters if any selected
     if (this.AgingTabSelectedStatuses && this.AgingTabSelectedStatuses.length > 0) {
       filteredData = filteredData.filter(
@@ -1532,6 +1545,17 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
 
     // Convert Set to sorted array
     this.AgingTabDebtorList = Array.from(debtorSet).sort();
+  }
+
+  // Add this method to extract unique client names
+  private extractUniqueClients(data: any[]): void {
+    // Use Set to get unique values
+    const clientSet = new Set<string>(
+      data.map(item => item.CliName).filter(name => name && name.trim() !== '')
+    );
+
+    // Convert Set to sorted array
+    this.AgingTabClientList = Array.from(clientSet).sort();
   }
 
   // Add this method to handle filter changes

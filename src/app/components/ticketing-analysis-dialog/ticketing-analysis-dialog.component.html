@@ -428,6 +428,18 @@
                         <p class="title2">Client Relationship Analysis</p>
                         <div class="flex-row">
                             <div class="flex-column">
+                                <p class="text2">Select Client</p>
+                                <mat-form-field appearance="outline" style="width: 100%; margin-top: 5px;">
+                                    <mat-select [(ngModel)]="selectedClientKey" (selectionChange)="onClientChange($event.value)" placeholder="Select Client" style="height: 30px;">
+                                        <mat-option *ngFor="let client of switchableClients" [value]="client.ClientKey">
+                                            {{ client.Client }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div class="flex-row">
+                            <div class="flex-column">
                                 <p class="text2">Debtor's Concentration on Client Facility</p>
                                 <p class="title1" [ngClass]="textColorByValueAndType(this.DebtorConcentrationPercentage)">{{this.DebtorConcentrationPercentage}}</p>
                             </div>

@@ -359,7 +359,7 @@
   z-index: 10;
 }
 
-.debtor-filter,
+.debtor-filter, .client-filter,
 .status-filter {
   flex: 1;
   min-width: 200px;

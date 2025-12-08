@@ -153,6 +153,9 @@ export class TicketingAnalysisComponent implements OnInit {
   switchableDebtors: any[] = []; // list of switchable debtors for the current debtor
   allRelatedDebtors: any[] = []; // list of all related debtors for the current debtor
 
+  switchableClients: any[] = []; // list of switchable clients for the current debtor
+  selectedClientKey: string = ''; // currently selected client key
+
   // alternate addresses
   alternateAddresses: any[] = [];
 
@@ -200,6 +203,7 @@ export class TicketingAnalysisComponent implements OnInit {
 
     this.originalDebtorKey = this.ticketData.DebtorKey;
     this.originalDebtorType = this.ticketData.Type;
+    this.selectedClientKey = this.ticketData.ClientKey; // Initialize with current client
 
     let tempDebtorKey: string;
 
@@ -461,6 +465,7 @@ export class TicketingAnalysisComponent implements OnInit {
   searchAllClientsByDebtorKey(DebtorKey: number, ClientKey: number): void {
     this.clientService.getClients(DebtorKey).subscribe(response => {
       console.log("ticketing-analysis-component, getClients by debtorKey: ", response.data);
+      this.switchableClients = response.data; // Update switchable clients
       if (!this.emittedRelatedClientList){
         this.relatedClientList.emit(response.data);
         this.emittedRelatedClientList = true;
@@ -1470,6 +1475,15 @@ export class TicketingAnalysisComponent implements OnInit {
     return processedResult;
   }
 
+  // Helper method to get the selected client name
+  getSelectedClientName(): string {
+    if (this.selectedClientKey && this.switchableClients.length > 0) {
+      const selectedClient = this.switchableClients.find(client => client.ClientKey === this.selectedClientKey);
+      return selectedClient?.Client || '';
+    }
+    return '';
+  }
+
   // method to open aging documents dialog
   openAgingDocumentsDialog(passMode: string) {
     if (this.loadingCurrentDebtorRelationship){
@@ -1481,6 +1495,13 @@ export class TicketingAnalysisComponent implements OnInit {
       });
       return;
     }
+    console.log('agingKey:', this.currentRelationshipData?.AgingKey || this.currentDebtorRelationship?.AgingKey || 0);
+    console.log('ticketingDetails for aging documents dialog:', {
+      Client: this.getSelectedClientName() || this.ticketData.Client,
+      ClientKey: this.selectedClientKey || this.ticketData.ClientKey,
+      Debtor: this.debtorDetails?.Debtor || this.ticketData.Debtor,
+      DebtorKey: this.debtorDetails?.DebtorKey || this.ticketData.DebtorKey
+    });
 
     const dialogRef = this.dialog.open(AgingDocumentsDialogComponent, {
       width: '1000px',
@@ -1488,10 +1509,16 @@ export class TicketingAnalysisComponent implements OnInit {
       height: 'auto',
       panelClass: 'custom-dialog-container',
       data: {
-        ticketingDetails: this.ticketData,
+        // ticketingDetails: this.ticketData,
+        ticketingDetails: {
+          Client: this.getSelectedClientName() || this.ticketData.Client,
+          ClientKey: this.selectedClientKey || this.ticketData.ClientKey,
+          Debtor: this.debtorDetails?.Debtor || this.ticketData.Debtor,
+          DebtorKey: this.debtorDetails?.DebtorKey || this.ticketData.DebtorKey
+        },
         mode: passMode,
         categories: [{DocCatKey: '0', Descr: 'GENERAL'}],
-        agingKey: this.currentDebtorRelationship?.AgingKey || 0,
+        agingKey: this.currentRelationshipData?.AgingKey || this.currentDebtorRelationship?.AgingKey || 0,
       }
     });
 
@@ -1983,13 +2010,16 @@ export class TicketingAnalysisComponent implements OnInit {
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
 
+    // Reset selected client to original when switching debtors
+    this.selectedClientKey = this.ticketData.ClientKey;
+
     // fetch client concentration percentage
-    this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.selectedClientKey));
     // fetch debtor concentration percentage
-    this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.selectedClientKey));
     
     // get new relationship data
-    this.getRelationshipData(this.ticketData.ClientKey, this.debtorDetails.DebtorKey);
+    this.getRelationshipData(this.selectedClientKey, this.debtorDetails.DebtorKey);
 
     // load alternate addresses
     this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
@@ -2036,13 +2066,16 @@ export class TicketingAnalysisComponent implements OnInit {
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), this.ticketData.ClientNo, this.trendPeriodChar, 1); // load for chart 1
     this.loadTrendDialogData(parseInt(this.debtorDetails.DebtorKey), '', this.trendPeriodChar2, 2); // load for chart 2
 
+    // Reset selected client to original when resetting debtor
+    this.selectedClientKey = this.ticketData.ClientKey;
+
     // fetch client concentration percentage
-    this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    this.searchAllClientsByDebtorKey(parseInt(this.debtorDetails.DebtorKey), parseInt(this.selectedClientKey));
     // fetch debtor concentration percentage
-    this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.ticketData.ClientKey));
+    this.loadDebtorConcentrationPercentage(parseInt(this.debtorDetails.DebtorKey), parseInt(this.selectedClientKey));
     
     // get new relationship data
-    this.getRelationshipData(this.ticketData.ClientKey, this.debtorDetails.DebtorKey);
+    this.getRelationshipData(this.selectedClientKey, this.debtorDetails.DebtorKey);
 
     // load alternate addresses
     this.getDebtorAlternateAddresses(this.debtorDetails.DebtorKey);
@@ -2055,6 +2088,24 @@ export class TicketingAnalysisComponent implements OnInit {
 
     this.cdr.detectChanges(); // Trigger change detection
 
+  }
+
+  // eventhandler for selecting client from dropdown
+  onClientChange(selectedClientKey: string) {
+    this.selectedClientKey = selectedClientKey;
+    
+    // Get current debtor key (use switched debtor if available, otherwise original)
+    const currentDebtorKey = this.switchedDebtorKey || this.ticketData.DebtorKey;
+    
+    // Refresh client and debtor concentration percentages
+    this.searchAllClientsByDebtorKey(parseInt(currentDebtorKey), parseInt(selectedClientKey));
+    this.loadDebtorConcentrationPercentage(parseInt(currentDebtorKey), parseInt(selectedClientKey));
+    
+    // Update relationship data
+    this.getRelationshipData(selectedClientKey, currentDebtorKey);
+    
+    console.log('Client switched to:', selectedClientKey);
+    this.cdr.detectChanges();
   }
 
   // method to get debtor's alternate addresses by DebtorKey

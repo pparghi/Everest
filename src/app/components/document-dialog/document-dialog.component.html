@@ -631,6 +631,16 @@
         </mat-select>
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="client-filter">
+        <mat-label>Filter by Client</mat-label>
+        <mat-select [(ngModel)]="AgingTabSelectedClient" (selectionChange)="onAgingTabFilterChange()">
+          <mat-option value="">All Clients</mat-option>
+          <mat-option *ngFor="let client of AgingTabClientList" [value]="client">
+            {{ client }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <mat-form-field appearance="outline" class="status-filter">
         <mat-label>Filter by Invoice Status</mat-label>
         <mat-select [(ngModel)]="AgingTabSelectedStatuses" multiple (selectionChange)="onAgingTabFilterChange()">
@@ -1279,6 +1289,16 @@
                 <mat-option value="">All Debtors</mat-option>
                 <mat-option *ngFor="let debtor of AgingTabDebtorList" [value]="debtor">
                   {{ debtor }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="client-filter">
+              <mat-label>Filter by Client</mat-label>
+              <mat-select [(ngModel)]="AgingTabSelectedClient" (selectionChange)="onAgingTabFilterChange()">
+                <mat-option value="">All Clients</mat-option>
+                <mat-option *ngFor="let client of AgingTabClientList" [value]="client">
+                  {{ client }}
                 </mat-option>
               </mat-select>
             </mat-form-field>
