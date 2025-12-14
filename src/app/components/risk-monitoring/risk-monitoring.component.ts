@@ -54,6 +54,9 @@ export class RiskMonitoringComponent implements OnInit {
   dueDateFromBack: any;
   dueDateToBack: any;  
   profile: any; 
+  // Sorting state properties
+  sortActive: string = 'Client';
+  sortDirection: 'asc' | 'desc' | '' = 'asc';
   NavOptionMasterDebtor: any;
   NavAccessMasterDebtor: any;
   NavAccessClientRisk: any;
@@ -121,6 +124,13 @@ export class RiskMonitoringComponent implements OnInit {
         // Will be applied to paginator after view init
         this.pageSize = filterValues.pageSize;
       }
+      // Load sorting state
+      if (filterValues.sortActive) {
+        this.sortActive = filterValues.sortActive;
+      }
+      if (filterValues.sortDirection) {
+        this.sortDirection = filterValues.sortDirection;
+      }
     }
 
     // set default date to recent 7 days
@@ -180,10 +190,21 @@ export class RiskMonitoringComponent implements OnInit {
       });
     }  
     if (this.sort) {
+      // Restore sorting state
+      this.sort.active = this.sortActive;
+      this.sort.direction = this.sortDirection;
+      
       this.sort.sortChange.subscribe(() => {  
         if(this.paginator){
           this.paginator.pageIndex = 0;  
         }
+        // Save sorting state
+        this.sortActive = this.sort.active;
+        this.sortDirection = this.sort.direction;
+        this.filterService.saveFiltersToSessionStorage('risk-monitoring', {
+          sortActive: this.sortActive,
+          sortDirection: this.sortDirection
+        });
         this.loadData();  
       });  
     }                     
@@ -230,8 +251,16 @@ export class RiskMonitoringComponent implements OnInit {
 
 
     this.isLoading = true;
-    let sort = this.sort && this.sort.active ? this.sort.active : 'Client';
-    let order = this.sort && this.sort.direction ? this.sort.direction : 'ASC';
+    // Use stored sorting values or fallback to sort component values, then defaults
+    let sort = this.sortActive || (this.sort && this.sort.active ? this.sort.active : 'Client');
+    let sortDirection = this.sortDirection || (this.sort && this.sort.direction ? this.sort.direction : 'asc');
+    // Convert Angular Material sorting format to API format
+    let order: string;
+    if (sortDirection === 'desc') {
+      order = 'DESC';
+    } else {
+      order = 'ASC';
+    }
 
     // const page = this.paginator ? this.paginator.pageIndex + 1 : 1;
     // const pageSize = this.paginator ? this.paginator.pageSize : 25;  
@@ -488,6 +517,18 @@ export class RiskMonitoringComponent implements OnInit {
     if (this.paginator) {
       this.paginator.pageIndex = 0;
       this.paginator.pageSize = 25;
+    }
+
+    // Reset sorting state to defaults
+    this.sortActive = 'Client';
+    this.sortDirection = 'asc';
+    this.filterService.saveFiltersToSessionStorage('risk-monitoring', {
+      sortActive: this.sortActive,
+      sortDirection: this.sortDirection
+    });
+    if (this.sort) {
+      this.sort.active = this.sortActive;
+      this.sort.direction = this.sortDirection;
     }
 
     this.loadData();
