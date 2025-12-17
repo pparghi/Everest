@@ -1308,29 +1308,40 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
     if (confirmed && this.debtorDetails) {
 
       const formData = new FormData();
-      formData.append('DebtorKey', this.debtorDetails.DebtorKey);
-      formData.append('Debtor', this.debtorDetails.Debtor);
-      formData.append('Duns', this.debtorDetails.Duns);
-      formData.append('Addr1', this.debtorDetails.Addr1);
-      formData.append('Addr2', this.debtorDetails.Addr2);
-      formData.append('Phone1', this.debtorDetails.Phone1);
-      formData.append('Phone2', this.debtorDetails.Phone2);
-      formData.append('City', this.debtorDetails.City);
-      formData.append('State', this.debtorDetails.State);
-      formData.append('TotalCreditLimit', this.debtorDetails.TotalCreditLimit);
-      formData.append('IndivCreditLimit', this.debtorDetails.IndivCreditLimit);
-      formData.append('AIGLimit', this.debtorDetails.AIGLimit);
-      formData.append('Terms', this.debtorDetails.Terms);
-      formData.append('MotorCarrNo', this.debtorDetails.MotorCarrNo);
-      formData.append('CredAppBy', this.debtorDetails.CredAppBy);
-      formData.append('Email', this.debtorDetails.Email);
-      formData.append('RateDate', this.editTicketForm.value.RateDate); // get the RateDate from editTicketForm, others are keep the same
-      formData.append('CredExpireMos', this.debtorDetails.CredExpireMos);
-      formData.append('Notes', this.debtorDetails.Notes);
-      formData.append('CredNote', this.debtorDetails.CredNote);
-      formData.append('Warning', this.debtorDetails.Warning);
-      formData.append('DotNo', this.debtorDetails.DotNo);
+      
+      // Helper function to append only non-empty values
+      const appendIfNotEmpty = (key: string, value: any) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      };
+
+      appendIfNotEmpty('DebtorKey', this.debtorDetails.DebtorKey);
+      appendIfNotEmpty('Debtor', this.debtorDetails.Debtor);
+      appendIfNotEmpty('Duns', this.debtorDetails.DbDunsNo);
+      appendIfNotEmpty('Addr1', this.debtorDetails.Addr1);
+      appendIfNotEmpty('Addr2', this.debtorDetails.Addr2);
+      appendIfNotEmpty('Phone1', this.debtorDetails.Phone1);
+      appendIfNotEmpty('Phone2', this.debtorDetails.Phone2);
+      appendIfNotEmpty('City', this.debtorDetails.City);
+      appendIfNotEmpty('State', this.debtorDetails.State);
+      appendIfNotEmpty('TotalCreditLimit', this.debtorDetails.TotalCreditLimit);
+      appendIfNotEmpty('IndivCreditLimit', this.debtorDetails.IndivCreditLimit);
+      appendIfNotEmpty('AIGLimit', this.debtorDetails.AIGLimit);
+      appendIfNotEmpty('Terms', this.debtorDetails.Terms);
+      appendIfNotEmpty('MotorCarrNo', this.debtorDetails.MotorCarrNo);
+      appendIfNotEmpty('CredAppBy', this.debtorDetails.CredAppBy);
+      appendIfNotEmpty('Email', this.debtorDetails.Email);
+      appendIfNotEmpty('RateDate', this.editTicketForm.value.RateDate); // get the RateDate from editTicketForm, others are keep the same
+      appendIfNotEmpty('CredExpireMos', this.debtorDetails.CredExpireMos);
+      appendIfNotEmpty('Notes', this.debtorDetails.Notes);
+      appendIfNotEmpty('CredNote', this.debtorDetails.CredNote);
+      appendIfNotEmpty('Warning', this.debtorDetails.Warning);
+      appendIfNotEmpty('DotNo', this.debtorDetails.DotNo);
 // console.log('formData:', this.debtorDetails, this.editTicketForm.value.RateDate);
+// formData.forEach((value, key) => {
+//   console.log(`${key}: ${value}`);
+// });
       this.http.post(`https://everest.revinc.com:4202/api/updateDebtorDetails`, formData)
         .subscribe((response: any) => {
           console.log('Debtor detail update response:', response);
