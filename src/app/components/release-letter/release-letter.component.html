@@ -72,6 +72,14 @@
         <mat-radio-button [value]="'PDFWithWatermark'" [disabled]="isWatermarkDisabled()">PDF with Watermark</mat-radio-button>
     </mat-radio-group>
 
+    <mat-label>French</mat-label>
+    <div class="inline-radio-group">
+        <mat-radio-group aria-label="French" formControlName="french">
+            <mat-radio-button [value]="'false'">No</mat-radio-button>
+            <mat-radio-button [value]="'true'">Yes</mat-radio-button>
+        </mat-radio-group>
+    </div>
+
     <br>
     <div class="buttons-in-row">
         <button mat-flat-button color="primary" type="submit" value="createSingleReleaseLetter" >Save Single Release Letter</button>

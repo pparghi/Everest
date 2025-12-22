@@ -39,6 +39,7 @@ export class ReleaseLetterComponent implements OnInit {
     debtor: new FormControl<DebtorInterface>({ DebtorKey: '', DebtorName: '', DebtorNo: '' }), // Debtor field
     ifNoBuySelection: new FormControl('false'), // If No Buy Selection field
     reportFormat: new FormControl('PDF'), // Report Format field
+    french: new FormControl('false'), // French field - default to No
   });
 
 
@@ -447,7 +448,7 @@ export class ReleaseLetterComponent implements OnInit {
     const buttonValue = (target.querySelector('button[type="submit"]:focus') as HTMLButtonElement)?.value;
 
     if (buttonValue === 'createSingleReleaseLetter') {
-      this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, false).subscribe(
+      this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, false, this.releaseLetterForm.value.french==="true"?true:false).subscribe(
         (response: any) => {
           // console.log('LOR API response:', response);
           // Handle the response from the API
@@ -458,7 +459,7 @@ export class ReleaseLetterComponent implements OnInit {
     }
     else if (buttonValue === 'emailReleaseLetterToSingleDebtor' && this.userAccessLevel() === 'Full') {
       this.isEmailOneButtonEnabled = false;
-      this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, true).subscribe(
+      this.documentsReportsService.callLORCreatePDFAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), debtorKeyParameter, this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false, this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, true, this.releaseLetterForm.value.french==="true"?true:false).subscribe(
         (response: any) => {
           console.log('LOR Email Single Debtor API response:', response);
           this.isEmailOneButtonEnabled = true;
@@ -480,7 +481,7 @@ export class ReleaseLetterComponent implements OnInit {
       }
       this.isEmailButtonEnabled = false;
       // console.log('callLORCreatePDFsAPI: ', parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''),' , ', this.releaseLetterForm.value.ifNoBuySelection==="true"?true:false,' , ', this.releaseLetterForm.value.reportFormat==="PDFWithWatermark"?true:false, ' , ', true);
-      this.documentsReportsService.callLORCreatePDFsAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), this.releaseLetterForm.value.ifNoBuySelection === "true" ? true : false, this.releaseLetterForm.value.reportFormat === "PDFWithWatermark" ? true : false, true, this.userExt);
+      this.documentsReportsService.callLORCreatePDFsAPI(parseInt(this.releaseLetterForm.value.client?.ClientKey ?? ''), this.releaseLetterForm.value.ifNoBuySelection === "true" ? true : false, this.releaseLetterForm.value.reportFormat === "PDFWithWatermark" ? true : false, true, this.userExt, this.releaseLetterForm.value.french==="true"?true:false);
       // .subscribe({
       //   next: () => {
       //     this.isEmailButtonEnabled = true;
