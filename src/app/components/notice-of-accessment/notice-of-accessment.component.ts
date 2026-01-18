@@ -33,6 +33,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
     client: new FormControl<ClientInterface>({ClientId:'', ClientKey:'', ClientName:'', MasterClientKey:''}, [Validators.required]), // Client field
     debtor: new FormControl<DebtorInterface>({DebtorKey:'', DebtorName:'', DebtorNo:''}, [Validators.required]), // Debtor field
     factorSignature: new FormControl(false), // FormControl for the Factor Signature radio buttons
+    updateClientDebtorNOASent: new FormControl(false), // FormControl for the Update Client/Debtor NOA Sent radio buttons
   });
   clientOptions: ClientInterface[] = [];
   debtorOptions: DebtorInterface[] = [];
@@ -334,7 +335,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
         this.noaForm.controls['debtor'].setErrors({reqired: true});
         return;
       }
-      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), this.noaForm.value.debtor?.DebtorKey ?? '', this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'','','','').subscribe(
+      this.documentsReportsService.callNOAIRISAPI(parseInt(this.noaForm.value.client?.ClientKey ?? ''), this.noaForm.value.debtor?.DebtorKey ?? '', this.noaForm.value.factorSignature??false,true,false,true,false,false,false,false,'','','','', this.noaForm.value.updateClientDebtorNOASent??false).subscribe(
         (response: any) => {
           // Handle the response from the API
           this.openBase64Pdf(response.result, "NOA-"+this.noaForm.value.client?.ClientName+"-"+this.noaForm.value.debtor?.DebtorName);
@@ -434,7 +435,7 @@ export class NoticeOfAccessmentComponent implements OnInit {
 
         let tempDebtorKeyArr = debtorKeyArray.map(debtor => debtor.DebtorKey.trim());
 
-        this.documentsReportsService.callNOAIRISAPISendBulkEmail(parseInt(this.noaForm.value.client?.ClientKey ?? ''), tempDebtorKeyArr.join(','), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail, this.userExt);
+        this.documentsReportsService.callNOAIRISAPISendBulkEmail(parseInt(this.noaForm.value.client?.ClientKey ?? ''), tempDebtorKeyArr.join(','), this.noaForm.value.factorSignature ?? false, true, false, true, false, true, false, false, '', this.userName, this.userEmail, this.userExt, this.noaForm.value.updateClientDebtorNOASent ?? false);
         window.alert(
           "Your request has been submitted successfully.\n" +
           "Please check your inbox for result and the client's notes for results in a few minutes."

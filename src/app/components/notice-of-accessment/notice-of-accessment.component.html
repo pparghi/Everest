@@ -42,6 +42,12 @@
         <mat-radio-button [value]="true">Yes</mat-radio-button>
     </mat-radio-group>
     <br>
+    <mat-label>Update Client/Debtor NOA Sent</mat-label>
+    <mat-radio-group aria-label="Update Client/Debtor NOA Sent" formControlName="updateClientDebtorNOASent">
+        <mat-radio-button [value]="false">No</mat-radio-button>
+        <mat-radio-button [value]="true">Yes</mat-radio-button>
+    </mat-radio-group>
+    <br>
     <div class="buttons-in-row">
         <button mat-flat-button color="primary" type="submit" value="createIndividualPDF">Create Individual NOA PDF</button>
         @if (userAccessLevel() === 'Full'){
