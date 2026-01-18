@@ -301,11 +301,106 @@
                                         <br><span style="font-size: 0.85em; color: #666;">{{ element.BalanceUSD | roundThousands }} USD</span>
                                     </ng-container>
                                 </td>
-                                <td class="cell" style="width: 10%;">{{ element.Age0to30 | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.Age31to60 | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.Age61to90 | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.Age91to120 | roundThousands }}</td>
-                                <td class="cell" style="width: 10%;">{{ element.Age121to150 | roundThousands }}</td>                                
+                                <td class="cell" style="width: 10%;">
+                                    <!-- When both are 0 -->
+                                    <ng-container *ngIf="element.Age0to30CAD == 0 && element.Age0to30USD == 0">
+                                        0
+                                    </ng-container>
+                                    <!-- When only USD has value -->
+                                    <ng-container *ngIf="element.Age0to30CAD == 0 && element.Age0to30USD != 0">
+                                        {{ element.Age0to30USD | roundThousands }} USD
+                                    </ng-container>
+                                    <!-- When only CAD has value -->
+                                    <ng-container *ngIf="element.Age0to30USD == 0 && element.Age0to30CAD != 0">
+                                        {{ element.Age0to30CAD | roundThousands }} CAD
+                                    </ng-container>
+                                    <!-- When both have values -->
+                                    <ng-container *ngIf="element.Age0to30CAD != 0 && element.Age0to30USD != 0">
+                                        {{ element.Age0to30 | roundThousands }}
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age0to30CAD | roundThousands }} CAD</span>
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age0to30USD | roundThousands }} USD</span>
+                                    </ng-container>
+                                </td>
+                                <td class="cell" style="width: 10%;">
+                                    <!-- When both are 0 -->
+                                    <ng-container *ngIf="element.Age31to60CAD == 0 && element.Age31to60USD == 0">
+                                        0
+                                    </ng-container>
+                                    <!-- When only USD has value -->
+                                    <ng-container *ngIf="element.Age31to60CAD == 0 && element.Age31to60USD != 0">
+                                        {{ element.Age31to60USD | roundThousands }} USD
+                                    </ng-container>
+                                    <!-- When only CAD has value -->
+                                    <ng-container *ngIf="element.Age31to60USD == 0 && element.Age31to60CAD != 0">
+                                        {{ element.Age31to60CAD | roundThousands }} CAD
+                                    </ng-container>
+                                    <!-- When both have values -->
+                                    <ng-container *ngIf="element.Age31to60CAD != 0 && element.Age31to60USD != 0">
+                                        {{ element.Age31to60 | roundThousands }}
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age31to60CAD | roundThousands }} CAD</span>
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age31to60USD | roundThousands }} USD</span>
+                                    </ng-container>
+                                </td>
+                                <td class="cell" style="width: 10%;">
+                                    <!-- When both are 0 -->
+                                    <ng-container *ngIf="element.Age61to90CAD == 0 && element.Age61to90USD == 0">
+                                        0
+                                    </ng-container>
+                                    <!-- When only USD has value -->
+                                    <ng-container *ngIf="element.Age61to90CAD == 0 && element.Age61to90USD != 0">
+                                        {{ element.Age61to90USD | roundThousands }} USD
+                                    </ng-container>
+                                    <!-- When only CAD has value -->
+                                    <ng-container *ngIf="element.Age61to90USD == 0 && element.Age61to90CAD != 0">
+                                        {{ element.Age61to90CAD | roundThousands }} CAD
+                                    </ng-container>
+                                    <!-- When both have values -->
+                                    <ng-container *ngIf="element.Age61to90CAD != 0 && element.Age61to90USD != 0">
+                                        {{ element.Age61to90 | roundThousands }}
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age61to90CAD | roundThousands }} CAD</span>
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age61to90USD | roundThousands }} USD</span>
+                                    </ng-container>
+                                </td>
+                                <td class="cell" style="width: 10%;">
+                                    <!-- When both are 0 -->
+                                    <ng-container *ngIf="element.Age91to120CAD == 0 && element.Age91to120USD == 0">
+                                        0
+                                    </ng-container>
+                                    <!-- When only USD has value -->
+                                    <ng-container *ngIf="element.Age91to120CAD == 0 && element.Age91to120USD != 0">
+                                        {{ element.Age91to120USD | roundThousands }} USD
+                                    </ng-container>
+                                    <!-- When only CAD has value -->
+                                    <ng-container *ngIf="element.Age91to120USD == 0 && element.Age91to120CAD != 0">
+                                        {{ element.Age91to120CAD | roundThousands }} CAD
+                                    </ng-container>
+                                    <!-- When both have values -->
+                                    <ng-container *ngIf="element.Age91to120CAD != 0 && element.Age91to120USD != 0">
+                                        {{ element.Age91to120 | roundThousands }}
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age91to120CAD | roundThousands }} CAD</span>
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age91to120USD | roundThousands }} USD</span>
+                                    </ng-container>
+                                </td>
+                                <td class="cell" style="width: 10%;">
+                                    <!-- When both are 0 -->
+                                    <ng-container *ngIf="element.Age121to150CAD == 0 && element.Age121to150USD == 0">
+                                        0
+                                    </ng-container>
+                                    <!-- When only USD has value -->
+                                    <ng-container *ngIf="element.Age121to150CAD == 0 && element.Age121to150USD != 0">
+                                        {{ element.Age121to150USD | roundThousands }} USD
+                                    </ng-container>
+                                    <!-- When only CAD has value -->
+                                    <ng-container *ngIf="element.Age121to150USD == 0 && element.Age121to150CAD != 0">
+                                        {{ element.Age121to150CAD | roundThousands }} CAD
+                                    </ng-container>
+                                    <!-- When both have values -->
+                                    <ng-container *ngIf="element.Age121to150CAD != 0 && element.Age121to150USD != 0">
+                                        {{ element.Age121to150 | roundThousands }}
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age121to150CAD | roundThousands }} CAD</span>
+                                        <br><span style="font-size: 0.85em; color: #666;">{{ element.Age121to150USD | roundThousands }} USD</span>
+                                    </ng-container>
+                                </td>                                
                                 <td class="cell" style="width: 10%;">{{ math.round(element.DSO30) }}</td>
                                 <td class="cell" style="width: 10%;">{{ math.round(element.DSO60) }}</td>
                                 <td class="cell" style="width: 10%;">{{ math.round(element.DSO90) }}</td>
