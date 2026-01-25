@@ -34,6 +34,17 @@ interface DebtorData {
   DbDunsNo: string;
 }
 
+interface PastDueData {
+  Debtor: string;
+  AIGLimit: string;
+  Terms: string;
+  Balance: string;
+  PastDue: string;
+  PctPastDue: string;
+  NoRelationships: string;
+  PctDispute: string;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -105,8 +116,9 @@ export class DashboardComponent implements OnInit {
     
     this.documentsReportsService.getFullDebtorListForReport().subscribe({
       next: (response: any) => {
-        console.log('Report data received:', response);
-        const debtorData: DebtorData[] = response.data;
+        // console.log('Report data received:', response);
+        const debtorData: DebtorData[] = response.debtorList;
+        const pastDueData: PastDueData[] = response.pastDueList;
         
         if (!debtorData || debtorData.length === 0) {
           alert('No data available for export.');
@@ -114,7 +126,7 @@ export class DashboardComponent implements OnInit {
           return;
         }
         
-        this.exportDebtorListToExcel(debtorData);
+        this.exportDebtorListToExcel(debtorData, pastDueData);
         // Loading will be stopped in the export method
       },
       error: (error: any) => {
@@ -125,7 +137,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  private exportDebtorListToExcel(debtorData: DebtorData[]): void {
+  private exportDebtorListToExcel(debtorData: DebtorData[], pastDueData: PastDueData[]): void {
     // Create a simple CSV-like structure first, then convert to Excel
     const headers = [
       'Debtor', 'Master Debtor', 'Total Credit Limit', 'Individual Credit Limit', 
@@ -290,10 +302,150 @@ export class DashboardComponent implements OnInit {
       }
     }
 
+    // Create second worksheet for Past Due data
+    const pastDueHeaders = [
+      'Debtor', 'AIGLimit', 'Terms', 'Balance', 'PastDue', '% Past Due', '# Relationships', '% Dispute'
+    ];
+
+    const pastDueRawData: any[][] = [pastDueHeaders];
+    
+    pastDueData.forEach(item => {
+      pastDueRawData.push([
+        item.Debtor?.trim() || '',
+        item.AIGLimit?.trim() || '',
+        item.Terms?.trim() || '',
+        item.Balance?.trim() || '',
+        item.PastDue?.trim() || '',
+        item.PctPastDue?.trim() || '',
+        item.NoRelationships?.trim() || '',
+        item.PctDispute?.trim() || ''
+      ]);
+    });
+
+    const pastDueWorksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(pastDueRawData);
+
+    // Set column widths for past due sheet
+    pastDueWorksheet['!cols'] = [
+      { wch: 35 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 15 },
+      { wch: 15 }, { wch: 18 }, { wch: 15 }
+    ];
+
+    // Apply number formatting to past due columns
+    const pastDueRange = XLSX.utils.decode_range(pastDueWorksheet['!ref'] || 'A1');
+    
+    for (let R = 1; R <= pastDueRange.e.r; R++) {
+      // Currency format for columns B, D, E (AIGLimit, Balance, PastDue)
+      for (let C of [1, 3, 4]) {
+        const address = XLSX.utils.encode_cell({ r: R, c: C });
+        if (pastDueWorksheet[address]) {
+          pastDueWorksheet[address].z = '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)';
+          const numValue = parseFloat(pastDueWorksheet[address].v) || 0;
+          pastDueWorksheet[address].v = numValue;
+          pastDueWorksheet[address].t = 'n';
+        }
+      }
+      
+      // Number format for column C (Terms)
+      const termsAddress = XLSX.utils.encode_cell({ r: R, c: 2 });
+      if (pastDueWorksheet[termsAddress]) {
+        pastDueWorksheet[termsAddress].z = '0';
+        const numValue = parseFloat(pastDueWorksheet[termsAddress].v) || 0;
+        pastDueWorksheet[termsAddress].v = numValue;
+        pastDueWorksheet[termsAddress].t = 'n';
+      }
+      
+      // Percentage format for columns F and H (PctPastDue, PctDispute)
+      for (let C of [5, 7]) {
+        const address = XLSX.utils.encode_cell({ r: R, c: C });
+        if (pastDueWorksheet[address]) {
+          pastDueWorksheet[address].z = '0.00%';
+          const percentValue = parseFloat(pastDueWorksheet[address].v) || 0;
+          pastDueWorksheet[address].v = percentValue;
+          pastDueWorksheet[address].t = 'n';
+        }
+      }
+      
+      // Number format for column G (NoRelationships)
+      const relAddress = XLSX.utils.encode_cell({ r: R, c: 6 });
+      if (pastDueWorksheet[relAddress]) {
+        pastDueWorksheet[relAddress].z = '0';
+        const numValue = parseFloat(pastDueWorksheet[relAddress].v) || 0;
+        pastDueWorksheet[relAddress].v = numValue;
+        pastDueWorksheet[relAddress].t = 'n';
+      }
+    }
+
+    // Add autofilter to past due sheet
+    pastDueWorksheet['!autofilter'] = { ref: pastDueWorksheet['!ref'] || 'A1' };
+
+    // Apply styles to the past due header row
+    for (let C = 0; C <= pastDueRange.e.c; C++) {
+      const headerAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (pastDueWorksheet[headerAddress]) {
+        pastDueWorksheet[headerAddress].s = {
+          font: {
+            bold: true,
+            color: { rgb: "FFFFFF" },
+            sz: 11,
+            name: "Calibri"
+          },
+          fill: {
+            patternType: "solid",
+            fgColor: { rgb: "4472C4" }
+          },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          },
+          alignment: {
+            horizontal: "center",
+            vertical: "center"
+          }
+        };
+      }
+    }
+
+    // Apply styles to past due data rows with alternating colors
+    for (let R = 1; R <= pastDueRange.e.r; R++) {
+      const isEvenRow = R % 2 === 0;
+      const fillColor = isEvenRow ? "F2F2F2" : "FFFFFF";
+      
+      for (let C = 0; C <= pastDueRange.e.c; C++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        if (pastDueWorksheet[cellAddress]) {
+          let horizontalAlign = "left";
+          if (C >= 1 && C <= 7 && C !== 0) horizontalAlign = "right"; // All numeric columns
+          
+          pastDueWorksheet[cellAddress].s = {
+            font: {
+              sz: 10,
+              name: "Calibri"
+            },
+            fill: {
+              patternType: "solid",
+              fgColor: { rgb: fillColor }
+            },
+            border: {
+              top: { style: "thin", color: { rgb: "D0D0D0" } },
+              bottom: { style: "thin", color: { rgb: "D0D0D0" } },
+              left: { style: "thin", color: { rgb: "D0D0D0" } },
+              right: { style: "thin", color: { rgb: "D0D0D0" } }
+            },
+            alignment: {
+              horizontal: horizontalAlign,
+              vertical: "center"
+            }
+          };
+        }
+      }
+    }
+
     // Create workbook with minimal metadata
     const workbook: XLSX.WorkBook = {
-      Sheets: { 'DebtorList': worksheet },
-      SheetNames: ['DebtorList']
+      Sheets: { 'DebtorList': worksheet, 'PastDue': pastDueWorksheet },
+      SheetNames: ['DebtorList', 'PastDue']
     };
 
     // Generate Excel file with styling enabled
