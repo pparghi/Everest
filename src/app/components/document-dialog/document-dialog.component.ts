@@ -404,19 +404,20 @@ export class DocumentDialogComponent implements OnInit, AfterViewInit, OnDestroy
       console.log('Relationship Details Data:', data.relationshipDetails);
       console.log('Dispute Codes List:', data.disputeCodesList);
       
-      // Format the RateDate for the datepicker if it exists
-      let formattedRateDate = data.relationshipDetails?.RateDate.replace(' ', 'T') || '';
+      // Format the RateDate for the datepicker if it exists (null = empty picker, no parse error)
+      const formattedRateDate = data.relationshipDetails?.RateDate
+        ? data.relationshipDetails.RateDate.replace(' ', 'T')
+        : null;
       
-      // Ensure NoBuyDisputeKey is properly set (convert to string if numeric)
-      const noBuyValue = data.relationshipDetails.NoBuyDisputeKey !== null && 
-                         data.relationshipDetails.NoBuyDisputeKey !== undefined 
-                         ? String(data.relationshipDetails.NoBuyDisputeKey) 
-                         : '';
+      // Ensure NoBuyDisputeKey is properly set (convert to string; preserve 0)
+      const noBuyValue = data.relationshipDetails.NoBuyDisputeKey != null
+        ? String(data.relationshipDetails.NoBuyDisputeKey)
+        : '';
       
       this.relationshipDetailsForm = this.fb.group({
-        CredExpireMos: [data.relationshipDetails.CredExpireMos || '', [Validators.min(0)]],
+        CredExpireMos: [data.relationshipDetails.CredExpireMos ?? '', [Validators.min(0)]],
         RateDate: [formattedRateDate],
-        CreditLimit: [data.relationshipDetails.CreditLimit || '', [Validators.min(0)]],
+        CreditLimit: [data.relationshipDetails.CreditLimit ?? '', [Validators.min(0)]],
         NoBuyDisputeKey: [noBuyValue]
       });
       

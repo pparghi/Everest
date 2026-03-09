@@ -1332,11 +1332,11 @@ export class TicketingAnalysisComponent implements OnInit {
           AgingKey: this.currentRelationshipData?.AgingKey || 'N/A',
           CredAppBy: this.currentRelationshipData?.CredAppBy || 'N/A',
           CredExpireDate: this.currentRelationshipData?.CredExpireDate || 'N/A',
-          CredExpireMos: this.currentRelationshipData?.CredExpireMos || 'N/A',
+          CredExpireMos: this.currentRelationshipData?.CredExpireMos ?? null,
           NoBuyDesc: this.currentRelationshipData?.NoBuyDesc || 'N/A',
-          RateDate: this.currentRelationshipData?.RateDate || 'N/A',
-          CreditLimit: this.currentRelationshipData?.CreditLimit || 'N/A',
-          NoBuyDisputeKey: this.currentRelationshipData?.NoBuyDisputeKey || 'N/A'
+          RateDate: this.currentRelationshipData?.RateDate || null,
+          CreditLimit: this.currentRelationshipData?.CreditLimit ?? null,
+          NoBuyDisputeKey: this.currentRelationshipData?.NoBuyDisputeKey ?? null
         },
         disputeCodesList: this.disputeCodesList
       }
@@ -1373,7 +1373,7 @@ export class TicketingAnalysisComponent implements OnInit {
       processedData.creditLimit,
       this.currentUser.toUpperCase(),
       processedData.rateDate,
-      this.currentRelationshipData.credExpireDate || '',
+      this.currentRelationshipData.CredExpireDate || '',
       processedData.credExpireMos,
       this.getRelationshipNoBuyDescription(''+processedData.noBuyDisputeKey),
       processedData.noBuyDisputeKey
@@ -1383,9 +1383,6 @@ export class TicketingAnalysisComponent implements OnInit {
 
         // clear relationshiup data cache
         this.cacheService.removeByPattern('api/getRelationshipDataList?');
-        
-        // Update local data
-        this.currentRelationshipData = { ...this.currentRelationshipData, ...formData };
         
         // Refresh relationship data
         this.getRelationshipData(this.ticketData.ClientKey, this.ticketData.DebtorKey);
@@ -2812,7 +2809,7 @@ export class TicketingAnalysisComponent implements OnInit {
 
   // helper method to get relationship nobuy description by code
   getRelationshipNoBuyDescription(code: string): string {
-    const noBuy = this.disputeCodesList.find(item => item.DisputeCodeKey === code);
+    const noBuy = this.disputeCodesList.find(item => String(item.DisputeCodeKey) === code);
     return noBuy ? noBuy.DisputeCode : '';
   }
 
