@@ -413,7 +413,7 @@ export class TicketingComponent {
 
         const dialogObj = {
           width: '1080px',
-          maxWidth: 'none',
+          maxWidth: '95vw',
           height: 'auto',
           panelClass: 'custom-dialog-container',
           data: {
